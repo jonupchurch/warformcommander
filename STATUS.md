@@ -1,4 +1,4 @@
-# Project Status — Warframe Commander
+# Project Status — Warform Commander
 
 > Living snapshot of where the project is. Update it as phases and features
 > move. It complements `CHANGELOG.md` (what shipped) by capturing the
@@ -6,8 +6,11 @@
 
 ## Current phase
 
-**Bootstrapping.** The repo is scaffolded and the spec-driven `ai-tools`
-toolkit is in place. No product feature has been specified or built yet.
+**Bootstrapping.** The repo is scaffolded, the spec-driven `ai-tools` toolkit
+is in place, and a Next.js (App Router) application shell is standing and
+building. Deployment is wired: the repo is git-connected to the Vercel project
+`jupchurch-7994s-projects/warformcommander`, so pushes to `main` auto-deploy.
+No product feature has been specified or built yet.
 
 Per the constitution's **Principle VII (plan the whole feature set first)**,
 the next milestone is to spec and plan the *entire* initial feature set
@@ -19,13 +22,15 @@ before implementing any single feature.
 - [x] `.gitignore` for Next.js (+ Playwright/vitest artifacts, spec-kit local state).
 - [x] `ai-tools` spec-kit toolkit seeded (`.specify/`, `.claude/`, `stacks/`, `CLAUDE.md`, `AGENTS.md`, `MANIFEST.md`).
 - [x] Process docs created (`CHANGELOG.md`, `STATUS.md`).
+- [x] Next.js 16 (App Router) app scaffold — TypeScript, Tailwind CSS v4, ESLint, Turbopack, `@/*` alias. Verified with a clean `next build`.
+- [x] Linked and git-connected to the Vercel project `jupchurch-7994s-projects/warformcommander`.
 
 ## Next up
 
-1. **Establish/confirm the project constitution** — review `.specify/memory/constitution.md`; run `speckit-constitution` if project-specific principles are needed.
-2. **Define the game concept & initial feature set** — a short pitch: what Warframe Commander *is*, core loop, and the first slice of features.
-3. **Plan the whole set** — `speckit-specify` → `speckit-plan` across every initial feature (Principle VII) before writing implementation code.
-4. **Scaffold the Next.js app** — once the plan exists, stand up the App Router project to match it.
+1. **Confirm the first `main` deploy is green** on Vercel (the pre-scaffold toolkit-seed build errored with nothing to build; the scaffold push supersedes it).
+2. **Establish/confirm the project constitution** — review `.specify/memory/constitution.md`; run `speckit-constitution` if project-specific principles are needed.
+3. **Define the game concept & initial feature set** — a short pitch: what Warform Commander *is*, core loop, and the first slice of features.
+4. **Plan the whole set** — `speckit-specify` → `speckit-plan` across every initial feature (Principle VII) before writing implementation code.
 
 ## Feature set
 
@@ -38,8 +43,9 @@ defined and each feature moves through spec → plan → tasks → implement.
 
 ## Tech stack
 
-- **Framework:** Next.js (App Router) — see `stacks/nextjs.md`.
-- **Deployment target:** Vercel (assumed; confirm during planning).
+- **Framework:** Next.js 16 (App Router) — see `stacks/nextjs.md`.
+- **Styling:** Tailwind CSS v4 (shadcn/ui-ready). **Package manager:** npm.
+- **Deployment target:** Vercel — git-connected, auto-deploys on push to `main`.
 - **Testing:** unit tests + Playwright e2e (constitution Principle VIII).
 
 ## How to maintain this file

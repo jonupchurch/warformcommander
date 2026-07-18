@@ -59,3 +59,6 @@ next-env.d.ts
 # ships only the engine).
 .claude/settings.local.json
 .specify/feature.json
+
+.vercel
+.env*

@@ -16,5 +16,10 @@ once it reaches a released version. Until then, everything lives under
   commands, and `speckit-*` skills, the `stacks/` convention packs, and the
   always-on operating context (`CLAUDE.md`, `AGENTS.md`, `MANIFEST.md`).
 - Project process docs: `CHANGELOG.md` and `STATUS.md`.
+- Next.js 16 (App Router) application scaffold — TypeScript, Tailwind CSS v4,
+  ESLint, Turbopack; `app/` at the repo root with the `@/*` import alias.
+  Verified with a clean `next build`.
+- Linked the repository to the Vercel project
+  `jupchurch-7994s-projects/warformcommander` (Next.js framework preset).
 
-[Unreleased]: https://github.com/jonupchurch/warframecommander/commits/main
+[Unreleased]: https://github.com/jonupchurch/warformcommander/commits/main
