@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@500;600;700;800;900&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #06080b; color: #c4ccd6; font-family: 'Archivo', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #2ad4ff; text-decoration: none; }
+  ::-webkit-scrollbar { width: 9px; height: 9px; }
+  ::-webkit-scrollbar-thumb { background: #1a2028; border-radius: 6px; }
+</style>
+</helmet>
+
+<div style="display:flex;flex-direction:column;min-height:100vh;">
+
+  <!-- top bar -->
+  <header style="display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid rgba(120,140,160,.1);background:#070a0e;flex-shrink:0;position:sticky;top:0;z-index:40;">
+    <div style="display:flex;align-items:center;gap:28px;">
+      <div style="display:flex;align-items:center;gap:11px;">
+        <svg width="32" height="20" viewBox="0 0 160 100" fill="none"><polygon points="8,18 8,82 46,50" fill="rgba(42,212,255,.2)" stroke="#2ad4ff" stroke-width="7"></polygon><polygon points="152,18 152,82 114,50" fill="rgba(255,47,176,.2)" stroke="#ff2fb0" stroke-width="7"></polygon><line x1="80" y1="16" x2="80" y2="84" stroke="#eef3f8" stroke-width="7"></line></svg>
+        <span style="font-family:'Archivo Expanded',sans-serif;font-weight:900;font-size:15px;letter-spacing:.02em;color:#eef3f8;">WARFORM</span>
+      </div>
+      <nav style="display:flex;gap:6px;">
+        <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;color:#8b97a6;padding:8px 14px;">GARAGE</span>
+        <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;color:#06080b;background:#2ad4ff;padding:8px 14px;border-radius:7px;">ARENA</span>
+        <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;color:#8b97a6;padding:8px 14px;">LADDER</span>
+        <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;color:#8b97a6;padding:8px 14px;">PRACTICE</span>
+      </nav>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
+        <span style="font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:13px;color:#eef3f8;">CMDR_JUPCHURCH</span>
+        <span style="font-family:'Space Mono',monospace;font-size:11px;color:#ff8c1a;">GOLD III · 1486 MMR</span>
+      </div>
+      <div style="width:38px;height:38px;border-radius:9px;border:1px solid rgba(42,212,255,.4);background:#0b0f15;display:flex;align-items:center;justify-content:center;">
+        <svg width="22" height="14" viewBox="0 0 160 100" fill="none"><polygon points="8,18 8,82 46,50" fill="none" stroke="#2ad4ff" stroke-width="8"></polygon><polygon points="152,18 152,82 114,50" fill="none" stroke="#ff2fb0" stroke-width="8"></polygon><line x1="80" y1="16" x2="80" y2="84" stroke="#eef3f8" stroke-width="8"></line></svg>
+      </div>
+    </div>
+  </header>
+
+  <div style="flex:1;padding:26px 32px 40px;max-width:1360px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:22px;">
+
+    <!-- MATCHUP HEADER -->
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:stretch;">
+      <!-- your deployment -->
+      <div style="display:flex;flex-direction:column;gap:12px;padding:20px;border:1px solid rgba(42,212,255,.22);border-radius:14px;background:linear-gradient(180deg,rgba(42,212,255,.05),transparent);min-width:0;">
+        <span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.22em;color:#2ad4ff;">YOUR DEPLOYMENT</span>
+        <div style="position:relative;">
+          <button onClick="{{ toggleDrop }}" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;border:1px solid rgba(120,140,160,.3);border-radius:10px;background:#0b0f15;cursor:pointer;color:#eef3f8;">
+            <span style="display:flex;align-items:center;gap:10px;">
+              <span style="width:8px;height:8px;border-radius:50%;background:#2ad4ff;box-shadow:0 0 8px #2ad4ff;"></span>
+              <span style="font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:15px;">{{ curName }}</span>
+            </span>
+            <span style="font-family:'Space Mono',monospace;font-size:12px;color:#8b97a6;">▾</span>
+          </button>
+          <sc-if value="{{ dropOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:50;display:flex;flex-direction:column;gap:4px;padding:6px;border:1px solid rgba(120,140,160,.25);border-radius:10px;background:#0d1218;box-shadow:0 20px 50px rgba(0,0,0,.6);">
+              <sc-for list="{{ squadOpts }}" as="o" hint-placeholder-count="3">
+                <div onClick="{{ o.onPick }}" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 12px;border-radius:8px;background: {{ o.bg }};cursor:pointer;">
+                  <span style="font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:13px;color:#eef3f8;">{{ o.name }}</span>
+                  <span style="font-family:'Space Mono',monospace;font-size:11px;color:#8b97a6;">PWR {{ o.power }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <span style="font-family:'Space Mono',monospace;font-size:12px;color:#8b97a6;">PWR <span style="color:#2ad4ff;">{{ curPower }}</span></span>
+          <span style="width:1px;height:12px;background:rgba(120,140,160,.3);"></span>
+          <span style="font-family:'Space Mono',monospace;font-size:12px;color:#8b97a6;">5 UNITS</span>
+        </div>
+      </div>
+
+      <!-- vs -->
+      <div style="display:flex;align-items:center;justify-content:center;padding:0 6px;">
+        <span style="font-family:'Archivo Expanded',sans-serif;font-weight:900;font-size:26px;color:#3d4652;letter-spacing:.05em;">VS</span>
+      </div>
+
+      <!-- enemy -->
+      <div style="display:flex;flex-direction:column;gap:12px;padding:20px;border:1px solid rgba(255,47,176,.22);border-radius:14px;background:linear-gradient(180deg,rgba(255,47,176,.05),transparent);min-width:0;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.22em;color:#ff5da8;">ENEMY DEFENSE</span>
+          <span style="font-family:'Space Mono',monospace;font-size:11px;color:#8b97a6;">{{ eRank }}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:38px;height:38px;border-radius:9px;border:1px solid rgba(255,47,176,.4);background:#0b0f15;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="20" height="20" viewBox="0 0 120 120" fill="none"><polygon points="60,10 110,60 60,110 10,60" fill="rgba(255,47,176,.16)" stroke="#ff2fb0" stroke-width="5"></polygon></svg>
+          </div>
+          <span style="font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:17px;color:#eef3f8;">{{ eName }}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <span style="font-family:'Space Mono',monospace;font-size:12px;color:#8b97a6;">PWR <span style="color:#ff5da8;">{{ ePower }}</span></span>
+          <span style="width:1px;height:12px;background:rgba(120,140,160,.3);"></span>
+          <span style="font-family:'Space Mono',monospace;font-size:12px;color:#8b97a6;">RECORD <span style="color:#2ad4ff;">{{ recW }}W</span> – <span style="color:#ff5da8;">{{ recL }}L</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- BATTLEFIELD -->
+    <div style="border:1px solid rgba(120,140,160,.14);border-radius:16px;overflow:hidden;background:radial-gradient(80% 120% at 0% 50%,rgba(42,212,255,.06),transparent 55%),radial-gradient(80% 120% at 100% 50%,rgba(255,47,176,.06),transparent 55%),repeating-linear-gradient(0deg,transparent 0 27px,rgba(120,140,160,.04) 27px 28px),repeating-linear-gradient(90deg,transparent 0 27px,rgba(120,140,160,.04) 27px 28px),#070a0e;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-bottom:1px solid rgba(120,140,160,.1);">
+        <span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.18em;color:#2ad4ff;">◤ YOUR FORCES</span>
+        <span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.18em;color:#5a6472;">BATTLEFIELD · 4 ZONES</span>
+        <span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.18em;color:#ff5da8;">ENEMY FORCES ◥</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 2px 1fr;gap:0;min-height:420px;">
+
+        <!-- PLAYER SIDE -->
+        <div style="display:flex;flex-direction:column;gap:10px;padding:20px;min-width:0;">
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid rgba(123,92,255,.25);border-radius:10px;background:rgba(123,92,255,.05);min-height:64px;">
+            <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.16em;color:#7b5cff;writing-mode:vertical-rl;transform:rotate(180deg);">AIR</span>
+            <div style="flex:1;display:flex;gap:12px;justify-content:flex-end;flex-wrap:wrap;">
+              <sc-for list="{{ pSide.air }}" as="u" hint-placeholder-count="1">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#8fe6ff;">
+                  <div style="width:52px;height:33px;border:1px solid rgba(42,212,255,.35);border-radius:8px;background:rgba(42,212,255,.06);padding:3px;"><dc-import name="UnitIcon" type="{{ u.type }}" hint-size="46px,27px" style="width:100%;height:100%;"></dc-import></div>
+                  <span style="font-family:'Space Mono',monospace;font-size:9px;color:#8fe6ff;">{{ u.variant }}</span>
+                </div>
+              </sc-for>
+              <sc-if value="{{ pSide.airEmpty }}" hint-placeholder-val="{{ true }}"><span style="font-family:'Space Mono',monospace;font-size:11px;color:#3d4652;align-self:center;">no air</span></sc-if>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;flex:1;">
+            <sc-for list="{{ pSide.ground }}" as="col" hint-placeholder-count="3">
+              <div style="display:flex;flex-direction:column;border:1px solid rgba(120,140,160,.1);border-radius:10px;background:rgba(11,15,21,.6);overflow:hidden;">
+                <div style="flex:1;display:flex;flex-direction:column;gap:8px;justify-content:flex-end;padding:12px 10px;">
+                  <sc-for list="{{ col.units }}" as="u" hint-placeholder-count="2">
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#8fe6ff;">
+                      <div style="width:100%;max-width:64px;height:34px;border:1px solid rgba(42,212,255,.35);border-radius:8px;background:rgba(42,212,255,.06);padding:3px;"><dc-import name="UnitIcon" type="{{ u.type }}" hint-size="58px,28px" style="width:100%;height:100%;"></dc-import></div>
+                      <span style="font-family:'Space Mono',monospace;font-size:9px;color:#8fe6ff;">{{ u.variant }}</span>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ col.isEmpty }}" hint-placeholder-val="{{ false }}"><span style="font-family:'Space Mono',monospace;font-size:10px;color:#3d4652;text-align:center;">—</span></sc-if>
+                </div>
+                <div style="padding:7px;text-align:center;background:rgba(42,212,255,.06);border-top:1px solid rgba(42,212,255,.12);"><span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.12em;color:#8b97a6;">{{ col.name }}</span></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- SEAM -->
+        <div style="background:linear-gradient(180deg,transparent,rgba(42,212,255,.5),rgba(255,47,176,.5),transparent);box-shadow:0 0 14px rgba(120,140,160,.3);"></div>
+
+        <!-- ENEMY SIDE -->
+        <div style="display:flex;flex-direction:column;gap:10px;padding:20px;min-width:0;">
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid rgba(255,47,176,.22);border-radius:10px;background:rgba(255,47,176,.05);min-height:64px;">
+            <div style="flex:1;display:flex;gap:12px;justify-content:flex-start;flex-wrap:wrap;">
+              <sc-for list="{{ eSide.air }}" as="u" hint-placeholder-count="1">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#ff6b8f;">
+                  <div style="width:52px;height:33px;border:1px solid rgba(255,107,143,.4);border-radius:8px;background:rgba(255,47,176,.06);padding:3px;"><dc-import name="UnitIcon" type="{{ u.type }}" hint-size="46px,27px" style="width:100%;height:100%;"></dc-import></div>
+                  <span style="font-family:'Space Mono',monospace;font-size:9px;color:#ff6b8f;">{{ u.variant }}</span>
+                </div>
+              </sc-for>
+              <sc-if value="{{ eSide.airEmpty }}" hint-placeholder-val="{{ true }}"><span style="font-family:'Space Mono',monospace;font-size:11px;color:#3d4652;align-self:center;">no air</span></sc-if>
+            </div>
+            <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.16em;color:#ff5da8;writing-mode:vertical-rl;">AIR</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;flex:1;">
+            <sc-for list="{{ eSide.ground }}" as="col" hint-placeholder-count="3">
+              <div style="display:flex;flex-direction:column;border:1px solid rgba(120,140,160,.1);border-radius:10px;background:rgba(11,15,21,.6);overflow:hidden;">
+                <div style="flex:1;display:flex;flex-direction:column;gap:8px;justify-content:flex-end;padding:12px 10px;">
+                  <sc-for list="{{ col.units }}" as="u" hint-placeholder-count="2">
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#ff6b8f;">
+                      <div style="width:100%;max-width:64px;height:34px;border:1px solid rgba(255,107,143,.4);border-radius:8px;background:rgba(255,47,176,.06);padding:3px;"><dc-import name="UnitIcon" type="{{ u.type }}" hint-size="58px,28px" style="width:100%;height:100%;"></dc-import></div>
+                      <span style="font-family:'Space Mono',monospace;font-size:9px;color:#ff6b8f;">{{ u.variant }}</span>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ col.isEmpty }}" hint-placeholder-val="{{ false }}"><span style="font-family:'Space Mono',monospace;font-size:10px;color:#3d4652;text-align:center;">—</span></sc-if>
+                </div>
+                <div style="padding:7px;text-align:center;background:rgba(255,47,176,.06);border-top:1px solid rgba(255,47,176,.12);"><span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.12em;color:#8b97a6;">{{ col.name }}</span></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS ROW -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <!-- your overall -->
+      <div style="display:flex;flex-direction:column;gap:16px;padding:22px;border:1px solid rgba(120,140,160,.14);border-radius:14px;background:#0b0f15;">
+        <span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.22em;color:#2ad4ff;">YOUR SQUAD · OVERALL</span>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;">
+          <div style="display:flex;flex-direction:column;gap:4px;padding:14px 12px;border:1px solid rgba(120,140,160,.12);border-radius:10px;background:#080b10;">
+            <span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;color:#5a6472;">TOTAL HULL</span>
+            <span style="font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:20px;color:#eef3f8;">{{ y.hull }}</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;padding:14px 12px;border:1px solid rgba(120,140,160,.12);border-radius:10px;background:#080b10;">
+            <span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;color:#5a6472;">AVG ARMOR</span>
+            <span style="font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:20px;color:#eef3f8;">{{ y.armor }}</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;padding:14px 12px;border:1px solid rgba(120,140,160,.12);border-radius:10px;background:#080b10;">
+            <span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;color:#5a6472;">AVG SHIELD</span>
+            <span style="font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:20px;color:#eef3f8;">{{ y.shield }}</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;padding:14px 12px;border:1px solid rgba(120,140,160,.12);border-radius:10px;background:#080b10;">
+            <span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;color:#5a6472;">TOTAL DMG</span>
+            <span style="font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:20px;color:#eef3f8;">{{ y.damage }}</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <sc-for list="{{ y.tags }}" as="t" hint-placeholder-count="3">
+            <span style="font-family:'Space Mono',monospace;font-weight:700;font-size:10px;letter-spacing:.1em;color: {{ t.color }};border:1px solid {{ t.border }};border-radius:5px;padding:5px 9px;">{{ t.label }}</span>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- enemy intel + history -->
+      <div style="display:flex;flex-direction:column;gap:16px;padding:22px;border:1px solid rgba(120,140,160,.14);border-radius:14px;background:#0b0f15;">
+        <span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.22em;color:#ff5da8;">ENEMY INTEL</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <sc-for list="{{ eTags }}" as="t" hint-placeholder-count="3">
+            <span style="font-family:'Space Mono',monospace;font-weight:700;font-size:10px;letter-spacing:.1em;color: {{ t.color }};border:1px solid {{ t.border }};border-radius:5px;padding:5px 9px;">{{ t.label }}</span>
+          </sc-for>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.2em;color:#5a6472;">HISTORY VS {{ eName }}</span>
+          <span style="font-family:'Space Mono',monospace;font-size:12px;color:#8b97a6;"><span style="color:#2ad4ff;">{{ recW }}W</span> – <span style="color:#ff5da8;">{{ recL }}L</span></span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:7px;">
+          <sc-for list="{{ history }}" as="h" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 13px;border:1px solid rgba(120,140,160,.1);border-radius:9px;background:#080b10;">
+              <span style="display:flex;align-items:center;gap:10px;">
+                <span style="font-family:'Space Mono',monospace;font-weight:700;font-size:11px;width:20px;height:20px;display:flex;align-items:center;justify-content:center;border-radius:5px;color: {{ h.fg }};background: {{ h.bg }};">{{ h.tag }}</span>
+                <span style="font-family:'Archivo',sans-serif;font-weight:600;font-size:13px;color:#e9eef4;">{{ h.result }}</span>
+              </span>
+              <span style="display:flex;align-items:center;gap:12px;">
+                <span style="font-family:'Space Mono',monospace;font-size:12px;color:#c4ccd6;">{{ h.score }}</span>
+                <span style="font-family:'Space Mono',monospace;font-size:11px;color:#5a6472;">{{ h.when }}</span>
+              </span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEPLOY -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:6px;flex-wrap:wrap;">
+      <button style="display:flex;align-items:center;justify-content:center;gap:10px;padding:17px 54px;border:none;border-radius:11px;background:#2ad4ff;color:#06080b;font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:16px;letter-spacing:.02em;cursor:pointer;box-shadow:0 0 28px rgba(42,212,255,.35);">DEPLOY · BEST OF 3 →</button>
+      <button style="display:flex;align-items:center;justify-content:center;gap:9px;padding:17px 30px;border:1px solid rgba(120,140,160,.3);border-radius:11px;background:transparent;color:#c4ccd6;font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:14px;letter-spacing:.02em;cursor:pointer;">↻ SKIP OPPONENT</button>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const mk = (type, variant, zone, dmg, hull, armor, shield, damage) =>
+      ({ type, variant, zone, dmg, hull, armor, shield, damage });
+    this.squads = [
+      { name: 'Iron Wall', power: 1420, units: [
+        mk('heavytank','Bulwark','Front','KINETIC',3000,90,6,52),
+        mk('heavytank','Grizzly','Front','KINETIC',2600,82,8,74),
+        mk('rocketarty','Aegis','Middle','EXPLOSIVE',1500,34,20,66),
+        mk('artillery','Longbow','Rear','EXPLOSIVE',1200,28,10,88),
+        mk('support','Warden','Rear','SUPPORT',1400,46,40,12),
+      ]},
+      { name: 'Sky Lance', power: 1380, units: [
+        mk('heli','Gunship','Air','EXPLOSIVE',900,20,12,82),
+        mk('heli','Interceptor','Air','EXPLOSIVE',780,14,10,70),
+        mk('mech','Striker','Front','ENERGY',1300,34,18,84),
+        mk('lighttank','Scout','Front','KINETIC',900,24,12,46),
+        mk('rocketarty','Sentry','Middle','EXPLOSIVE',1500,32,18,64),
+      ]},
+      { name: 'Kite Storm', power: 1310, units: [
+        mk('lighttank','Outrider','Front','KINETIC',820,18,14,44),
+        mk('mech','Vanguard','Front','FLEX',1500,44,22,68),
+        mk('lighttank','Scout','Middle','KINETIC',900,24,12,46),
+        mk('artillery','Marksman','Rear','EXPLOSIVE',1150,26,10,80),
+        mk('support','Medic','Rear','SUPPORT',1200,30,44,10),
+      ]},
+    ];
+    this.enemy = { name: 'SPECTRE-9', rank: 'PLAT I', power: 1455, units: [
+      mk('heavytank','Grizzly','Front','KINETIC',2600,82,8,74),
+      mk('mech','Vanguard','Front','FLEX',1500,44,22,68),
+      mk('rocketarty','Deluge','Middle','EXPLOSIVE',1450,30,16,72),
+      mk('artillery','Siege','Rear','EXPLOSIVE',1050,24,8,96),
+      mk('support','Command Post','Rear','SUPPORT',900,26,50,8),
+    ]};
+    this.hist = [
+      { win: true, result: 'Victory · Conquest', score: '2 – 1', when: '2d ago' },
+      { win: false, result: 'Defeat · Time', score: '1 – 2', when: '5d ago' },
+      { win: true, result: 'Victory · Conquest', score: '2 – 0', when: '1w ago' },
+      { win: true, result: 'Victory · Time', score: '2 – 1', when: '2w ago' },
+    ];
+    this.state = { deploy: 0, open: false };
+  }
+
+  dmgColor(t) { return ({ KINETIC:'#2ad4ff', ENERGY:'#ff8c1a', EXPLOSIVE:'#ff5da8', SUPPORT:'#8b97a6', FLEX:'#c4ccd6' })[t] || '#8b97a6'; }
+
+  side(units, order) {
+    const air = units.filter(u => u.zone === 'Air').map(u => ({ type: u.type, variant: u.variant }));
+    const ground = order.map(name => {
+      const us = units.filter(u => u.zone === name);
+      return { name, isEmpty: us.length === 0, units: us.map(u => ({ type: u.type, variant: u.variant })) };
+    });
+    return { air, airEmpty: air.length === 0, ground };
+  }
+
+  agg(units) {
+    const n = units.length;
+    const sum = k => units.reduce((a, u) => a + u[k], 0);
+    return {
+      hull: sum('hull').toLocaleString(),
+      armor: Math.round(sum('armor') / n),
+      shield: Math.round(sum('shield') / n),
+      damage: sum('damage'),
+    };
+  }
+
+  renderVals() {
+    const S = this.state;
+    const famColor = { KINETIC:'#2ad4ff', ENERGY:'#ff8c1a', EXPLOSIVE:'#ff5da8' };
+    const famBorder = { KINETIC:'rgba(42,212,255,.4)', ENERGY:'rgba(255,140,26,.4)', EXPLOSIVE:'rgba(255,93,168,.4)' };
+
+    const squadOpts = this.squads.map((s, i) => ({
+      name: s.name, power: s.power,
+      bg: i === S.deploy ? 'rgba(42,212,255,.12)' : 'transparent',
+      onPick: () => this.setState({ deploy: i, open: false }),
+    }));
+
+    const cs = this.squads[S.deploy];
+    const en = this.enemy;
+
+    const yAgg = this.agg(cs.units);
+    const yFams = ['KINETIC','ENERGY','EXPLOSIVE'].filter(f => cs.units.some(u => u.dmg === f));
+    const yTags = yFams.map(f => ({ label: f, color: famColor[f], border: famBorder[f] }));
+    if (cs.units.some(u => u.type === 'rocketarty')) yTags.push({ label: 'AA READY', color: '#7b5cff', border: 'rgba(123,92,255,.4)' });
+    else yTags.push({ label: 'NO AA', color: '#ff5da8', border: 'rgba(255,93,168,.4)' });
+
+    const eTags = [];
+    if (en.units.some(u => u.type === 'heavytank')) eTags.push({ label: 'HEAVY ARMOR', color: '#c4ccd6', border: 'rgba(120,140,160,.35)' });
+    if (en.units.some(u => u.type === 'heli')) eTags.push({ label: 'AIR THREAT', color: '#7b5cff', border: 'rgba(123,92,255,.4)' });
+    else eTags.push({ label: 'NO AIR', color: '#8b97a6', border: 'rgba(120,140,160,.35)' });
+    if (en.units.some(u => u.type === 'artillery' || u.type === 'rocketarty')) eTags.push({ label: 'SIEGE BACKLINE', color: '#ff5da8', border: 'rgba(255,93,168,.4)' });
+
+    const recW = this.hist.filter(h => h.win).length;
+    const recL = this.hist.length - recW;
+    const history = this.hist.map(h => ({
+      tag: h.win ? 'W' : 'L',
+      fg: h.win ? '#06080b' : '#eef3f8',
+      bg: h.win ? '#2ad4ff' : 'rgba(255,93,168,.25)',
+      result: h.result, score: h.score, when: h.when,
+    }));
+
+    return {
+      squadOpts, curName: cs.name, curPower: cs.power,
+      dropOpen: S.open, toggleDrop: () => this.setState({ open: !S.open }),
+      pSide: this.side(cs.units, ['Rear', 'Middle', 'Front']),
+      eSide: this.side(en.units, ['Front', 'Middle', 'Rear']),
+      y: { ...yAgg, tags: yTags },
+      eName: en.name, eRank: en.rank, ePower: en.power, eTags,
+      recW, recL, history,
+    };
+  }
+}
+</script>
+</body>
+</html>
