@@ -12,6 +12,10 @@
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 
 # next.js
 /.next/
@@ -48,3 +52,10 @@ next-env.d.ts
 
 # turbo
 .turbo
+
+# spec-kit toolkit — machine-local / per-session state only.
+# specs/ is intentionally NOT ignored: the specifications are the project's
+# own deliverable and belong in history (unlike the ai-tools template, which
+# ships only the engine).
+.claude/settings.local.json
+.specify/feature.json
