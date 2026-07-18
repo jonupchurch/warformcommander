@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@500;600;700;800;900&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #06080b; color: #c4ccd6; font-family: 'Archivo', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #c4ccd6; text-decoration: none; }
+  a:hover { color: #2ad4ff; }
+</style>
+</helmet>
+<div style="position:absolute;left:-9999px;top:0;width:0;height:0;overflow:hidden;pointer-events:none;">
+  <x-import component-from-global-scope="image-slot" from="./image-slot.js" hint-size="1px,1px"></x-import>
+</div>
+
+<!-- ===== NAV ===== -->
+<header style="position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:18px 44px;background:rgba(6,8,11,.8);backdrop-filter:blur(10px);border-bottom:1px solid rgba(120,140,160,.1);">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <svg width="36" height="23" viewBox="0 0 160 100" fill="none"><polygon points="8,18 8,82 46,50" fill="rgba(42,212,255,.2)" stroke="#2ad4ff" stroke-width="7"></polygon><polygon points="152,18 152,82 114,50" fill="rgba(255,47,176,.2)" stroke="#ff2fb0" stroke-width="7"></polygon><line x1="80" y1="16" x2="80" y2="84" stroke="#eef3f8" stroke-width="7"></line></svg>
+    <span style="font-family:'Archivo Expanded',sans-serif;font-weight:900;font-size:17px;letter-spacing:.02em;color:#eef3f8;">WARFORM</span>
+  </div>
+  <nav style="display:flex;align-items:center;gap:32px;">
+    <a href="#overview" style="font-size:14px;font-weight:500;">Overview</a>
+    <a href="#news" style="font-size:14px;font-weight:500;">News</a>
+    <a href="#roadmap" style="font-size:14px;font-weight:500;">Roadmap</a>
+    <a href="#community" style="font-size:14px;font-weight:500;">Community</a>
+    <a href="#signup" style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;color:#06080b;background:#2ad4ff;padding:10px 18px;border-radius:8px;box-shadow:0 0 18px rgba(42,212,255,.25);">Wishlist</a>
+  </nav>
+</header>
+
+<!-- ===== HERO ===== -->
+<section style="position:relative;overflow:hidden;padding:96px 44px 84px;background:radial-gradient(120% 90% at 15% 0%,rgba(42,212,255,.1),transparent 55%),radial-gradient(120% 90% at 100% 100%,rgba(255,47,176,.09),transparent 55%),repeating-linear-gradient(0deg,transparent 0 33px,rgba(120,140,160,.035) 33px 34px),repeating-linear-gradient(90deg,transparent 0 33px,rgba(120,140,160,.035) 33px 34px),#070a0e;">
+  <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.13) 0 1px,transparent 1px 3px);opacity:.4;pointer-events:none;"></div>
+  <div style="position:relative;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;max-width:1240px;margin:0 auto;">
+    <div style="display:flex;flex-direction:column;gap:26px;">
+      <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.28em;color:#2ad4ff;">SCI-FI TACTICS · ASYNC PVP · NON-P2W</span>
+      <h1 style="margin:0;font-family:'Archivo Expanded',sans-serif;font-weight:900;font-size:64px;line-height:.94;letter-spacing:-.02em;color:#eef3f8;text-shadow:0 0 30px rgba(42,212,255,.16);">PLAN THE<br>BATTLE.</h1>
+      <p style="margin:0;max-width:480px;font-size:19px;line-height:1.55;color:#c4ccd6;text-wrap:pretty;">Assemble five machines, kit them, dial in their behavior, and position them across four zones. Then watch the fight win itself. <span style="color:#8b97a6;">Skill lives in the plan — never the wallet.</span></p>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:6px;">
+        <a href="#overview" style="font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;color:#06080b;background:#2ad4ff;padding:15px 28px;border-radius:9px;box-shadow:0 0 22px rgba(42,212,255,.3);">How to Play</a>
+      </div>
+    </div>
+    <div style="position:relative;aspect-ratio:16/10;border:1px solid rgba(120,140,160,.18);border-radius:16px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5);">
+      <image-slot id="wf-hero-art" shape="rect" placeholder="KEY ART / GAMEPLAY TRAILER — drop image"></image-slot>
+    </div>
+  </div>
+</section>
+
+<!-- ===== OVERVIEW / PILLARS ===== -->
+<section id="overview" style="max-width:1240px;margin:0 auto;padding:88px 44px 20px;">
+  <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:36px;">
+    <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.28em;color:#5a6472;">WHAT IT IS</span>
+    <span style="height:1px;flex:1;background:linear-gradient(90deg,rgba(120,140,160,.3),transparent);"></span>
+  </div>
+  <h2 style="margin:0 0 44px;font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:38px;line-height:1.05;letter-spacing:-.01em;color:#eef3f8;max-width:720px;">A wargame where the thinking happens <span style="color:#2ad4ff;">before</span> the shooting starts.</h2>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px;">
+    <div style="display:flex;flex-direction:column;gap:12px;padding:28px 24px;border:1px solid rgba(120,140,160,.14);border-radius:14px;background:#0b0f15;">
+      <span style="font-family:'Space Mono',monospace;font-size:11px;color:#2ad4ff;">01</span>
+      <h3 style="margin:0;font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:17px;color:#eef3f8;">Non-P2W by design</h3>
+      <p style="margin:0;font-size:14px;line-height:1.55;color:#8b97a6;">Power is capped and lateral. Money buys looks and convenience — never dominance.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;padding:28px 24px;border:1px solid rgba(120,140,160,.14);border-radius:14px;background:#0b0f15;">
+      <span style="font-family:'Space Mono',monospace;font-size:11px;color:#ff8c1a;">02</span>
+      <h3 style="margin:0;font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:17px;color:#eef3f8;">Planning over twitch</h3>
+      <p style="margin:0;font-size:14px;line-height:1.55;color:#8b97a6;">Your edge is pre-battle decisions. A sharp newcomer can beat a sloppy veteran.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;padding:28px 24px;border:1px solid rgba(120,140,160,.14);border-radius:14px;background:#0b0f15;">
+      <span style="font-family:'Space Mono',monospace;font-size:11px;color:#7b5cff;">03</span>
+      <h3 style="margin:0;font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:17px;color:#eef3f8;">Depth from config</h3>
+      <p style="margin:0;font-size:14px;line-height:1.55;color:#8b97a6;">Variants, equipment, behavior dials and positioning — not a bloated roster to memorize.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;padding:28px 24px;border:1px solid rgba(120,140,160,.14);border-radius:14px;background:#0b0f15;">
+      <span style="font-family:'Space Mono',monospace;font-size:11px;color:#ff2fb0;">04</span>
+      <h3 style="margin:0;font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:17px;color:#eef3f8;">Content from players</h3>
+      <p style="margin:0;font-size:14px;line-height:1.55;color:#8b97a6;">Every defense you face is another player's plan. The ladder is never empty.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== NEWS ===== -->
+<section id="news" style="max-width:1240px;margin:0 auto;padding:80px 44px 20px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;">
+    <div style="display:flex;align-items:baseline;gap:16px;flex:1;">
+      <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.28em;color:#5a6472;">LATEST NEWS</span>
+      <span style="height:1px;flex:1;background:linear-gradient(90deg,rgba(120,140,160,.3),transparent);"></span>
+    </div>
+    <a href="#" style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;color:#2ad4ff;margin-left:24px;">ALL POSTS →</a>
+  </div>
+
+  <!-- featured -->
+  <article style="display:grid;grid-template-columns:1.1fr .9fr;gap:0;border:1px solid rgba(120,140,160,.14);border-radius:16px;overflow:hidden;background:#0b0f15;margin-bottom:20px;">
+    <div style="position:relative;min-height:300px;">
+      <image-slot id="wf-news-feat" shape="rect" placeholder="FEATURED POST IMAGE"></image-slot>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px;padding:40px;justify-content:center;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:.14em;color:#2ad4ff;border:1px solid rgba(42,212,255,.3);border-radius:5px;padding:5px 9px;">DEVLOG</span>
+        <span style="font-family:'Space Mono',monospace;font-size:12px;color:#5a6472;">2026 · 07 · 18</span>
+      </div>
+      <h3 style="margin:0;font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:28px;line-height:1.08;color:#eef3f8;">Combat is now a real-time tick simulation</h3>
+      <p style="margin:0;font-size:15px;line-height:1.6;color:#8b97a6;">Every machine acts on its own cooldown, so "slow-firing" and "fast-acting" are literal. Here's how the sim advances, why it's seeded and reproducible, and what that unlocks for the auto-balancer.</p>
+      <a href="#" style="font-family:'Archivo',sans-serif;font-weight:600;font-size:14px;color:#2ad4ff;margin-top:4px;">Read the update →</a>
+    </div>
+  </article>
+
+  <!-- grid of 3 -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
+    <article style="display:flex;flex-direction:column;border:1px solid rgba(120,140,160,.14);border-radius:14px;overflow:hidden;background:#0b0f15;">
+      <div style="position:relative;aspect-ratio:16/9;"><image-slot id="wf-news-1" shape="rect" placeholder="POST IMAGE"></image-slot></div>
+      <div style="display:flex;flex-direction:column;gap:12px;padding:24px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-family:'Space Mono',monospace;font-weight:700;font-size:10px;letter-spacing:.14em;color:#ff8c1a;border:1px solid rgba(255,140,26,.3);border-radius:5px;padding:4px 8px;">DESIGN</span>
+          <span style="font-family:'Space Mono',monospace;font-size:11px;color:#5a6472;">07 · 11</span>
+        </div>
+        <h3 style="margin:0;font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:18px;line-height:1.15;color:#eef3f8;">21 machines, no bloated roster</h3>
+        <p style="margin:0;font-size:13.5px;line-height:1.55;color:#8b97a6;">Seven types, three chassis each — and why depth comes from how you kit them, not how many you collect.</p>
+      </div>
+    </article>
+    <article style="display:flex;flex-direction:column;border:1px solid rgba(120,140,160,.14);border-radius:14px;overflow:hidden;background:#0b0f15;">
+      <div style="position:relative;aspect-ratio:16/9;"><image-slot id="wf-news-2" shape="rect" placeholder="POST IMAGE"></image-slot></div>
+      <div style="display:flex;flex-direction:column;gap:12px;padding:24px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-family:'Space Mono',monospace;font-weight:700;font-size:10px;letter-spacing:.14em;color:#7b5cff;border:1px solid rgba(123,92,255,.35);border-radius:5px;padding:4px 8px;">TECH</span>
+          <span style="font-family:'Space Mono',monospace;font-size:11px;color:#5a6472;">07 · 04</span>
+        </div>
+        <h3 style="margin:0;font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:18px;line-height:1.15;color:#eef3f8;">Proving fairness with Monte-Carlo</h3>
+        <p style="margin:0;font-size:13.5px;line-height:1.55;color:#8b97a6;">We run every matchup thousands of times to flag degenerate combos before players ever find them.</p>
+      </div>
+    </article>
+    <article style="display:flex;flex-direction:column;border:1px solid rgba(120,140,160,.14);border-radius:14px;overflow:hidden;background:#0b0f15;">
+      <div style="position:relative;aspect-ratio:16/9;"><image-slot id="wf-news-3" shape="rect" placeholder="POST IMAGE"></image-slot></div>
+      <div style="display:flex;flex-direction:column;gap:12px;padding:24px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-family:'Space Mono',monospace;font-weight:700;font-size:10px;letter-spacing:.14em;color:#ff2fb0;border:1px solid rgba(255,47,176,.3);border-radius:5px;padding:4px 8px;">COMMUNITY</span>
+          <span style="font-family:'Space Mono',monospace;font-size:11px;color:#5a6472;">06 · 27</span>
+        </div>
+        <h3 style="margin:0;font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:18px;line-height:1.15;color:#eef3f8;">Closed ladder testing opens soon</h3>
+        <p style="margin:0;font-size:13.5px;line-height:1.55;color:#8b97a6;">How the async arena stays populated from day one — and how to get an early invite.</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ===== ROADMAP ===== -->
+<section id="roadmap" style="max-width:1240px;margin:0 auto;padding:80px 44px 20px;">
+  <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:36px;">
+    <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.28em;color:#5a6472;">ROADMAP</span>
+    <span style="height:1px;flex:1;background:linear-gradient(90deg,rgba(120,140,160,.3),transparent);"></span>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <div style="padding:32px;border:1px solid rgba(42,212,255,.22);border-radius:16px;background:linear-gradient(180deg,rgba(42,212,255,.05),transparent);">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;"><span style="width:9px;height:9px;border-radius:50%;background:#2ad4ff;box-shadow:0 0 10px #2ad4ff;"></span><span style="font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:16px;color:#eef3f8;">IN V1 — BUILDING NOW</span></div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="display:flex;gap:12px;align-items:baseline;"><span style="color:#2ad4ff;font-family:'Space Mono',monospace;font-size:13px;">▸</span><span style="font-size:15px;color:#c4ccd6;">Real-time tick sim + Monte-Carlo auto-balancer</span></div>
+        <div style="display:flex;gap:12px;align-items:baseline;"><span style="color:#2ad4ff;font-family:'Space Mono',monospace;font-size:13px;">▸</span><span style="font-size:15px;color:#c4ccd6;">Full army toolset — every unit, variant &amp; module unlocked</span></div>
+        <div style="display:flex;gap:12px;align-items:baseline;"><span style="color:#2ad4ff;font-family:'Space Mono',monospace;font-size:13px;">▸</span><span style="font-size:15px;color:#c4ccd6;">Async PvP ladder with bracketed matchmaking</span></div>
+        <div style="display:flex;gap:12px;align-items:baseline;"><span style="color:#2ad4ff;font-family:'Space Mono',monospace;font-size:13px;">▸</span><span style="font-size:15px;color:#c4ccd6;">Practice-vs-AI sandbox</span></div>
+      </div>
+    </div>
+    <div style="padding:32px;border:1px solid rgba(120,140,160,.14);border-radius:16px;background:#0b0f15;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;"><span style="width:9px;height:9px;border-radius:50%;background:#6f7a8a;"></span><span style="font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:16px;color:#8b97a6;">LATER — ON THE BACKLOG</span></div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="display:flex;gap:12px;align-items:baseline;"><span style="color:#5a6472;font-family:'Space Mono',monospace;font-size:13px;">▸</span><span style="font-size:15px;color:#8b97a6;">PvE campaign, operations &amp; procedural skirmish</span></div>
+        <div style="display:flex;gap:12px;align-items:baseline;"><span style="color:#5a6472;font-family:'Space Mono',monospace;font-size:13px;">▸</span><span style="font-size:15px;color:#8b97a6;">Attack-fuel economy &amp; progression unlocks</span></div>
+        <div style="display:flex;gap:12px;align-items:baseline;"><span style="color:#5a6472;font-family:'Space Mono',monospace;font-size:13px;">▸</span><span style="font-size:15px;color:#8b97a6;">Cosmetics, battle pass &amp; Commanders</span></div>
+        <div style="display:flex;gap:12px;align-items:baseline;"><span style="color:#5a6472;font-family:'Space Mono',monospace;font-size:13px;">▸</span><span style="font-size:15px;color:#8b97a6;">Video tutorial &amp; onboarding</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SIGNUP / COMMUNITY ===== -->
+<section id="signup" style="max-width:1240px;margin:0 auto;padding:80px 44px;">
+  <div style="position:relative;overflow:hidden;border:1px solid rgba(120,140,160,.16);border-radius:20px;padding:64px 48px;background:radial-gradient(120% 140% at 0% 0%,rgba(42,212,255,.1),transparent 55%),radial-gradient(120% 140% at 100% 100%,rgba(255,47,176,.09),transparent 55%),#0a0e13;">
+    <div style="position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:20px;max-width:560px;margin:0 auto;">
+      <h2 style="margin:0;font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:34px;line-height:1.05;color:#eef3f8;">Join the community.</h2>
+      <p style="margin:0;font-size:16px;line-height:1.55;color:#8b97a6;">Jump into the conversation and help shape the closed ladder test.</p>
+      <div id="community" style="display:flex;gap:14px;margin-top:16px;flex-wrap:wrap;justify-content:center;">
+        <a href="#" style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.1em;color:#c4ccd6;border:1px solid rgba(120,140,160,.25);border-radius:8px;padding:10px 16px;">DISCORD</a>
+        <a href="#" style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.1em;color:#c4ccd6;border:1px solid rgba(120,140,160,.25);border-radius:8px;padding:10px 16px;">REDDIT</a>
+        <a href="#" style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.1em;color:#c4ccd6;border:1px solid rgba(120,140,160,.25);border-radius:8px;padding:10px 16px;">X / TWITTER</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer style="border-top:1px solid rgba(120,140,160,.1);background:#070a0e;">
+  <div style="max-width:1240px;margin:0 auto;padding:56px 44px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;">
+    <div style="display:flex;flex-direction:column;gap:14px;max-width:280px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <svg width="30" height="19" viewBox="0 0 160 100" fill="none"><polygon points="8,18 8,82 46,50" fill="none" stroke="#2ad4ff" stroke-width="8"></polygon><polygon points="152,18 152,82 114,50" fill="none" stroke="#ff2fb0" stroke-width="8"></polygon><line x1="80" y1="16" x2="80" y2="84" stroke="#eef3f8" stroke-width="8"></line></svg>
+        <span style="font-family:'Archivo Expanded',sans-serif;font-weight:900;font-size:15px;color:#eef3f8;">WARFORM COMMANDER</span>
+      </div>
+      <p style="margin:0;font-size:13px;line-height:1.55;color:#5a6472;">A non-pay-to-win sci-fi tactics wargame. Plan the battle; watch it win itself.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.2em;color:#5a6472;">GAME</span>
+      <a href="#overview" style="font-size:14px;">Overview</a>
+      <a href="#news" style="font-size:14px;">News</a>
+      <a href="#roadmap" style="font-size:14px;">Roadmap</a>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.2em;color:#5a6472;">COMMUNITY</span>
+      <a href="#" style="font-size:14px;">Discord</a>
+      <a href="#" style="font-size:14px;">Reddit</a>
+      <a href="#" style="font-size:14px;">X / Twitter</a>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.2em;color:#5a6472;">MORE</span>
+      <a href="#" style="font-size:14px;">Press kit</a>
+      <a href="#" style="font-size:14px;">Privacy</a>
+      <a href="#" style="font-size:14px;">Terms</a>
+    </div>
+  </div>
+  <div style="border-top:1px solid rgba(120,140,160,.08);padding:20px 44px;max-width:1240px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+    <span style="font-family:'Space Mono',monospace;font-size:11px;color:#3d4652;">© 2026 WARFORM COMMANDER</span>
+    <span style="font-family:'Space Mono',monospace;font-size:11px;color:#3d4652;">MADE FOR STRATEGISTS</span>
+  </div>
+</footer>
+</x-dc>
+</body>
+</html>

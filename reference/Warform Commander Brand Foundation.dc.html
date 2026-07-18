@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@500;600;700;800;900&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #06080b; color: #e9eef4; font-family: 'Archivo', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #2ad4ff; text-decoration: none; }
+  a:hover { color: #7fe6ff; }
+</style>
+</helmet>
+<div style="max-width:1280px;margin:0 auto;padding:0 40px 100px;">
+
+  <!-- top bar -->
+  <header style="display:flex;align-items:center;justify-content:space-between;padding:24px 0;border-bottom:1px solid rgba(120,140,160,.1);position:sticky;top:0;background:rgba(6,8,11,.82);backdrop-filter:blur(8px);z-index:5;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="position:relative;display:flex;align-items:center;justify-content:center;padding:8px 12px;">
+        <span style="position:absolute;top:0;left:0;width:9px;height:9px;border-top:2px solid #6f7a8a;border-left:2px solid #6f7a8a;"></span>
+        <span style="position:absolute;top:0;right:0;width:9px;height:9px;border-top:2px solid #6f7a8a;border-right:2px solid #6f7a8a;"></span>
+        <span style="position:absolute;bottom:0;left:0;width:9px;height:9px;border-bottom:2px solid #6f7a8a;border-left:2px solid #6f7a8a;"></span>
+        <span style="position:absolute;bottom:0;right:0;width:9px;height:9px;border-bottom:2px solid #6f7a8a;border-right:2px solid #6f7a8a;"></span>
+        <svg width="34" height="22" viewBox="0 0 160 100" fill="none"><polygon points="8,18 8,82 46,50" fill="rgba(42,212,255,.2)" stroke="#2ad4ff" stroke-width="7"></polygon><polygon points="152,18 152,82 114,50" fill="rgba(255,47,176,.2)" stroke="#ff2fb0" stroke-width="7"></polygon><line x1="80" y1="16" x2="80" y2="84" stroke="#eef3f8" stroke-width="7"></line></svg>
+      </div>
+      <span style="font-family:'Archivo Expanded',sans-serif;font-weight:900;font-size:16px;letter-spacing:.02em;color:#eef3f8;">WARFORM</span>
+    </div>
+    <span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.26em;color:#5a6472;">BRAND FOUNDATION · v0.1</span>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section style="position:relative;margin-top:40px;border:1px solid rgba(120,140,160,.14);border-radius:20px;overflow:hidden;background:radial-gradient(130% 120% at 50% -10%,rgba(42,212,255,.09),transparent 55%),radial-gradient(130% 120% at 90% 110%,rgba(255,47,176,.08),transparent 55%),repeating-linear-gradient(0deg,transparent 0 31px,rgba(120,140,160,.04) 31px 32px),repeating-linear-gradient(90deg,transparent 0 31px,rgba(120,140,160,.04) 31px 32px),#070a0e;">
+    <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.14) 0 1px,transparent 1px 3px);opacity:.4;pointer-events:none;"></div>
+    <div style="position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:30px;padding:92px 32px 80px;">
+      <div style="position:relative;display:flex;align-items:center;justify-content:center;padding:26px 34px;">
+        <span style="position:absolute;top:0;left:0;width:24px;height:24px;border-top:2px solid #6f7a8a;border-left:2px solid #6f7a8a;"></span>
+        <span style="position:absolute;top:0;right:0;width:24px;height:24px;border-top:2px solid #6f7a8a;border-right:2px solid #6f7a8a;"></span>
+        <span style="position:absolute;bottom:0;left:0;width:24px;height:24px;border-bottom:2px solid #6f7a8a;border-left:2px solid #6f7a8a;"></span>
+        <span style="position:absolute;bottom:0;right:0;width:24px;height:24px;border-bottom:2px solid #6f7a8a;border-right:2px solid #6f7a8a;"></span>
+        <svg width="200" height="125" viewBox="0 0 160 100" fill="none" style="filter:drop-shadow(0 0 14px rgba(42,212,255,.28));">
+          <polygon points="8,18 8,82 46,50" fill="rgba(42,212,255,.14)" stroke="#2ad4ff" stroke-width="2.4"></polygon>
+          <polyline points="26,28 58,50 26,72" stroke="#2ad4ff" stroke-width="2.4" opacity=".7"></polyline>
+          <polygon points="152,18 152,82 114,50" fill="rgba(255,47,176,.14)" stroke="#ff2fb0" stroke-width="2.4"></polygon>
+          <polyline points="134,28 102,50 134,72" stroke="#ff2fb0" stroke-width="2.4" opacity=".7"></polyline>
+          <line x1="80" y1="16" x2="80" y2="84" stroke="#eef3f8" stroke-width="2.6"></line>
+          <circle cx="80" cy="50" r="4.5" fill="#eef3f8"></circle>
+        </svg>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:14px;">
+        <h1 style="margin:0;font-family:'Archivo Expanded',sans-serif;font-weight:900;font-size:76px;line-height:.92;letter-spacing:-.02em;color:#eef3f8;text-shadow:0 0 30px rgba(42,212,255,.18);">WARFORM</h1>
+        <span style="font-family:'Space Mono',monospace;font-size:16px;letter-spacing:.6em;color:#2ad4ff;padding-left:9px;">COMMANDER</span>
+      </div>
+      <p style="margin:0;max-width:560px;font-size:20px;line-height:1.55;color:#c4ccd6;text-wrap:pretty;">Assemble five machines, kit them, dial in their behavior, then watch the battle win itself. <span style="color:#8b97a6;">Skill lives in the plan — never the wallet.</span></p>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:6px;">
+        <a href="#" style="font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;color:#06080b;background:#2ad4ff;padding:14px 26px;border-radius:9px;box-shadow:0 0 22px rgba(42,212,255,.3);">Deploy to Arena</a>
+        <a href="#" style="font-family:'Archivo',sans-serif;font-weight:600;font-size:15px;color:#c4ccd6;padding:14px 26px;border-radius:9px;border:1px solid rgba(120,140,160,.3);">Open Team Builder</a>
+      </div>
+    </div>
+    <div style="position:relative;display:flex;border-top:1px solid rgba(120,140,160,.1);">
+      <div style="flex:1;padding:16px 20px;text-align:center;border-right:1px solid rgba(120,140,160,.08);"><span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.22em;color:#7b5cff;">AIR</span></div>
+      <div style="flex:1;padding:16px 20px;text-align:center;border-right:1px solid rgba(120,140,160,.08);"><span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.22em;color:#8b97a6;">FRONT</span></div>
+      <div style="flex:1;padding:16px 20px;text-align:center;border-right:1px solid rgba(120,140,160,.08);"><span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.22em;color:#8b97a6;">MIDDLE</span></div>
+      <div style="flex:1;padding:16px 20px;text-align:center;"><span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.22em;color:#8b97a6;">REAR</span></div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION HELPER LABEL: LOGO SYSTEM ===== -->
+  <div style="display:flex;align-items:baseline;gap:16px;margin:72px 0 28px;">
+    <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.28em;color:#5a6472;">01 // LOGO SYSTEM</span>
+    <span style="height:1px;flex:1;background:linear-gradient(90deg,rgba(120,140,160,.3),transparent);"></span>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px;">
+    <div style="display:flex;flex-direction:column;gap:14px;padding:24px;border:1px solid rgba(120,140,160,.14);border-radius:14px;background:#0b0f15;">
+      <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.24em;color:#5a6472;">PRIMARY BADGE</span>
+      <div style="display:flex;align-items:center;justify-content:center;min-height:90px;position:relative;padding:14px 18px;">
+        <span style="position:absolute;top:0;left:0;width:14px;height:14px;border-top:2px solid #6f7a8a;border-left:2px solid #6f7a8a;"></span>
+        <span style="position:absolute;top:0;right:0;width:14px;height:14px;border-top:2px solid #6f7a8a;border-right:2px solid #6f7a8a;"></span>
+        <span style="position:absolute;bottom:0;left:0;width:14px;height:14px;border-bottom:2px solid #6f7a8a;border-left:2px solid #6f7a8a;"></span>
+        <span style="position:absolute;bottom:0;right:0;width:14px;height:14px;border-bottom:2px solid #6f7a8a;border-right:2px solid #6f7a8a;"></span>
+        <svg width="76" height="48" viewBox="0 0 160 100" fill="none"><polygon points="8,18 8,82 46,50" fill="rgba(42,212,255,.16)" stroke="#2ad4ff" stroke-width="3.4"></polygon><polygon points="152,18 152,82 114,50" fill="rgba(255,47,176,.16)" stroke="#ff2fb0" stroke-width="3.4"></polygon><line x1="80" y1="16" x2="80" y2="84" stroke="#eef3f8" stroke-width="3.6"></line><circle cx="80" cy="50" r="6" fill="#eef3f8"></circle></svg>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;padding:24px;border:1px solid rgba(120,140,160,.14);border-radius:14px;background:#0b0f15;">
+      <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.24em;color:#5a6472;">MONO / KNOCKOUT</span>
+      <div style="display:flex;align-items:center;justify-content:center;min-height:90px;color:#eef3f8;">
+        <svg width="84" height="52" viewBox="0 0 160 100" fill="none"><polygon points="8,18 8,82 46,50" fill="none" stroke="currentColor" stroke-width="4"></polygon><polygon points="152,18 152,82 114,50" fill="none" stroke="currentColor" stroke-width="4"></polygon><line x1="80" y1="16" x2="80" y2="84" stroke="currentColor" stroke-width="4"></line></svg>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;padding:24px;border:1px solid rgba(120,140,160,.14);border-radius:14px;background:#dfe4ea;">
+      <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.24em;color:#5a6472;">ON LIGHT</span>
+      <div style="display:flex;align-items:center;justify-content:center;min-height:90px;color:#0c1016;">
+        <svg width="84" height="52" viewBox="0 0 160 100" fill="none"><polygon points="8,18 8,82 46,50" fill="rgba(42,212,255,.25)" stroke="#0c1016" stroke-width="4"></polygon><polygon points="152,18 152,82 114,50" fill="rgba(255,47,176,.25)" stroke="#0c1016" stroke-width="4"></polygon><line x1="80" y1="16" x2="80" y2="84" stroke="#0c1016" stroke-width="4"></line></svg>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;padding:24px;border:1px solid rgba(120,140,160,.14);border-radius:14px;background:#0b0f15;">
+      <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.24em;color:#5a6472;">FAVICON @16 / 32</span>
+      <div style="display:flex;align-items:center;justify-content:center;gap:16px;min-height:90px;">
+        <div style="width:32px;height:32px;border-radius:6px;background:#0d1117;border:1px solid rgba(120,140,160,.14);display:flex;align-items:center;justify-content:center;"><svg width="20" height="13" viewBox="0 0 160 100" fill="none"><polygon points="8,18 8,82 46,50" fill="none" stroke="#2ad4ff" stroke-width="9"></polygon><polygon points="152,18 152,82 114,50" fill="none" stroke="#ff2fb0" stroke-width="9"></polygon><line x1="80" y1="16" x2="80" y2="84" stroke="#eef3f8" stroke-width="9"></line></svg></div>
+        <div style="width:18px;height:18px;border-radius:4px;background:#0d1117;border:1px solid rgba(120,140,160,.14);display:flex;align-items:center;justify-content:center;"><svg width="12" height="8" viewBox="0 0 160 100" fill="none"><polygon points="8,18 8,82 46,50" fill="none" stroke="#2ad4ff" stroke-width="12"></polygon><polygon points="152,18 152,82 114,50" fill="none" stroke="#ff2fb0" stroke-width="12"></polygon><line x1="80" y1="16" x2="80" y2="84" stroke="#eef3f8" stroke-width="12"></line></svg></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== COLOR ===== -->
+  <div style="display:flex;align-items:baseline;gap:16px;margin:72px 0 28px;">
+    <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.28em;color:#5a6472;">02 // COLOR FAMILIES</span>
+    <span style="height:1px;flex:1;background:linear-gradient(90deg,rgba(120,140,160,.3),transparent);"></span>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+    <div style="border:1px solid rgba(42,212,255,.25);border-radius:14px;overflow:hidden;background:#0b0f15;">
+      <div style="padding:16px 22px;border-bottom:1px solid rgba(120,140,160,.1);display:flex;align-items:center;gap:10px;"><span style="width:10px;height:10px;border-radius:50%;background:#2ad4ff;box-shadow:0 0 10px #2ad4ff;"></span><span style="font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:14px;color:#eef3f8;">PLAYER</span></div>
+      <div style="display:flex;">
+        <div style="flex:1;height:120px;background:#2ad4ff;display:flex;flex-direction:column;justify-content:flex-end;padding:12px;"><span style="font-family:'Space Mono',monospace;font-size:11px;color:#03212b;">CYAN</span><span style="font-family:'Space Mono',monospace;font-size:11px;color:#03212b;">#2AD4FF</span></div>
+        <div style="flex:1;height:120px;background:#ff8c1a;display:flex;flex-direction:column;justify-content:flex-end;padding:12px;"><span style="font-family:'Space Mono',monospace;font-size:11px;color:#2b1600;">ORANGE</span><span style="font-family:'Space Mono',monospace;font-size:11px;color:#2b1600;">#FF8C1A</span></div>
+        <div style="flex:1;height:120px;background:#eef3f8;display:flex;flex-direction:column;justify-content:flex-end;padding:12px;"><span style="font-family:'Space Mono',monospace;font-size:11px;color:#0c1016;">WHITE</span><span style="font-family:'Space Mono',monospace;font-size:11px;color:#0c1016;">#EEF3F8</span></div>
+      </div>
+    </div>
+    <div style="border:1px solid rgba(255,47,176,.25);border-radius:14px;overflow:hidden;background:#0b0f15;">
+      <div style="padding:16px 22px;border-bottom:1px solid rgba(120,140,160,.1);display:flex;align-items:center;gap:10px;"><span style="width:10px;height:10px;border-radius:50%;background:#ff2fb0;box-shadow:0 0 10px #ff2fb0;"></span><span style="font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:14px;color:#eef3f8;">ENEMY</span></div>
+      <div style="display:flex;">
+        <div style="flex:1;height:120px;background:#ff3b4e;display:flex;flex-direction:column;justify-content:flex-end;padding:12px;"><span style="font-family:'Space Mono',monospace;font-size:11px;color:#2b0308;">RED</span><span style="font-family:'Space Mono',monospace;font-size:11px;color:#2b0308;">#FF3B4E</span></div>
+        <div style="flex:1;height:120px;background:#ff2fb0;display:flex;flex-direction:column;justify-content:flex-end;padding:12px;"><span style="font-family:'Space Mono',monospace;font-size:11px;color:#2b0320;">MAGENTA</span><span style="font-family:'Space Mono',monospace;font-size:11px;color:#2b0320;">#FF2FB0</span></div>
+        <div style="flex:1;height:120px;background:#7b5cff;display:flex;flex-direction:column;justify-content:flex-end;padding:12px;"><span style="font-family:'Space Mono',monospace;font-size:11px;color:#0f0730;">PURPLE</span><span style="font-family:'Space Mono',monospace;font-size:11px;color:#0f0730;">#7B5CFF</span></div>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:140px;height:56px;border-radius:10px;background:#06080b;border:1px solid rgba(120,140,160,.14);display:flex;align-items:center;justify-content:space-between;padding:0 16px;"><span style="font-family:'Space Mono',monospace;font-size:11px;color:#8b97a6;">VOID</span><span style="font-family:'Space Mono',monospace;font-size:11px;color:#5a6472;">#06080B</span></div>
+    <div style="flex:1;min-width:140px;height:56px;border-radius:10px;background:#0b0f15;border:1px solid rgba(120,140,160,.14);display:flex;align-items:center;justify-content:space-between;padding:0 16px;"><span style="font-family:'Space Mono',monospace;font-size:11px;color:#8b97a6;">PANEL</span><span style="font-family:'Space Mono',monospace;font-size:11px;color:#5a6472;">#0B0F15</span></div>
+    <div style="flex:1;min-width:140px;height:56px;border-radius:10px;background:#1a1f27;border:1px solid rgba(120,140,160,.14);display:flex;align-items:center;justify-content:space-between;padding:0 16px;"><span style="font-family:'Space Mono',monospace;font-size:11px;color:#8b97a6;">STEEL</span><span style="font-family:'Space Mono',monospace;font-size:11px;color:#6f7a8a;">#6F7A8A</span></div>
+    <div style="flex:1;min-width:140px;height:56px;border-radius:10px;background:#0b0f15;border:1px solid rgba(120,140,160,.14);display:flex;align-items:center;justify-content:space-between;padding:0 16px;"><span style="font-family:'Space Mono',monospace;font-size:11px;color:#8b97a6;">TEXT MID</span><span style="font-family:'Space Mono',monospace;font-size:11px;color:#5a6472;">#8B97A6</span></div>
+  </div>
+
+  <!-- ===== TYPE ===== -->
+  <div style="display:flex;align-items:baseline;gap:16px;margin:72px 0 28px;">
+    <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.28em;color:#5a6472;">03 // TYPE SCALE</span>
+    <span style="height:1px;flex:1;background:linear-gradient(90deg,rgba(120,140,160,.3),transparent);"></span>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+    <div style="display:flex;flex-direction:column;gap:26px;padding:32px;border:1px solid rgba(120,140,160,.14);border-radius:14px;background:#0b0f15;">
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.2em;color:#5a6472;">DISPLAY · ARCHIVO EXPANDED 900 · 72</span>
+        <span style="font-family:'Archivo Expanded',sans-serif;font-weight:900;font-size:56px;line-height:.95;letter-spacing:-.02em;color:#eef3f8;">Deploy</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.2em;color:#5a6472;">H1 · ARCHIVO EXPANDED 700 · 40</span>
+        <span style="font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:34px;line-height:1;color:#eef3f8;">Team Builder</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.2em;color:#5a6472;">H2 · ARCHIVO EXPANDED 700 · 28</span>
+        <span style="font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:24px;line-height:1.05;color:#eef3f8;">Heavy Tank · Grizzly</span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:26px;padding:32px;border:1px solid rgba(120,140,160,.14);border-radius:14px;background:#0b0f15;">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.2em;color:#5a6472;">BODY · ARCHIVO 400 · 16</span>
+        <span style="font-family:'Archivo',sans-serif;font-weight:400;font-size:16px;line-height:1.6;color:#c4ccd6;">Durable, high damage, slow firing — the wall that shields your artillery and support while the front holds.</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.2em;color:#5a6472;">LABEL / STAT · SPACE MONO 700 · 12</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <span style="font-family:'Space Mono',monospace;font-weight:700;font-size:12px;letter-spacing:.12em;color:#2ad4ff;border:1px solid rgba(42,212,255,.3);border-radius:6px;padding:6px 10px;">KINETIC</span>
+          <span style="font-family:'Space Mono',monospace;font-weight:700;font-size:12px;letter-spacing:.12em;color:#ff8c1a;border:1px solid rgba(255,140,26,.3);border-radius:6px;padding:6px 10px;">HP 2400</span>
+          <span style="font-family:'Space Mono',monospace;font-weight:700;font-size:12px;letter-spacing:.12em;color:#8b97a6;border:1px solid rgba(120,140,160,.3);border-radius:6px;padding:6px 10px;">FRONT ZONE</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.2em;color:#5a6472;">READOUT · SPACE MONO 400 · 13</span>
+        <span style="font-family:'Space Mono',monospace;font-size:13px;line-height:1.5;color:#8b97a6;">// TICK 0142 · PLAN-B TRIGGERED · FALL BACK</span>
+      </div>
+    </div>
+  </div>
+
+  <p style="margin:60px 0 0;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.05em;color:#4d5764;text-align:center;">NEXT ⟶ pick a direction to push: a full UI shell screen (team builder or battle viewer), or the first unit rendered in the wireframe+fill art style.</p>
+
+</div>
+</x-dc>
+</body>
+</html>
