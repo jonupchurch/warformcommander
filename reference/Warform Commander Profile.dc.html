@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@500;600;700;800;900&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #06080b; color: #c4ccd6; font-family: 'Archivo', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #2ad4ff; text-decoration: none; }
+  a:hover { color: #7fe6ff; }
+  ::-webkit-scrollbar { width: 9px; height: 9px; }
+  ::-webkit-scrollbar-thumb { background: #1a2028; border-radius: 6px; }
+</style>
+</helmet>
+
+<div style="display:flex;flex-direction:column;min-height:100vh;">
+
+  <!-- top bar -->
+  <header style="display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid rgba(120,140,160,.1);background:#070a0e;flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:28px;">
+      <div style="display:flex;align-items:center;gap:11px;">
+        <svg width="32" height="20" viewBox="0 0 160 100" fill="none"><polygon points="8,18 8,82 46,50" fill="rgba(42,212,255,.2)" stroke="#2ad4ff" stroke-width="7"></polygon><polygon points="152,18 152,82 114,50" fill="rgba(255,47,176,.2)" stroke="#ff2fb0" stroke-width="7"></polygon><line x1="80" y1="16" x2="80" y2="84" stroke="#eef3f8" stroke-width="7"></line></svg>
+        <span style="font-family:'Archivo Expanded',sans-serif;font-weight:900;font-size:15px;letter-spacing:.02em;color:#eef3f8;">WARFORM</span>
+      </div>
+      <nav style="display:flex;gap:6px;">
+        <a href="Warform Commander Garage.dc.html" style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;color:#8b97a6;padding:8px 14px;">GARAGE</a>
+        <a href="Warform Commander Arena.dc.html" style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;color:#8b97a6;padding:8px 14px;">ARENA</a>
+        <a href="Warform Commander Ladder.dc.html" style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;color:#8b97a6;padding:8px 14px;">LADDER</a>
+        <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;color:#8b97a6;padding:8px 14px;">PRACTICE</span>
+      </nav>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;color:#06080b;background:#2ad4ff;padding:8px 14px;border-radius:7px;">PROFILE</span>
+    </div>
+  </header>
+
+  <div style="flex:1;padding:28px 32px 48px;max-width:1160px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:22px;">
+
+    <!-- PROFILE HERO -->
+    <div style="position:relative;overflow:hidden;border:1px solid rgba(120,140,160,.16);border-radius:18px;background:radial-gradient(120% 160% at 0% 0%,rgba(42,212,255,.12),transparent 55%),radial-gradient(120% 160% at 100% 100%,rgba(255,140,26,.06),transparent 55%),#0a0e13;">
+      <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.1) 0 1px,transparent 1px 3px);opacity:.4;pointer-events:none;"></div>
+      <div style="position:relative;display:flex;align-items:center;justify-content:space-between;gap:28px;padding:34px 38px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:22px;">
+          <div style="width:88px;height:88px;border-radius:16px;border:1px solid rgba(42,212,255,.4);background:#080b10;display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(42,212,255,.2);">
+            <svg width="42" height="42" viewBox="0 0 120 120" fill="none"><polygon points="60,10 110,60 60,110 10,60" fill="rgba(42,212,255,.16)" stroke="#2ad4ff" stroke-width="5"></polygon><circle cx="60" cy="60" r="5" fill="#eef3f8"></circle></svg>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:9px;">
+            <h1 style="margin:0;font-family:'Archivo Expanded',sans-serif;font-weight:900;font-size:36px;line-height:.95;letter-spacing:-.01em;color:#eef3f8;">CMDR_JUPCHURCH</h1>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <span style="font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:.12em;white-space:nowrap;color:#ff8c1a;border:1px solid rgba(255,140,26,.4);border-radius:5px;padding:5px 9px;">GOLD III</span>
+              <span style="font-family:'Space Mono',monospace;font-size:12px;color:#8b97a6;">1510 MMR</span>
+              <span style="width:1px;height:12px;background:rgba(120,140,160,.3);"></span>
+              <span style="font-family:'Space Mono',monospace;font-size:12px;color:#8b97a6;">LADDER #12</span>
+              <span style="width:1px;height:12px;background:rgba(120,140,160,.3);"></span>
+              <span style="font-family:'Space Mono',monospace;font-size:12px;color:#5a6472;">ENLISTED MAR 2026</span>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:2px;">
+              <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.08em;white-space:nowrap;color:#2ad4ff;border:1px solid rgba(42,212,255,.25);border-radius:5px;padding:4px 8px;">TURTLE MAIN</span>
+              <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.08em;white-space:nowrap;color:#c4ccd6;border:1px solid rgba(120,140,160,.25);border-radius:5px;padding:4px 8px;">KINETIC-LEAN</span>
+              <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.08em;white-space:nowrap;color:#7b5cff;border:1px solid rgba(123,92,255,.3);border-radius:5px;padding:4px 8px;">TOP DEFENDER</span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:26px;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><span style="font-family:'Archivo Expanded',sans-serif;font-weight:900;font-size:34px;color:#2ad4ff;">61%</span><span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.14em;color:#5a6472;">WIN RATE</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><span style="font-family:'Archivo Expanded',sans-serif;font-weight:900;font-size:34px;color:#eef3f8;">142</span><span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.14em;color:#5a6472;">MATCHES</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><span style="font-family:'Archivo Expanded',sans-serif;font-weight:900;font-size:34px;color:#ff8c1a;">9</span><span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.14em;color:#5a6472;">BEST STREAK</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div style="display:grid;grid-template-columns:1fr 340px;gap:22px;align-items:start;">
+
+      <!-- LEFT COLUMN -->
+      <div style="display:flex;flex-direction:column;gap:22px;min-width:0;">
+
+        <!-- overall stats -->
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.2em;color:#5a6472;">CAREER STATS</span>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+            <sc-for list="{{ stats }}" as="s" hint-placeholder-count="8">
+              <div style="display:flex;flex-direction:column;gap:5px;padding:16px 14px;border:1px solid rgba(120,140,160,.12);border-radius:11px;background:#0b0f15;">
+                <span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;color:#5a6472;">{{ s.label }}</span>
+                <span style="font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:22px;color:#eef3f8;">{{ s.value }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- activity -->
+        <div style="display:flex;flex-direction:column;gap:16px;padding:22px;border:1px solid rgba(120,140,160,.14);border-radius:14px;background:#0b0f15;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.2em;color:#5a6472;">ACTIVITY · LAST 8 WEEKS</span>
+            <span style="font-family:'Space Mono',monospace;font-size:11px;color:#8b97a6;"><span style="color:#2ad4ff;">■</span> WINS  <span style="color:#3d4652;">■</span> LOSSES</span>
+          </div>
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px;height:120px;">
+            <sc-for list="{{ weeks }}" as="w" hint-placeholder-count="8">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end;">
+                <div style="width:100%;max-width:34px;display:flex;flex-direction:column;justify-content:flex-end;height:100%;border-radius:5px;overflow:hidden;background:#0d1218;">
+                  <div style="width:100%;height: {{ w.lossPct }}%;background:#2a323d;"></div>
+                  <div style="width:100%;height: {{ w.winPct }}%;background:linear-gradient(180deg,#2ad4ff,#1a8fb0);"></div>
+                </div>
+                <span style="font-family:'Space Mono',monospace;font-size:9px;color:#5a6472;">{{ w.label }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- damage profile -->
+        <div style="display:flex;flex-direction:column;gap:14px;padding:22px;border:1px solid rgba(120,140,160,.14);border-radius:14px;background:#0b0f15;">
+          <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.2em;color:#5a6472;">DAMAGE PROFILE</span>
+          <div style="display:flex;height:16px;border-radius:6px;overflow:hidden;">
+            <div style="width:46%;background:#2ad4ff;"></div>
+            <div style="width:22%;background:#ff8c1a;"></div>
+            <div style="width:32%;background:#ff5da8;"></div>
+          </div>
+          <div style="display:flex;gap:22px;flex-wrap:wrap;">
+            <span style="font-family:'Space Mono',monospace;font-size:12px;color:#8b97a6;"><span style="color:#2ad4ff;">■</span> KINETIC 46%</span>
+            <span style="font-family:'Space Mono',monospace;font-size:12px;color:#8b97a6;"><span style="color:#ff8c1a;">■</span> ENERGY 22%</span>
+            <span style="font-family:'Space Mono',monospace;font-size:12px;color:#8b97a6;"><span style="color:#ff5da8;">■</span> EXPLOSIVE 32%</span>
+          </div>
+        </div>
+
+        <!-- recent matches -->
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.2em;color:#5a6472;">RECENT MATCHES</span>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <sc-for list="{{ matches }}" as="m" hint-placeholder-count="5">
+              <div style="display:flex;align-items:center;gap:16px;padding:12px 16px;border:1px solid rgba(120,140,160,.1);border-radius:10px;background:#0b0f15;">
+                <span style="font-family:'Space Mono',monospace;font-weight:700;font-size:12px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:6px;color: {{ m.fg }};background: {{ m.bg }};">{{ m.tag }}</span>
+                <span style="font-family:'Archivo',sans-serif;font-weight:600;font-size:14px;color:#e9eef4;flex:1;">vs {{ m.opp }}</span>
+                <span style="font-family:'Space Mono',monospace;font-size:13px;color:#c4ccd6;">{{ m.score }}</span>
+                <span style="font-family:'Space Mono',monospace;font-size:12px;color: {{ m.deltaColor }};min-width:56px;text-align:right;">{{ m.delta }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div style="display:flex;flex-direction:column;gap:22px;">
+
+        <!-- rank progress -->
+        <div style="display:flex;flex-direction:column;gap:14px;padding:22px;border:1px solid rgba(255,140,26,.24);border-radius:14px;background:radial-gradient(120% 100% at 50% 0%,rgba(255,140,26,.07),transparent 60%),#0b0f15;">
+          <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.2em;color:#ff8c1a;">RANK PROGRESS</span>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:18px;color:#eef3f8;">GOLD III</span>
+            <span style="font-family:'Space Mono',monospace;font-size:12px;color:#8b97a6;">→ GOLD II</span>
+          </div>
+          <div style="height:8px;border-radius:4px;background:#141922;overflow:hidden;"><div style="height:100%;width:64%;background:linear-gradient(90deg,#ff8c1a,#ffb45e);"></div></div>
+          <span style="font-family:'Space Mono',monospace;font-size:11px;color:#5a6472;">90 MMR to next tier · peak GOLD II</span>
+        </div>
+
+        <!-- most played squads -->
+        <div style="display:flex;flex-direction:column;gap:14px;padding:22px;border:1px solid rgba(120,140,160,.14);border-radius:14px;background:#0b0f15;">
+          <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.2em;color:#5a6472;">MOST-PLAYED SQUADS</span>
+          <sc-for list="{{ squads }}" as="q" hint-placeholder-count="3">
+            <div style="display:flex;flex-direction:column;gap:7px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:14px;color:#eef3f8;">{{ q.name }}</span>
+                <span style="font-family:'Space Mono',monospace;font-size:12px;color:#2ad4ff;">{{ q.wr }}</span>
+              </div>
+              <div style="height:6px;border-radius:3px;background:#141922;overflow:hidden;"><div style="height:100%;width: {{ q.bar }}%;background:linear-gradient(90deg,#2ad4ff,#7fe6ff);"></div></div>
+              <span style="font-family:'Space Mono',monospace;font-size:10px;color:#5a6472;">{{ q.games }} matches</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <!-- favorite unit -->
+        <div style="display:flex;align-items:center;gap:16px;padding:20px 22px;border:1px solid rgba(42,212,255,.2);border-radius:14px;background:#0b0f15;">
+          <div style="width:76px;height:48px;flex-shrink:0;border:1px solid rgba(42,212,255,.25);border-radius:9px;background:#080b10;padding:6px;color:#8fe6ff;">
+            <dc-import name="UnitIcon" type="heavytank" hint-size="100%,100%" style="width:100%;height:100%;"></dc-import>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.14em;color:#5a6472;">MOST-FIELDED UNIT</span>
+            <span style="font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:16px;color:#eef3f8;">Heavy Tank</span>
+            <span style="font-family:'Space Mono',monospace;font-size:11px;color:#8b97a6;">Bulwark · 71% pick rate</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ACHIEVEMENTS -->
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.2em;color:#5a6472;">BADGES &amp; ACHIEVEMENTS</span>
+        <span style="font-family:'Space Mono',monospace;font-size:12px;color:#8b97a6;"><span style="color:#2ad4ff;">{{ earnedCount }}</span> / {{ totalCount }} EARNED</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">
+        <sc-for list="{{ badges }}" as="b" hint-placeholder-count="8">
+          <div style="opacity: {{ b.op }};display:flex;flex-direction:column;gap:12px;padding:20px 18px;border:1px solid {{ b.border }};border-radius:14px;background:#0b0f15;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="width:48px;height:48px;border-radius:11px;border:1px solid {{ b.border }};background:#080b10;display:flex;align-items:center;justify-content:center;color: {{ b.accent }};">
+                <sc-if value="{{ b.hasUnit }}" hint-placeholder-val="{{ false }}">
+                  <div style="width:38px;height:24px;"><dc-import name="UnitIcon" type="{{ b.unit }}" hint-size="38px,24px" style="width:100%;height:100%;"></dc-import></div>
+                </sc-if>
+                <sc-if value="{{ b.noUnit }}" hint-placeholder-val="{{ true }}">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><polygon points="12,2 15,9 22,9.5 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9.5 9,9" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.6"></polygon></svg>
+                </sc-if>
+              </div>
+              <span style="font-family:'Space Mono',monospace;font-weight:700;font-size:9px;letter-spacing:.1em;color: {{ b.tagColor }};">{{ b.tag }}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px;">
+              <span style="font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:14px;color:#eef3f8;">{{ b.name }}</span>
+              <span style="font-family:'Archivo',sans-serif;font-size:12px;line-height:1.4;color:#8b97a6;">{{ b.desc }}</span>
+            </div>
+            <sc-if value="{{ b.inProgress }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:5px;">
+                <div style="height:5px;border-radius:3px;background:#141922;overflow:hidden;"><div style="height:100%;width: {{ b.prog }}%;background: {{ b.accent }};"></div></div>
+                <span style="font-family:'Space Mono',monospace;font-size:10px;color:#5a6472;">{{ b.progText }}</span>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const stats = [
+      { label: 'MATCHES', value: '142' },
+      { label: 'WIN RATE', value: '61%' },
+      { label: 'RECORD', value: '87–55' },
+      { label: 'TOTAL DAMAGE', value: '8.4M' },
+      { label: 'DEFENSES HELD', value: '58' },
+      { label: 'BEST STREAK', value: '9' },
+      { label: 'AVG MATCH', value: '9.1s' },
+      { label: 'UNITS KILLED', value: '1,204' },
+    ];
+
+    const wd = [[7,3],[5,4],[8,2],[6,5],[9,3],[4,4],[7,2],[8,3]];
+    const weeks = wd.map((p, i) => {
+      const tot = p[0] + p[1], winPct = Math.round(p[0] / tot * 100);
+      return { label: 'W' + (i + 1), winPct, lossPct: 100 - winPct };
+    });
+
+    const rawMatches = [
+      ['W', 'SPECTRE-9', '2 – 1', '+24'],
+      ['W', 'ORION_DELTA', '2 – 0', '+21'],
+      ['L', 'MARROW_07', '1 – 2', '-18'],
+      ['W', 'PALE_LANTERN', '2 – 1', '+19'],
+      ['L', 'CINDER_VOW', '0 – 2', '-22'],
+    ];
+    const matches = rawMatches.map(([r, opp, score, delta]) => ({
+      tag: r, opp, score, delta,
+      fg: r === 'W' ? '#06080b' : '#eef3f8',
+      bg: r === 'W' ? '#2ad4ff' : 'rgba(255,93,168,.25)',
+      deltaColor: r === 'W' ? '#2ad4ff' : '#ff5da8',
+    }));
+
+    const squads = [
+      { name: 'Iron Wall', wr: '68% WR', bar: 68, games: 74 },
+      { name: 'Sky Lance', wr: '54% WR', bar: 54, games: 41 },
+      { name: 'Kite Storm', wr: '59% WR', bar: 59, games: 27 },
+    ];
+
+    // [name, desc, accent, state('earned'|'prog'|'locked'), unit|null, progPct, progText]
+    const raw = [
+      ['First Deployment', 'Complete your first ranked match.', '#2ad4ff', 'earned', null, 0, ''],
+      ['Wall Breaker', 'Destroy 500 enemy units.', '#ff8c1a', 'earned', 'heavytank', 0, ''],
+      ['Sky Marshal', 'Win 50 matches fielding 2 aircraft.', '#7b5cff', 'earned', 'heli', 0, ''],
+      ['Siege Master', 'Deal 1,000,000 artillery damage.', '#ff5da8', 'earned', 'artillery', 0, ''],
+      ['Ace Defender', 'Hold 100 async defenses.', '#7b5cff', 'prog', 'support', 58, '58 / 100'],
+      ['Untouchable', 'Win 10 matches with zero units lost.', '#2ad4ff', 'prog', null, 60, '6 / 10'],
+      ['Centurion', 'Reach 100 ranked victories.', '#ff8c1a', 'prog', null, 87, '87 / 100'],
+      ['Counter-Meta', 'Beat a top-100 player on base gear.', '#8b97a6', 'locked', null, 0, ''],
+    ];
+    const badges = raw.map(([name, desc, accent, st, unit, prog, progText]) => {
+      const locked = st === 'locked', earned = st === 'earned', inProgress = st === 'prog';
+      const acc = locked ? '#6f7a8a' : accent;
+      return {
+        name, desc, accent: acc,
+        border: locked ? 'rgba(120,140,160,.14)' : (accent === '#2ad4ff' ? 'rgba(42,212,255,.3)' : accent === '#ff8c1a' ? 'rgba(255,140,26,.3)' : accent === '#7b5cff' ? 'rgba(123,92,255,.3)' : 'rgba(255,93,168,.3)'),
+        op: locked ? 0.5 : 1,
+        hasUnit: !!unit, noUnit: !unit, unit: unit || 'heavytank',
+        earned, inProgress, locked,
+        prog, progText,
+        tag: earned ? 'EARNED' : (locked ? 'LOCKED' : 'IN PROGRESS'),
+        tagColor: earned ? '#2ad4ff' : (locked ? '#5a6472' : '#ff8c1a'),
+      };
+    });
+
+    const earnedCount = badges.filter(b => b.earned).length;
+
+    return { stats, weeks, matches, squads, badges, earnedCount, totalCount: badges.length };
+  }
+}
+</script>
+</body>
+</html>

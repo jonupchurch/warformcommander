@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@500;600;700;800;900&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #06080b; color: #c4ccd6; font-family: 'Archivo', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #2ad4ff; text-decoration: none; }
+  a:hover { color: #7fe6ff; }
+  ::-webkit-scrollbar { width: 9px; height: 9px; }
+  ::-webkit-scrollbar-thumb { background: #1a2028; border-radius: 6px; }
+</style>
+</helmet>
+
+<div style="display:flex;flex-direction:column;min-height:100vh;">
+
+  <!-- top bar -->
+  <header style="display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid rgba(120,140,160,.1);background:#070a0e;flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:28px;">
+      <div style="display:flex;align-items:center;gap:11px;">
+        <svg width="32" height="20" viewBox="0 0 160 100" fill="none"><polygon points="8,18 8,82 46,50" fill="rgba(42,212,255,.2)" stroke="#2ad4ff" stroke-width="7"></polygon><polygon points="152,18 152,82 114,50" fill="rgba(255,47,176,.2)" stroke="#ff2fb0" stroke-width="7"></polygon><line x1="80" y1="16" x2="80" y2="84" stroke="#eef3f8" stroke-width="7"></line></svg>
+        <span style="font-family:'Archivo Expanded',sans-serif;font-weight:900;font-size:15px;letter-spacing:.02em;color:#eef3f8;">WARFORM</span>
+      </div>
+      <nav style="display:flex;gap:6px;">
+        <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;color:#8b97a6;padding:8px 14px;">GARAGE</span>
+        <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;color:#06080b;background:#2ad4ff;padding:8px 14px;border-radius:7px;">ARENA</span>
+        <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;color:#8b97a6;padding:8px 14px;">LADDER</span>
+        <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;color:#8b97a6;padding:8px 14px;">PRACTICE</span>
+      </nav>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
+        <span style="font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:13px;color:#eef3f8;">CMDR_JUPCHURCH</span>
+        <span style="font-family:'Space Mono',monospace;font-size:11px;color:#ff8c1a;">GOLD III · 1510 MMR</span>
+      </div>
+      <div style="width:38px;height:38px;border-radius:9px;border:1px solid rgba(42,212,255,.4);background:#0b0f15;display:flex;align-items:center;justify-content:center;">
+        <svg width="22" height="14" viewBox="0 0 160 100" fill="none"><polygon points="8,18 8,82 46,50" fill="none" stroke="#2ad4ff" stroke-width="8"></polygon><polygon points="152,18 152,82 114,50" fill="none" stroke="#ff2fb0" stroke-width="8"></polygon><line x1="80" y1="16" x2="80" y2="84" stroke="#eef3f8" stroke-width="8"></line></svg>
+      </div>
+    </div>
+  </header>
+
+  <div style="flex:1;padding:28px 32px 44px;max-width:1200px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:22px;">
+
+    <!-- OUTCOME HERO -->
+    <div style="position:relative;overflow:hidden;border:1px solid rgba(42,212,255,.3);border-radius:18px;background:radial-gradient(120% 160% at 0% 0%,rgba(42,212,255,.14),transparent 55%),#0a0e13;">
+      <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.12) 0 1px,transparent 1px 3px);opacity:.4;pointer-events:none;"></div>
+      <div style="position:relative;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:38px 40px;flex-wrap:wrap;">
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.28em;color:#2ad4ff;">MATCH COMPLETE · BEST OF 3</span>
+          <h1 style="margin:0;font-family:'Archivo Expanded',sans-serif;font-weight:900;font-size:64px;line-height:.9;letter-spacing:-.02em;color:#eef3f8;text-shadow:0 0 30px rgba(42,212,255,.3);">VICTORY</h1>
+          <span style="font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:18px;color:#c4ccd6;">Won 2 – 1 vs <a href="#" style="color:#ff5da8;">SPECTRE-9 ▸</a></span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px;align-items:flex-end;">
+          <div style="display:flex;gap:10px;">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+              <div style="width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:18px;color:#06080b;background:#2ad4ff;">W</div>
+              <span style="font-family:'Space Mono',monospace;font-size:10px;color:#5a6472;">G1</span>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+              <div style="width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:18px;color:#ff5da8;background:rgba(255,93,168,.18);border:1px solid rgba(255,93,168,.4);">L</div>
+              <span style="font-family:'Space Mono',monospace;font-size:10px;color:#5a6472;">G2</span>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+              <div style="width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:18px;color:#06080b;background:#2ad4ff;">W</div>
+              <span style="font-family:'Space Mono',monospace;font-size:10px;color:#5a6472;">G3</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 18px;border:1px solid rgba(42,212,255,.3);border-radius:10px;background:rgba(42,212,255,.06);">
+            <span style="font-family:'Space Mono',monospace;font-size:12px;color:#8b97a6;">LADDER</span>
+            <span style="font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:18px;color:#2ad4ff;">+24 MMR</span>
+            <span style="width:1px;height:16px;background:rgba(120,140,160,.3);"></span>
+            <span style="font-family:'Space Mono',monospace;font-size:12px;color:#c4ccd6;">1486 → 1510</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MATCH COMPARISON -->
+    <div style="display:flex;flex-direction:column;gap:18px;padding:26px 30px;border:1px solid rgba(120,140,160,.14);border-radius:14px;background:#0b0f15;">
+      <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;">
+        <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.16em;color:#2ad4ff;">◤ YOU · IRON WALL</span>
+        <span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.16em;color:#5a6472;">MATCH TOTALS</span>
+        <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.16em;color:#ff5da8;text-align:right;">SPECTRE-9 ◥</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 150px 1fr;align-items:center;gap:14px;">
+        <div style="display:flex;align-items:center;gap:10px;"><span style="font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:15px;color:#eef3f8;min-width:56px;text-align:right;">9,850</span><div style="flex:1;height:8px;border-radius:4px;background:#141922;display:flex;justify-content:flex-end;overflow:hidden;"><div style="width:100%;height:100%;background:linear-gradient(90deg,#1a8fb0,#2ad4ff);border-radius:4px;"></div></div></div>
+        <span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.08em;color:#8b97a6;text-align:center;">DAMAGE DEALT</span>
+        <div style="display:flex;align-items:center;gap:10px;"><div style="flex:1;height:8px;border-radius:4px;background:#141922;overflow:hidden;"><div style="width:75%;height:100%;background:linear-gradient(90deg,#ff2fb0,#7a1a55);border-radius:4px;"></div></div><span style="font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:15px;color:#eef3f8;min-width:56px;">7,420</span></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 150px 1fr;align-items:center;gap:14px;">
+        <div style="display:flex;align-items:center;gap:10px;"><span style="font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:15px;color:#eef3f8;min-width:56px;text-align:right;">11</span><div style="flex:1;height:8px;border-radius:4px;background:#141922;display:flex;justify-content:flex-end;overflow:hidden;"><div style="width:100%;height:100%;background:linear-gradient(90deg,#1a8fb0,#2ad4ff);border-radius:4px;"></div></div></div>
+        <span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.08em;color:#8b97a6;text-align:center;">UNITS KILLED</span>
+        <div style="display:flex;align-items:center;gap:10px;"><div style="flex:1;height:8px;border-radius:4px;background:#141922;overflow:hidden;"><div style="width:55%;height:100%;background:linear-gradient(90deg,#ff2fb0,#7a1a55);border-radius:4px;"></div></div><span style="font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:15px;color:#eef3f8;min-width:56px;">6</span></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 150px 1fr;align-items:center;gap:14px;">
+        <div style="display:flex;align-items:center;gap:10px;"><span style="font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:15px;color:#eef3f8;min-width:56px;text-align:right;">6</span><div style="flex:1;height:8px;border-radius:4px;background:#141922;display:flex;justify-content:flex-end;overflow:hidden;"><div style="width:55%;height:100%;background:linear-gradient(90deg,#1a8fb0,#2ad4ff);border-radius:4px;"></div></div></div>
+        <span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.08em;color:#8b97a6;text-align:center;">UNITS LOST</span>
+        <div style="display:flex;align-items:center;gap:10px;"><div style="flex:1;height:8px;border-radius:4px;background:#141922;overflow:hidden;"><div style="width:100%;height:100%;background:linear-gradient(90deg,#ff2fb0,#7a1a55);border-radius:4px;"></div></div><span style="font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:15px;color:#eef3f8;min-width:56px;">11</span></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 150px 1fr;align-items:center;gap:14px;">
+        <div style="display:flex;align-items:center;gap:10px;"><span style="font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:15px;color:#eef3f8;min-width:56px;text-align:right;">41%</span><div style="flex:1;height:8px;border-radius:4px;background:#141922;display:flex;justify-content:flex-end;overflow:hidden;"><div style="width:100%;height:100%;background:linear-gradient(90deg,#1a8fb0,#2ad4ff);border-radius:4px;"></div></div></div>
+        <span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.08em;color:#8b97a6;text-align:center;">AVG HULL LEFT</span>
+        <div style="display:flex;align-items:center;gap:10px;"><div style="flex:1;height:8px;border-radius:4px;background:#141922;overflow:hidden;"><div style="width:29%;height:100%;background:linear-gradient(90deg,#ff2fb0,#7a1a55);border-radius:4px;"></div></div><span style="font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:15px;color:#eef3f8;min-width:56px;">12%</span></div>
+      </div>
+    </div>
+
+    <!-- PER-GAME BREAKDOWN + MVP -->
+    <div style="display:grid;grid-template-columns:1fr 320px;gap:20px;">
+
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.2em;color:#5a6472;">GAME BREAKDOWN</span>
+
+        <div style="display:flex;align-items:center;gap:18px;padding:16px 18px;border:1px solid rgba(42,212,255,.2);border-radius:12px;background:#0b0f15;">
+          <div style="width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:15px;color:#06080b;background:#2ad4ff;flex-shrink:0;">W</div>
+          <div style="display:flex;flex-direction:column;gap:3px;min-width:96px;"><span style="font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:14px;color:#eef3f8;">GAME 1</span><span style="font-family:'Space Mono',monospace;font-size:11px;color:#2ad4ff;">CONQUEST</span></div>
+          <div style="display:flex;flex-direction:column;gap:3px;"><span style="font-family:'Space Mono',monospace;font-size:10px;color:#5a6472;">SURVIVORS</span><span style="font-family:'Space Mono',monospace;font-size:12px;color:#c4ccd6;">4 <span style="color:#3d4652;">vs</span> 0</span></div>
+          <div style="display:flex;flex-direction:column;gap:3px;margin-left:auto;text-align:right;"><span style="font-family:'Space Mono',monospace;font-size:10px;color:#5a6472;">DURATION</span><span style="font-family:'Space Mono',monospace;font-size:12px;color:#c4ccd6;">8.2s</span></div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:18px;padding:16px 18px;border:1px solid rgba(255,93,168,.2);border-radius:12px;background:#0b0f15;">
+          <div style="width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:15px;color:#ff5da8;background:rgba(255,93,168,.18);border:1px solid rgba(255,93,168,.4);flex-shrink:0;">L</div>
+          <div style="display:flex;flex-direction:column;gap:3px;min-width:96px;"><span style="font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:14px;color:#eef3f8;">GAME 2</span><span style="font-family:'Space Mono',monospace;font-size:11px;color:#ff5da8;">TIME · DMG</span></div>
+          <div style="display:flex;flex-direction:column;gap:3px;"><span style="font-family:'Space Mono',monospace;font-size:10px;color:#5a6472;">SURVIVORS</span><span style="font-family:'Space Mono',monospace;font-size:12px;color:#c4ccd6;">1 <span style="color:#3d4652;">vs</span> 4</span></div>
+          <div style="display:flex;flex-direction:column;gap:3px;margin-left:auto;text-align:right;"><span style="font-family:'Space Mono',monospace;font-size:10px;color:#5a6472;">DURATION</span><span style="font-family:'Space Mono',monospace;font-size:12px;color:#c4ccd6;">10.0s</span></div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:18px;padding:16px 18px;border:1px solid rgba(42,212,255,.2);border-radius:12px;background:#0b0f15;">
+          <div style="width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:15px;color:#06080b;background:#2ad4ff;flex-shrink:0;">W</div>
+          <div style="display:flex;flex-direction:column;gap:3px;min-width:96px;"><span style="font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:14px;color:#eef3f8;">GAME 3</span><span style="font-family:'Space Mono',monospace;font-size:11px;color:#2ad4ff;">CONQUEST</span></div>
+          <div style="display:flex;flex-direction:column;gap:3px;"><span style="font-family:'Space Mono',monospace;font-size:10px;color:#5a6472;">SURVIVORS</span><span style="font-family:'Space Mono',monospace;font-size:12px;color:#c4ccd6;">3 <span style="color:#3d4652;">vs</span> 0</span></div>
+          <div style="display:flex;flex-direction:column;gap:3px;margin-left:auto;text-align:right;"><span style="font-family:'Space Mono',monospace;font-size:10px;color:#5a6472;">DURATION</span><span style="font-family:'Space Mono',monospace;font-size:12px;color:#c4ccd6;">9.4s</span></div>
+        </div>
+      </div>
+
+      <!-- MVP -->
+      <div style="display:flex;flex-direction:column;gap:14px;padding:22px;border:1px solid rgba(255,140,26,.28);border-radius:14px;background:radial-gradient(120% 100% at 50% 0%,rgba(255,140,26,.08),transparent 60%),#0b0f15;">
+        <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.2em;color:#ff8c1a;">★ MATCH MVP</span>
+        <div style="width:100%;height:74px;border:1px solid rgba(42,212,255,.25);border-radius:10px;background:#080b10;padding:10px;color:#8fe6ff;">
+          <dc-import name="UnitIcon" type="heavytank" hint-size="100%,100%" style="width:100%;height:100%;"></dc-import>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:3px;">
+          <span style="font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:18px;color:#eef3f8;">Heavy Tank</span>
+          <span style="font-family:'Space Mono',monospace;font-size:12px;color:#2ad4ff;">Grizzly · FRONT</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:2px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-family:'Space Mono',monospace;font-size:11px;color:#8b97a6;">DAMAGE DEALT</span><span style="font-family:'Space Mono',monospace;font-weight:700;font-size:13px;color:#eef3f8;">3,410</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-family:'Space Mono',monospace;font-size:11px;color:#8b97a6;">KILLS</span><span style="font-family:'Space Mono',monospace;font-weight:700;font-size:13px;color:#eef3f8;">4</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-family:'Space Mono',monospace;font-size:11px;color:#8b97a6;">DMG ABSORBED</span><span style="font-family:'Space Mono',monospace;font-weight:700;font-size:13px;color:#eef3f8;">5,880</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:6px;flex-wrap:wrap;">
+      <a href="Warform Commander Battle Playback.dc.html" style="display:flex;align-items:center;gap:9px;padding:15px 26px;border:1px solid rgba(120,140,160,.3);border-radius:10px;background:transparent;color:#c4ccd6;font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">◄ Watch Full Replay</a>
+      <a href="Warform Commander Arena.dc.html" style="display:flex;align-items:center;gap:10px;padding:15px 40px;border:none;border-radius:10px;background:#2ad4ff;color:#06080b;font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:15px;letter-spacing:.02em;cursor:pointer;box-shadow:0 0 24px rgba(42,212,255,.32);">Find Next Opponent →</a>
+      <a href="Warform Commander Arena.dc.html" style="display:flex;align-items:center;gap:9px;padding:15px 26px;border:1px solid rgba(120,140,160,.3);border-radius:10px;background:transparent;color:#c4ccd6;font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Back to Arena</a>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

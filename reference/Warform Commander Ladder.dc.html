@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@500;600;700;800;900&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #06080b; color: #c4ccd6; font-family: 'Archivo', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #2ad4ff; text-decoration: none; }
+  ::-webkit-scrollbar { width: 9px; height: 9px; }
+  ::-webkit-scrollbar-thumb { background: #1a2028; border-radius: 6px; }
+</style>
+</helmet>
+
+<div style="display:flex;flex-direction:column;min-height:100vh;">
+
+  <!-- top bar -->
+  <header style="display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid rgba(120,140,160,.1);background:#070a0e;flex-shrink:0;position:sticky;top:0;z-index:40;">
+    <div style="display:flex;align-items:center;gap:28px;">
+      <div style="display:flex;align-items:center;gap:11px;">
+        <svg width="32" height="20" viewBox="0 0 160 100" fill="none"><polygon points="8,18 8,82 46,50" fill="rgba(42,212,255,.2)" stroke="#2ad4ff" stroke-width="7"></polygon><polygon points="152,18 152,82 114,50" fill="rgba(255,47,176,.2)" stroke="#ff2fb0" stroke-width="7"></polygon><line x1="80" y1="16" x2="80" y2="84" stroke="#eef3f8" stroke-width="7"></line></svg>
+        <span style="font-family:'Archivo Expanded',sans-serif;font-weight:900;font-size:15px;letter-spacing:.02em;color:#eef3f8;">WARFORM</span>
+      </div>
+      <nav style="display:flex;gap:6px;">
+        <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;color:#8b97a6;padding:8px 14px;">GARAGE</span>
+        <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;color:#8b97a6;padding:8px 14px;">ARENA</span>
+        <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;color:#06080b;background:#2ad4ff;padding:8px 14px;border-radius:7px;">LADDER</span>
+        <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;color:#8b97a6;padding:8px 14px;">PRACTICE</span>
+      </nav>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
+        <span style="font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:13px;color:#eef3f8;">CMDR_JUPCHURCH</span>
+        <span style="font-family:'Space Mono',monospace;font-size:11px;color:#ff8c1a;">GOLD III · 1510 MMR</span>
+      </div>
+      <div style="width:38px;height:38px;border-radius:9px;border:1px solid rgba(42,212,255,.4);background:#0b0f15;display:flex;align-items:center;justify-content:center;">
+        <svg width="22" height="14" viewBox="0 0 160 100" fill="none"><polygon points="8,18 8,82 46,50" fill="none" stroke="#2ad4ff" stroke-width="8"></polygon><polygon points="152,18 152,82 114,50" fill="none" stroke="#ff2fb0" stroke-width="8"></polygon><line x1="80" y1="16" x2="80" y2="84" stroke="#eef3f8" stroke-width="8"></line></svg>
+      </div>
+    </div>
+  </header>
+
+  <div style="flex:1;padding:28px 32px 44px;max-width:1120px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:22px;">
+
+    <!-- TITLE + FILTERS -->
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.28em;color:#5a6472;">ASYNC PVP · SEASON 1</span>
+        <h1 style="margin:0;font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:38px;line-height:1;letter-spacing:-.01em;color:#eef3f8;">Ladder</h1>
+      </div>
+      <div style="display:flex;gap:6px;padding:5px;border:1px solid rgba(120,140,160,.16);border-radius:10px;background:#0b0f15;">
+        <sc-for list="{{ rangeTabs }}" as="r" hint-placeholder-count="2">
+          <div onClick="{{ r.onPick }}" style="font-family:'Space Mono',monospace;font-weight:700;font-size:12px;letter-spacing:.1em;padding:9px 16px;border-radius:7px;cursor:pointer;white-space:nowrap;color: {{ r.fg }};background: {{ r.bg }};">{{ r.label }}</div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- METRIC TABS -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <sc-for list="{{ metricTabs }}" as="m" hint-placeholder-count="3">
+        <div onClick="{{ m.onPick }}" style="display:flex;align-items:center;gap:9px;padding:13px 20px;border:1px solid {{ m.border }};border-radius:11px;background: {{ m.bg }};cursor:pointer;">
+          <span style="width:8px;height:8px;border-radius:50%;background: {{ m.dot }};"></span>
+          <span style="font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:14px;white-space:nowrap;color: {{ m.fg }};">{{ m.label }}</span>
+        </div>
+      </sc-for>
+    </div>
+
+    <!-- PODIUM -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:end;">
+      <sc-for list="{{ podium }}" as="p" hint-placeholder-count="3">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding: {{ p.pad }};border:1px solid {{ p.border }};border-radius:16px;background:radial-gradient(120% 100% at 50% 0%, {{ p.glow }}, transparent 62%),#0b0f15;">
+          <span style="font-family:'Archivo Expanded',sans-serif;font-weight:900;font-size:26px;color: {{ p.accent }};text-shadow:0 0 16px {{ p.glow }};">#{{ p.place }}</span>
+          <div style="width:56px;height:56px;border-radius:12px;border:1px solid {{ p.border }};background:#080b10;display:flex;align-items:center;justify-content:center;">
+            <svg width="26" height="26" viewBox="0 0 120 120" fill="none"><polygon points="60,10 110,60 60,110 10,60" fill="none" stroke="{{ p.accent }}" stroke-width="5"></polygon></svg>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+            <span style="font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:15px;color:#eef3f8;">{{ p.name }}</span>
+            <span style="font-family:'Space Mono',monospace;font-size:11px;color:#8b97a6;">{{ p.tier }}</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+            <span style="font-family:'Archivo Expanded',sans-serif;font-weight:900;font-size:24px;color: {{ p.accent }};">{{ p.val }}</span>
+            <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.14em;color:#5a6472;">{{ metricUnit }}</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <!-- TABLE -->
+    <div style="border:1px solid rgba(120,140,160,.14);border-radius:14px;overflow:hidden;background:#0b0f15;">
+      <div style="display:grid;grid-template-columns:64px 1fr 90px 110px 150px;gap:12px;padding:13px 22px;border-bottom:1px solid rgba(120,140,160,.12);background:#080b10;">
+        <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.14em;color:#5a6472;">RANK</span>
+        <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.14em;color:#5a6472;">COMMANDER</span>
+        <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.14em;color:#5a6472;text-align:center;">TREND</span>
+        <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.14em;color:#5a6472;text-align:right;">MMR</span>
+        <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.14em;color:#5a6472;text-align:right;">{{ metricLabel }}</span>
+      </div>
+      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="9">
+        <div style="position:relative;display:grid;grid-template-columns:64px 1fr 90px 110px 150px;gap:12px;padding:14px 22px;border-bottom:1px solid rgba(120,140,160,.06);background: {{ r.rowBg }};align-items:center;">
+          <sc-if value="{{ r.isMe }}" hint-placeholder-val="{{ false }}">
+            <span style="position:absolute;top:0;left:0;bottom:0;width:3px;background:#2ad4ff;box-shadow:0 0 10px rgba(42,212,255,.6);"></span>
+          </sc-if>
+          <span style="font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:16px;color: {{ r.rankColor }};">{{ r.rank }}</span>
+          <div style="display:flex;flex-direction:column;gap:2px;min-width:0;">
+            <span style="font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:14px;color:#eef3f8;">{{ r.name }}</span>
+            <span style="font-family:'Space Mono',monospace;font-size:11px;color:#8b97a6;">{{ r.tier }}</span>
+          </div>
+          <span style="font-family:'Space Mono',monospace;font-weight:700;font-size:12px;color: {{ r.trendColor }};text-align:center;">{{ r.trend }}</span>
+          <span style="font-family:'Space Mono',monospace;font-size:13px;color:#c4ccd6;text-align:right;">{{ r.mmr }}</span>
+          <span style="font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:16px;color: {{ metricColor }};text-align:right;">{{ r.val }}</span>
+        </div>
+      </sc-for>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    // [name, tier, mmr, weekVictories, weekDamage, weekDefenses, monthFactor, trend]
+    this.players = [
+      ['VANTA_PRIME','MASTER',2140,41,1180000,96,4.0,'+1'],
+      ['NULLSECTOR','MASTER',2075,37,1310000,88,4.2,'-1'],
+      ['HELIOS_IX','DIAMOND',1980,39,990000,102,3.9,'+2'],
+      ['GRAVEWARDEN','DIAMOND',1955,33,1090000,120,4.1,'+4'],
+      ['ASH_PROTOCOL','DIAMOND',1902,35,1015000,84,3.8,'—'],
+      ['SABLE_KESTREL','PLAT I',1840,31,940000,110,4.3,'+3'],
+      ['ORION_DELTA','PLAT I',1795,34,880000,74,4.0,'-2'],
+      ['MARROW_07','PLAT II',1720,29,1120000,66,3.7,'+1'],
+      ['CINDER_VOW','PLAT II',1688,30,820000,92,4.1,'+5'],
+      ['DRY_HARBOR','GOLD I',1602,27,760000,70,3.9,'-3'],
+      ['KOBOLD_ACTUAL','GOLD II',1554,25,690000,81,3.8,'+2'],
+      ['CMDR_JUPCHURCH','GOLD III',1510,22,610000,58,3.6,'+6'],
+      ['PALE_LANTERN','GOLD III',1498,24,540000,63,3.5,'-1'],
+      ['TIN_SAINT','SILVER I',1440,21,505000,49,3.4,'+1'],
+    ];
+    this.state = { metric: 'victories', range: 'week' };
+  }
+
+  key() { return { victories: 3, damage: 4, defenses: 5 }[this.state.metric]; }
+  meta() {
+    return {
+      victories: { label: 'VICTORIES', unit: 'WINS', color: '#2ad4ff', dot: '#2ad4ff', border: 'rgba(42,212,255,.4)', bg: 'rgba(42,212,255,.1)', tab: 'Top Victories' },
+      damage: { label: 'TOTAL DAMAGE', unit: 'DAMAGE', color: '#ff8c1a', dot: '#ff8c1a', border: 'rgba(255,140,26,.4)', bg: 'rgba(255,140,26,.1)', tab: 'Top Damage' },
+      defenses: { label: 'DEFENSES HELD', unit: 'HOLDS', color: '#7b5cff', dot: '#7b5cff', border: 'rgba(123,92,255,.4)', bg: 'rgba(123,92,255,.1)', tab: 'Top Defenses' },
+    };
+  }
+
+  valOf(p) {
+    const base = p[this.key()];
+    return this.state.range === 'month' ? Math.round(base * p[6]) : base;
+  }
+  fmt(n) { return this.state.metric === 'damage' ? n.toLocaleString() : String(n); }
+
+  renderVals() {
+    const S = this.state, META = this.meta(), M = META[S.metric];
+
+    const sorted = this.players
+      .map(p => ({ name: p[0], tier: p[1], mmr: p[2], trend: p[7], v: this.valOf(p), isMe: p[0] === 'CMDR_JUPCHURCH' }))
+      .sort((a, b) => b.v - a.v)
+      .map((p, i) => ({ ...p, rank: i + 1 }));
+
+    const medals = ['#2ad4ff', '#c8ccc4', '#ff8c1a'];
+    const glows = ['rgba(42,212,255,.14)', 'rgba(200,204,196,.1)', 'rgba(255,140,26,.12)'];
+    const borders = ['rgba(42,212,255,.4)', 'rgba(200,204,196,.3)', 'rgba(255,140,26,.35)'];
+    const top3 = sorted.slice(0, 3);
+    const order = [top3[1], top3[0], top3[2]];
+    const podium = order.filter(Boolean).map(p => {
+      const pi = p.rank - 1;
+      return {
+        place: p.rank, name: p.name, tier: p.tier, val: this.fmt(p.v),
+        accent: medals[pi], glow: glows[pi], border: borders[pi],
+        pad: p.rank === 1 ? '30px 20px 34px' : '22px 20px',
+      };
+    });
+
+    const rows = sorted.slice(3).map(p => ({
+      rank: p.rank, name: p.name, tier: p.tier, mmr: p.mmr, val: this.fmt(p.v),
+      trend: p.trend,
+      trendColor: p.trend.startsWith('+') ? '#2ad4ff' : (p.trend.startsWith('-') ? '#ff5da8' : '#5a6472'),
+      rankColor: p.isMe ? '#2ad4ff' : '#8b97a6',
+      isMe: p.isMe,
+      rowBg: p.isMe ? 'rgba(42,212,255,.07)' : 'transparent',
+    }));
+
+    const metricTabs = ['victories', 'damage', 'defenses'].map(k => {
+      const mm = META[k], sel = k === S.metric;
+      return {
+        label: mm.tab, onPick: () => this.setState({ metric: k }),
+        dot: mm.dot, fg: sel ? '#eef3f8' : '#8b97a6',
+        border: sel ? mm.border : 'rgba(120,140,160,.16)',
+        bg: sel ? mm.bg : 'transparent',
+      };
+    });
+    const rangeTabs = [['week', 'THIS WEEK'], ['month', 'THIS MONTH']].map(([k, label]) => ({
+      label, onPick: () => this.setState({ range: k }),
+      fg: k === S.range ? '#06080b' : '#8b97a6',
+      bg: k === S.range ? '#2ad4ff' : 'transparent',
+    }));
+
+    return {
+      metricTabs, rangeTabs, podium, rows,
+      metricLabel: M.label, metricUnit: M.unit, metricColor: M.color,
+    };
+  }
+}
+</script>
+</body>
+</html>
