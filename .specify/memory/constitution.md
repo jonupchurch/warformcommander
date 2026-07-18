@@ -1,33 +1,151 @@
 <!--
 Sync Impact Report
 ==================
-Version: 2.0.0 (was 1.0.0)
-Status: General engineering-process constitution for building software
-  well — whether greenfield in a project you own or dropped into someone
-  else's existing, unfamiliar codebase. Adapted from the playm8z project's
-  own ratified constitution (D:\Codelib\playm8z\.specify\memory\
-  constitution.md, v1.0.0), which traced its process shape back through
-  InterruptVector and PrintingSite. Per that lineage rule: this is a
-  starting point for PROCESS, not product content — no tech stack, ADRs,
-  or feature scope are carried over, since it's meant to travel into a
-  different codebase every time it's used.
-Amendment (2.0.0): re-centered from an interview-only frame to a general
-  build reference, and added Principle VII (plan the whole feature set
-  first), VIII (test at the right level — unit + e2e), and IX (commit
-  atomically, branch per feature). The time-boxed / live-interview
-  scenario is now one documented mode (Governance + docs/
-  interview-cheat-sheet.md), not the default voice.
+Version: 3.0.0 (was 2.0.0)
+Bump rationale (MAJOR): the document is re-homed from a portable, general
+  engineering-process *reference* into Warform Commander's own project
+  constitution, and a new first-class layer — Product & Architecture
+  Invariants (P1–P8) — is added above the engineering rules. Re-scoping the
+  document's identity/applicability (general → this specific product) plus
+  adding a governing principle layer is a redefinition, hence MAJOR. No
+  existing engineering principle was removed or reworded.
+Modified:
+  - Title: "Reference Constitution — Working in a Codebase, Fast and Well"
+    → "Warform Commander Constitution".
+  - Intro re-scoped to describe the two layers (product invariants + the
+    retained engineering process).
+  - Governance: adds precedence of the product invariants and their
+    non-waivability.
+Added:
+  - "Product & Architecture Invariants" section (P1–P8), sourced from
+    reference/warformcommandergamedesigndoc.md (§2 pillars, §14 balancer,
+    §16 technical shape) and reference/Warform Commander Brand Foundation.
+Retained verbatim (identities preserved — referenced by number in AGENTS.md,
+  STATUS.md, and stacks/*.md):
+  - Engineering Process Principles I–IX (Clarify … Commit) and the Workflow.
+Templates / dependent artifacts checked:
+  - .specify/templates/plan-template.md — Constitution Check gate is generic
+    ("[Gates determined based on constitution file]"); it now naturally
+    covers P1–P8. ✅ no edit required.
+  - .specify/templates/spec-template.md — no principle-specific references. ✅
+  - .specify/templates/tasks-template.md — no principle-specific references. ✅
+  - .claude/commands/*, stacks/*.md, AGENTS.md — reference engineering
+    principles I–IX by number, all preserved. ✅
+Deferred / TODO: none.
 -->
 
-# Reference Constitution — Working in a Codebase, Fast and Well
+# Warform Commander Constitution
 
-This is a general reference for how to build: it applies to a greenfield
-project you own and to being dropped into an unfamiliar codebase alike.
-The acute time-boxed case (a live interview or client scoping session) is
-one mode of working under it — see Governance and
-`docs/interview-cheat-sheet.md` — not the whole of it.
+This constitution governs Warform Commander in two layers:
 
-## Core Principles
+- **Product & Architecture Invariants (P1–P8)** — what *this game* must always
+  be, and the technical shape that guarantees it. These are project-specific and
+  take precedence over convenience; the non-negotiable ones (P1, P6) are never
+  waived. Source of truth for the product design: `reference/`.
+- **Engineering Process (Principles I–IX)** — the tool-neutral working rules for
+  *how* we build here, carried from the team's general engineering reference and
+  also stated in `AGENTS.md`. They are retained verbatim and referenced by
+  number across the repo.
+
+## Product & Architecture Invariants
+
+These say what Warform Commander must always be. A design or implementation
+choice that violates one is wrong by definition, not a trade-off to weigh.
+
+### P1. Non-P2W by Construction (NON-NEGOTIABLE)
+
+Power is capped and mostly lateral. Every equipment choice MUST be a
+trade-off / sidegrade, never a straight power upgrade — most strictly on the
+Weapon and Defense slots. The best gear is **earned-only** and never
+purchasable. Real money may buy only: cosmetics, *capped* convenience (e.g.
+daily-capped attack-fuel), a mostly-earnable battle pass, and a *capped* number
+of non-overpowered mid-tier sidegrade items — store gear never reaches peak
+power. Ladder rewards are cosmetic, never power. The total power gap between a
+fresh and a fully-progressed army stays within a moderate (~25%) cap.
+
+Rationale: the anti-pay-to-win promise is the product's core differentiator and
+its brand ("Skill lives in the plan — never the wallet"). It must be enforced
+structurally, so that spending *cannot* buy dominance — not merely discouraged.
+
+### P2. Planning Over Twitch, Skill Over Stats
+
+The human's edge is **pre-battle decisions** — composition, counters, loadouts,
+positioning — not reflexes and not spending. The skill/composition swing MUST
+exceed the gear gap: a sharp newcomer on base gear beats a sloppy veteran on max
+gear; between equally-skilled players, dedication (progression) breaks the tie.
+No twitch/real-time input decides a ranked battle.
+
+Rationale: this fixes where mastery lives. Every mechanic is judged by whether it
+rewards thinking before the shooting starts.
+
+### P3. Depth from Configuration, Not Roster Count
+
+Variety comes from ~7 unit types × 3 variants × equipment × behavior dials ×
+positioning — not a bloated roster. Adding depth means new *configuration axes
+and options*, not an ever-growing unit count to art and balance. Variants define
+a unit's fixed base-stat identity; equipment defines its loadout; behavior dials
+define its logic — keep these axes orthogonal so balance stays legible.
+
+Rationale: combinatorial depth is sustainable for a small team; roster sprawl is
+not. It also keeps the counter-web readable to players.
+
+### P4. Fairness Is Verified, Not Hoped
+
+Because battles are simulatable, matchup fairness MUST be *provable*. A
+Monte-Carlo auto-balancer runs each matchup (unit × variant × loadout × dials ×
+positioning) thousands of times, reads win-probability distributions, and flags
+degenerate or dominant combinations before players find them. Balance claims —
+the native-family bonus band, the power-gap cap, "no dominant unit," "skill beats
+gear" — are validated numerically, not asserted.
+
+Rationale: the game deliberately creates a large combinatorial space; automated
+verification is what lets one team keep it fair at that scale.
+
+### P5. Content from Players and Puzzles
+
+The renewable content is player-generated: async PvP turns every player's defense
+squad into fresh opposition, so the ladder is **never empty** (cold-start seeded
+with hand-made / AI armies). Design for emergent variety over authored volume and
+minimize the content treadmill.
+
+Rationale: player-as-content sustains engagement without a large ongoing content
+pipeline — a structural fit for a small team.
+
+### P6. Deterministic, Seeded, Server-Authoritative Simulation (NON-NEGOTIABLE)
+
+One **simulation core** powers both the live game and the offline auto-balancer.
+Battles are fully reproducible from a seed plus inputs (seeded PRNG, fixed-tick
+advance). The **server is authoritative** for any ranked/competitive result;
+clients MUST NOT be able to fabricate or alter outcomes. Randomness is bounded
+texture (crit jitter, small variance), never a decider of key outcomes.
+
+Rationale: determinism is what makes replays, the balancer (P4), and reproducible
+bug reports possible; server authority is mandatory for ladder integrity and is
+inseparable from the non-P2W promise (P1).
+
+### P7. Both Platforms First-Class
+
+The app is fully responsive; **mobile portrait AND desktop landscape are both
+first-class** design targets — each designed *for*, never one grudgingly adapted
+from the other. Every screen must work and feel native in both orientations.
+
+Rationale: the audience plays on both; a second-class platform halves reach and
+undercuts the product's credibility.
+
+### P8. Data-Driven Content
+
+Units, variants, equipment, behavior dials, and presets are expressed as **typed
+data**, not hardcoded logic. The simulation, the UI, and the balancer read the
+*same single source of truth* for game content and stats. Adding or tuning
+content is a data change, validated by types.
+
+Rationale: a shared data model keeps sim, UI, and balancer consistent, and makes
+balance tuning (P4) a data operation rather than a code rewrite.
+
+## Engineering Process
+
+How we build. These nine principles are retained verbatim from the team's general
+engineering reference; they are referenced by number elsewhere in the repo.
 
 ### I. Clarify Before Building (NON-NEGOTIABLE)
 
@@ -156,9 +274,11 @@ branch releasable while work is still in flight.
 
 ## Workflow
 
-**Starting a project (its initial feature set):** plan the whole set first
+**Starting the project (its initial feature set):** plan the whole set first
 (Principle VII) — `speckit-specify` + `speckit-plan` across every feature —
-before implementing any. Then take each feature through the loop below.
+before implementing any. Each feature's plan MUST pass a Constitution Check
+against both the Product & Architecture Invariants (P1–P8) and the Engineering
+Process principles. Then take each feature through the loop below.
 
 **Per feature or change:**
 
@@ -188,16 +308,27 @@ before implementing any. Then take each feature through the loop below.
 
 ## Governance
 
-This is a reference starting point, not inherited authority — the
-actual codebase's own conventions win whenever they conflict with
-anything here. Adapt freely per engagement; there's no ratification
-ceremony required for a working reference document like this one.
+The **Product & Architecture Invariants (P1–P8)** are the project's own,
+non-inherited law: they take precedence over convenience, and P1 (Non-P2W) and
+P6 (Deterministic, server-authoritative sim) are **never waived**, in any mode.
+Any deviation from a non-NON-NEGOTIABLE invariant must be named explicitly and
+justified in the plan's Complexity Tracking, with the simpler compliant
+alternative recorded.
 
-**Time-boxed / live mode:** under a genuinely time-boxed, single-task
-engagement (e.g. a live interview or client scoping session — see
-`docs/interview-cheat-sheet.md`), Principles VII and IX may be relaxed —
-plan lighter, and commit/branch as the setting allows. The verification
-and testing bar (Principles V and VIII) and the non-negotiables (I and IV)
+The **Engineering Process principles (I–IX)** govern how we build. They are a
+working reference, and where this repo later develops its own conventions, those
+conventions win on *style* — but never in a way that breaches P1–P8.
+
+**Time-boxed / live mode:** under a genuinely time-boxed, single-task engagement,
+Engineering Principles VII and IX may be relaxed (plan lighter; commit/branch as
+the setting allows). The verification and testing bar (V and VIII), the process
+non-negotiables (I and IV), and **all** Product & Architecture Invariants (P1–P8)
 still hold.
 
-**Version**: 2.0.0 | **Ratified**: 2026-07-15 | **Last Amended**: 2026-07-15
+**Amendments** require: a written change with rationale, a semantic-version bump
+(MAJOR = principle removal/redefinition or re-scope; MINOR = principle/section
+added or materially expanded; PATCH = clarifications), and a refreshed Sync
+Impact Report at the top of this file. Dependent templates (`.specify/templates/`)
+must be re-checked for alignment on each amendment.
+
+**Version**: 3.0.0 | **Ratified**: 2026-07-18 | **Last Amended**: 2026-07-18
