@@ -26,11 +26,19 @@ once it reaches a released version. Until then, everything lives under
 - Sentry error monitoring and tracing via `@sentry/nextjs` across the Node,
   Edge, and browser runtimes (`instrumentation.ts`, `instrumentation-client.ts`,
   `sentry.server.config.ts`, `sentry.edge.config.ts`, `app/global-error.tsx`,
-  and `withSentryConfig` in `next.config.ts`). Inert until
-  `NEXT_PUBLIC_SENTRY_DSN` is set. `.env.example` documents the required env.
-  Chose Sentry alone over pairing it with `@vercel/otel` (fragile dual
-  OpenTelemetry setup; Sentry's SDK already provides OTel-based tracing).
-- Reference material under `reference/` — game design doc plus brand
-  foundation, logo directions, and Home/Garage/Battle Playback screen refs.
+  and `withSentryConfig` in `next.config.ts`). Activated in production via the
+  Sentry Vercel Marketplace integration (DSN + source-map env configured);
+  `.env.example` documents the required env. Chose Sentry alone over pairing it
+  with `@vercel/otel` (fragile dual OpenTelemetry setup; Sentry's SDK already
+  provides OTel-based tracing).
+- Reference material under `reference/` — the game design doc plus brand
+  foundation, logo directions, and eight screen mockups (Home, Content, Garage,
+  Arena, Battle Playback, Battle Summary, Ladder, Profile).
+- Project constitution v3.0.0 (`.specify/memory/constitution.md`) — Warform
+  Commander's product & architecture invariants (P1–P8: non-P2W, planning-over-
+  twitch, depth-from-config, fairness-verified, content-from-players,
+  deterministic/seeded/server-authoritative sim, both-platforms-first-class,
+  data-driven) atop the retained engineering process (Principles I–IX).
+  Ratified 2026-07-18.
 
 [Unreleased]: https://github.com/jonupchurch/warformcommander/commits/main
