@@ -9,17 +9,12 @@
 //! contracts/, tasks.md). Modules land Foundational-first: `fixed` -> `rng` ->
 //! `model` -> `sim` -> `replay`.
 
+pub mod fixed;
+pub mod rng;
+
 /// Crate version, surfaced so the balancer/host can confirm they linked the
 /// expected engine build. Replaced by the real public API (`resolve`/`validate`)
 /// as the Foundational and US1 modules land.
 pub fn engine_version() -> &'static str {
     env!("CARGO_PKG_VERSION")
-}
-
-#[cfg(test)]
-mod smoke {
-    #[test]
-    fn crate_builds_and_links() {
-        assert_eq!(super::engine_version(), env!("CARGO_PKG_VERSION"));
-    }
 }

@@ -10,9 +10,15 @@ publish = false
 [lib]
 crate-type = ["cdylib", "rlib"]
 
-# Dependencies are added task-by-task (T002) once each is actually used, so the
-# skeleton always compiles. Determinism rules (research A1-A4): no floats, no
-# HashMap iteration, single-threaded resolve, pinned value-stable PRNG.
+# Dependencies are added task-by-task once each is actually used, so the skeleton
+# always compiles. Determinism rules (research A1-A4): no floats, no HashMap
+# iteration, single-threaded resolve, pinned value-stable PRNG.
+#
+# rand_pcg is value-stable + portable (reference-vector tested) unlike StdRng/SmallRng
+# (research A3). Version pinned; the golden-hash / reference-vector tests are the real
+# stability contract, so a bump can't silently shift output unnoticed.
 [dependencies]
+rand_pcg = "=0.9.0" # exact-pinned: the algorithm's output is our determinism contract
+rand_core = "0.9"
 
 [dev-dependencies]
