@@ -6,24 +6,31 @@
 
 ## Current phase
 
-**Feature planning & build (foundation-first).** Bootstrapping is done: the
-Next.js app is scaffolded, deployed, and observable, and the whole game design
-has been absorbed from `reference/`. The project constitution is ratified
-(v3.0.0). We are now building the game, starting from the foundation.
+**Full feature set planned — ready to implement.** Bootstrapping is done (Next.js
+app scaffolded, deployed, observable); the constitution is ratified (v3.0.0); and as
+of 2026-07-19 **all 12 v1 features are specced, planned, and tasked** — Spec-Kit
+`spec.md` + `plan.md` + `tasks.md` under `specs/00X-*/`, each with a passing
+Constitution Check. Nothing is implemented yet — the next step is building, in
+dependency order.
 
-**Approach — foundation-first (a deliberate read of Principle VII):** the design
-doc (`reference/warformcommandergamedesigndoc.md`) already surfaces the shared
-data model, cross-feature dependencies, and build order that Principle VII asks a
-whole-set plan to surface — so rather than mechanically spec all ~11 features
-before any code, we build the deterministic **sim core + data model** first (the
-foundation everything imports) and spec each later feature just-in-time in
-dependency order. The design doc is the master plan.
+**Approach — plan-the-whole-set-first, then build foundation-first (Principle VII):**
+the full set was planned before any implementation so shared models and cross-feature
+dependencies surfaced on paper. Feature 1 (the deterministic **sim core + data model**)
+is the foundation everything imports; the design doc
+(`reference/warformcommandergamedesigndoc.md`) remains the master plan, and each
+feature's `specs/00X-*/` directory is its detailed blueprint.
 
-**Active work:** A gameplay-design deep-dive (2026-07-19) locked ~18 architecture,
-combat, and live-ops decisions (see design doc §18) and produced a first-pass stat
-block. The Feature 1 spec now needs a **revision pass** to absorb them — WASM engine,
-replay-as-data, `ruleset` as an engine input, discrete zone movement, the tick/cadence
-model — before planning. Nothing is implemented yet.
+**Cross-feature reconciliation items** (surfaced during planning; resolve at build time):
+- **Ruleset loader naming:** Feature 8 wrote a `loadCurrentRuleset()` placeholder; Feature
+  12 defines the real `getCurrentRuleset()` (fresh-read, no per-instance cache, over its new
+  `rulesets`/`current_ruleset` store) and renames the call site (F12 tasks T045).
+- **Editorial post authoring:** Feature 11 assumes all `posts` writes go through the admin
+  surface, but Feature 12's spec covers only auto-posts (balance/devlog/changelog). Editorial
+  (hand-written) authoring needs a home — most naturally a small addition to the Feature 12
+  admin console — to be assigned before those features are built.
+- **Per-machine damage rollup:** Feature 6 wants MVP/per-machine damage that Feature 1's
+  `MatchResult` doesn't carry; it derives it from an O(events) replay reduction (no re-sim).
+  Adding a per-machine rollup to the engine result is an optional future convenience.
 
 ## Done
 
@@ -38,33 +45,38 @@ model — before planning. Nothing is implemented yet.
 - [x] **Gameplay design deep-dive (2026-07-19)** — locked ~18 decisions (Rust/WASM engine + replay-as-data, tick/cadence model, row-based reach, behavior dials + Plan-B conditions & slot-order precedence, rosters/defense/matchmaking, admin console + unified news, Google auth). Written into the design doc (§4/§8/§9/§16/§18).
 - [x] **First-pass stat block** — `reference/warformcommander-firstpass-stats.md` (v0 placeholder: 7 types × 3 variants, equipment, damage model, reach, TTK calibration to the 300–450-tick budget). Seeds the engine + balancer.
 - [x] **News page mockup** committed to `reference/` (10 screen mockups now).
+- [x] **Full v1 feature set planned (2026-07-19)** — all **12 features** carried through Spec-Kit `spec → plan → tasks` under `specs/00X-*/` (Feature 1 in the foreground with dedicated Rust/WASM + determinism + replay research; Features 2–12 via parallel briefed subagents), each with a passing Constitution Check. **~536 tasks** across the set. Root `PLAN.md` is the one-page overview.
 
 ## Next up
 
-1. **Revise the Feature 1 spec** — absorb this session's decisions (WASM engine, seekable replay-as-data, `ruleset` as an engine input, discrete zone movement, tick/cadence constants, row-based reach) on branch `001-battle-sim-core`, then approve.
-2. **`/speckit-plan`** for Feature 1 — the Rust/WASM engine design, the typed data schema, the replay format, and the test strategy (determinism + counter-web).
-3. **`/speckit-tasks`** → **`/speckit-implement`** — build and test the sim core.
-4. Then spec/build the rest in dependency order (see Feature set below).
+1. **Implement Feature 1 (sim core + data model)** — `/speckit-implement` on branch `001-battle-sim-core` from `specs/001-battle-sim-core/tasks.md`: the Rust workspace (`crates/engine` + `crates/balancer` stub), fixed-point + pinned-PRNG determinism, the tick loop + damage pipeline, the JSON replay + TS reader, the WASM build, and the golden-hash/counter-web test suites. The foundation everything imports — harden it first (P6/P8).
+2. **Then build in dependency order:** Feature 3 (app shell) + Feature 7 (accounts/persistence) as the next foundations → Features 4/5/6 (garage/playback/summary) → 8/9/10 (arena/ladder/profile) → 2 (balancer) → 11 (marketing/news) → 12 (admin). Each `/speckit-implement` from its `specs/00X-*/tasks.md`, on its own feature branch.
+3. **Before creating DB tables** (Feature 7): set up a Neon **dev branch** and extend the Neon env vars to Preview.
+4. Reconcile the three cross-feature items listed under **Current phase** as their features are built.
 
 ## Feature set (v1, foundation-first order)
 
 Backlogged per design doc §16.1 (NOT v1): PvE, attack-fuel economy, progression
 unlocks, monetization, commanders, manual-override, onboarding.
 
-| # | Feature | Spec | Plan | Tasks | Status |
+All 12 planned (spec + plan + tasks, Constitution Check passing). Task counts per
+feature; see root `PLAN.md` for the per-feature task TL;DR. "Build order" = suggested
+implementation sequence, not the spec numbering.
+
+| # | Feature | Spec | Plan | Tasks | Build order |
 |---|---|---|---|---|---|
-| 1 | Sim core + game data model | ✅ draft | — | — | **spec drafted; needs revision pass** |
-| 2 | Auto-balancer (Monte-Carlo, reuses sim core) | — | — | — | not started |
-| 3 | App shell + design system (nav, brand tokens) | — | — | — | not started |
-| 4 | Garage (squad builder + loadout/dial editor) | — | — | — | not started |
-| 5 | Battle playback (tick stream → pixel-art replay) | — | — | — | not started |
-| 6 | Battle summary (post-Bo3 results) | — | — | — | not started |
-| 7 | Accounts & persistence (backend/DB, defense snapshots) | — | — | — | not started |
-| 8 | Arena (async matchmaking) + Practice sandbox | — | — | — | not started |
-| 9 | Ladder (seasons, metrics, tiers/MMR) | — | — | — | not started |
-| 10 | Profile (career stats, achievements) | — | — | — | not started |
-| 11 | Marketing site (Home + News index + article template) | — | — | — | not started |
-| 12 | Admin console + balance publishing (live stat editing → auto news) | — | — | — | not started (post-#7) |
+| 1 | Sim core + game data model | ✅ | ✅ | ✅ 54 | **1st (foundation)** |
+| 2 | Auto-balancer (Monte-Carlo, reuses sim core) | ✅ | ✅ | ✅ 32 | after #1 |
+| 3 | App shell + design system (nav, brand tokens) | ✅ | ✅ | ✅ 55 | 2nd |
+| 4 | Garage (squad builder + loadout/dial editor) | ✅ | ✅ | ✅ 40 | after #3/#7 |
+| 5 | Battle playback (tick stream → pixel-art replay) | ✅ | ✅ | ✅ 42 | after #3 |
+| 6 | Battle summary (post-Bo3 results) | ✅ | ✅ | ✅ 32 | after #3 |
+| 7 | Accounts & persistence (backend/DB, defense snapshots) | ✅ | ✅ | ✅ 52 | 3rd (foundation) |
+| 8 | Arena (async matchmaking) + Practice sandbox | ✅ | ✅ | ✅ 51 | after #4/#7 |
+| 9 | Ladder (seasons, metrics, tiers/MMR) | ✅ | ✅ | ✅ 38 | after #7/#8 |
+| 10 | Profile (career stats, achievements) | ✅ | ✅ | ✅ 33 | after #7 |
+| 11 | Marketing site (Home + News index + article template) | ✅ | ✅ | ✅ 59 | after #3/#7 |
+| 12 | Admin console + balance publishing (live stat editing → auto news) | ✅ | ✅ | ✅ 48 | after #7 |
 
 ## Tech stack
 
@@ -74,7 +86,7 @@ unlocks, monetization, commanders, manual-override, onboarding.
 - **Auth:** Google OAuth first (all users), email login fast-follow — provisioned with the DB in feature #7.
 - **Deployment:** Vercel — git-connected, auto-deploys on push to `main`.
 - **Observability:** Vercel Web Analytics + Sentry (`@sentry/nextjs`).
-- **Backend/DB:** **Neon Postgres + Drizzle ORM** via the Vercel Marketplace (decided 2026-07-19). Driver `@neondatabase/serverless`, `drizzle-orm/neon-http`. **Already provisioned** (Vercel Marketplace) and pulled forward as an **early need** — battle-result/replay storage is an early feature — so it's wired now, not deferred to Feature 7.
+- **Backend/DB:** **Neon Postgres + Drizzle ORM** via the Vercel Marketplace (decided 2026-07-19). Driver **`postgres`** (postgres-js) with **`drizzle-orm/postgres-js`** — chosen over neon-http for local+prod parity and transaction support (see `db/index.ts`: lazy `getDb()`, `prepare:false` for the Neon pooler, no Proxy wrapper so auth adapters work). **Already provisioned** and wired now (battle-result/replay storage is an early need); the full schema lands with Feature 7. **Auth** = Google via Auth.js + the Drizzle adapter, database session strategy (Feature 7).
 - **Testing:** unit tests + Playwright e2e (constitution Principle VIII).
 
 ## How to maintain this file

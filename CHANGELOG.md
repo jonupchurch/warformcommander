@@ -64,5 +64,17 @@ once it reaches a released version. Until then, everything lives under
   precedence; **8 saved squads** (→ 64 via bundles) with **blind random 3-squad
   defense**; **Google-first auth**; and a **unified news system** auto-posting
   balance changes and code pushes.
+- **Full v1 feature set planned (2026-07-19)** — all **12 features** carried
+  through Spec-Kit `spec → plan → tasks` under `specs/00X-*/` (**~536 tasks**),
+  each with a passing Constitution Check, plus a root **`PLAN.md`** one-page
+  overview and a refreshed `STATUS.md` feature table. Feature 1 (sim core) was
+  planned in the foreground with dedicated research — cross-platform determinism
+  (fixed-point `i64` + pinned `Pcg64` + golden-hash CI), Rust→WASM on Vercel
+  (wasm-pack + output-file-tracing), and the seekable positional-array JSON
+  replay (`jsonb`, O(1) seek); Features 2–12 were planned by parallel briefed
+  subagents against Feature 1's data model, the design system, and the DB schema.
+  Also corrected the DB driver of record to **postgres-js** (`drizzle-orm/
+  postgres-js`) over neon-http, for local+prod parity and transactions. Nothing
+  implemented yet — this is the buildable blueprint.
 
 [Unreleased]: https://github.com/jonupchurch/warformcommander/commits/main
