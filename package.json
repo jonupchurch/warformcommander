@@ -13,11 +13,11 @@
     "db:studio": "dotenv -e .env.local -- drizzle-kit studio"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^1.1.0",
     "@sentry/nextjs": "^10.66.0",
     "@vercel/analytics": "^2.0.1",
     "drizzle-orm": "^0.45.2",
     "next": "16.2.10",
+    "postgres": "^3.4.9",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
