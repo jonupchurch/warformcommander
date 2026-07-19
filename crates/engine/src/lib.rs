@@ -11,6 +11,7 @@
 
 pub mod fixed;
 pub mod model;
+pub mod replay;
 pub mod rng;
 
 /// Crate version, surfaced so the balancer/host can confirm they linked the
