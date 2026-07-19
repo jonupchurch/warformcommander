@@ -65,3 +65,6 @@ next-env.d.ts
 !.env.example
 
 .env*
+
+# Rust build output
+/target

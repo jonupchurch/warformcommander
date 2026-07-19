@@ -1,0 +1,18 @@
+# Feature 1 — the deterministic sim core. Compiles to WASM (server) and native (balancer/tests).
+# crate-type: cdylib -> the .wasm artifact (wasm-pack); rlib -> native link for the balancer + tests.
+[package]
+name = "engine"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+# Dependencies are added task-by-task (T002) once each is actually used, so the
+# skeleton always compiles. Determinism rules (research A1-A4): no floats, no
+# HashMap iteration, single-threaded resolve, pinned value-stable PRNG.
+[dependencies]
+
+[dev-dependencies]

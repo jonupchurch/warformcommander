@@ -1,0 +1,11 @@
+# Warform Commander — Rust workspace (the deterministic sim core + the native balancer).
+# Feature 1 = crates/engine; Feature 2 = crates/balancer. See specs/001-battle-sim-core/.
+[workspace]
+resolver = "2"
+members = ["crates/engine", "crates/balancer"]
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+license = "UNLICENSED"
+publish = false
