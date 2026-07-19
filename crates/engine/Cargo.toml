@@ -26,5 +26,9 @@ rand_core = "0.9"
 # (unlike rand_pcg, whose *algorithm* is the contract).
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+# blake3: a *portable, spec-defined* hash (identical bytes on native + wasm32), used for
+# `rulesetHash` provenance and the golden-hash determinism harness (research A5). Output
+# stability is the hash spec's guarantee; the golden test is still the backstop.
+blake3 = "1"
 
 [dev-dependencies]
