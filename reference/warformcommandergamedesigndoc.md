@@ -47,7 +47,12 @@ Four zones, front to back: **Air · Front · Middle · Rear.**
 
 - **Free placement, with per-zone caps.** You distribute your 5 units across the zones however you like, subject to hard caps: **ground zones (Front/Middle/Rear) hold up to 3 each**, and **Air holds up to 2** (the tighter Air limit prevents air-stacking exploits → ≤2 aircraft per army). Within those caps, Explosive splash remains the organic counter to clustering.
 - **Air is its own zone and a soft counter, not a hard wall.** Any unit with reach can shoot at aircraft, but **AA (Rocket Artillery) deals more damage and hits more often** against air. This avoids the feel-bad of "forgot AA → auto-lose" while keeping AA a rewarded pick.
-- **Targeting reach (working assumption):** direct-fire units (tanks, light tanks, mechs) can plink at air at an accuracy/damage penalty; **indirect artillery cannot hit air** (it lobs at ground); rear support doesn't attack.
+- **Targeting reach — by the firing unit's row (locked).** Reach depends on which row a unit occupies; the Target Priority dial then picks among eligible targets.
+  - **Front row** → the enemy's **nearest occupied ground row** (Front → Middle → Rear, collapsing forward as each clears).
+  - **Middle row** → enemy **Front *and* Middle** (two rows); reaches enemy **Rear only after both are cleared**.
+  - **Rear row** → **cannot fire** unless it is **Artillery or Rocket Artillery**, which reach **anything**.
+  - **Air** → always targetable by any air-capable weapon (AA fully · direct-fire "plink" at −0.25 acc / ×0.5 dmg · **indirect Artillery never**), independent of the ground-row collapse. Rear Support doesn't attack.
+  - **Splash** hits every enemy unit in the targeted row, capped at **≤25%** of the hit, confined to that one zone.
 - Front zones absorb fire first; rear/support are protected until reached (by artillery, air, or once the front collapses).
 
 ## 5. Unit roster (starter pool — more types added later)
@@ -185,21 +190,36 @@ Not damage-family or weight gated — mix any 3. Clearest "both-tiered" slot: co
 
 No code editor, no if/then authoring. Everything is a **menu pick**.
 
-### 8.1 The four dials (starter · unlockable)
+**Per-unit config budget:** 1 weapon + 1 defense + 3 utility slots (4 on the *Sentinel* mech & *Command Post* support) + the four dials + up to 2 Plan-B trigger slots — ~12 decisions/unit, so **presets (§8.4) are mandatory** as the on-ramp.
 
-1. **Target Priority** *(who to shoot)* — *Starter:* Focus Fire (pile onto allies' target), Nearest, Weakest, Strongest/Biggest Threat, Backline-first. *Unlockable:* Target Support, Target Air, **Smart-Counter** (shoot enemies your damage type counters — via Targeting Computer).
-2. **Energy Allocation** *(offense/defense slider)* — *Starter:* Offense (energy→weapons: +damage/RoF, −mitigation), Balanced, Defense (energy→shields). *Unlockable:* Overdrive (extreme offense, take extra damage), Fortify (near-max mitigation, minimal fire), **Adaptive** (auto-shifts with incoming damage — via Combat AI).
-3. **Position & Movement** *(where you start + when you move)* — *Starter:* Hold, Advance (push as the zone ahead clears), Fall Back. *Unlockable:* Escort (shadow an ally), Kite (back off after firing), Reposition (slide to a less-contested zone) — via mobility module; limited by unit speed.
-4. **Stance** *(decision logic — what to prioritize doing)* — *Starter:* Aggressive, Neutral, Defensive. *Unlockable:* Protector (body-block/taunt — via taunt module), Opportunist (hold fire for high-value openings — via Combat AI). Support flavors: Triage (heal most-wounded), Sustain (spread heals), Empower (buff attackers first).
+### 8.1 The behavior dials
 
-**Dial hygiene law:** Energy = *mechanical numbers* (damage out vs. mitigation); Stance = *decision logic* (which action to choose). Keep them orthogonal or they blur and muddy balance.
+Every unit sets a menu of always-present dials; advanced **options** on each are gated by utility modules (§8.3). **Target Priority is two sub-picks that combine.** All options resolve deterministically (ties break by zone order → placement index).
 
-### 8.2 Plan-B conditional switch
+- **Target Priority (a) — Target Row** *(which reachable enemy row; see reach §4):* Front Reachable Row *(nearest — default)* · Last Reachable Row *(dive the backline)* · Fullest Row *(max splash — U)* · Weakest Row *(collapse a flank — U)*.
+- **Target Priority (b) — Target Rule** *(which unit in that scope):* Focus Fire *(pile onto the allied target)* · Disperse Fire *(spread — anti-overkill)* · Nearest · Weakest · Biggest Threat. *Unlockable:* Target Support · Target Air · **Smart-Counter** (enemies your damage type counters — Targeting Computer).
+- **Energy Allocation** *(numbers: offense ↔ mitigation):* Offense · Balanced · Defense. *Unlockable:* Overdrive *(max damage / one cadence tier faster, take extra damage)* · Fortify *(near-max mitigation, minimal fire)* · **Adaptive** (auto-slides with HP — Combat AI).
+- **Position & Movement** *(discrete zone transitions):* Hold · Advance · Fall Back. *Unlockable:* Kite · Reposition · Escort (mobility module; immobile & air-locked units inert).
+- **Stance** *(decision logic — kept orthogonal to Energy's numbers):* Aggressive · Neutral · Defensive. *Unlockable:* Protector *(taunt/body-block)* · Opportunist (hold for openings — Combat AI). *Support flavors:* Triage · Sustain · Empower.
 
-**One trigger slot to start** (one extra via Combat AI/Tactical Computer; **capped at 2 total**). When its condition fires, it flips a dial to a chosen Plan-B setting.
-- *Starter conditions:* HP < X% · an ally falls · I'm the last one standing · my zone is breached · after tick T.
-- *Unlockable conditions:* enemies cluster (3+) · **air detected** (→ swap to AA behavior) · my shields/armor break · a watched ally drops low (reactive support).
-- Triggers must be **trade-offs**, not free turtles; the auto-balancer flags abusive Plan-A/Plan-B combos.
+**Dial hygiene law:** Energy = *mechanical numbers* (damage vs. mitigation); Stance = *decision logic* (which action to choose). Keep them orthogonal or they blur and muddy balance.
+
+### 8.2 Plan-B conditional triggers
+
+**Up to 2 trigger slots** (base 1 + one via Combat AI / Tactical Computer). Each is *when [condition] → set one setting to a Plan-B value* (flip-targets: Target Row, Target Rule, Energy, Movement, Stance).
+
+**Conditions** *(deterministic, checked each tick; thresholds in braces):*
+- *Self:* Own Hull < {75/50/25%} *(S)* · shields break · armor breached · being focused · untouched N ticks · took a big hit *(U)*.
+- *Allies:* an ally falls · I'm last standing *(S)* · watched ally < {75/50/25%} · ally in my zone falls · team ≤ N *(U)*.
+- *Enemy:* enemy total health < {75/50/25%} *(S)* · air enemy exists · enemy support present · enemy artillery present · enemies cluster (3+) · enemy count ≤ N · counter-target in reach *(U)*.
+- *Position:* my zone breached *(S)* · my front row cleared · enemy backline exposed *(U)*.
+- *Time:* after tick {T} *(S)* · no damage dealt for N ticks *(U)*.
+
+**Latch:** a trigger fires **once and stays flipped** for the rest of the battle (no revert).
+
+**Precedence (order of operations):** **Slot 1 outranks Slot 2** — the player assigns which condition sits in which slot. Different dials → both apply; **same dial → Slot 1 wins** (even if Slot 2 latched it first). The final dial state depends only on *which triggers have fired + slot priority — never on firing order*, so it stays fully deterministic (engine req FR-016).
+
+**Trade-off law:** each Plan-A/Plan-B pair must cost something; the auto-balancer flags free-turtle combos.
 
 ### 8.3 Gear ↔ orders interlock
 
@@ -213,7 +233,8 @@ Utilities don't just tweak stats — they *expand how a unit can think*. The Tar
 
 ## 9. Combat resolution
 
-- **Resolution model: real-time tick simulation.** Each unit acts on its own cooldown (its *fire rate*) rather than in discrete turns — "slow firing" vs. "fast acting" are literal. The sim advances in fixed ticks; the client renders/animates the resulting tick stream.
+- **Resolution model: real-time tick simulation.** Each unit acts on its own cooldown (its *fire rate*) rather than in discrete turns — "slow firing" vs. "fast acting" are literal. The **server** resolves the whole battle and emits a serializable **tick stream** (per-tick state + events) that the client **replays** — the client never simulates ("it's over before it reaches the client").
+- **Time & cadence (locked):** **10 ticks/sec**, hard time cap **1000 ticks (100 s)**, target **average battle 30–45 s (~300–450 ticks)**, resolved by Conquest well before the cap. Fire cadence is **four tiers** — **Fast 1 · Medium 3 · Slow 5 · Siege 10** ticks/shot (Siege = artillery). Placeholder numeric stats live in `warformcommander-firstpass-stats.md` (the balancer tunes them).
 - **Auto-resolving**, watchable, snappy. The joy is in the plan executing; conditional switches create narrative beats ("Plan B triggered!").
 - **Minor bounded randomness** — crit chance, small damage variance, tick-timing jitter. *Texture, not decider.* No swingy misses on key abilities, no random-target ultimates.
 - **Best-of-3 matches + adaptation rule.** Terminology: a **match** = one Bo3 series vs one opponent; a **game** = one of the three. In **ranked PvP you are locked within a match** — army, presets, and positioning ride all three games, so Bo3 simply smooths the minor RNG (a fluke can't decide the ladder); you adapt *between* matches and across the ladder. In **PvE/practice, adaptation between games is free** (sideboarding a fixed puzzle is fair). This keeps async PvP fair against a static defender snapshot, which cannot respond mid-match.
@@ -226,7 +247,7 @@ Every unit tracks these values (base from unit type + variant; modified by equip
 
 - **Survivability:** **Hull (HP)** (dies at 0) · **Shield Capacity** (rechargeable buffer, absorbed before hull; strong vs Energy, weak vs Kinetic) · **Shield Recharge Rate** · **Shield Recharge Delay** (ticks untouched before recharge starts) · **Armor Rating** (mitigation on hull damage; strong vs Kinetic, weak vs Energy; permanent unless ablative).
 - **Offense:** **Damage** · **Damage Type** (Kinetic/Energy/Explosive) · **Fire Rate / cooldown** (ticks between shots) · **Accuracy** · **Crit Chance / Multiplier** · **Splash/AoE** · **Penetration** (skips a portion of shields and/or armor) · **Reach** (targetable zones).
-- **Mobility & positioning:** **Move Speed** (0 = immobile) · **Evasion** · **Threat/Aggro** (enemy target weighting; raised by taunt).
+- **Mobility & positioning:** **Move Speed** = zone-transition capability — movement is **discrete zone-to-zone only** (no continuous position); 0 = immobile, — = N/A for air-locked helicopters · **Evasion** · **Threat/Aggro** (enemy target weighting; raised by taunt).
 - **Support units also:** **Support Power** · **Support Range/Targets**.
 - **Config (non-combat):** mount class · native damage family · slot layout (1 wpn / 1 def / 3 util; 4-util variants) · home-zone eligibility · weight class.
 - **Derived:** **Power Rating** (from stats + gear tiers) — drives matchmaking brackets + the ~25% power-gap cap; never used in combat math.
@@ -238,7 +259,7 @@ Every unit tracks these values (base from unit type + variant; modified by equip
 2. **Base Damage** × crit × native-family bonus.
 3. Absorbed by **Shields** first (shield §6 multiplier; Penetration may skip part) → overflow…
 4. …to **Hull**, reduced by **Armor Rating** (armor §6 multiplier; Penetration may skip part).
-5. **Splash** repeats a reduced hit on other targets in the zone.
+5. **Splash** repeats a reduced hit (**≤25%** of the hit) on other enemy units in the targeted row/zone.
 
 No army-unit cost: every player fields exactly **5 units** — a level slot playing field.
 
@@ -277,9 +298,9 @@ Real money may buy:
 
 ## 13. Matchmaking & fairness
 
-- **Bracketed matchmaking** by a **progression/power score** (sum of unlocked gear tiers), so casuals face casuals and newcomers aren't fed to veterans.
-- Combined with the moderate power gap and the "skill > gear" law, this rewards dedication without shutting casual players out.
-- A fully **normalized/"Standard" equalized ladder** was considered and **deferred** — bracketing is the chosen v1 approach.
+- **v1: fully random matchmaking.** Everyone can face anyone — no bracketing — so the pool stays lively and *anyone has a shot at anyone*, especially early. (Bracketed/normalized matchmaking by power score was considered and is **deferred** as a later refinement.)
+- **Ranking = net victories: attack wins add, defense losses subtract.** You climb by winning attacks *and* by fielding a defense that wins its snapshot battles — a weak defense bleeds rank, so topping the ladder needs both a sharp offense and a resilient defense. (This is v1's stake — no MMR/ELO, no economy/progression rewards yet.)
+- Combined with the moderate power gap and the "skill > gear" law, this keeps casual players in the game without shutting anyone out.
 
 ## 14. Balance tooling (a solo-dev superpower)
 
@@ -293,9 +314,12 @@ Ship v1 as **army + equipment only**, but architect the data model so a **Comman
 
 - **Next.js** carries the entire meta-game — roster, variant/loadout screens, team builder, shop, campaign/arena menus — as a data-driven web app.
 - **Battle** renders in React with a pixel-art animation layer, driven by a **seeded, server-authoritative real-time tick simulation**.
-- **Backend + database** required for: accounts, persistent rosters, **snapshotting defense teams** for async PvP, matchmaking, and the economy. (Suggested: Postgres/Supabase, but open.)
+- **Backend + database** required for: accounts, persistent rosters, **snapshotting defense teams** for async PvP, matchmaking, and the economy. **Data layer = Neon Postgres + Drizzle ORM** (Vercel Marketplace), decided 2026-07-19.
 - **Server-authoritative combat is mandatory for PvP integrity** — clients must not be able to fabricate results on a ranked/monetized ladder.
 - The same simulation core powers the **auto-balancer** offline.
+- **Engine = Rust → WebAssembly**, a pure `resolve(armies, ruleset, seed) → Replay`. The **server** runs it (via WASM) to resolve matches authoritatively; the **balancer** runs the same core **natively** for speed. The client never runs it.
+- **Client is a replay player, not a simulator.** The engine emits a **serializable, random-access per-tick snapshot stream** (a unit's position = its zone); the React viewer scrubs/plays by indexing — no re-simulation. Each replay carries a **replay-format** version.
+- **Balance data (the ruleset) is an engine input**, not baked in — **admin-editable live** (§16.2); un-versioned (safe: recorded replays never re-derive). Persistence stores **replay + seed + army inputs** (debug/repair).
 
 ### 16.1 v1 scope & backlog (build target)
 
@@ -303,20 +327,33 @@ Ship v1 as **army + equipment only**, but architect the data model so a **Comman
 - Full **real-time tick sim** + the **Monte-Carlo auto-balancer** on the same core.
 - Complete **army-building toolset, all unlocked**: 7 unit types × 3 variants each, full weapon/defense/utility sets, all four order dials + Plan-B triggers, presets (stock + custom).
 - **Free placement + zone caps** (ground 3 / Air 2) and **win conditions** (Conquest / Time).
-- **Async PvP ladder**: accounts, roster + defense-snapshot persistence, bracketed matchmaking, Bo3 locked-in-match, damage-tiebreak. **Cold-start seeded** with hand-made/AI defense armies so the ladder is never empty.
-- **Practice-vs-AI sandbox** (same tech as PvP snapshots) for testing armies.
+- **Async PvP ladder**: accounts, roster + defense-snapshot persistence, **random matchmaking (v1)**, Bo3 locked-in-match, damage-tiebreak, **ranking = net victories (defense losses subtract)**. **Cold-start seeded** with hand-made/AI defense armies so the ladder is never empty.
+- **Practice-vs-AI sandbox** — face a **randomly-chosen squad drawn from all squads in the DB**, refreshable at any time, **opponent identity hidden**.
+- **Database is an early need** (Neon Postgres + Drizzle) — battle results/replays are stored from the start, so persistence is not deferred to a late feature.
 - **Server-authoritative** sim for PvP integrity.
+- **Admin console + unified news system** — live base-stat editing that auto-publishes balance news; editorial + auto-posted balance/devlog updates (see §16.2).
 
 **Backlogged (future — "the other systems," shipped together later):**
 - **PvE** (campaign, operations, roguelite, procedural skirmish beyond the sandbox).
 - **Attack-fuel economy** (v1: battle freely, no gate).
 - **Progression / targeted unlocks** (v1: everything available).
 - **Monetization** (cosmetics, store gear, battle pass) — nothing gated to sell yet.
+- **Squad-slot bundles** — buy +8 slots up to 64 total (storage convenience, non-P2W); the 8-slot baseline ships in v1.
 - **Commanders.**
 - **Optional single manual-override** — design the sim to *allow* it, but off in v1.
 - **Onboarding** — video tutorial, authored later.
 
 Suggested build phases: sim core → army/loadout meta (all unlocked) → battle resolution + win conditions → accounts/persistence → async PvP ladder + practice sandbox.
+
+### 16.2 Rosters, defense & live-ops
+
+- **Rosters:** each player saves up to **8 squads** natively (a *squad* = one full 5-unit army), expandable to **64** via microtransaction **+8-slot bundles** (storage convenience, non-P2W; future).
+- **Defense:** designate up to **3 squads** as base defense; all three are **snapshotted**. On a match one is **served at random** — blind to the attacker and **locked across the Bo3**. Defense squads are **not available for attacking** (mutually-exclusive pools; a player needs ≥1 available squad to attack).
+- **Admin console** (new feature, gated by a server-side admin role/allowlist on a Google account; post-accounts): edit **base stats live** (the ruleset the engine reads) — un-versioned — auto-publishing a balance **news** post.
+- **News = one unified posts system** (Home → **News index** → Content Page article template): editorial posts hand-written; **balance changes and pushed code changes auto-post** as a live devlog/changelog.
+- **Auth:** **Google OAuth first** for all users (players + admin); direct email login as a fast-follow.
+
+Numeric first-pass stats live in `warformcommander-firstpass-stats.md`.
 
 ## 17. Open items / to decide
 
@@ -331,3 +368,24 @@ Suggested build phases: sim core → army/loadout meta (all unlocked) → battle
 ## 18. Decision log (locked this session)
 
 **Title: Warform Commander** · **combat = real-time tick sim** · **first build target = full vertical slice w/ backend** · genre & platform · pixel art · fully responsive · 4 zones (Air/Front/Middle/Rear) with free placement · air as soft-countered own-zone · 7 starter unit types + variants · 3×2 damage/defense matrix · 5 equipment slots (1 weapon / 1 defense / 3 utility), both-tiered, sidegrades-only · **weapon system: mount+family gating with crossover, native-family bonus (~10–15%, Mech = generalist, Energy = no-native crossover tech), reach tags; full starter+progression weapon lists per class** · **4 order dials (Target / Energy / Position / Stance) with starter+unlockable menus, Plan-B trigger menu, gear↔orders interlock** · **presets: named builds bundling full setup; stock + custom; per unit-class** · **adaptation locked within a ranked match (Bo3 = RNG-smoothing), free in PvE/practice** · **defense slot: Armor/Shields/Hybrid + Blast, weight-gated, no native bonus, shields recharge after a few untouched ticks; full lists per class** · **utility slots ×3: 5 categories (targeting/fire/mobility/EW/command), starter+progression, no duplicate modules, Plan-B slots capped at 2** · mostly-breadth progression with a moderate (~25%) capped power gap · targeted unlocks, no lootboxes, best gear earned-only · monetization = cosmetics + capped convenience + limited mid-tier gear · bracketed matchmaking · Monte-Carlo auto-balancer · **unit variants: 3 per class at launch (all available), more in later updates; trade on durability/mobility/role/cadence, a few alter slot-count or mount; no native-family shift** · **stat schema (§9.1): Hull + separate coexisting Armor & Shield values + offense/mobility/support stats + derived Power Rating; damage pipeline shields→armor→hull; ammo/heat/signature deferred; no unit cost (fixed 5)** · **zone caps: ground 3, Air 2 (hard; ≤2 aircraft/army)** · **win conditions: Conquest (full reward) / Time → most-damage wins (lesser reward), exact tie → defender** · commanders deferred · async PvP (core v1 mode); puzzle PvE + attack-fuel economy = future · **v1 scope: core sim + full unlocked toolset + async PvP ladder + practice sandbox + backend; PvE, fuel economy, progression unlocks, monetization, commanders & manual-override all backlogged (§16.1)**.
+
+**This session (2026-07-19) — architecture, combat model & live-ops:**
+
+- **Engine = Rust → WASM**, pure `resolve(armies, ruleset, seed) → Replay`; **client is a replay-only player** (never simulates); runs on Vercel, balancer runs the core natively.
+- **Deterministic fixed-point math**; replays stamped with a **replay-format** version; persist **replay + seed + inputs** (debug/repair, not anti-cheat).
+- **Replay = random-access per-tick snapshots + events**; position = zone; the scrubber indexes, never re-simulates.
+- **Ruleset (balance table) is an engine input**, admin-editable live, **un-versioned** (safe — recorded replays never re-derive).
+- **Tick model:** 10 t/s · hard cap **1000 t (100 s)** · target **avg battle 30–45 s (~300–450 t)**. **Cadence tiers:** Fast 1 / Med 3 / Slow 5 / Siege 10 (artillery).
+- **Movement = discrete zone-to-zone**; helis air-locked (no Move). **Row-based reach** (§4); **splash ≤25%** of the hit, in-row. **Armor = percentage** mitigation.
+- **Behavior model** (§8): Target = **Row + Rule** sub-picks, plus Energy/Movement/Stance; up to **2 latching Plan-B triggers** with **Slot-1-over-Slot-2 precedence**. Config budget: 1 wpn + 1 def + 3 util (4 on Sentinel/Command Post) + 4 dials + ≤2 Plan-B slots.
+- **First-pass numeric stats authored** → `warformcommander-firstpass-stats.md` (placeholder; balancer tunes).
+- **Auth = Google OAuth first** (all users), email fast-follow; admin = server-side role/allowlist.
+- **Rosters:** save **8 squads** natively (→ 64 via +8 MTX bundles, future); squad = one 5-unit army. **Defense:** pick **≤3 squads**, one served **at random** (blind, locked for the Bo3), all 3 snapshotted, defense squads **not usable for attacking**.
+- **Admin console** (new, post-accounts): live base-stat editing + auto-published balance news. **News = one unified posts system**: editorial hand-written; **balance edits and code pushes auto-post**. Marketing = Home + **News index** + Content Page.
+
+**Meta layer (2026-07-19, resolving prior open items):**
+
+- **Matchmaking = fully random** for v1 (no bracketing) — anyone can face anyone, especially early; bracketing is a deferred refinement.
+- **Ranking = net victories:** attack **wins add**, **defense losses subtract** — a strong defense is required to top the ladder. This is v1's stake (no MMR/ELO, no economy rewards yet).
+- **Practice sandbox:** face a **randomly-chosen squad from all squads in the DB**, refreshable anytime, **opponent identity hidden**.
+- **DB pulled forward as an early need:** battle results/replays are stored from the start — **Neon Postgres + Drizzle**, already provisioned via the Vercel Marketplace; not deferred to Feature 7.

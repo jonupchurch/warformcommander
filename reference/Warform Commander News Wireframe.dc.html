@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@500;600;700;800;900&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #06080b; color: #c4ccd6; font-family: 'Archivo', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #c4ccd6; text-decoration: none; }
+  a:hover { color: #2ad4ff; }
+</style>
+</helmet>
+<div style="position:absolute;left:-9999px;top:0;width:0;height:0;overflow:hidden;pointer-events:none;">
+  <x-import component-from-global-scope="image-slot" from="./image-slot.js" hint-size="1px,1px"></x-import>
+</div>
+
+<!-- NAV -->
+<header style="position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:18px 44px;background:rgba(6,8,11,.8);backdrop-filter:blur(10px);border-bottom:1px solid rgba(120,140,160,.1);">
+  <a href="Warform Commander Home.dc.html" style="display:flex;align-items:center;gap:12px;">
+    <svg width="36" height="23" viewBox="0 0 160 100" fill="none"><polygon points="8,18 8,82 46,50" fill="rgba(42,212,255,.2)" stroke="#2ad4ff" stroke-width="7"></polygon><polygon points="152,18 152,82 114,50" fill="rgba(255,47,176,.2)" stroke="#ff2fb0" stroke-width="7"></polygon><line x1="80" y1="16" x2="80" y2="84" stroke="#eef3f8" stroke-width="7"></line></svg>
+    <span style="font-family:'Archivo Expanded',sans-serif;font-weight:900;font-size:17px;letter-spacing:.02em;color:#eef3f8;">WARFORM</span>
+  </a>
+  <nav style="display:flex;align-items:center;gap:30px;">
+    <a href="Warform Commander Home.dc.html#overview" style="font-size:14px;font-weight:500;">Overview</a>
+    <a href="#" style="font-size:14px;font-weight:600;color:#2ad4ff;">News</a>
+    <a href="Warform Commander Home.dc.html#roadmap" style="font-size:14px;font-weight:500;">Roadmap</a>
+    <a href="Warform Commander Home.dc.html#community" style="font-size:14px;font-weight:500;">Community</a>
+    <a href="#" style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;color:#06080b;background:#2ad4ff;padding:10px 18px;border-radius:8px;box-shadow:0 0 18px rgba(42,212,255,.25);">Wishlist</a>
+  </nav>
+</header>
+
+<div style="max-width:1240px;margin:0 auto;padding:56px 44px 90px;">
+
+  <!-- PAGE HEADER + SEARCH -->
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:30px;">
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.28em;color:#2ad4ff;">DISPATCHES FROM THE FRONT</span>
+      <h1 style="margin:0;font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:44px;line-height:1;letter-spacing:-.01em;color:#eef3f8;">News</h1>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;width:300px;max-width:100%;padding:12px 16px;border:1px solid rgba(120,140,160,.25);border-radius:10px;background:#0b0f15;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5" stroke="#5a6472" stroke-width="2"></circle><line x1="15.5" y1="15.5" x2="21" y2="21" stroke="#5a6472" stroke-width="2"></line></svg>
+      <span style="font-family:'Archivo',sans-serif;font-size:14px;color:#5a6472;">Search dispatches…</span>
+    </div>
+  </div>
+
+  <!-- CATEGORY CHIPS -->
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:36px;">
+    <sc-for list="{{ chips }}" as="c" hint-placeholder-count="5">
+      <span style="font-family:'Space Mono',monospace;font-weight:700;font-size:12px;letter-spacing:.1em;padding:9px 16px;border-radius:20px;cursor:pointer;color: {{ c.fg }};border:1px solid {{ c.border }};background: {{ c.bg }};">{{ c.label }}</span>
+    </sc-for>
+  </div>
+
+  <!-- FEATURED -->
+  <article style="display:grid;grid-template-columns:1.1fr .9fr;gap:0;border:1px solid rgba(120,140,160,.14);border-radius:16px;overflow:hidden;background:#0b0f15;margin-bottom:26px;">
+    <div style="position:relative;min-height:340px;">
+      <span style="position:absolute;z-index:2;top:16px;left:16px;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:.14em;color:#06080b;background:#2ad4ff;padding:6px 11px;border-radius:5px;">◆ FEATURED</span>
+      <image-slot id="wf-news-w-feat" shape="rect" placeholder="FEATURED IMAGE"></image-slot>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px;padding:44px 40px;justify-content:center;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:.14em;color:#2ad4ff;border:1px solid rgba(42,212,255,.3);border-radius:5px;padding:5px 9px;">DEVLOG</span>
+        <span style="font-family:'Space Mono',monospace;font-size:12px;color:#5a6472;">2026 · 07 · 18</span>
+      </div>
+      <h2 style="margin:0;font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:30px;line-height:1.08;color:#eef3f8;">Combat is now a real-time tick simulation</h2>
+      <p style="margin:0;font-size:15px;line-height:1.6;color:#8b97a6;">Every machine acts on its own cooldown, so "slow-firing" and "fast-acting" are literal. Here's how the sim advances, why it's seeded and reproducible, and what that unlocks for the auto-balancer.</p>
+      <a href="Warform Commander Content Page.dc.html" style="font-family:'Archivo',sans-serif;font-weight:600;font-size:14px;color:#2ad4ff;margin-top:4px;">Read the update →</a>
+    </div>
+  </article>
+
+  <!-- POST GRID -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:22px;">
+    <sc-for list="{{ cards }}" as="c" hint-placeholder-count="6">
+      <a href="Warform Commander Content Page.dc.html" style="display:flex;flex-direction:column;border:1px solid rgba(120,140,160,.14);border-radius:14px;overflow:hidden;background:#0b0f15;color:inherit;">
+        <div style="position:relative;aspect-ratio:16/9;"><image-slot id="{{ c.slot }}" shape="rect" placeholder="POST IMAGE"></image-slot></div>
+        <div style="display:flex;flex-direction:column;gap:12px;padding:22px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-family:'Space Mono',monospace;font-weight:700;font-size:10px;letter-spacing:.14em;color: {{ c.tagColor }};border:1px solid {{ c.tagBorder }};border-radius:5px;padding:4px 8px;">{{ c.tag }}</span>
+            <span style="font-family:'Space Mono',monospace;font-size:11px;color:#5a6472;">{{ c.date }}</span>
+          </div>
+          <h3 style="margin:0;font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:18px;line-height:1.18;color:#eef3f8;">{{ c.title }}</h3>
+          <p style="margin:0;font-size:13.5px;line-height:1.55;color:#8b97a6;">{{ c.excerpt }}</p>
+        </div>
+      </a>
+    </sc-for>
+  </div>
+
+  <!-- PAGINATION -->
+  <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:44px;">
+    <sc-for list="{{ pages }}" as="p" hint-placeholder-count="5">
+      <span style="display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:9px;cursor:pointer;font-family:'Space Mono',monospace;font-weight:700;font-size:14px;color: {{ p.fg }};border:1px solid {{ p.border }};background: {{ p.bg }};">{{ p.label }}</span>
+    </sc-for>
+  </div>
+
+  <!-- FOLLOW / COMMUNITY STRIP -->
+  <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px;margin-top:52px;padding:34px 38px;border:1px solid rgba(42,212,255,.22);border-radius:16px;background:radial-gradient(120% 140% at 0% 0%,rgba(42,212,255,.09),transparent 60%),#0a0e13;">
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <span style="font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:20px;color:#eef3f8;">Never miss a dispatch.</span>
+      <span style="font-size:15px;color:#8b97a6;">Follow the build on your channel of choice.</span>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <a href="#" style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.1em;color:#c4ccd6;border:1px solid rgba(120,140,160,.25);border-radius:8px;padding:11px 18px;">DISCORD</a>
+      <a href="#" style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.1em;color:#c4ccd6;border:1px solid rgba(120,140,160,.25);border-radius:8px;padding:11px 18px;">REDDIT</a>
+      <a href="#" style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.1em;color:#c4ccd6;border:1px solid rgba(120,140,160,.25);border-radius:8px;padding:11px 18px;">X / TWITTER</a>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const chipDefs = [
+      ['ALL', true], ['DEVLOG', false], ['DESIGN', false], ['TECH', false], ['COMMUNITY', false],
+    ];
+    const chips = chipDefs.map(([label, on]) => ({
+      label,
+      fg: on ? '#06080b' : '#8b97a6',
+      bg: on ? '#2ad4ff' : 'transparent',
+      border: on ? '#2ad4ff' : 'rgba(120,140,160,.2)',
+    }));
+
+    const tagColors = {
+      DESIGN: ['#ff8c1a', 'rgba(255,140,26,.3)'],
+      TECH: ['#7b5cff', 'rgba(123,92,255,.35)'],
+      COMMUNITY: ['#ff2fb0', 'rgba(255,47,176,.3)'],
+      DEVLOG: ['#2ad4ff', 'rgba(42,212,255,.3)'],
+    };
+    const raw = [
+      ['DESIGN', '07 · 11', '21 machines, no bloated roster', 'Seven types, three chassis each — depth from how you kit them, not how many you collect.'],
+      ['TECH', '07 · 04', 'Proving fairness with Monte-Carlo', 'We run every matchup thousands of times to flag degenerate combos before players find them.'],
+      ['COMMUNITY', '06 · 27', 'Closed ladder testing opens soon', 'How the async arena stays populated from day one — and how to get an early invite.'],
+      ['DEVLOG', '06 · 20', 'Behavior dials, explained', 'Target priority, energy use, positioning and stance — the four knobs that define a unit.'],
+      ['DESIGN', '06 · 13', 'The four-zone battlefield', 'Air, Front, Middle, Rear — why positioning is a first-class strategic lever.'],
+      ['TECH', '06 · 06', 'Deterministic replays', 'Seeded simulation means every battle can be replayed frame-for-frame. Here is the pipeline.'],
+    ];
+    const cards = raw.map(([tag, date, title, excerpt], i) => ({
+      tag, date, title, excerpt, slot: 'wf-news-w-' + i,
+      tagColor: tagColors[tag][0], tagBorder: tagColors[tag][1],
+    }));
+
+    const pageDefs = [['‹', false], ['1', true], ['2', false], ['3', false], ['›', false]];
+    const pages = pageDefs.map(([label, on]) => ({
+      label,
+      fg: on ? '#06080b' : '#8b97a6',
+      bg: on ? '#2ad4ff' : 'transparent',
+      border: on ? '#2ad4ff' : 'rgba(120,140,160,.2)',
+    }));
+
+    return { chips, cards, pages };
+  }
+}
+</script>
+</body>
+</html>

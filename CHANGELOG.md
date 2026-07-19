@@ -26,11 +26,43 @@ once it reaches a released version. Until then, everything lives under
 - Sentry error monitoring and tracing via `@sentry/nextjs` across the Node,
   Edge, and browser runtimes (`instrumentation.ts`, `instrumentation-client.ts`,
   `sentry.server.config.ts`, `sentry.edge.config.ts`, `app/global-error.tsx`,
-  and `withSentryConfig` in `next.config.ts`). Inert until
-  `NEXT_PUBLIC_SENTRY_DSN` is set. `.env.example` documents the required env.
-  Chose Sentry alone over pairing it with `@vercel/otel` (fragile dual
-  OpenTelemetry setup; Sentry's SDK already provides OTel-based tracing).
-- Reference material under `reference/` — game design doc plus brand
-  foundation, logo directions, and Home/Garage/Battle Playback screen refs.
+  and `withSentryConfig` in `next.config.ts`). Activated in production via the
+  Sentry Vercel Marketplace integration (DSN + source-map env configured);
+  `.env.example` documents the required env. Chose Sentry alone over pairing it
+  with `@vercel/otel` (fragile dual OpenTelemetry setup; Sentry's SDK already
+  provides OTel-based tracing).
+- Reference material under `reference/` — the game design doc plus brand
+  foundation, logo directions, and eight screen mockups (Home, Content, Garage,
+  Arena, Battle Playback, Battle Summary, Ladder, Profile).
+- Project constitution v3.0.0 (`.specify/memory/constitution.md`) — Warform
+  Commander's product & architecture invariants (P1–P8: non-P2W, planning-over-
+  twitch, depth-from-config, fairness-verified, content-from-players,
+  deterministic/seeded/server-authoritative sim, both-platforms-first-class,
+  data-driven) atop the retained engineering process (Principles I–IX).
+  Ratified 2026-07-18.
+- Vehicle icons under `public/icons/` — seven line-art unit SVGs (64×40), one
+  per sim-core machine type (`heavy-tank`, `light-tank`, `mech`,
+  `attack-helicopter`, `rocket-artillery`, `artillery`, `support`). Each uses
+  `currentColor` so faction color is applied via CSS (friendly `#2ad4ff` /
+  enemy `#ff3b4e`) rather than a file per color; render inline for `color` to
+  apply. Not yet consumed by a screen.
+- News page reference mockup (`reference/Warform Commander News Wireframe.dc.html`)
+  — public news index (search, category chips, featured post + card grid,
+  pagination), articles linking the existing Content Page template.
+- First-pass stat block (`reference/warformcommander-firstpass-stats.md`) —
+  placeholder v0 numbers for the 7 unit types × 3 chassis variants, representative
+  equipment, the damage/mitigation model, row-based targeting/reach, and
+  time-to-kill calibration to the 10 t/s · 1000-tick-cap · 30–45 s-average battle
+  budget. Seeds the sim engine and the Monte-Carlo balancer (which tunes finals).
+- Design-doc consolidation (`reference/warformcommandergamedesigndoc.md`) of the
+  2026-07-19 gameplay deep-dive (§4/§8/§9/§16/§18): **Rust → WASM** engine (pure
+  `resolve(armies, ruleset, seed) → Replay`) with a **replay-only client**;
+  deterministic fixed-point sim; **random-access per-tick-snapshot** replay
+  (scrubber-safe); **admin-editable ruleset** input; four-tier fire cadence and
+  **discrete zone-based movement**; **row-based targeting/reach** with ≤25% splash;
+  the full **behavior-dial + Plan-B condition** menus with latch + slot-order
+  precedence; **8 saved squads** (→ 64 via bundles) with **blind random 3-squad
+  defense**; **Google-first auth**; and a **unified news system** auto-posting
+  balance changes and code pushes.
 
 [Unreleased]: https://github.com/jonupchurch/warformcommander/commits/main
