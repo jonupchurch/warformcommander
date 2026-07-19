@@ -4,9 +4,29 @@
 
 **Created**: 2026-07-18
 
-**Status**: Draft
+**Status**: Draft — revised 2026-07-19 (see Revision Notes below)
 
 **Input**: User description: "Battle Simulation Core + Game Data Model — the deterministic, seeded, server-authoritative real-time tick simulation at the heart of Warform Commander, plus the typed game-data schema it operates on. Foundation every other feature builds on."
+
+## Revision Notes (2026-07-19)
+
+A gameplay-design deep-dive locked decisions that **supersede or refine** parts of the
+requirements below. Where they conflict, **these govern** — the design doc (`reference/
+warformcommandergamedesigndoc.md` §4/§8/§9/§16/§18) and `reference/warformcommander-firstpass-stats.md`
+are the source of truth.
+
+- **Engine language & distribution (supersedes FR-023):** the core is **Rust compiled to WebAssembly**, a pure `resolve(armies, ruleset, seed) → Replay`. It runs **server-side via WASM** (authoritative) and **natively for the balancer**; the **client never runs it** — it is a **replay-only player**. "Two host contexts" (US-1 / SC-001) = server + balancer, not client.
+- **Determinism (refines FR-011, SC-001):** use **integer / fixed-point math** (no floats) for byte-identical reproducibility across platforms.
+- **Ruleset as an engine input (refines FR-007):** the **balance table** (all stat numbers) is a **data input** to `resolve(...)`, not baked in — admin-editable at runtime; the engine hard-codes no numbers.
+- **Tick & cadence model (refines FR-010, Assumptions):** **10 ticks/sec**, hard cap **1000 ticks (100 s)**, target **average battle 30–45 s (~300–450 ticks)**. Fire cadence is **four fixed tiers** — Fast 1 / Medium 3 / Slow 5 / Siege 10 ticks/shot.
+- **Movement is discrete zone-to-zone (refines FR-015):** no continuous position; a unit's position = **which of the 4 zones** it occupies; helicopters are air-locked (no movement).
+- **Row-based targeting & reach (supersedes FR-014):** Front row → nearest occupied enemy row (collapsing forward); Middle row → enemy Front + Middle (Rear only after both clear); Rear row → cannot fire unless Artillery / Rocket-Artillery (reach anything); Air always targetable by air-capable weapons (indirect Artillery never). **Splash ≤25%** of the hit, confined to the targeted row. Armor is **percentage** mitigation.
+- **Behavior dials (refines FR-015):** Target Priority is **two sub-picks** — Target **Row** + Target **Rule** — plus Energy, Movement, Stance.
+- **Plan-B triggers (refines FR-016):** triggers **latch** (fire once, stay flipped); **precedence = Slot 1 > Slot 2** (player-assigned); same-dial conflicts resolve to Slot 1; the final dial state is **order-independent** given the fired set — fully deterministic.
+- **Replay is random-access (refines FR-021, SC-002):** the tick stream is **full per-tick state snapshots + events**; the client reconstructs **nothing** and never re-simulates — the playback scrubber seeks any tick by **indexing**. Each replay carries a **replay-format** version. Persist **replay + seed + inputs**.
+- **Config budget:** 1 weapon + 1 defense + 3 utility (4 on *Sentinel* / *Command Post*) + 4 dials + ≤2 Plan-B trigger slots per machine.
+
+First-pass placeholder stat numbers (to seed the engine, the counter-web tests, and the balancer) live in `reference/warformcommander-firstpass-stats.md`.
 
 ## Overview
 
