@@ -298,9 +298,9 @@ Real money may buy:
 
 ## 13. Matchmaking & fairness
 
-- **Bracketed matchmaking** by a **progression/power score** (sum of unlocked gear tiers), so casuals face casuals and newcomers aren't fed to veterans.
-- Combined with the moderate power gap and the "skill > gear" law, this rewards dedication without shutting casual players out.
-- A fully **normalized/"Standard" equalized ladder** was considered and **deferred** — bracketing is the chosen v1 approach.
+- **v1: fully random matchmaking.** Everyone can face anyone — no bracketing — so the pool stays lively and *anyone has a shot at anyone*, especially early. (Bracketed/normalized matchmaking by power score was considered and is **deferred** as a later refinement.)
+- **Ranking = net victories: attack wins add, defense losses subtract.** You climb by winning attacks *and* by fielding a defense that wins its snapshot battles — a weak defense bleeds rank, so topping the ladder needs both a sharp offense and a resilient defense. (This is v1's stake — no MMR/ELO, no economy/progression rewards yet.)
+- Combined with the moderate power gap and the "skill > gear" law, this keeps casual players in the game without shutting anyone out.
 
 ## 14. Balance tooling (a solo-dev superpower)
 
@@ -314,7 +314,7 @@ Ship v1 as **army + equipment only**, but architect the data model so a **Comman
 
 - **Next.js** carries the entire meta-game — roster, variant/loadout screens, team builder, shop, campaign/arena menus — as a data-driven web app.
 - **Battle** renders in React with a pixel-art animation layer, driven by a **seeded, server-authoritative real-time tick simulation**.
-- **Backend + database** required for: accounts, persistent rosters, **snapshotting defense teams** for async PvP, matchmaking, and the economy. (Suggested: Postgres/Supabase, but open.)
+- **Backend + database** required for: accounts, persistent rosters, **snapshotting defense teams** for async PvP, matchmaking, and the economy. **Data layer = Neon Postgres + Drizzle ORM** (Vercel Marketplace), decided 2026-07-19.
 - **Server-authoritative combat is mandatory for PvP integrity** — clients must not be able to fabricate results on a ranked/monetized ladder.
 - The same simulation core powers the **auto-balancer** offline.
 - **Engine = Rust → WebAssembly**, a pure `resolve(armies, ruleset, seed) → Replay`. The **server** runs it (via WASM) to resolve matches authoritatively; the **balancer** runs the same core **natively** for speed. The client never runs it.
@@ -327,8 +327,9 @@ Ship v1 as **army + equipment only**, but architect the data model so a **Comman
 - Full **real-time tick sim** + the **Monte-Carlo auto-balancer** on the same core.
 - Complete **army-building toolset, all unlocked**: 7 unit types × 3 variants each, full weapon/defense/utility sets, all four order dials + Plan-B triggers, presets (stock + custom).
 - **Free placement + zone caps** (ground 3 / Air 2) and **win conditions** (Conquest / Time).
-- **Async PvP ladder**: accounts, roster + defense-snapshot persistence, bracketed matchmaking, Bo3 locked-in-match, damage-tiebreak. **Cold-start seeded** with hand-made/AI defense armies so the ladder is never empty.
-- **Practice-vs-AI sandbox** (same tech as PvP snapshots) for testing armies.
+- **Async PvP ladder**: accounts, roster + defense-snapshot persistence, **random matchmaking (v1)**, Bo3 locked-in-match, damage-tiebreak, **ranking = net victories (defense losses subtract)**. **Cold-start seeded** with hand-made/AI defense armies so the ladder is never empty.
+- **Practice-vs-AI sandbox** — face a **randomly-chosen squad drawn from all squads in the DB**, refreshable at any time, **opponent identity hidden**.
+- **Database is an early need** (Neon Postgres + Drizzle) — battle results/replays are stored from the start, so persistence is not deferred to a late feature.
 - **Server-authoritative** sim for PvP integrity.
 - **Admin console + unified news system** — live base-stat editing that auto-publishes balance news; editorial + auto-posted balance/devlog updates (see §16.2).
 
@@ -381,3 +382,10 @@ Numeric first-pass stats live in `warformcommander-firstpass-stats.md`.
 - **Auth = Google OAuth first** (all users), email fast-follow; admin = server-side role/allowlist.
 - **Rosters:** save **8 squads** natively (→ 64 via +8 MTX bundles, future); squad = one 5-unit army. **Defense:** pick **≤3 squads**, one served **at random** (blind, locked for the Bo3), all 3 snapshotted, defense squads **not usable for attacking**.
 - **Admin console** (new, post-accounts): live base-stat editing + auto-published balance news. **News = one unified posts system**: editorial hand-written; **balance edits and code pushes auto-post**. Marketing = Home + **News index** + Content Page.
+
+**Meta layer (2026-07-19, resolving prior open items):**
+
+- **Matchmaking = fully random** for v1 (no bracketing) — anyone can face anyone, especially early; bracketing is a deferred refinement.
+- **Ranking = net victories:** attack **wins add**, **defense losses subtract** — a strong defense is required to top the ladder. This is v1's stake (no MMR/ELO, no economy rewards yet).
+- **Practice sandbox:** face a **randomly-chosen squad from all squads in the DB**, refreshable anytime, **opponent identity hidden**.
+- **DB pulled forward as an early need:** battle results/replays are stored from the start — **Neon Postgres + Drizzle**, already provisioned via the Vercel Marketplace; not deferred to Feature 7.

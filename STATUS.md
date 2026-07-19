@@ -74,7 +74,7 @@ unlocks, monetization, commanders, manual-override, onboarding.
 - **Auth:** Google OAuth first (all users), email login fast-follow — provisioned with the DB in feature #7.
 - **Deployment:** Vercel — git-connected, auto-deploys on push to `main`.
 - **Observability:** Vercel Web Analytics + Sentry (`@sentry/nextjs`).
-- **Backend/DB:** TBD — design doc suggests Postgres/Supabase; decision deferred to the Accounts & persistence feature (#7).
+- **Backend/DB:** **Neon Postgres + Drizzle ORM** via the Vercel Marketplace (decided 2026-07-19). Driver `@neondatabase/serverless`, `drizzle-orm/neon-http`. **Already provisioned** (Vercel Marketplace) and pulled forward as an **early need** — battle-result/replay storage is an early feature — so it's wired now, not deferred to Feature 7.
 - **Testing:** unit tests + Playwright e2e (constitution Principle VIII).
 
 ## How to maintain this file
