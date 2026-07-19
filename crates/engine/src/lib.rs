@@ -9,6 +9,7 @@
 //! contracts/, tasks.md). Modules land Foundational-first: `fixed` -> `rng` ->
 //! `model` -> `sim` -> `replay`.
 
+pub mod content;
 pub mod fixed;
 pub mod model;
 pub mod replay;
