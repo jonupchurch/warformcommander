@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 40" width="64" height="40" fill="none">
+  <circle cx="16" cy="33" r="4" fill="none" stroke="currentColor" stroke-width="2.4"></circle>
+  <circle cx="30" cy="33" r="4" fill="none" stroke="currentColor" stroke-width="2.4"></circle>
+  <circle cx="44" cy="33" r="4" fill="none" stroke="currentColor" stroke-width="2.4"></circle>
+  <rect x="7" y="21" width="12" height="9" fill="currentColor" fill-opacity=".14" stroke="currentColor" stroke-width="2.4"></rect>
+  <rect x="19" y="24" width="32" height="6" fill="currentColor" fill-opacity=".14" stroke="currentColor" stroke-width="2.4"></rect>
+  <polygon points="28,24 46,24 54,10 36,10" fill="currentColor" fill-opacity=".14" stroke="currentColor" stroke-width="2.4"></polygon>
+  <line x1="35" y1="18" x2="50" y2="15" stroke="currentColor" stroke-width="2"></line>
+</svg>
