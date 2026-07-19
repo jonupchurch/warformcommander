@@ -2,7 +2,7 @@
 
 > Living snapshot of where the project is. Update it as phases and features
 > move. It complements `CHANGELOG.md` (what shipped) by capturing the
-> *current* state and what's next. Last updated: 2026-07-18.
+> *current* state and what's next. Last updated: 2026-07-19.
 
 ## Current phase
 
@@ -31,6 +31,7 @@ review** on branch `001-battle-sim-core`. Nothing is implemented yet.
 - [x] Design absorbed: game design doc + **9 screen mockups** (Home, Content, Garage, Arena, Battle Playback, Battle Summary, Ladder, Profile, Brand Foundation, Logo Directions) committed to `reference/` and digested.
 - [x] **Constitution v3.0.0 ratified (2026-07-18)** — product & architecture invariants P1–P8 + the retained engineering process I–IX. See `.specify/memory/constitution.md`.
 - [x] **Feature 1 spec drafted** — `specs/001-battle-sim-core/spec.md` (Status: Draft; quality checklist 16/16, zero clarifications). On branch `001-battle-sim-core`.
+- [x] **Vehicle icon set** — 7 line-art unit SVGs in `public/icons/`, one per sim-core machine type, `currentColor`-tinted for faction via CSS (friendly `#2ad4ff` / enemy `#ff3b4e`). Not yet consumed by a screen.
 
 ## Next up
 

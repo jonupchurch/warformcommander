@@ -40,5 +40,11 @@ once it reaches a released version. Until then, everything lives under
   deterministic/seeded/server-authoritative sim, both-platforms-first-class,
   data-driven) atop the retained engineering process (Principles I–IX).
   Ratified 2026-07-18.
+- Vehicle icons under `public/icons/` — seven line-art unit SVGs (64×40), one
+  per sim-core machine type (`heavy-tank`, `light-tank`, `mech`,
+  `attack-helicopter`, `rocket-artillery`, `artillery`, `support`). Each uses
+  `currentColor` so faction color is applied via CSS (friendly `#2ad4ff` /
+  enemy `#ff3b4e`) rather than a file per color; render inline for `color` to
+  apply. Not yet consumed by a screen.
 
 [Unreleased]: https://github.com/jonupchurch/warformcommander/commits/main
