@@ -18,14 +18,25 @@
 //! `Eq`/`Ord`/`Hash`, which is what makes a whole `Replay` trivially and
 //! deterministically hashable for the golden-hash test (research A5).
 
+use serde::{Deserialize, Serialize};
+
 /// Milli-unit scale: one whole unit = `1000` `Fixed` counts.
 pub const SCALE: i64 = 1_000;
 
 /// Basis-point scale: `1.0` (100%) = `10_000` bp.
 pub const BP_ONE: i64 = 10_000;
 
+/// A basis-point fraction/multiplier held as a plain `i64` (scale [`BP_ONE`]): `0.30`
+/// (30%) = `3_000`, `1.0` = `10_000`, `1.5` = `15_000`. Fed straight into
+/// [`Fixed::mul_bp`]. A documented alias (not a newtype) so it composes frictionlessly
+/// with the model's stat deltas — the field docs say which fields are `Bp`.
+pub type Bp = i64;
+
 /// A fixed-point quantity in milli-units (scale [`SCALE`]). Integer-only and total-order.
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash)]
+/// Serializes **transparently as its raw `i64` milli value** — the wire/replay contract is
+/// integer milli-units (the TS mirror divides by [`SCALE`] for display).
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
+#[serde(transparent)]
 pub struct Fixed(pub i64);
 
 impl Fixed {

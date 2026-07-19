@@ -10,6 +10,7 @@
 //! `model` -> `sim` -> `replay`.
 
 pub mod fixed;
+pub mod model;
 pub mod rng;
 
 /// Crate version, surfaced so the balancer/host can confirm they linked the
