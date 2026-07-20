@@ -91,6 +91,12 @@ test.describe('US3 — speed, frame-step, jump', () => {
     await expect(twoX).toHaveAttribute('aria-pressed', 'true');
   });
 
+  test('Skip to Outcome closes the loop to the match summary (round-trip)', async ({ page }) => {
+    await page.goto(ROUTE);
+    await page.getByRole('link', { name: /Skip to Outcome/ }).click();
+    await expect(page).toHaveURL(/\/matches\/e2e\/summary$/);
+  });
+
   test('frame-step moves exactly one tick and pauses; jump-to-start/end', async ({ page }) => {
     await page.goto(ROUTE);
     await page.getByRole('button', { name: 'Jump to end' }).click();

@@ -21,8 +21,11 @@ function loadReplay(): { replay: WireReplay; playerSide: Side } {
 }
 
 export default async function BattlePage({ params }: { params: Promise<{ matchId: string }> }) {
-  await params; // resolves the async route params; matchId keys F7's getReplay once it lands.
+  const { matchId } = await params; // keys F7's getReplay once it lands; also the summary round-trip.
   const { replay, playerSide } = loadReplay();
 
-  return <BattlePlayer replay={replay} playerSide={playerSide} />;
+  // Skip-to-Outcome closes the loop to the Feature 6 summary for this match.
+  return (
+    <BattlePlayer replay={replay} playerSide={playerSide} summaryHref={`/matches/${matchId}/summary`} />
+  );
 }
