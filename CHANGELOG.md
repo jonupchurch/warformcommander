@@ -195,5 +195,39 @@ once it reaches a released version. Until then, everything lives under
     are validated on a dev target before prod (`db/README.md`, SC-008); the Neon dev-branch→prod
     apply is the remaining user-gated promote step. Note: the service layer lives at root-level
     `server/` (matching `sim/`, `db/`, `lib/` — the repo has no `src/`).
+- **Feature 4 — Garage: squad builder + loadout/dial editor + defense designation (2026-07-20).**
+  The player-facing configuration surface, on branch `004-garage`. All five user stories:
+  - **Engine mirror + parity** — a pure, client-usable TS port of the engine's derivation and V1–V8
+    validation (`sim/derive.ts`, `sim/legality.ts`, `sim/ruleset.ts`), proven **field-for-field equal
+    to the Rust engine** against a **native-emitted fixture** (`crates/engine/examples/emit_derive_battery.rs`
+    → `tests/fixtures/derive-battery.json`; 34 derive + 11 validate cases). The client never runs wasm
+    (P6) — the Garage server component derives the ruleset once and passes it down; every stat preview
+    and legality gate the UI shows is the same math the server re-runs (P8, SC-002).
+  - **US1 — build + place + save.** A `useReducer`/Immer editor state machine (`lib/garage/`), the
+    three-column landscape rig that stacks in portrait (P7), tap-to-place across the four zones with
+    caps enforced by disabling (not rejecting), live PWR/stat readout, and a **Save gated by the client
+    `validate`** — server-authoritative via Feature 7 Server Actions (A4; a rejection surfaces back).
+  - **US2 — loadout editor.** Weapon/defense/utility pickers offering only mount-legal options
+    (family crossover), utility **dedup** by disabling equipped options, and the **native-family bonus
+    vs off-family sidegrade** made legible (FR-006).
+  - **US3 — behavior dials + Plan-B.** The four dials with the three engine-gated options (Adaptive /
+    Opportunist / Target-Air) **disabled unless** the machine's utilities unlock them, and ≤2 Plan-B
+    triggers — the gate table mirrors the engine's V7/V6 exactly (cross-checked vs `validateArmy`).
+  - **US4 — presets on-ramp.** Stock builds per variant (one-tap `+ PRESET`, no deep editor) + per-type
+    **custom presets** (Feature 7 `listPresets`/`savePreset`), **slot-fit** so a 4-utility bundle never
+    overfills a 3-slot variant (FR-013); the reducer's `applyPreset` verb stamps a provenance id cleared
+    by any later hand-edit.
+  - **US5 — base defense.** Designate/undesignate/re-designate a saved squad via Feature 7's
+    transactional service, surfacing the ≤3 cap, attack/defense exclusivity, and the **≥1-attackable**
+    rule as convenience guards (Principle II — the DB invariants are authority), plus a "re-designate to
+    push live" affordance when an edited squad has drifted from its frozen snapshot.
+  - **Polish** — an `beforeunload` unsaved-changes guard (never silently lose a dirty draft), visible
+    focus rings on the custom tap-to-place controls, and the `Sheet`-based Customize surface (LOADOUT /
+    BEHAVIOR / PRESETS tabs) that works in both orientations.
+  - **Verification** — **133 pure Vitest tests** green (parity, reducer, projection, view-models, loadout,
+    dial gating, presets, defense) + `next build` + `tsc` + ESLint + the **no-raw-hex guard** clean.
+    Deferred to a live env: the Playwright e2e + `@axe-core/playwright` pass + the save-gate DB test
+    (need a running app + browser + local Postgres). The editor lives at root-level `lib/garage/` +
+    `components/garage/` (no `src/`).
 
 [Unreleased]: https://github.com/jonupchurch/warformcommander/commits/main

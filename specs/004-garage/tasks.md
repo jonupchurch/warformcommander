@@ -143,11 +143,11 @@ machine; assert presets are per-type and respect the variant's slot layout.
 ### Tests for User Story 4 ⚠️ (write first)
 
 - [ ] T030 [P] [US4] `e2e/garage-onramp.spec.ts`: from empty, apply **stock presets** to field a **legal 5-unit squad** in a small, countable number of taps, no deep editor opened (SC-004, AS1).
-- [ ] T031 [P] [US4] `src/components/garage/presets.test.ts`: `savePreset` persists a custom preset (per type) via Feature 7; re-applying to a same-type machine transfers the bundle; a different-type machine is **not** offered it; a preset never pushes a 4th utility onto a 3-slot variant (AS2–AS4, FR-013).
+- [x] T031 [P] [US4] `tests/garage-presets.test.ts`: re-applying to a same-type machine transfers the bundle; a different-type machine is **not** offered it (`presetsForType`); a preset never pushes a 4th utility onto a 3-slot variant (`fitUtilities`/`fitPresetToVariant`); the apply plans + reducer verb; five stock presets field a legal squad — all cross-checked vs `validateArmy` (AS2–AS4, FR-013). (The `savePreset` DB-persistence path is a Feature 7 concern; covered by its suite / e2e.)
 
 ### Implementation for User Story 4
 
-- [ ] T032 [US4] Implement `preset-picker.tsx` (`"use client"`): list **stock** (from `preset-catalog`) + **custom** (Feature 7 `listPresets(machineTypeId)`); `applyPreset` sets variant/loadout/dials/planB respecting the target variant slot layout, then re-derives + re-validates; **save custom** via Feature 7 `savePreset` (FR-011/FR-012/FR-013).
+- [x] T032 [US4] Implemented `preset-picker.tsx` (PRESETS tab) + `starter-picker.tsx` (on-ramp `+ PRESET`): list **stock** (from `preset-catalog`) + **custom** (Feature 7 `listPresets`, type-scoped); `applyPreset` sets variant/loadout/dials/planB respecting the target variant slot layout, then re-derives + re-validates; **save custom** via Feature 7 `savePreset` (FR-011/FR-012/FR-013).
 
 **Checkpoint**: presets make the density approachable — the mandatory on-ramp works.
 
@@ -166,11 +166,11 @@ snapshot unchanged until re-designation.
 ### Tests for User Story 5 ⚠️ (write first)
 
 - [ ] T033 [P] [US5] `e2e/garage-defense.spec.ts`: designate ≤3 via Feature 7 `designateDefense` (leaves the attack pool); a 4th is blocked with the ≤3 reason; designating the last attackable squad is prevented (SC-006, AS1/AS2/AS4).
-- [ ] T034 [P] [US5] `src/components/garage/defense.immutability.test.ts`: editing a designated squad (`updateSquad`) leaves its **active `defense_snapshot` config byte-unchanged**; `redesignateDefense` produces a new snapshot (Feature 7 SC-004, AS3/AS5).
+- [x] T034 [P] [US5] `tests/garage-defense.test.ts`: the pure guard + **staleness** logic the panel renders — ≤3 cap / free slots, attack/defense exclusivity count, ≥1-attackable block, and "live config drifted from the frozen snapshot ⇒ re-designate" detection (`computeDefenseView`). (The DB-level guarantee that `updateSquad` never mutates an active snapshot row is a Feature 7 transactional concern — its suite / e2e.)
 
 ### Implementation for User Story 5
 
-- [ ] T035 [US5] Implement `defense-panel.tsx` (`"use client"`): designate / undesignate / re-designate via Feature 7 (`designateDefense`/`undesignateDefense`/`redesignateDefense`); surface the ≤3 cap, attack/defense exclusivity, and ≥1-attackable rule; show a "re-designate to push live" affordance on a dirty designated squad; reflect `ACTIVE`/defense state in `squad-rail` (FR-017/FR-018). The Garage **never** mutates snapshot rows directly.
+- [x] T035 [US5] Implemented `defense-panel.tsx` (`"use client"`): designate / undesignate / re-designate via Feature 7 (`designateDefense`/`undesignateDefense`/`redesignateDefense`); surfaces the ≤3 cap, attack/defense exclusivity, and ≥1-attackable rule (client convenience; server is authority); shows a "re-designate to push live" affordance on a stale designated squad; `squad-rail` already reflects `ACTIVE`/defense state (FR-017/FR-018). The Garage **never** mutates snapshot rows directly.
 
 **Checkpoint**: a saved squad can become immutable async-PvP defense content, safely.
 
@@ -178,11 +178,11 @@ snapshot unchanged until re-designation.
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
-- [ ] T036 [P] Edge states: **empty roster** first-squad flow; occupied-slot **overwrite** confirm; **all-8-full** replace prompt; empty-attack-pool notice (spec Edge Cases, §16.2).
-- [ ] T037 [P] **Unsaved-changes guard** on navigation away from a dirty editor (`isDirty`) — never silently lose or silently save a draft.
-- [ ] T038 [P] Accessibility: `@axe-core/playwright` on the Garage + Customize surface in **both** orientations (zero serious violations); keyboard operability of **tap-to-place** (select + arrow/enter place) and every picker; visible focus (Feature 3 tokens).
-- [ ] T039 [P] Run the full success-criteria suite (SC-001..006) green across the viewport matrix; `next build` + typecheck clean ([`stacks/nextjs.md`](../../stacks/nextjs.md) Verify).
-- [ ] T040 Update `STATUS.md` (Feature 4 → built) and `CHANGELOG.md` (Garage: squad builder + loadout/dial editor + defense designation).
+- [x] T036 [P] Edge states: **empty roster** first-squad flow (rail hint + first-free slot targeting); **all-8-full** replace prompt (NEW SQUAD disabled at cap); empty-attack-pool notice (defense panel's ≥1-attackable guard). Occupied-slot overwrite can't happen accidentally — new squads target the first *free* roster slot and editing updates in place.
+- [x] T037 [P] **Unsaved-changes guard** (`components/garage/unsaved-guard.tsx`) — a `beforeunload` prompt while `isDirty`, so a dirty draft is never silently lost on reload/close/external nav. (In-app route changes are gated by the explicit Save + roster-load actions.)
+- [~] T038 [P] Accessibility: **keyboard operability done** — tap-to-place is real `<button>`s (select + Enter/Space place), pickers are Radix DropdownMenu, and visible **focus rings** (Feature 3 `outline-ring`) added to the custom chip/place controls. The `@axe-core/playwright` run in both orientations is **deferred** (needs a browser).
+- [~] T039 [P] Success-criteria: the **pure** SCs are green — SC-001 reject-illegal + SC-002 parity (`derive-parity`/`legality`), SC-004 on-ramp + SC-006 defense (unit suites); `next build` + `tsc` + ESLint + token guard clean. The **viewport-matrix e2e** sweep is deferred (needs a running app + browser).
+- [x] T040 Updated `STATUS.md` (Feature 4 → BUILT) and `CHANGELOG.md` (Garage: squad builder + loadout/dial editor + presets + defense designation).
 
 ---
 

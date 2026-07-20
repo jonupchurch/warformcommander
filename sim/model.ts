@@ -187,14 +187,9 @@ export interface MatchResult {
  * the persistence layer treats it as opaque and passes it to `validate()`/`resolve()` unmodified
  * (constitution P8 — one source of truth, never re-declared in SQL). Feature 12 makes it DB-editable;
  * until then the server loads the engine's default ruleset (`sim/validate.ts`).
+ *
+ * The **concrete** shape (the content catalog + balance numbers the client derivation/validation
+ * read) lives in `sim/ruleset.ts`; it is re-exported here so persistence-layer imports of `Ruleset`
+ * are unchanged. See also {@link EffectiveStats} and the pure `deriveEffectiveStats`/`validateArmy`.
  */
-export interface Ruleset {
-  machineTypes: unknown;
-  chassis: unknown;
-  variants: unknown;
-  equipment: unknown;
-  damageMatrix: unknown;
-  cadenceTicks: unknown;
-  airMods: unknown;
-  globals: unknown;
-}
+export type { Ruleset, EffectiveStats } from './ruleset';
