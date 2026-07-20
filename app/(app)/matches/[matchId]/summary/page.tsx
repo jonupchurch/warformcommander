@@ -14,6 +14,8 @@ import { MatchTotals } from '@/components/battle-summary/match-totals';
 import { MvpCard } from '@/components/battle-summary/mvp-card';
 import { OutcomeHero } from '@/components/battle-summary/outcome-hero';
 import { PerMachineFates } from '@/components/battle-summary/per-machine-fates';
+import { StandingDelta } from '@/components/battle-summary/standing-delta';
+import { SummaryActions } from '@/components/battle-summary/summary-actions';
 import { loadSummaryContext } from '@/lib/battle-summary/demo';
 import { deriveSummaryViewModel } from '@/lib/battle-summary/view-model';
 
@@ -28,7 +30,9 @@ export default async function BattleSummaryPage({
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
-      <OutcomeHero outcome={vm.outcome} series={vm.series} />
+      <OutcomeHero outcome={vm.outcome} series={vm.series}>
+        <StandingDelta standing={vm.standing} />
+      </OutcomeHero>
 
       <MatchTotals totals={vm.totals} />
 
@@ -45,6 +49,8 @@ export default async function BattleSummaryPage({
         <h2 className="type-eyebrow text-text-muted">MACHINE FATES</h2>
         <PerMachineFates perMachine={vm.perMachine} />
       </section>
+
+      <SummaryActions actions={vm.actions} className="pt-2" />
     </div>
   );
 }
