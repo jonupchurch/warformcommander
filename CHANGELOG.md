@@ -149,6 +149,31 @@ once it reaches a released version. Until then, everything lives under
     guard; browsable at `/gallery`. New `web-ci` GitHub workflow gates it. The repo keeps
     root-level `components/`/`lib/` (matching `sim/`/`db/`) rather than `src/`; the user's custom
     `app/favicon.ico` was left untouched. Removed the unused create-next-app scaffold SVGs.
+- **Feature 6 — battle summary: post-Bo3 results (2026-07-20).** The post-match outcome screen and
+  the Skip-to-Outcome target that pairs with Battle Playback, on branch `006-battle-summary`. A
+  **reader** — it never re-simulates, recomputes the winner, or renders MMR/tiers; if a value isn't
+  in the persisted `MatchResult` or the read-in standing, it isn't on the screen.
+  - **Pure ViewModel spine** (`lib/battle-summary/`) — `deriveSummaryViewModel(result, ctx)` is pure
+    + total: it represents **every `MatchResult` field** (SC-001), keeps `totals.damageDealt` in raw
+    milli so it deep-equals the result (SC-003, zero drift), derives condition/tier and per-machine
+    fates (joined to `unitOrder` identity), and carries the perspective from `ctx.viewerSide`
+    (swapping it flips the verdict + every `SidePair`). `format.ts` holds the arithmetic; `mvp.ts` is
+    the optional **O(events) per-machine damage reduction** (no re-sim) whose Σ reconciles with the
+    side totals (Feature 1 SC-002).
+  - **US1** OutcomeHero (VICTORY/DEFEAT as text not color-only, series pips) + GameBreakdown (Conquest
+    vs Time·DMG distinct in text **and** color); **US2** MatchTotals dual bars (damage / units killed
+    / units lost / avg hull) + PerMachineFates (grouped by side) + the optional MVP card; **US3**
+    SummaryActions — **Watch Full Replay → `/battle/<matchId>`** (the Feature 5 route), Find Next
+    Opponent / Back → the Arena — a reader that mounts **no** replay player (SC-007); **US4** the
+    net-victory StandingDelta (`+1 NET VICTORY` / `UNRANKED`, no MMR/tier — that is Feature 9).
+  - **Feature 1 mirror** — `MatchResult.machineFates` went from `unknown[]` to a typed `MachineFate[]`
+    (`UnitRef`/`Fate` added to `sim/model.ts`) so the ViewModel reads it honestly.
+  - **Verification** — 22 pure Vitest (full-field, condition/tier, perspective, totals equality,
+    fates, standing, MVP reconciliation vs the real battery) + 10 Playwright/axe e2e (action seams +
+    navigation, four-viewport no-overflow, zero-serious a11y, reduced-motion-as-text), all green with
+    `next build` + `tsc` + ESLint + the token guard. The route derives from the committed demo battery
+    via a documented seam (imported JSON, prod-safe) until Feature 7's read path lands. Known limit: a
+    Time game is labelled "DMG" (the `GameResult` doesn't carry the exact-tie flag).
 - **Feature 5 — battle playback: tick stream → pixel-art replay + working scrubber
   (2026-07-20).** The watchable battlefield that fixes the previous game's broken viewer, on branch
   `005-battle-playback`. A **pure, engine-free player** (constitution P6): every frame is an O(1)

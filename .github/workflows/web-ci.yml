@@ -49,9 +49,10 @@ jobs:
       - run: npm run typecheck
       - run: npx eslint .
       - run: npm run lint:tokens # SC-002: no raw brand hex outside globals.css
-      # F5 anti-regression (SC-003 O(1) seek, SC-005 engine-never-imported) — the pure, DB-free
-      # playback suites, run directly so they gate without the Postgres the full `npm test` needs.
-      - run: npx vitest run tests/replay-view.test.ts tests/use-playback.test.ts
+      # Pure, DB-free feature suites — run directly so they gate without the Postgres the full
+      # `npm test` needs. F5 anti-regression (SC-003 O(1) seek, SC-005 engine-never-imported) +
+      # F6 Battle Summary ViewModel (SC-001/002/003 full-field/reconciliation).
+      - run: npx vitest run tests/replay-view.test.ts tests/use-playback.test.ts tests/summary-view-model.test.ts tests/summary-mvp.test.ts
       - run: npm run build
 
   e2e:

@@ -172,11 +172,30 @@ export interface SideSummary {
   survivors: number;
 }
 
+/** A machine's identity within the match (`UnitRef`) — joins a fate/event to `meta.unitOrder`. */
+export interface UnitRef {
+  side: Side;
+  instanceId: number;
+}
+
+/**
+ * What became of one machine by match end (`Fate`) — an externally-tagged union (camelCase serde):
+ * either destroyed at a tick, or survived with a fraction of hull remaining in **basis points**
+ * (÷100 for %). Mirrors the Rust `Fate` enum.
+ */
+export type Fate = { destroyedAtTick: number } | { survivedWithHullPct: number };
+
+/** A machine's final fate keyed by its ref (`MachineFate`). */
+export interface MachineFate {
+  unit: UnitRef;
+  fate: Fate;
+}
+
 /** The engine's best-of-three summary (`MatchResult`) — embedded in `Replay.result`. */
 export interface MatchResult {
   winner: Side;
   games: GameResult[];
-  machineFates: unknown[];
+  machineFates: MachineFate[];
   sideA: SideSummary;
   sideB: SideSummary;
   durationTicks: number;

@@ -26,14 +26,14 @@ P7). Those are executable tests (a pure ViewModel unit suite + a Playwright both
 
 **Purpose**: Scaffold the route + module folders and the result fixtures every story tests against.
 
-- [ ] T001 Create the folders + placeholders: `app/(app)/matches/[matchId]/summary/` (`page.tsx`,
+- [x] T001 Create the folders + placeholders: `app/(app)/matches/[matchId]/summary/` (`page.tsx`,
   `loading.tsx`, `error.tsx` stubs), `src/components/battle-summary/`, `src/lib/battle-summary/`. Per
   plan.md Project Structure.
-- [ ] T002 [P] Add a **`MatchResult` fixture battery** in `src/lib/battle-summary/__fixtures__/results.ts`:
+- [x] T002 [P] Add a **`MatchResult` fixture battery** in `src/lib/battle-summary/__fixtures__/results.ts`:
   a 2-0 Conquest sweep, a 2-1 with a middle-game Time loss, a viewer **defeat**, a **Time-tiebreak** win, an
   **exact-tie → defender** game, a **total wipe** (0 survivors / 0% hull), and an **all-survivors** Time
   game — each a valid Feature-1 `MatchResult` (+ a matching `meta.unitOrder`). These pin SC-001/003/005.
-- [ ] T003 [P] Confirm the Feature 1 TS result types (`MatchResult`, `GameResult`, `Side`, `Replay.meta`)
+- [x] T003 [P] Confirm the Feature 1 TS result types (`MatchResult`, `GameResult`, `Side`, `Replay.meta`)
   are importable from `src/sim/`; if the mirror is not yet present, add a **local type reference** in
   `src/lib/battle-summary/types.ts` that re-exports/points at the Feature 1 contract (do **not** redefine
   the shapes — reference [../001-battle-sim-core/data-model.md](../001-battle-sim-core/data-model.md)).
@@ -47,14 +47,14 @@ render until the ViewModel exists.
 
 **⚠️ CRITICAL**: `deriveSummaryViewModel` is the logic core; the components are thin renderers of its output.
 
-- [ ] T004 Implement `src/lib/battle-summary/format.ts`: pure helpers — `ticksToSeconds(ticks, tickRate)` →
+- [x] T004 Implement `src/lib/battle-summary/format.ts`: pure helpers — `ticksToSeconds(ticks, tickRate)` →
   `"8.2s"`; `killedLost(survivorCounts, viewerSide)` → per-side units-killed/lost (5-unit army, FR-008);
   `avgHullLeft(perMachineFates, side)` → % (0 on wipe). No I/O.
-- [ ] T005 Implement `src/lib/battle-summary/view-model.ts` — `deriveSummaryViewModel(result, ctx)` per
+- [x] T005 Implement `src/lib/battle-summary/view-model.ts` — `deriveSummaryViewModel(result, ctx)` per
   [contracts/view-model.md](./contracts/view-model.md): pure + total; builds `outcome`, `series`, `perGame`,
   `totals`, `perMachine`, optional `mvp`, optional `standing`, `actions`. Perspective from `ctx.viewerSide`
   (FR-003). Depends on T004; imports Feature 1 types (T003).
-- [ ] T006 [P] Implement the optional **MVP reduction** `src/lib/battle-summary/mvp.ts`:
+- [x] T006 [P] Implement the optional **MVP reduction** `src/lib/battle-summary/mvp.ts`:
   `perMachineDamageFromEvents(replayGames, unitOrder)` → per-actor `{ damageDealt, kills, damageAbsorbed }`
   via a **single O(events) reduction** (research [D3](./research.md)); **no re-simulation**. Feeds
   `ctx.perMachineDamage`. Pure; returns `undefined` when events are absent so `mvp` is simply omitted.
@@ -74,27 +74,27 @@ a defeat.
 
 ### Tests for User Story 1 ⚠️ (write first)
 
-- [ ] T007 [P] [US1] `src/lib/battle-summary/view-model.test.ts`: **full-field representation** — for every
+- [x] T007 [P] [US1] `src/lib/battle-summary/view-model.test.ts`: **full-field representation** — for every
   fixture, every `MatchResult` field (winner; each `GameResult`'s winner/condition/rewardTier/durationTicks;
   per-machine fates; perSideDamageTotals; survivorCounts) is present in the ViewModel (SC-001).
-- [ ] T008 [P] [US1] `view-model.test.ts`: **win-condition + tier** — a Conquest game derives
+- [x] T008 [P] [US1] `view-model.test.ts`: **win-condition + tier** — a Conquest game derives
   `CONQUEST`/`FULL`; a Time game derives `TIME`/`LESSER`; a Time-tiebreak win never derives `CONQUEST`
   (SC-002). Includes the **exact-tie → defender** `conditionDetail` (AS: edge case).
-- [ ] T009 [P] [US1] `view-model.test.ts`: **perspective + series** — flipping `viewerSide` flips `verdict`
+- [x] T009 [P] [US1] `view-model.test.ts`: **perspective + series** — flipping `viewerSide` flips `verdict`
   and the series W/L; a 2-0 yields 2 pips, a 2-1 yields 3 (SC-005, FR-003/004).
 
 ### Implementation for User Story 1
 
-- [ ] T010 [P] [US1] `src/components/battle-summary/series-pips.tsx`: the per-game W/L pills (G1/G2/G3) from
+- [x] T010 [P] [US1] `src/components/battle-summary/series-pips.tsx`: the per-game W/L pills (G1/G2/G3) from
   `vm.series`, cyan (W) / enemy-tint (L), `Chip`/token-driven (Feature 3), color **plus** the W/L glyph
   (FR-016).
-- [ ] T011 [US1] `src/components/battle-summary/outcome-hero.tsx`: the hero — `BEST OF 3` eyebrow, big
+- [x] T011 [US1] `src/components/battle-summary/outcome-hero.tsx`: the hero — `BEST OF 3` eyebrow, big
   `VICTORY`/`DEFEAT` (`font-display`, text via token not color-only), `Won 2 – 1 vs <opponent>`, and the
   `SeriesPips`; slot for `StandingDelta` (US4). Grounded in the mockup's outcome hero.
-- [ ] T012 [US1] `src/components/battle-summary/game-breakdown.tsx`: the per-game cards from `vm.perGame` —
+- [x] T012 [US1] `src/components/battle-summary/game-breakdown.tsx`: the per-game cards from `vm.perGame` —
   W/L badge, `GAME N`, `CONQUEST`/`TIME · DMG` (`Chip`), `FULL`/`LESSER` tier, survivors (`4 vs 0`),
   duration (`8.2s`). Conquest vs Time visually **and** textually distinct (SC-002).
-- [ ] T013 [US1] Wire `app/(app)/matches/[matchId]/summary/page.tsx` (Server Component): fetch the
+- [x] T013 [US1] Wire `app/(app)/matches/[matchId]/summary/page.tsx` (Server Component): fetch the
   `MatchResult` + `meta` for `matchId` via Feature 7 (scoped to the viewer), `deriveSummaryViewModel(...)`,
   render inside the Feature 3 `AppShell` with `OutcomeHero` + `GameBreakdown`. `error.tsx`/`not-found` for a
   missing/unowned match (FR-018).
@@ -115,28 +115,28 @@ total-wipe vs all-survivors both render.
 
 ### Tests for User Story 2 ⚠️ (write first)
 
-- [ ] T014 [P] [US2] `view-model.test.ts`: **totals equality** — `totals.damageDealt` deep-equals
+- [x] T014 [P] [US2] `view-model.test.ts`: **totals equality** — `totals.damageDealt` deep-equals
   `perSideDamageTotals`; `unitsKilled/unitsLost/avgHullLeft` are exact functions of `survivorCounts` +
   fates; 0% avg hull on a total wipe (SC-003, FR-008).
-- [ ] T015 [P] [US2] `view-model.test.ts`: **per-machine fates** — each machine maps to
+- [x] T015 [P] [US2] `view-model.test.ts`: **per-machine fates** — each machine maps to
   `destroyed@tick`/`survived@hull%` keyed to the correct `unitOrder` identity (type/variant/side); the
   destroyed-at-tick-0 and survived-at-100% extremes render (FR-009).
-- [ ] T016 [P] [US2] `src/lib/battle-summary/mvp.test.ts`: the event reduction sums per-actor damage
+- [x] T016 [P] [US2] `src/lib/battle-summary/mvp.test.ts`: the event reduction sums per-actor damage
   correctly and `Σ` reconciles with `perSideDamageTotals` (Feature 1 SC-002); `mvp` is **omitted** when no
   per-machine damage is available (FR-010).
 
 ### Implementation for User Story 2
 
-- [ ] T017 [P] [US2] `src/components/battle-summary/match-totals.tsx`: the you-vs-them dual bars (damage /
+- [x] T017 [P] [US2] `src/components/battle-summary/match-totals.tsx`: the you-vs-them dual bars (damage /
   units killed / units lost / avg hull) via Feature 3 `StatBar`, viewer=friendly / opponent=enemy tint;
   values equal the result (SC-003). The `1fr / label / 1fr` grid that stacks cleanly in portrait (D4).
-- [ ] T018 [P] [US2] `src/components/battle-summary/per-machine-fates.tsx`: the fate rows from
+- [x] T018 [P] [US2] `src/components/battle-summary/per-machine-fates.tsx`: the fate rows from
   `vm.perMachine` — `UnitIcon` (type, faction tint), variant, and `destroyed 3.1s` / `survived 41% hull`;
   grouped by side.
-- [ ] T019 [P] [US2] `src/components/battle-summary/mvp-card.tsx`: the optional MVP (`vm.mvp`) — `UnitIcon`,
+- [x] T019 [P] [US2] `src/components/battle-summary/mvp-card.tsx`: the optional MVP (`vm.mvp`) — `UnitIcon`,
   name, `variant · zone`, damage dealt / kills / dmg absorbed; **renders nothing** when `vm.mvp` is absent
   (FR-010).
-- [ ] T020 [US2] Extend `page.tsx`: pass `ctx.perMachineDamage` (from `mvp.ts` when events are available),
+- [x] T020 [US2] Extend `page.tsx`: pass `ctx.perMachineDamage` (from `mvp.ts` when events are available),
   and add `MatchTotals` + `PerMachineFates` + `MvpCard` to the layout (game breakdown beside MVP in
   landscape, stacked in portrait — D4).
 
@@ -155,17 +155,17 @@ simulation/playback.
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T021 [P] [US3] `e2e/battle-summary.spec.ts`: **action seams** — `Watch Full Replay` navigates to the
+- [x] T021 [P] [US3] `e2e/battle-summary.spec.ts`: **action seams** — `Watch Full Replay` navigates to the
   Battle Playback route for `matchId`; `Find Next Opponent` navigates to the Arena; a back affordance
   exists; the summary mounts no replay/canvas player (SC-007).
 
 ### Implementation for User Story 3
 
-- [ ] T022 [US3] `src/components/battle-summary/summary-actions.tsx`: the centered action row from
+- [x] T022 [US3] `src/components/battle-summary/summary-actions.tsx`: the centered action row from
   `vm.actions` — `Watch Full Replay` (secondary), `Find Next Opponent` (primary CTA, cyan glow),
   `Back to Arena` (ghost), all `next/link` + Feature 3 `Button`; keyboard-operable with visible focus
   (FR-013, Feature 3 baseline). Full-width stacked in portrait, centered row in landscape (D4).
-- [ ] T023 [US3] In `view-model.ts`, populate `vm.actions` hrefs from `ctx.replayRef.matchId` (watch-replay
+- [x] T023 [US3] In `view-model.ts`, populate `vm.actions` hrefs from `ctx.replayRef.matchId` (watch-replay
   → Feature 5 path; next-opponent → Arena; back → Arena/Garage). Add `SummaryActions` to `page.tsx`.
 
 **Checkpoint**: the player can watch the replay, line up the next match, or return — the loop closes.
@@ -182,16 +182,16 @@ practice match, assert no delta and an UNRANKED label with the opponent anonymiz
 
 ### Tests for User Story 4 ⚠️
 
-- [ ] T024 [P] [US4] `view-model.test.ts`: **standing** — ranked win → `standing.delta = +1` with correct
+- [x] T024 [P] [US4] `view-model.test.ts`: **standing** — ranked win → `standing.delta = +1` with correct
   `before`/`after` and label; an attack loss → no decrease; a **practice** match → `mode:"practice"`,
   `label:"UNRANKED"`, no delta, and `opponent.hidden = true` (SC-006, FR-011/017).
 
 ### Implementation for User Story 4
 
-- [ ] T025 [US4] `src/components/battle-summary/standing-delta.tsx`: the ladder panel from `vm.standing` —
+- [x] T025 [US4] `src/components/battle-summary/standing-delta.tsx`: the ladder panel from `vm.standing` —
   `+1 NET VICTORY` + `47 → 48` (ranked), or `UNRANKED` (practice); token-driven, slotted into the
   `OutcomeHero`. **No MMR/tier** rendered (D2 — that is Feature 9).
-- [ ] T026 [US4] In `page.tsx`, read the ranked/practice **mode + standing delta** from Feature 7 for
+- [x] T026 [US4] In `page.tsx`, read the ranked/practice **mode + standing delta** from Feature 7 for
   `matchId` (server-side, never client-computed — P6), pass into `ctx.standing`, and anonymize the opponent
   for practice (FR-017, §16.1).
 
@@ -201,21 +201,21 @@ practice match, assert no delta and an UNRANKED label with the opponent anonymiz
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T027 [P] **Both-orientation render** `e2e/battle-summary.spec.ts`: drive the summary at **360×640
+- [x] T027 [P] **Both-orientation render** `e2e/battle-summary.spec.ts`: drive the summary at **360×640
   (portrait)** and **1440×900 (landscape)**, plus **320px** min and an ultra-wide width; assert **zero
   horizontal scroll**, all sections reachable, and the layout switches (stacked ↔ multi-column) at the
   Feature 3 breakpoint (SC-004, P7, D4).
-- [ ] T028 [P] **Reduced motion + legibility** `e2e/battle-summary.spec.ts`: with
+- [x] T028 [P] **Reduced motion + legibility** `e2e/battle-summary.spec.ts`: with
   `prefers-reduced-motion: reduce`, decorative reveal/glow is suppressed and every outcome fact (verdict,
   condition, tier) is present as **text** (SC-008, FR-016).
-- [ ] T029 [P] `loading.tsx` skeleton (result fetch) + `error.tsx` (missing/unowned/unrenderable match)
+- [x] T029 [P] `loading.tsx` skeleton (result fetch) + `error.tsx` (missing/unowned/unrenderable match)
   using Feature 3 primitives (FR-018).
-- [ ] T030 [P] Accessibility pass: `UnitIcon` accessible names, the verdict as a proper heading landmark,
+- [x] T030 [P] Accessibility pass: `UnitIcon` accessible names, the verdict as a proper heading landmark,
   opponent-name truncation (long-name edge case), and an axe check on the rendered summary (Feature 3
   SC-004 parity).
-- [ ] T031 [P] Confirm **token-only styling** (no raw hex; Feature 3 SC-002) across
+- [x] T031 [P] Confirm **token-only styling** (no raw hex; Feature 3 SC-002) across
   `src/components/battle-summary/*` via the repo lint/convention.
-- [ ] T032 Update `STATUS.md` / `CHANGELOG.md` (Feature 6 — Battle Summary planned/built) once implemented.
+- [x] T032 Update `STATUS.md` / `CHANGELOG.md` (Feature 6 — Battle Summary planned/built) once implemented.
 
 ---
 
