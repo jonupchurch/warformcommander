@@ -2,7 +2,7 @@
 
 > Living snapshot of where the project is. Update it as phases and features
 > move. It complements `CHANGELOG.md` (what shipped) by capturing the
-> *current* state and what's next. Last updated: 2026-07-19.
+> *current* state and what's next. Last updated: 2026-07-20.
 
 ## Current phase
 
@@ -29,6 +29,24 @@ covers native x86-64 + ARM64, the wasm-parity check, fmt/clippy, and the TS type
 The only carried-forward item is the full **V1–V8 TypeScript validation mirror**, which
 belongs to the Garage (Feature 4) where edit-time validation UX lives — the WASM engine
 remains the authoritative validator meanwhile.
+
+**Feature 3 (app shell + design system) — COMPLETE on branch `003-app-shell`, ready to
+merge.** The visual + structural foundation every screen composes: the full Brand Foundation
+**token system** in `app/globals.css` (primitive ramps → semantic faction/zone/family roles →
+published utilities → shadcn base tokens re-pointed on-brand), Archivo + Space Mono via
+`next/font`, the **responsive app shell** (`components/shell/` — top-tab in landscape /
+bottom-tab in portrait, the P7 spine), the **token-driven primitive kit** (`components/ui/`:
+Button/Panel/Chip/StatBar/Stat/SectionLabel/BracketFrame/GridBackdrop + shadcn
+dropdown/dialog/sheet themed by base tokens alone), and the **brand marks** (`components/brand/`:
+the two-wedge Logo lockups, Wordmark, and UnitIcon inlining the 7 machine SVGs with
+`currentColor` faction tinting). Verified: **18 Playwright + axe e2e green** (token fidelity,
+AA contrast, responsive shell, primitives, brand, focus rings, reduced motion — SC-001…SC-010),
+`next build` + `tsc` + ESLint + the **no-raw-hex guard** clean, browsable at **`/gallery`**.
+New CI: `.github/workflows/web-ci.yml`. Notable calls: the repo keeps root-level `components/` +
+`lib/` (matching `sim/`/`db/`, `@/* → ./*`) rather than `src/`; "Archivo Expanded" isn't in
+next/font so the display face uses Archivo's variable width axis (`font-stretch`); the brand
+purple was brightened `#7b5cff`→`#8a6dff` for AA (FR-005); the user's custom `app/favicon.ico`
+was left untouched (the Logo can generate a mark-based favicon on request).
 
 **Approach — plan-the-whole-set-first, then build foundation-first (Principle VII):**
 the full set was planned before any implementation so shared models and cross-feature
@@ -65,7 +83,7 @@ feature's `specs/00X-*/` directory is its detailed blueprint.
 - [x] **Full v1 feature set planned (2026-07-19)** — all **12 features** carried through Spec-Kit `spec → plan → tasks` under `specs/00X-*/` (Feature 1 in the foreground with dedicated Rust/WASM + determinism + replay research; Features 2–12 via parallel briefed subagents), each with a passing Constitution Check. **~536 tasks** across the set. Root `PLAN.md` is the one-page overview.
 
 1. ~~**Merge `001-battle-sim-core`**~~ ✅ **DONE (2026-07-20)** — merged to `main` (`--no-ff`, `2686b64`), deployed, and prod-verified (`POST /api/resolve` returns byte-for-byte-native replays live). Regenerate the wasm with `wasm-pack build crates/engine --target nodejs --out-dir ../../packages/engine-wasm --release` whenever the engine changes — and re-verify the prod route (see the wasm-on-Vercel notes below), since a wasm/host change can break module resolution in the function bundle without breaking local dev.
-2. **Build in dependency order:** Feature 3 (app shell) + Feature 7 (accounts/persistence) as the next foundations → Features 4/5/6 (garage/playback/summary — Feature 4 owns the **V1–V8 TS validation mirror**) → 8/9/10 (arena/ladder/profile; Feature 8 wraps `/api/resolve` with auth + a server-loaded ruleset) → 2 (balancer, fleshed from the Feature 1 stub) → 11 (marketing/news) → 12 (admin). Each `/speckit-implement` from its `specs/00X-*/tasks.md`, on its own feature branch.
+2. ~~**Feature 3 (app shell + design system)**~~ ✅ **DONE (2026-07-20)** — built + verified (18 e2e) on branch `003-app-shell`, ready to merge. **Build the rest in dependency order:** Feature 7 (accounts/persistence) as the remaining foundation → Features 4/5/6 (garage/playback/summary — Feature 4 owns the **V1–V8 TS validation mirror**) → 8/9/10 (arena/ladder/profile; Feature 8 wraps `/api/resolve` with auth + a server-loaded ruleset) → 2 (balancer, fleshed from the Feature 1 stub) → 11 (marketing/news) → 12 (admin). Each on its own feature branch.
 3. **Before creating DB tables** (Feature 7): set up a Neon **dev branch** and extend the Neon env vars to Preview.
 4. Reconcile the three cross-feature items listed under **Current phase** as their features are built.
 5. **Balance rough edge for Feature 2** (surfaced by the counter-web tests): on placeholder numbers, air alpha beats every non-AA archetype (only AA counters it) — the counter-web *shape* is right; the *spread* wants tuning (affordable AA for more archetypes, or trim air's alpha).
@@ -83,7 +101,7 @@ implementation sequence, not the spec numbering.
 |---|---|---|---|---|---|
 | 1 | Sim core + game data model | ✅ | ✅ | ✅ 54 | **✅ MERGED + LIVE — native engine (82 tests) + WASM + /api/resolve prod-verified; native==wasm proven byte-for-byte in production** |
 | 2 | Auto-balancer (Monte-Carlo, reuses sim core) | ✅ | ✅ | ✅ 32 | after #1 |
-| 3 | App shell + design system (nav, brand tokens) | ✅ | ✅ | ✅ 55 | 2nd |
+| 3 | App shell + design system (nav, brand tokens) | ✅ | ✅ | ✅ 55 | **✅ BUILT — tokens + responsive shell + primitives + brand; 18 Playwright/axe e2e green** |
 | 4 | Garage (squad builder + loadout/dial editor) | ✅ | ✅ | ✅ 40 | after #3/#7 |
 | 5 | Battle playback (tick stream → pixel-art replay) | ✅ | ✅ | ✅ 42 | after #3 |
 | 6 | Battle summary (post-Bo3 results) | ✅ | ✅ | ✅ 32 | after #3 |

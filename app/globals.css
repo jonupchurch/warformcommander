@@ -1,26 +1,344 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Dark-only v1 (FR-021); a `.dark` theme could be added centrally later with zero consumer edits. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ============================================================
+   TIER 1 — PRIMITIVE TOKENS  (raw palette + scales; generate utilities)
+   Exact Brand Foundation / mockup values (SC-002).
+   ============================================================ */
+@theme {
+  /* brand & accent */
+  --color-cyan-500: #2ad4ff; /* friendly / kinetic / front */
+  --color-cyan-300: #7fe6ff; /* hover, stat-bar gradient end */
+  --color-cyan-200: #8fe6ff;
+  --color-red-500: #ff3b4e; /* enemy unit tint (public/icons) */
+  --color-magenta-500: #ff2fb0; /* enemy brand wedge / enemy panels */
+  --color-pink-400: #ff5da8; /* explosive / enemy on dark */
+  --color-pink-300: #ff6b8f;
+  --color-orange-500: #ff8c1a; /* accent / energy / middle / rank */
+  --color-purple-500: #8a6dff; /* accent / air / tech — brightened from Brand Foundation #7b5cff
+                                  so it clears WCAG AA as small text on dark (FR-005/SC-003):
+                                  #7b5cff was ~4.3:1 (fails); this is ≥5:1 on void/panel/raised. */
+
+  /* surface ramp (dark-first) */
+  --color-void: #06080b;
+  --color-abyss: #070a0e;
+  --color-rail: #080b10;
+  --color-sunken: #0a0e13;
+  --color-panel: #0b0f15;
+  --color-raised: #0d1218;
+  --color-track: #141922;
+  --color-steel-800: #1a2028;
+
+  /* text & line ramp */
+  --color-ink-100: #eef3f8;
+  --color-ink-150: #e9eef4;
+  --color-ink-300: #c4ccd6;
+  --color-ink-500: #8b97a6;
+  --color-ink-700: #5a6472;
+  --color-ink-800: #3d4652;
+  --color-steel-500: #6f7a8a;
+
+  /* fonts (bound to next/font CSS vars in layout.tsx). Display = Archivo rendered *expanded*
+     via `font-stretch` in the type utilities (US1) — Archivo Expanded isn't in next/font/google,
+     but Archivo's variable `wdth` axis reproduces the look from a single font load. */
+  --font-display: var(--font-archivo), system-ui, sans-serif;
+  --font-sans: var(--font-archivo), system-ui, sans-serif;
+  --font-mono: var(--font-space-mono), ui-monospace, monospace;
+
+  /* type scale (size / line-height) — pair with weight/tracking utilities */
+  --text-display: 4.5rem;
+  --text-display--line-height: 0.92;
+  --text-h1: 2.5rem;
+  --text-h1--line-height: 1;
+  --text-h2: 1.75rem;
+  --text-h2--line-height: 1.05;
+  --text-h3: 1.125rem;
+  --text-h3--line-height: 1.15;
+  --text-body-lg: 1.25rem;
+  --text-body-lg--line-height: 1.55;
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+  --text-body-sm: 0.875rem;
+  --text-body-sm--line-height: 1.55;
+  --text-label: 0.75rem;
+  --text-label--line-height: 1;
+  --text-readout: 0.8125rem;
+  --text-readout--line-height: 1.5;
+  --text-eyebrow: 0.6875rem;
+  --text-eyebrow--line-height: 1;
+  --text-micro: 0.5625rem;
+  --text-micro--line-height: 1;
+
+  --tracking-tightest: -0.02em;
+  --tracking-label: 0.12em;
+  --tracking-eyebrow: 0.24em;
+
+  /* spacing base (drives p-/m-/gap-/w-/h-) */
+  --spacing: 0.25rem;
+
+  /* radii */
+  --radius-sm: 6px;
+  --radius-md: 9px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-full: 9999px;
+
+  /* elevation */
+  --shadow-glow-cyan: 0 0 22px rgb(42 212 255 / 0.3);
+  --shadow-glow-soft: 0 0 16px rgb(42 212 255 / 0.25);
+  --shadow-panel: 0 30px 80px rgb(0 0 0 / 0.5);
+  --shadow-popover: 0 20px 50px rgb(0 0 0 / 0.6);
+
+  /* motion */
+  --ease-standard: cubic-bezier(0.2, 0.6, 0.2, 1);
+
+  /* shell breakpoint (nav chrome switch); Tailwind default lg = 64rem */
+  --breakpoint-lg: 64rem;
+
+  /* content container max width (mockups: 1240–1360) + sticky-chrome blur */
+  --container-shell: 1360px;
+  --blur-chrome: 10px;
 }
 
+/* steel line base for hairline borders at alpha */
+:root {
+  --steel-rgb: 120 140 160;
+}
+
+/* ============================================================
+   TIER 2 — SEMANTIC TOKENS  (roles; bare vars, re-pointable, theme-ready)
+   ============================================================ */
+:root {
+  color-scheme: dark;
+
+  /* surfaces */
+  --bg: var(--color-void);
+  --surface: var(--color-panel);
+  --surface-rail: var(--color-rail);
+  --surface-sunken: var(--color-sunken);
+  --surface-raised: var(--color-raised);
+  --surface-chrome: rgb(6 8 11 / 0.8); /* sticky header bg (blur) */
+
+  /* text */
+  --text: var(--color-ink-300);
+  --text-strong: var(--color-ink-100);
+  --text-muted: var(--color-ink-500);
+  --text-dim: var(--color-ink-700);
+  --text-faint: var(--color-ink-800);
+
+  /* borders (hairline at alpha) */
+  --border: rgb(var(--steel-rgb) / 0.14);
+  --border-hairline: rgb(var(--steel-rgb) / 0.1);
+  --border-strong: rgb(var(--steel-rgb) / 0.3);
+  --ring: var(--color-cyan-500);
+
+  /* faction (FR-017) */
+  --faction-friendly: var(--color-cyan-500);
+  --faction-friendly-soft: rgb(42 212 255 / 0.1);
+  --faction-enemy: var(--color-red-500); /* in-game unit tint */
+  --faction-enemy-brand: var(--color-magenta-500); /* brand mark / enemy panels */
+  --faction-enemy-soft: rgb(255 47 176 / 0.08);
+
+  /* zones (FR-017) */
+  --zone-air: var(--color-purple-500);
+  --zone-front: var(--color-cyan-500);
+  --zone-middle: var(--color-orange-500);
+  --zone-rear: var(--color-ink-500);
+
+  /* damage families */
+  --family-kinetic: var(--color-cyan-500);
+  --family-energy: var(--color-orange-500);
+  --family-explosive: var(--color-pink-400);
+  --family-support: var(--color-ink-500);
+  --family-flex: var(--color-ink-300);
+}
+
+/* ============================================================
+   PUBLISH SEMANTICS AS UTILITIES  (deferred resolution — research A2)
+   → bg-surface, text-strong, border-border, text-faction-friendly, text-zone-air, …
+   ============================================================ */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-rail: var(--surface-rail);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-chrome: var(--surface-chrome);
+
+  --color-text: var(--text);
+  --color-text-strong: var(--text-strong);
+  --color-text-muted: var(--text-muted);
+  --color-text-dim: var(--text-dim);
+  --color-text-faint: var(--text-faint);
+
+  --color-border: var(--border);
+  --color-border-hairline: var(--border-hairline);
+  --color-border-strong: var(--border-strong);
+  --color-ring: var(--ring);
+
+  --color-faction-friendly: var(--faction-friendly);
+  --color-faction-friendly-soft: var(--faction-friendly-soft);
+  --color-faction-enemy: var(--faction-enemy);
+  --color-faction-enemy-brand: var(--faction-enemy-brand);
+  --color-faction-enemy-soft: var(--faction-enemy-soft);
+
+  --color-zone-air: var(--zone-air);
+  --color-zone-front: var(--zone-front);
+  --color-zone-middle: var(--zone-middle);
+  --color-zone-rear: var(--zone-rear);
+
+  --color-family-kinetic: var(--family-kinetic);
+  --color-family-energy: var(--family-energy);
+  --color-family-explosive: var(--family-explosive);
+  --color-family-support: var(--family-support);
+  --color-family-flex: var(--family-flex);
+}
+
+/* ============================================================
+   shadcn BASE TOKENS — re-pointed at Warform semantics (research B1/B2)
+   so any shadcn primitive renders on-brand with no per-component override.
+   ============================================================ */
+:root {
+  --radius: var(--radius-md);
+  --background: var(--bg);
+  --foreground: var(--text-strong);
+  --card: var(--surface);
+  --card-foreground: var(--text-strong);
+  --popover: var(--surface-raised);
+  --popover-foreground: var(--text-strong);
+  --primary: var(--faction-friendly);
+  --primary-foreground: var(--color-void);
+  --secondary: var(--surface-sunken);
+  --secondary-foreground: var(--text);
+  --muted: var(--surface-sunken);
+  --muted-foreground: var(--text-muted);
+  --accent: var(--surface-raised);
+  --accent-foreground: var(--text-strong);
+  --destructive: var(--faction-enemy);
+  --input: rgb(var(--steel-rgb) / 0.18);
+}
+
+/* shadcn base-token → utility mapping (normally emitted by `shadcn init`; hand-added because
+   we configured shadcn by hand). Publishes bg-background/bg-primary/border-input/etc. */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-input: var(--input);
+  /* --color-border and --color-ring are published above; shadcn reuses them. */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ============================================================
+   BASE + REDUCED MOTION
+   ============================================================ */
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ============================================================
+   TYPOGRAPHY UTILITIES  (FR-003 — family + size + weight + tracking recipes)
+   Display/heading faces render Archivo *expanded* via font-stretch (the mockups'
+   "Archivo Expanded"); label/eyebrow/readout are Space Mono UI chrome.
+   ============================================================ */
+@utility type-display {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 900;
+  font-size: var(--text-display);
+  line-height: var(--text-display--line-height);
+  letter-spacing: var(--tracking-tightest);
+}
+@utility type-h1 {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 800;
+  font-size: var(--text-h1);
+  line-height: var(--text-h1--line-height);
+  letter-spacing: var(--tracking-tightest);
+}
+@utility type-h2 {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 700;
+  font-size: var(--text-h2);
+  line-height: var(--text-h2--line-height);
+}
+@utility type-h3 {
+  font-family: var(--font-display);
+  font-stretch: 110%;
+  font-weight: 700;
+  font-size: var(--text-h3);
+  line-height: var(--text-h3--line-height);
+}
+@utility type-body-lg {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-lg);
+  line-height: var(--text-body-lg--line-height);
+}
+@utility type-body {
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--text-body--line-height);
+}
+@utility type-body-sm {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm);
+  line-height: var(--text-body-sm--line-height);
+}
+@utility type-label {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-label);
+  line-height: var(--text-label--line-height);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+@utility type-readout {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: var(--text-readout);
+  line-height: var(--text-readout--line-height);
+}
+@utility type-eyebrow {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-eyebrow);
+  line-height: var(--text-eyebrow--line-height);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+}
+
+/* Safe-area-aware inline padding for the shell chrome (FR-010) — clears the notch in landscape. */
+@utility px-safe {
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
 }

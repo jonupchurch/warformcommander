@@ -1,0 +1,67 @@
+# Web CI (Feature 3) — the design-system + shell gate.
+#
+# Lints, typechecks, builds, and runs the Playwright + axe e2e suite (tokens fidelity, responsive
+# shell, primitives, brand, and the accessibility/motion floor) so SC-001…SC-010 stay green.
+name: web-ci
+
+on:
+  push:
+    paths:
+      - "app/**"
+      - "components/**"
+      - "lib/**"
+      - "e2e/**"
+      - "public/**"
+      - "package.json"
+      - "package-lock.json"
+      - "next.config.ts"
+      - "tsconfig.json"
+      - "playwright.config.ts"
+      - "postcss.config.mjs"
+      - "eslint.config.mjs"
+      - "scripts/check-no-raw-hex.mjs"
+      - ".github/workflows/web-ci.yml"
+  pull_request:
+    paths:
+      - "app/**"
+      - "components/**"
+      - "lib/**"
+      - "e2e/**"
+      - "public/**"
+      - "package.json"
+      - "next.config.ts"
+      - "playwright.config.ts"
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  lint-build:
+    name: lint · typecheck · tokens · build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - run: npm run typecheck
+      - run: npx eslint .
+      - run: npm run lint:tokens # SC-002: no raw brand hex outside globals.css
+      - run: npm run build
+
+  e2e:
+    name: playwright + axe (SC-001…SC-010)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+        env:
+          CI: "true"

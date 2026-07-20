@@ -42,7 +42,8 @@
       "Bash(cargo clippy:*)",
       "WebSearch",
       "Bash(git commit -q -m 'Plan Feature 6 \\(battle summary\\): full artifact set *)",
-      "Bash(git commit -q -m ' *)"
+      "Bash(git commit -q -m ' *)",
+      "Bash(git rm *)"
     ],
     "deny": [],
     "ask": [],

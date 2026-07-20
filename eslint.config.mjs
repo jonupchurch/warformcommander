@@ -9,9 +9,12 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
+    ".vercel/**",
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Prebuilt, committed wasm-pack output (Feature 1) — generated vendor code, not source.
+    "packages/engine-wasm/**",
   ]),
 ]);
 
