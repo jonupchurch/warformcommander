@@ -76,5 +76,34 @@ once it reaches a released version. Until then, everything lives under
   Also corrected the DB driver of record to **postgres-js** (`drizzle-orm/
   postgres-js`) over neon-http, for local+prod parity and transactions. Nothing
   implemented yet — this is the buildable blueprint.
+- **Feature 1 — deterministic sim core + game data model (native engine, 2026-07-19).**
+  The Rust workspace (`crates/engine` cdylib+rlib, `crates/balancer`) implementing
+  all five user stories on branch `001-battle-sim-core`:
+  - **Determinism primitives (P6):** `Fixed` scaled-`i64` milli-units + basis-point
+    `Bp` (no floats anywhere), a version-pinned value-stable `Pcg64` PRNG with
+    integer-only draws + a locked reference vector, and a **golden-hash** harness
+    (`tests/golden/manifest.json`, `BLESS_GOLDEN` to re-bless).
+  - **Typed 3-tier data model:** Tier-1 content (7 machine types × 3 variants,
+    equipment union, behavior dials + Plan-B), Tier-2 the admin-editable `Ruleset`
+    balance table (all `BTreeMap`, BLAKE3 `rulesetHash`), and the shared
+    effective-stat derivation (equipment deltas additive over the chassis).
+  - **`validate()`** — the V1–V8 trust boundary, run server-side before any resolve.
+  - **`resolve()`** — a pure best-of-three: fixed 10 t/s tick loop (1000-tick cap),
+    row-based reach + Target-Row/Rule dials, the §9.2 damage pipeline (shields →
+    hull → ≤25% splash, the counter-web matrix + air modifiers), Plan-B latching
+    (Slot-1 > Slot-2), Conquest/Time win conditions (exact tie → defender), and
+    Locked/Free adaptation. `resolve_series()` for Free-mode practice/balancer runs.
+  - **Replay:** the in-memory tick stream + a compact positional/columnar **wire
+    format** (tick-indexed, O(1) seek, versioned) and a **pure TypeScript reader**
+    (`sim/replay-reader.ts`, no engine import, no re-sim).
+  - **Verification:** 82 tests (determinism 1000×/sensitivity/run-twice + committed
+    golden battery, counter-web ratios + AA/artillery/no-single-winner, win
+    conditions + Bo3 + adaptation modes, wire reconstruction/reconciliation),
+    `cargo clippy --all-targets -D warnings` + `cargo fmt --check` clean, a
+    `resolve_demo` example, and a balancer throughput smoke (**10k Bo3 ≈ 3.5s**,
+    SC-006). Engine CI workflow added (native x86-64 + ARM64 matrix, a wasm-pack
+    Node job, fmt/clippy, TS typecheck). Six per-damage-type muzzle/explosion SVGs
+    added for the Feature 5 playback renderer. **Remaining:** the WASM cross-compile
+    + Next.js host route + native==wasm golden check (needs `wasm-pack`).
 
 [Unreleased]: https://github.com/jonupchurch/warformcommander/commits/main
