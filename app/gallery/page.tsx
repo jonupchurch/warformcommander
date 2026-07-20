@@ -7,9 +7,29 @@ import { Chip } from "@/components/ui/chip";
 import { StatBar } from "@/components/ui/stat-bar";
 import { Stat } from "@/components/ui/stat";
 import { BracketFrame } from "@/components/ui/bracket-frame";
+import { Logo } from "@/components/brand/logo";
+import { Wordmark } from "@/components/brand/wordmark";
+import { UnitIcon, type MachineTypeKey } from "@/components/brand/unit-icon";
 
 import { Ramp } from "./swatches";
 import { ShadcnDemo } from "./shadcn-demo";
+
+const UNIT_TYPES: { type: MachineTypeKey; label: string }[] = [
+  { type: "heavytank", label: "Heavy Tank" },
+  { type: "lighttank", label: "Light Tank" },
+  { type: "mech", label: "Mech" },
+  { type: "heli", label: "Attack Helicopter" },
+  { type: "rocketarty", label: "Rocket Artillery" },
+  { type: "artillery", label: "Artillery" },
+  { type: "support", label: "Rear Support" },
+];
+
+const ZONES4 = [
+  { name: "Air", text: "text-zone-air", border: "border-zone-air" },
+  { name: "Front", text: "text-zone-front", border: "border-zone-front" },
+  { name: "Middle", text: "text-zone-middle", border: "border-zone-middle" },
+  { name: "Rear", text: "text-zone-rear", border: "border-zone-rear" },
+];
 
 /**
  * Dev-only design-system gallery — the isolation/review + e2e-test surface for Feature 3
@@ -276,6 +296,90 @@ export default function GalleryPage() {
           Stock components, rendered on-brand with zero per-component color override (SC-007).
         </p>
         <ShadcnDemo />
+      </Section>
+
+      <Section index="09" title="Brand">
+        <div className="flex flex-col gap-3">
+          <h3 className="type-eyebrow text-text-muted">Logo — lockups</h3>
+          <div className="flex flex-wrap items-center gap-8">
+            <div data-testid="logo-badge" className="flex flex-col items-center gap-2">
+              <Logo variant="badge" size={40} />
+              <span className="type-readout text-text-muted">badge</span>
+            </div>
+            <div data-testid="logo-mono" className="flex flex-col items-center gap-2 text-text-strong">
+              <Logo variant="mono" size={40} />
+              <span className="type-readout text-text-muted">mono</span>
+            </div>
+            <div data-testid="logo-knockout" className="flex flex-col items-center gap-2 text-faction-friendly">
+              <Logo variant="knockout" size={40} />
+              <span className="type-readout text-text-muted">knockout</span>
+            </div>
+            <div data-testid="logo-on-light" className="flex flex-col items-center gap-2">
+              <div className="rounded-md bg-text-strong p-3">
+                <Logo variant="on-light" size={40} />
+              </div>
+              <span className="type-readout text-text-muted">on-light</span>
+            </div>
+            <div data-testid="logo-favicon" className="flex flex-col items-center gap-2">
+              <Logo variant="favicon" size={32} />
+              <span className="type-readout text-text-muted">favicon</span>
+            </div>
+            <div data-testid="logo-bracket" className="flex flex-col items-center gap-2">
+              <Logo variant="badge" size={40} withBracket title="Warform Commander" />
+              <span className="type-readout text-text-muted">+ bracket</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="type-eyebrow text-text-muted">Wordmark</h3>
+          <div className="flex flex-wrap items-end gap-8">
+            <Wordmark size="sm" />
+            <Wordmark size="md" />
+            <Wordmark size="lg" />
+          </div>
+        </div>
+      </Section>
+
+      <Section index="10" title="Faction & Zone Theming">
+        <div className="flex flex-col gap-3">
+          <h3 className="type-eyebrow text-text-muted">Unit icons — friendly</h3>
+          <div data-testid="unit-icons-friendly" className="flex flex-wrap items-center gap-4">
+            {UNIT_TYPES.map((u) => (
+              <UnitIcon key={u.type} type={u.type} faction="friendly" title={u.label} className="w-14" />
+            ))}
+          </div>
+        </div>
+        <div className="flex flex-col gap-3">
+          <h3 className="type-eyebrow text-text-muted">Unit icons — enemy</h3>
+          <div data-testid="unit-icons-enemy" className="flex flex-wrap items-center gap-4">
+            {UNIT_TYPES.map((u) => (
+              <UnitIcon key={`enemy-${u.type}`} type={u.type} faction="enemy" className="w-14" />
+            ))}
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Panel className="border-faction-friendly/30 bg-faction-friendly-soft">
+            <h3 className="type-label text-faction-friendly">Your Forces</h3>
+            <p className="type-body-sm mt-2 text-text">Friendly subtree — cyan accents.</p>
+          </Panel>
+          <Panel className="border-faction-enemy-brand/30 bg-faction-enemy-soft">
+            <h3 className="type-label text-faction-enemy-brand">Enemy Forces</h3>
+            <p className="type-body-sm mt-2 text-text">Enemy subtree — magenta accents.</p>
+          </Panel>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="type-eyebrow text-text-muted">Zones</h3>
+          <div className="grid gap-2 sm:grid-cols-4">
+            {ZONES4.map((z) => (
+              <div key={z.name} className={`border-l-2 pl-3 ${z.border}`}>
+                <span className={`type-label ${z.text}`}>{z.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </Section>
     </main>
   );

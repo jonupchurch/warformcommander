@@ -1,5 +1,8 @@
 import Link from "next/link";
 
+import { Logo } from "@/components/brand/logo";
+import { Wordmark } from "@/components/brand/wordmark";
+
 import { PrimaryNav } from "./primary-nav";
 import { IdentityBadge, type IdentityBadgeProps } from "./identity-badge";
 
@@ -33,10 +36,8 @@ export function AppShell({ children, identity }: AppShellProps) {
               aria-label="Warform Commander home"
               className="flex shrink-0 items-center gap-2.5 rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             >
-              <LogoPlaceholder />
-              <span className="font-display text-h3 font-black tracking-tightest text-text-strong font-stretch-125%">
-                WARFORM
-              </span>
+              <Logo />
+              <Wordmark size="sm" />
             </Link>
             <PrimaryNav />
           </div>
@@ -56,15 +57,5 @@ export function AppShell({ children, identity }: AppShellProps) {
         {children}
       </main>
     </div>
-  );
-}
-
-/** Two-wedge mark placeholder — replaced by the real <Logo> in US4 (T044). */
-function LogoPlaceholder() {
-  return (
-    <span aria-hidden className="flex items-center gap-0.5">
-      <span className="h-4 w-2 -skew-x-12 bg-faction-friendly" />
-      <span className="h-4 w-2 -skew-x-12 bg-faction-enemy-brand" />
-    </span>
   );
 }
