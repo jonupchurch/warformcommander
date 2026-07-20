@@ -26,7 +26,7 @@ export function AppShell({ children, identity }: AppShellProps) {
       </a>
 
       <header className="sticky top-0 z-40 border-b border-border bg-surface-chrome [backdrop-filter:blur(var(--blur-chrome))]">
-        <div className="px-safe mx-auto flex h-16 max-w-(--container-shell) items-center justify-between gap-4">
+        <div className="px-safe mx-auto flex h-16 max-w-shell items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-6">
             <Link
               href="/"
@@ -34,7 +34,7 @@ export function AppShell({ children, identity }: AppShellProps) {
               className="flex shrink-0 items-center gap-2.5 rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             >
               <LogoPlaceholder />
-              <span className="font-display text-h3 font-black tracking-tightest text-text-strong [font-stretch:125%]">
+              <span className="font-display text-h3 font-black tracking-tightest text-text-strong font-stretch-125%">
                 WARFORM
               </span>
             </Link>
@@ -51,7 +51,7 @@ export function AppShell({ children, identity }: AppShellProps) {
       {/* pb clears the fixed bottom nav on portrait; released at lg where the top tabs take over. */}
       <main
         id="main-content"
-        className="px-safe mx-auto w-full max-w-(--container-shell) flex-1 pb-24 pt-6 lg:pb-8"
+        className="px-safe mx-auto w-full max-w-shell flex-1 pb-24 pt-6 lg:pb-8"
       >
         {children}
       </main>

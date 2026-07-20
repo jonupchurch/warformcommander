@@ -26,7 +26,7 @@ export function IdentityBadge({ commander, rank, mmr, href = "/profile" }: Ident
       className="flex items-center gap-3 rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
     >
       <span className="flex min-w-0 flex-col items-end">
-        <span className="max-w-[22ch] truncate font-display text-body-sm font-bold leading-none text-text-strong [font-stretch:110%]">
+        <span className="max-w-[22ch] truncate font-display text-body-sm font-bold leading-none text-text-strong font-stretch-110%">
           {commander}
         </span>
         {meta && <span className="type-eyebrow mt-1 text-orange-500">{meta}</span>}

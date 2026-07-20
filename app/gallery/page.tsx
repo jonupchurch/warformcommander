@@ -1,5 +1,15 @@
 import type { Metadata } from "next";
+
+import { Button } from "@/components/ui/button";
+import { Panel } from "@/components/ui/panel";
+import { SectionLabel } from "@/components/ui/section-label";
+import { Chip } from "@/components/ui/chip";
+import { StatBar } from "@/components/ui/stat-bar";
+import { Stat } from "@/components/ui/stat";
+import { BracketFrame } from "@/components/ui/bracket-frame";
+
 import { Ramp } from "./swatches";
+import { ShadcnDemo } from "./shadcn-demo";
 
 /**
  * Dev-only design-system gallery — the isolation/review + e2e-test surface for Feature 3
@@ -112,7 +122,7 @@ function Section({ index, title, children }: { index: string; title: string; chi
 
 export default function GalleryPage() {
   return (
-    <main id="gallery" className="mx-auto flex max-w-(--container-shell) flex-col gap-12 px-6 py-12">
+    <main id="gallery" className="mx-auto flex max-w-shell flex-col gap-12 px-6 py-12">
       <header className="flex flex-col gap-2">
         <h1 className="type-h1 text-text-strong">Warform Commander — Design System</h1>
         <p className="type-body text-text-muted">
@@ -193,6 +203,79 @@ export default function GalleryPage() {
             <span className="text-faction-friendly">friendly link on bg</span>
           </div>
         </div>
+      </Section>
+
+      <Section index="07" title="Primitives">
+        <div className="flex flex-col gap-3">
+          <h3 className="type-eyebrow text-text-muted">Button</h3>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button data-testid="btn-primary" variant="primary">
+              Primary
+            </Button>
+            <Button data-testid="btn-secondary" variant="secondary">
+              Secondary
+            </Button>
+            <Button data-testid="btn-ghost" variant="ghost">
+              Ghost
+            </Button>
+            <Button size="sm">Small</Button>
+            <Button size="lg">Large</Button>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="type-eyebrow text-text-muted">Chip — tones</h3>
+          <div className="flex flex-wrap gap-2">
+            <Chip data-testid="chip-kinetic" tone="kinetic">
+              Kinetic
+            </Chip>
+            <Chip tone="energy">Energy</Chip>
+            <Chip tone="explosive">Explosive</Chip>
+            <Chip tone="support">Support</Chip>
+            <Chip tone="friendly">Friendly</Chip>
+            <Chip tone="enemy">Enemy</Chip>
+            <Chip tone="air" variant="solid">
+              Air
+            </Chip>
+            <Chip tone="neutral">Neutral</Chip>
+          </div>
+        </div>
+
+        <Panel
+          inset="rail"
+          eyebrow="Panel"
+          actions={
+            <Button size="sm" variant="ghost">
+              Action
+            </Button>
+          }
+        >
+          <SectionLabel index="01">Your Squads</SectionLabel>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <StatBar label="HULL" value={75} display="2400" />
+            <StatBar label="SHIELD" value={40} display="1200" />
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <Stat label="Power" value="1.86k" />
+            <Stat label="Squads" value="8" />
+            <Stat label="Wins" value="142" />
+            <Stat label="Rank" value="Gold III" />
+          </div>
+        </Panel>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="type-eyebrow text-text-muted">BracketFrame</h3>
+          <BracketFrame className="w-fit p-6">
+            <span className="type-h3 text-text-strong">FRAMED</span>
+          </BracketFrame>
+        </div>
+      </Section>
+
+      <Section index="08" title="shadcn (base-token themed)">
+        <p className="type-body-sm text-text-muted">
+          Stock components, rendered on-brand with zero per-component color override (SC-007).
+        </p>
+        <ShadcnDemo />
       </Section>
     </main>
   );

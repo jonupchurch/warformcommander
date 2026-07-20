@@ -18,7 +18,9 @@
   --color-pink-400: #ff5da8; /* explosive / enemy on dark */
   --color-pink-300: #ff6b8f;
   --color-orange-500: #ff8c1a; /* accent / energy / middle / rank */
-  --color-purple-500: #7b5cff; /* accent / air / tech */
+  --color-purple-500: #8a6dff; /* accent / air / tech — brightened from Brand Foundation #7b5cff
+                                  so it clears WCAG AA as small text on dark (FR-005/SC-003):
+                                  #7b5cff was ~4.3:1 (fails); this is ≥5:1 on void/panel/raised. */
 
   /* surface ramp (dark-first) */
   --color-void: #06080b;

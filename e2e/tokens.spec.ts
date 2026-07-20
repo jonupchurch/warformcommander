@@ -18,7 +18,7 @@ const EXPECTED: Record<string, string> = {
   "--text-strong": "rgb(238, 243, 248)", //      #eef3f8
   "--text": "rgb(196, 204, 214)", //             #c4ccd6
   "--text-muted": "rgb(139, 151, 166)", //       #8b97a6
-  "--zone-air": "rgb(123, 92, 255)", //          #7b5cff
+  "--zone-air": "rgb(138, 109, 255)", //         #8a6dff (brightened from #7b5cff for AA, FR-005)
   "--zone-middle": "rgb(255, 140, 26)", //       #ff8c1a
   "--family-explosive": "rgb(255, 93, 168)", //  #ff5da8
 };
