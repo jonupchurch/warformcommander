@@ -261,3 +261,76 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* ============================================================
+   TYPOGRAPHY UTILITIES  (FR-003 — family + size + weight + tracking recipes)
+   Display/heading faces render Archivo *expanded* via font-stretch (the mockups'
+   "Archivo Expanded"); label/eyebrow/readout are Space Mono UI chrome.
+   ============================================================ */
+@utility type-display {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 900;
+  font-size: var(--text-display);
+  line-height: var(--text-display--line-height);
+  letter-spacing: var(--tracking-tightest);
+}
+@utility type-h1 {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 800;
+  font-size: var(--text-h1);
+  line-height: var(--text-h1--line-height);
+  letter-spacing: var(--tracking-tightest);
+}
+@utility type-h2 {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 700;
+  font-size: var(--text-h2);
+  line-height: var(--text-h2--line-height);
+}
+@utility type-h3 {
+  font-family: var(--font-display);
+  font-stretch: 110%;
+  font-weight: 700;
+  font-size: var(--text-h3);
+  line-height: var(--text-h3--line-height);
+}
+@utility type-body-lg {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-lg);
+  line-height: var(--text-body-lg--line-height);
+}
+@utility type-body {
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--text-body--line-height);
+}
+@utility type-body-sm {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm);
+  line-height: var(--text-body-sm--line-height);
+}
+@utility type-label {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-label);
+  line-height: var(--text-label--line-height);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+@utility type-readout {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: var(--text-readout);
+  line-height: var(--text-readout--line-height);
+}
+@utility type-eyebrow {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-eyebrow);
+  line-height: var(--text-eyebrow--line-height);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+}
