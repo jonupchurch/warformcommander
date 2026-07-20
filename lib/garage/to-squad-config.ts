@@ -8,7 +8,7 @@
 
 import type { MachineInstance, SquadConfig } from '@/sim/model';
 
-import type { DraftSquad } from './types';
+import type { DraftSlot, DraftSquad } from './types';
 
 /**
  * Project a {@link DraftSquad} to the Feature 1 `SquadConfig`. **Empty slots are omitted**, so an
@@ -32,4 +32,31 @@ export function toSquadConfig(draft: DraftSquad): SquadConfig {
     });
   });
   return { machines };
+}
+
+/**
+ * The inverse: hydrate a {@link DraftSquad} from a stored `SquadConfig` (a saved squad the rail loads
+ * for editing). Each machine lands in the slot its `instanceId` names; unfilled slots stay empty.
+ */
+export function fromSquadConfig(name: string, config: SquadConfig): DraftSquad {
+  const machines: [DraftSlot, DraftSlot, DraftSlot, DraftSlot, DraftSlot] = [
+    null,
+    null,
+    null,
+    null,
+    null,
+  ];
+  for (const m of config.machines) {
+    if (m.instanceId >= 0 && m.instanceId < 5) {
+      machines[m.instanceId] = {
+        typeId: m.typeId,
+        variantId: m.variantId,
+        loadout: m.loadout,
+        dials: m.dials,
+        planB: m.planB,
+        zone: m.zone,
+      };
+    }
+  }
+  return { name, machines };
 }
