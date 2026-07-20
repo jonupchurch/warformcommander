@@ -20,6 +20,9 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/api/resolve": ["./packages/engine-wasm/**/*"],
     "/garage": ["./packages/engine-wasm/**/*"],
+    // Feature 8: the two ranked/practice resolve routes call resolveBattle in-process (P6).
+    "/api/arena/resolve": ["./packages/engine-wasm/**/*"],
+    "/api/practice/resolve": ["./packages/engine-wasm/**/*"],
   },
 };
 
