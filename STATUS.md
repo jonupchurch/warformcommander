@@ -100,6 +100,27 @@ pacing/markers/scale) + **14 Playwright/axe e2e** green, `next build` + `tsc` + 
 replay via a **documented demo seam** (imported so it traces into the bundle) until **Feature 7's `getReplay`**
 lands — swap one call site.
 
+**Feature 6 (Battle Summary — post-Bo3 results) — BUILT on branch `006-battle-summary`, all four user
+stories + polish.** The post-match outcome screen and the Skip-to-Outcome target that pairs with the
+Feature 5 playback. A **pure, total `deriveSummaryViewModel(result, ctx)`** (`lib/battle-summary/`) is
+the spine — it represents **every `MatchResult` field** (SC-001), keeps `totals.damageDealt` in raw
+milli so it deep-equals the result (SC-003, zero drift), derives condition/tier, per-machine fates
+(joined to `unitOrder` identity), the optional **MVP** from an O(events) reduction that reconciles with
+the side totals (SC-002), and the ranked/practice standing — with **no engine, no re-sim**. The
+components are thin renderers: **US1** OutcomeHero (VICTORY/DEFEAT as text, series pips) + GameBreakdown
+(Conquest/Time·DMG distinct in text+color); **US2** MatchTotals dual bars + PerMachineFates + the MVP
+card; **US3** SummaryActions (**Watch Full Replay → `/battle/<matchId>`** — the F5 route — Find Next /
+Back → `/arena`; reader-only, no player mounted, SC-007); **US4** the net-victory StandingDelta (no
+MMR/tier — that's F9). To type the ViewModel honestly, Feature 1's `MatchResult.machineFates` mirror
+went from `unknown[]` to `MachineFate[]` (`UnitRef`/`Fate` added to `sim/model.ts`). Verified: **22 pure
+Vitest** (full-field, condition/tier, perspective, totals equality, fates, standing, MVP reconciliation
+vs the real battery) + **10 Playwright/axe e2e** (action seams + navigation, four-viewport no-overflow,
+zero-serious a11y, reduced-motion-as-text), `next build` + `tsc` + ESLint + no-raw-hex clean. The route
+derives from the committed demo battery via a **documented seam** (imported JSON, prod-safe) until
+**Feature 7's ownership-scoped read path** lands. Known limitation: a Time game is labelled "DMG" (the
+`GameResult` doesn't expose the exact-tie flag; surfacing exact-tie→defender needs an engine result
+change).
+
 **Approach — plan-the-whole-set-first, then build foundation-first (Principle VII):**
 the full set was planned before any implementation so shared models and cross-feature
 dependencies surfaced on paper. Feature 1 (the deterministic **sim core + data model**)
@@ -157,7 +178,7 @@ implementation sequence, not the spec numbering.
 | 3 | App shell + design system (nav, brand tokens) | ✅ | ✅ | ✅ 55 | **✅ MERGED — tokens + responsive shell + primitives + brand; 18 Playwright/axe e2e green** |
 | 4 | Garage (squad builder + loadout/dial editor) | ✅ | ✅ | ✅ 40 | **✅ BUILT — US1–US5 on `004-garage`; engine-parity preview + V1–V8 TS validation mirror; 133 pure tests green; e2e/axe/DB deferred to a live env** |
 | 5 | Battle playback (tick stream → pixel-art replay) | ✅ | ✅ | ✅ 42 | **✅ BUILT — US1–US5 + polish on `005-battle-playback`; engine-free O(1) scrubber + markers + both-orientation; 33 Vitest + 14 Playwright/axe e2e green; demo-replay seam pending F7 `getReplay`** |
-| 6 | Battle summary (post-Bo3 results) | ✅ | ✅ | ✅ 32 | after #3 |
+| 6 | Battle summary (post-Bo3 results) | ✅ | ✅ | ✅ 32 | **✅ BUILT — US1–US4 + polish on `006-battle-summary`; pure `deriveSummaryViewModel` spine; 22 Vitest + 10 Playwright/axe e2e green; demo-result seam pending F7 read path** |
 | 7 | Accounts & persistence (backend/DB, defense snapshots) | ✅ | ✅ | ✅ 52 | **✅ BUILT — schema + auth + service layer; 34 Vitest tests green; prod migrate pending** |
 | 8 | Arena (async matchmaking) + Practice sandbox | ✅ | ✅ | ✅ 51 | after #4/#7 |
 | 9 | Ladder (seasons, metrics, tiers/MMR) | ✅ | ✅ | ✅ 38 | after #7/#8 |
