@@ -11,23 +11,8 @@ import type { WireReplay } from '@/sim/replay-reader';
 import battery from '@/tests/fixtures/replay-battery.json'; // demo fixture; F7 read replaces this
 
 import { perMachineDamageFromEvents } from './mvp';
+import { perGameSurvivors } from './survivors';
 import type { DeriveContext } from './view-model';
-
-/** Per-game survivor counts from each game's final snapshot (`row[3]` = alive), split by side. */
-function perGameSurvivors(replay: WireReplay, viewerSide: Side): { viewer: number; opponent: number }[] {
-  return replay.games.map((game) => {
-    const last = game.snapshots[game.snapshots.length - 1] ?? [];
-    let viewer = 0;
-    let opponent = 0;
-    last.forEach((row, column) => {
-      if (row[3] !== 0) {
-        if (replay.meta.unitOrder[column]?.side === viewerSide) viewer += 1;
-        else opponent += 1;
-      }
-    });
-    return { viewer, opponent };
-  });
-}
 
 export interface DemoSummary {
   result: MatchResult;
