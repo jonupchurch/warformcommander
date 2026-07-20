@@ -9,9 +9,17 @@ const nextConfig: NextConfig = {
   // symlink points at an absolute local path that doesn't exist on Vercel. So trace the whole
   // real package — the JS glue (`engine.js`), its `package.json`, AND `engine_bg.wasm` — into the
   // function bundle; tracing only the .wasm leaves `require` with no module entry (MODULE_NOT_FOUND).
+  //
+  // ⚠️ EVERY server route that reaches the engine needs its own entry here, or it 500s in prod with
+  // `ENOENT .../packages/engine-wasm/engine.js` (fine locally — the file is on disk in dev). A route
+  // touches the engine if it calls `resolveBattle`/`resolveBattleRaw` (`@/sim`),
+  // `loadDefaultRuleset`/`validateSquad` (`@/sim/validate`), or a Server Action that does. So far:
+  // `/api/resolve` (resolve) and `/garage` (Garage loads the default ruleset + validates on save).
+  // When Arena/Ladder/Profile (F8–F10) call `server/matches.ts` (resolve/record), add their routes too.
   serverExternalPackages: ["@wfc/engine-wasm"],
   outputFileTracingIncludes: {
     "/api/resolve": ["./packages/engine-wasm/**/*"],
+    "/garage": ["./packages/engine-wasm/**/*"],
   },
 };
 
