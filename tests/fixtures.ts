@@ -5,6 +5,9 @@
  */
 
 import type { SquadConfig } from "@/db/types";
+import type { WireReplay } from "@/sim/replay-reader";
+import { resolveBattleRaw } from "@/sim";
+import { loadDefaultRuleset } from "@/sim/validate";
 import squadA from "./fixtures/valid-squad.json";
 import squadB from "./fixtures/valid-squad-b.json";
 
@@ -18,4 +21,17 @@ export function validSquad(): SquadConfig {
 /** A second, distinct legal army (battery defender) — for multi-squad / defense tests. */
 export function validSquadB(): SquadConfig {
   return clone(squadB) as SquadConfig;
+}
+
+/**
+ * A real engine-resolved wire replay (attacker = squad A, defender = squad B) — the authoritative
+ * output `recordMatch` consumes. Seed 1 is the battery seed whose result winner is the attacker (A).
+ */
+export function battleReplay(seed = 1): Promise<WireReplay> {
+  return resolveBattleRaw({
+    armies: [validSquad(), validSquadB()],
+    ruleset: loadDefaultRuleset(),
+    seed,
+    matchConfig: { adaptation: "Locked", defenderSide: "B", bestOf: 3 },
+  });
 }

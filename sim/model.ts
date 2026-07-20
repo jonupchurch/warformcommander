@@ -153,6 +153,35 @@ export interface PresetConfig {
   planB: PlanBTrigger[];
 }
 
+// --- Match result (engine `resolve` summary) -------------------------------
+
+/** Which army won — `A` = attacker (armies[0]), `B` = defender (armies[1]). */
+export type Side = "A" | "B";
+
+/** One game's outcome within a best-of-three (`GameResult`). `winner` is null on a draw. */
+export interface GameResult {
+  winner: Side | null;
+  condition: "Conquest" | "Time";
+  rewardTier: "Full" | "Lesser";
+  durationTicks: number;
+}
+
+/** One side's post-match totals (`SideSummary`). `damageDealt` is in milli-units (÷1000 for whole). */
+export interface SideSummary {
+  damageDealt: number;
+  survivors: number;
+}
+
+/** The engine's best-of-three summary (`MatchResult`) — embedded in `Replay.result`. */
+export interface MatchResult {
+  winner: Side;
+  games: GameResult[];
+  machineFates: unknown[];
+  sideA: SideSummary;
+  sideB: SideSummary;
+  durationTicks: number;
+}
+
 /**
  * The admin-editable balance table (`Ruleset`) — the engine's Tier-2 input. **Owned by the engine**;
  * the persistence layer treats it as opaque and passes it to `validate()`/`resolve()` unmodified
