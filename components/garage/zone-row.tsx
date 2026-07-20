@@ -34,7 +34,7 @@ function MachineChip({ slot, machine }: { slot: SlotIndex; machine: DraftMachine
       onClick={() => dispatch({ type: 'selectMachine', slot })}
       aria-pressed={selected}
       className={cn(
-        'flex items-center gap-2 rounded-md border bg-surface px-2 py-1.5 text-left transition-colors',
+        'flex items-center gap-2 rounded-md border bg-surface px-2 py-1.5 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         selected ? 'border-faction-friendly motion-safe:shadow-glow-soft' : 'border-border hover:bg-surface-raised',
       )}
     >
@@ -93,7 +93,8 @@ export function ZoneRow({ zone }: { zone: ZoneId }) {
           <button
             type="button"
             onClick={() => dispatch({ type: 'placeInZone', slot: placingSlot, zone })}
-            className="rounded-md border border-dashed border-faction-friendly px-3 py-2 type-eyebrow text-faction-friendly transition-colors hover:bg-surface-raised"
+            aria-label={`Place ${placing?.variantId ?? 'unit'} in ${ZONE_LABEL[zone]}`}
+            className="rounded-md border border-dashed border-faction-friendly px-3 py-2 type-eyebrow text-faction-friendly transition-colors hover:bg-surface-raised focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
             PLACE HERE
           </button>

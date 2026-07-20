@@ -11,10 +11,12 @@ import { DefensePanel } from './defense-panel';
 import { FormationBoard } from './formation-board';
 import { SquadRail } from './squad-rail';
 import { UnitDetailPanel } from './unit-detail-panel';
+import { UnsavedGuard } from './unsaved-guard';
 
 export function GarageScreen() {
   return (
     <div className="flex flex-col gap-4">
+      <UnsavedGuard />
       <div className="grid gap-4 lg:grid-cols-[288px_1fr_372px] lg:items-start">
         <SquadRail />
         <FormationBoard />

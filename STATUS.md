@@ -64,6 +64,24 @@ Verified: **34 Vitest integration tests green** on a local dev Postgres + `tsc` 
 `next build`. Remaining: the user-gated **Neon dev-branch → prod** migration promote (SC-008;
 `db/README.md`). New env: `AUTH_SECRET`/`AUTH_GOOGLE_ID`/`AUTH_GOOGLE_SECRET`/`ADMIN_ALLOWLIST`.
 
+**Feature 4 (Garage — squad builder + loadout/dial editor) — BUILT on branch `004-garage`,
+all five user stories.** The player-facing configuration surface, and the home of the **V1–V8
+TypeScript validation mirror** Feature 1 carried forward. A pure, client-usable TS engine mirror
+(`sim/derive.ts` + `sim/legality.ts`) is proven **field-for-field equal to the Rust engine** via a
+native-emitted parity fixture (SC-002) — so the Garage's live stat preview and legality gating never
+diverge from what the server re-runs (P8); the client never touches wasm (P6 — the server component
+derives the ruleset and passes it down). **US1** build + tap-to-place + save (client-gated by
+`validate`, server-authoritative); **US2** mount/family-gated loadout with the native-bonus-vs-sidegrade
+tell; **US3** capability-gated behavior dials + ≤2 Plan-B triggers (gate table mirrors engine V7/V6
+exactly); **US4** presets on-ramp (stock builds + per-type custom presets, slot-fit so a 4-utility
+bundle never overfills a 3-slot variant); **US5** base-defense designate/undesignate/re-designate via
+Feature 7's transactional service, surfacing the ≤3 cap, attack/defense exclusivity, and ≥1-attackable
+rule. Verified: **133 pure Vitest tests green** (parity + reducer + view-models + gating + presets +
+defense), `next build` + `tsc` + ESLint + the **no-raw-hex guard** clean, both orientations (P7 — the
+`Sheet`-based Customize surface + stacking rig switch on width). Deferred to a live env: the Playwright
+e2e (T012–T014/T030/T033) + axe pass (T038) + the save-gate DB test (T016), which need a running app +
+browser + local Postgres.
+
 **Approach — plan-the-whole-set-first, then build foundation-first (Principle VII):**
 the full set was planned before any implementation so shared models and cross-feature
 dependencies surfaced on paper. Feature 1 (the deterministic **sim core + data model**)
@@ -119,7 +137,7 @@ implementation sequence, not the spec numbering.
 | 1 | Sim core + game data model | ✅ | ✅ | ✅ 54 | **✅ MERGED + LIVE — native engine (82 tests) + WASM + /api/resolve prod-verified; native==wasm proven byte-for-byte in production** |
 | 2 | Auto-balancer (Monte-Carlo, reuses sim core) | ✅ | ✅ | ✅ 32 | after #1 |
 | 3 | App shell + design system (nav, brand tokens) | ✅ | ✅ | ✅ 55 | **✅ MERGED — tokens + responsive shell + primitives + brand; 18 Playwright/axe e2e green** |
-| 4 | Garage (squad builder + loadout/dial editor) | ✅ | ✅ | ✅ 40 | after #3/#7 |
+| 4 | Garage (squad builder + loadout/dial editor) | ✅ | ✅ | ✅ 40 | **✅ BUILT — US1–US5 on `004-garage`; engine-parity preview + V1–V8 TS validation mirror; 133 pure tests green; e2e/axe/DB deferred to a live env** |
 | 5 | Battle playback (tick stream → pixel-art replay) | ✅ | ✅ | ✅ 42 | after #3 |
 | 6 | Battle summary (post-Bo3 results) | ✅ | ✅ | ✅ 32 | after #3 |
 | 7 | Accounts & persistence (backend/DB, defense snapshots) | ✅ | ✅ | ✅ 52 | **✅ BUILT — schema + auth + service layer; 34 Vitest tests green; prod migrate pending** |

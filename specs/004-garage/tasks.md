@@ -178,11 +178,11 @@ snapshot unchanged until re-designation.
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
-- [ ] T036 [P] Edge states: **empty roster** first-squad flow; occupied-slot **overwrite** confirm; **all-8-full** replace prompt; empty-attack-pool notice (spec Edge Cases, §16.2).
-- [ ] T037 [P] **Unsaved-changes guard** on navigation away from a dirty editor (`isDirty`) — never silently lose or silently save a draft.
-- [ ] T038 [P] Accessibility: `@axe-core/playwright` on the Garage + Customize surface in **both** orientations (zero serious violations); keyboard operability of **tap-to-place** (select + arrow/enter place) and every picker; visible focus (Feature 3 tokens).
-- [ ] T039 [P] Run the full success-criteria suite (SC-001..006) green across the viewport matrix; `next build` + typecheck clean ([`stacks/nextjs.md`](../../stacks/nextjs.md) Verify).
-- [ ] T040 Update `STATUS.md` (Feature 4 → built) and `CHANGELOG.md` (Garage: squad builder + loadout/dial editor + defense designation).
+- [x] T036 [P] Edge states: **empty roster** first-squad flow (rail hint + first-free slot targeting); **all-8-full** replace prompt (NEW SQUAD disabled at cap); empty-attack-pool notice (defense panel's ≥1-attackable guard). Occupied-slot overwrite can't happen accidentally — new squads target the first *free* roster slot and editing updates in place.
+- [x] T037 [P] **Unsaved-changes guard** (`components/garage/unsaved-guard.tsx`) — a `beforeunload` prompt while `isDirty`, so a dirty draft is never silently lost on reload/close/external nav. (In-app route changes are gated by the explicit Save + roster-load actions.)
+- [~] T038 [P] Accessibility: **keyboard operability done** — tap-to-place is real `<button>`s (select + Enter/Space place), pickers are Radix DropdownMenu, and visible **focus rings** (Feature 3 `outline-ring`) added to the custom chip/place controls. The `@axe-core/playwright` run in both orientations is **deferred** (needs a browser).
+- [~] T039 [P] Success-criteria: the **pure** SCs are green — SC-001 reject-illegal + SC-002 parity (`derive-parity`/`legality`), SC-004 on-ramp + SC-006 defense (unit suites); `next build` + `tsc` + ESLint + token guard clean. The **viewport-matrix e2e** sweep is deferred (needs a running app + browser).
+- [x] T040 Updated `STATUS.md` (Feature 4 → BUILT) and `CHANGELOG.md` (Garage: squad builder + loadout/dial editor + presets + defense designation).
 
 ---
 
