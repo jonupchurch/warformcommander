@@ -8,15 +8,8 @@
  * bonus** vs an off-family sidegrade is made legible (P1, FR-006).
  */
 
-import type { ReactNode } from 'react';
-
 import { Chip } from '@/components/ui/chip';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { SectionLabel } from '@/components/ui/section-label';
 import { familyTone } from '@/lib/garage/display';
 import {
@@ -29,22 +22,7 @@ import type { SlotIndex } from '@/lib/garage/types';
 import { useGarageEditor } from '@/lib/garage/use-garage-editor';
 import { cn } from '@/lib/utils';
 
-/** A select-styled dropdown trigger showing the current pick. */
-function Select({ current, children }: { current: string; children: ReactNode }) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger className="flex w-full items-center justify-between gap-2 rounded-md border border-border bg-surface px-3 py-2 text-left transition-colors hover:bg-surface-raised focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
-        <span className="type-body-sm truncate text-text-strong">{current}</span>
-        <span aria-hidden className="type-readout text-text-dim">
-          ▾
-        </span>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="max-h-72 w-64 overflow-y-auto">
-        {children}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
+import { FieldSelect } from './field-select';
 
 function WeaponRow({ slot }: { slot: SlotIndex }) {
   const { session, dispatch, ruleset } = useGarageEditor();
@@ -69,7 +47,7 @@ function WeaponRow({ slot }: { slot: SlotIndex }) {
             <Chip tone="neutral">SIDEGRADE</Chip>
           ))}
       </div>
-      <Select current={current?.name ?? machine.loadout.weapon}>
+      <FieldSelect current={current?.name ?? machine.loadout.weapon}>
         {options.map((w) => {
           const isNative = isNativeWeapon(machine.typeId, w, ruleset);
           return (
@@ -86,7 +64,7 @@ function WeaponRow({ slot }: { slot: SlotIndex }) {
             </DropdownMenuItem>
           );
         })}
-      </Select>
+      </FieldSelect>
     </div>
   );
 }
@@ -104,7 +82,7 @@ function DefenseRow({ slot }: { slot: SlotIndex }) {
       <SectionLabel index="02" rule={false} className="text-family-explosive">
         Defense
       </SectionLabel>
-      <Select current={current?.name ?? machine.loadout.defense}>
+      <FieldSelect current={current?.name ?? machine.loadout.defense}>
         {options.map((d) => (
           <DropdownMenuItem
             key={d.id}
@@ -113,7 +91,7 @@ function DefenseRow({ slot }: { slot: SlotIndex }) {
             <span className="type-body-sm text-text-strong">{d.name}</span>
           </DropdownMenuItem>
         ))}
-      </Select>
+      </FieldSelect>
     </div>
   );
 }
@@ -136,7 +114,7 @@ function UtilityRows({ slot }: { slot: SlotIndex }) {
         return (
           <div key={index} className="flex items-center gap-2">
             <span className="type-eyebrow w-16 shrink-0 text-text-dim">SLOT {index + 1}</span>
-            <Select current={current?.name ?? id}>
+            <FieldSelect current={current?.name ?? id}>
               {options.map((u) => {
                 // Dedup (V5): disable a utility already equipped in a *different* slot.
                 const usedElsewhere = equipped.some((e, j) => j !== index && e === u.id);
@@ -156,7 +134,7 @@ function UtilityRows({ slot }: { slot: SlotIndex }) {
                   </DropdownMenuItem>
                 );
               })}
-            </Select>
+            </FieldSelect>
           </div>
         );
       })}

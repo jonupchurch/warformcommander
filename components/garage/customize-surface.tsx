@@ -17,15 +17,49 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { MACHINE_TYPE_LABEL } from '@/lib/garage/display';
+import type { EditorPane } from '@/lib/garage/types';
 import { useGarageEditor } from '@/lib/garage/use-garage-editor';
+import { cn } from '@/lib/utils';
 
+import { DialEditor } from './dial-editor';
 import { LoadoutEditor } from './loadout-editor';
+import { PlanBEditor } from './planb-editor';
+
+function Tab({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(
+        'type-label -mb-px border-b-2 px-3 py-2 transition-colors',
+        active
+          ? 'border-faction-friendly text-text-strong'
+          : 'border-transparent text-text-muted hover:text-text-strong',
+      )}
+    >
+      {children}
+    </button>
+  );
+}
 
 export function CustomizeSurface() {
-  const { session } = useGarageEditor();
+  const { session, dispatch } = useGarageEditor();
   const slot = session.selection.selectedSlot;
   const machine = slot === null ? null : session.draft.machines[slot];
   if (machine === null) return null;
+
+  // Only Loadout / Dials are surfaced as tabs here; other panes fall back to Loadout.
+  const pane: EditorPane = session.selection.activePane === 'Dials' ? 'Dials' : 'Loadout';
+  const setPane = (next: EditorPane) => dispatch({ type: 'setActivePane', pane: next });
 
   return (
     <Sheet>
@@ -46,8 +80,23 @@ export function CustomizeSurface() {
             {MACHINE_TYPE_LABEL[machine.typeId]} — every choice is a trade-off, never a strict upgrade.
           </SheetDescription>
         </SheetHeader>
+        <div className="flex gap-1 border-b border-border px-4">
+          <Tab active={pane === 'Loadout'} onClick={() => setPane('Loadout')}>
+            LOADOUT
+          </Tab>
+          <Tab active={pane === 'Dials'} onClick={() => setPane('Dials')}>
+            BEHAVIOR
+          </Tab>
+        </div>
         <div className="flex-1 overflow-y-auto p-4">
-          <LoadoutEditor />
+          {pane === 'Dials' ? (
+            <div className="flex flex-col gap-6">
+              <DialEditor />
+              <PlanBEditor />
+            </div>
+          ) : (
+            <LoadoutEditor />
+          )}
         </div>
       </SheetContent>
     </Sheet>

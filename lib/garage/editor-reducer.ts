@@ -17,6 +17,7 @@ import type {
   EquipmentId,
   Loadout,
   MachineTypeId,
+  PlanBSlot,
   PlanBTrigger,
   VariantId,
   ZoneId,
@@ -49,6 +50,10 @@ export type EditorAction =
   | { type: 'setDefense'; slot: SlotIndex; equipmentId: EquipmentId }
   | { type: 'setUtility'; slot: SlotIndex; index: number; equipmentId: EquipmentId }
   | { type: 'clearUtility'; slot: SlotIndex; index: number }
+  | { type: 'setDial'; slot: SlotIndex; patch: Partial<BehaviorDials> }
+  | { type: 'addPlanB'; slot: SlotIndex; trigger: PlanBTrigger }
+  | { type: 'setPlanB'; slot: SlotIndex; trigger: PlanBTrigger }
+  | { type: 'removePlanB'; slot: SlotIndex; planBSlot: PlanBSlot }
   | { type: 'clearSlot'; slot: SlotIndex }
   | { type: 'selectMachine'; slot: SlotIndex | null }
   | { type: 'pickUpForPlacement'; slot: SlotIndex | null }
@@ -183,6 +188,40 @@ export function garageReducer(session: EditorSession, action: EditorAction): Edi
               machine.loadout.utilities.splice(action.index, 1);
               machine.sourcePresetId = undefined;
             }
+            break;
+          }
+
+          case 'setDial': {
+            const machine = d.draft.machines[action.slot];
+            if (machine === null) break;
+            Object.assign(machine.dials, action.patch);
+            machine.sourcePresetId = undefined;
+            break;
+          }
+
+          case 'addPlanB': {
+            const machine = d.draft.machines[action.slot];
+            if (machine === null) break;
+            machine.planB.push(action.trigger);
+            machine.sourcePresetId = undefined;
+            break;
+          }
+
+          case 'setPlanB': {
+            const machine = d.draft.machines[action.slot];
+            if (machine === null) break;
+            const idx = machine.planB.findIndex((t) => t.slot === action.trigger.slot);
+            if (idx >= 0) machine.planB[idx] = action.trigger;
+            else machine.planB.push(action.trigger);
+            machine.sourcePresetId = undefined;
+            break;
+          }
+
+          case 'removePlanB': {
+            const machine = d.draft.machines[action.slot];
+            if (machine === null) break;
+            machine.planB = machine.planB.filter((t) => t.slot !== action.planBSlot);
+            machine.sourcePresetId = undefined;
             break;
           }
 
