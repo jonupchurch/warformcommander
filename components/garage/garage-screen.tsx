@@ -7,16 +7,20 @@
  * editor context, so there is no prop drilling.
  */
 
+import { DefensePanel } from './defense-panel';
 import { FormationBoard } from './formation-board';
 import { SquadRail } from './squad-rail';
 import { UnitDetailPanel } from './unit-detail-panel';
 
 export function GarageScreen() {
   return (
-    <div className="grid gap-4 lg:grid-cols-[288px_1fr_372px] lg:items-start">
-      <SquadRail />
-      <FormationBoard />
-      <UnitDetailPanel />
+    <div className="flex flex-col gap-4">
+      <div className="grid gap-4 lg:grid-cols-[288px_1fr_372px] lg:items-start">
+        <SquadRail />
+        <FormationBoard />
+        <UnitDetailPanel />
+      </div>
+      <DefensePanel />
     </div>
   );
 }

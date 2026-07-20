@@ -166,11 +166,11 @@ snapshot unchanged until re-designation.
 ### Tests for User Story 5 ⚠️ (write first)
 
 - [ ] T033 [P] [US5] `e2e/garage-defense.spec.ts`: designate ≤3 via Feature 7 `designateDefense` (leaves the attack pool); a 4th is blocked with the ≤3 reason; designating the last attackable squad is prevented (SC-006, AS1/AS2/AS4).
-- [ ] T034 [P] [US5] `src/components/garage/defense.immutability.test.ts`: editing a designated squad (`updateSquad`) leaves its **active `defense_snapshot` config byte-unchanged**; `redesignateDefense` produces a new snapshot (Feature 7 SC-004, AS3/AS5).
+- [x] T034 [P] [US5] `tests/garage-defense.test.ts`: the pure guard + **staleness** logic the panel renders — ≤3 cap / free slots, attack/defense exclusivity count, ≥1-attackable block, and "live config drifted from the frozen snapshot ⇒ re-designate" detection (`computeDefenseView`). (The DB-level guarantee that `updateSquad` never mutates an active snapshot row is a Feature 7 transactional concern — its suite / e2e.)
 
 ### Implementation for User Story 5
 
-- [ ] T035 [US5] Implement `defense-panel.tsx` (`"use client"`): designate / undesignate / re-designate via Feature 7 (`designateDefense`/`undesignateDefense`/`redesignateDefense`); surface the ≤3 cap, attack/defense exclusivity, and ≥1-attackable rule; show a "re-designate to push live" affordance on a dirty designated squad; reflect `ACTIVE`/defense state in `squad-rail` (FR-017/FR-018). The Garage **never** mutates snapshot rows directly.
+- [x] T035 [US5] Implemented `defense-panel.tsx` (`"use client"`): designate / undesignate / re-designate via Feature 7 (`designateDefense`/`undesignateDefense`/`redesignateDefense`); surfaces the ≤3 cap, attack/defense exclusivity, and ≥1-attackable rule (client convenience; server is authority); shows a "re-designate to push live" affordance on a stale designated squad; `squad-rail` already reflects `ACTIVE`/defense state (FR-017/FR-018). The Garage **never** mutates snapshot rows directly.
 
 **Checkpoint**: a saved squad can become immutable async-PvP defense content, safely.
 

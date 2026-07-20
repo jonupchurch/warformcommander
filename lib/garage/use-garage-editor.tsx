@@ -34,6 +34,8 @@ import {
   saveSquadAction,
   updateSquadAction,
   designateDefenseAction,
+  undesignateDefenseAction,
+  redesignateDefenseAction,
   savePresetAction,
 } from './actions';
 import {
@@ -63,6 +65,8 @@ export interface GarageEditorContextValue {
   roster: Squad[];
   /** The player's custom presets (Feature 7 `listPresets`), for the preset picker. */
   presets: Preset[];
+  /** The player's active defense snapshots (Feature 7 `listDefense`, ≤3), for the defense panel. */
+  defense: DefenseSnapshot[];
   /** The selected machine's live derived readout + squad aggregate (memoized). */
   preview: StatPreview;
   /** The client `validate()` view — gates the Save button (convenience only). */
@@ -75,6 +79,10 @@ export interface GarageEditorContextValue {
   save: () => Promise<Result<Squad>>;
   /** Designate the (saved) squad into a defense slot via Feature 7. */
   designate: (slot: 0 | 1 | 2) => Promise<Result<DefenseSnapshot>>;
+  /** Return the (saved, designated) squad to the attack pool via Feature 7. */
+  undesignate: () => Promise<Result<void>>;
+  /** Push the edited designated squad live — a fresh frozen snapshot at its slot (Feature 7). */
+  redesignate: () => Promise<Result<DefenseSnapshot>>;
   /** Save the selected machine's setup as a custom per-type preset via Feature 7. */
   saveCurrentAsPreset: (name: string) => Promise<Result<Preset>>;
   /** Apply a **stock** preset into a slot (fields it if empty), fitting to the target variant. */
@@ -89,6 +97,7 @@ export interface GarageEditorProviderProps {
   ruleset: Ruleset;
   roster: Squad[];
   presets?: Preset[];
+  defense?: DefenseSnapshot[];
   initialSession?: EditorSession;
   children: ReactNode;
 }
@@ -97,6 +106,7 @@ export function GarageEditorProvider({
   ruleset,
   roster,
   presets = [],
+  defense = [],
   initialSession,
   children,
 }: GarageEditorProviderProps) {
@@ -155,6 +165,16 @@ export function GarageEditorProvider({
     [session.editingSquadId],
   );
 
+  const undesignate = useCallback<GarageEditorContextValue['undesignate']>(async () => {
+    if (session.editingSquadId === null) return err('NOT_FOUND', 'no saved squad to undesignate');
+    return undesignateDefenseAction(session.editingSquadId);
+  }, [session.editingSquadId]);
+
+  const redesignate = useCallback<GarageEditorContextValue['redesignate']>(async () => {
+    if (session.editingSquadId === null) return err('NOT_FOUND', 'no saved squad to re-designate');
+    return redesignateDefenseAction(session.editingSquadId);
+  }, [session.editingSquadId]);
+
   const saveCurrentAsPreset = useCallback<GarageEditorContextValue['saveCurrentAsPreset']>(
     async (name) => {
       const slot = session.selection.selectedSlot;
@@ -200,12 +220,15 @@ export function GarageEditorProvider({
       ruleset,
       roster,
       presets,
+      defense,
       preview,
       validation,
       isDirty,
       saving,
       save,
       designate,
+      undesignate,
+      redesignate,
       saveCurrentAsPreset,
       applyStock,
       applyCustom,
@@ -215,12 +238,15 @@ export function GarageEditorProvider({
       ruleset,
       roster,
       presets,
+      defense,
       preview,
       validation,
       isDirty,
       saving,
       save,
       designate,
+      undesignate,
+      redesignate,
       saveCurrentAsPreset,
       applyStock,
       applyCustom,
