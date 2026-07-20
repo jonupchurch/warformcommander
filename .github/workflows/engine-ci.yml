@@ -45,8 +45,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo test --workspace
 
-  wasm-tests:
-    name: wasm32 tests (node)
+  wasm-parity:
+    name: native == wasm parity (T017)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -54,11 +54,17 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
       - uses: Swatinem/rust-cache@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - name: Install wasm-pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-      # The same determinism/golden suite, cross-compiled to wasm32 and run in Node — the wasm
-      # digests must equal the native golden manifest (SC-001, T017).
-      - run: wasm-pack test --node crates/engine
+      - name: Build the wasm engine
+        run: wasm-pack build crates/engine --target nodejs --out-dir ../../packages/engine-wasm --release
+      # Emit the golden battery natively, then feed the same inputs through the wasm build: the
+      # outputs must be byte-identical (P6/SC-001). This is the real native==wasm contract.
+      - run: cargo run -p engine --example emit_battery -- "$RUNNER_TEMP/battery"
+      - run: node scripts/wasm-parity.mjs "$RUNNER_TEMP/battery"
 
   typecheck-ts:
     name: typecheck (replay reader)

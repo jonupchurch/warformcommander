@@ -2,7 +2,14 @@ import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // The deterministic sim core runs server-side as WASM (constitution P6). Keep the wasm-bindgen
+  // package external so Next/Turbopack doesn't try to bundle the .wasm through the JS pipeline
+  // (research B2), and make sure the .wasm file itself is traced into the /api/resolve function
+  // bundle on Vercel (otherwise the runtime import 404s).
+  serverExternalPackages: ["@wfc/engine-wasm"],
+  outputFileTracingIncludes: {
+    "/api/resolve": ["./node_modules/@wfc/engine-wasm/**/*.wasm"],
+  },
 };
 
 export default withSentryConfig(nextConfig, {
