@@ -29,8 +29,9 @@ const nextConfig: NextConfig = {
     "/practice": ["./packages/engine-wasm/**/*"],
     // The playback + summary reads can hit getReplay's regenerate path (resolveBattleRaw +
     // loadDefaultRuleset → wasm) for a stale formatVersion; trace so that path can't 500 in prod.
-    "/battle/[matchId]": ["./packages/engine-wasm/**/*"],
-    "/matches/[matchId]/summary": ["./packages/engine-wasm/**/*"],
+    // NB: the key is a glob, so `[matchId]` would be read as a char-class — use `*` for the segment.
+    "/battle/*": ["./packages/engine-wasm/**/*"],
+    "/matches/*/summary": ["./packages/engine-wasm/**/*"],
   },
 };
 
