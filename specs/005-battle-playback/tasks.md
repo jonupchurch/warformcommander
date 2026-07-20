@@ -142,13 +142,13 @@ for screen readers; computed once per game.
 
 ### Tests for User Story 4 ⚠️ (write first)
 
-- [ ] T028 [P] [US4] `replay-view.test.ts`: `deriveMarkers(g)` returns a marker per `planb`/`death` at the right tick/side, is computed in one pass, and is referentially stable across repeated calls (memoized) (FR-015, AS1/AS4).
-- [ ] T029 [P] [US4] `e2e/battle-playback.spec.ts`: markers render at the correct proportional positions; hovering/focusing shows the label; activating a marker seeks to its tick (AS1–AS3).
+- [x] T028 [P] [US4] `tests/replay-view.test.ts`: `deriveMarkers(g)` returns a marker per `planb`/`death` at the right tick/side (real battery deaths + a synthetic planb), computed in one pass, referentially stable across calls (memoized) (FR-015, AS1/AS4). Green.
+- [~] T029 [P] [US4] `e2e/battle-playback.spec.ts` — **deferred** (browser-gated). SSR smoke confirms markers render with humanized accessible labels ("Heavy Tank down — tick N", …) over the track.
 
 ### Implementation for User Story 4
 
-- [ ] T030 [US4] Implement `src/components/battle/timeline-markers.tsx` — absolutely-positioned markers over the track at `position*100%`, tinted by kind/side, focusable/activatable → `onSeek(tick)`, `label` as accessible name (contract §3, FR-015).
-- [ ] T031 [US4] Render `TimelineMarkers` inside `Scrubber` from `view.deriveMarkers(gameIndex)`; ensure markers recompute only on game change, never per frame/seek (US4-AS4).
+- [x] T030 [US4] `components/battle/timeline-markers.tsx` — absolutely-positioned marker buttons at `position*100%`, tinted by kind/side (death = faction color, Plan-B = middle-zone accent), focusable/activatable → `onSeek(tick)`, `label` as accessible name; `pointer-events-none` container so only the dots intercept and the rest of the track still seeks (contract §3, FR-015).
+- [x] T031 [US4] `Scrubber` wraps the slider in a positioned track and overlays `TimelineMarkers`; `BattlePlayer` passes `useMemo(() => view.deriveMarkers(gameIndex))` so markers recompute only on game change, never per frame/seek (US4-AS4).
 
 **Checkpoint**: the timeline tells the battle's story; markers seek and are accessible.
 

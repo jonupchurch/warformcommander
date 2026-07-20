@@ -76,6 +76,8 @@ function BattlePlayerInner({
   const player = usePlayback(view, { initialGame });
   const vm = view.buildViewModel(player.gameIndex, player.currentTick);
   const tickRate = view.tickRate || 10;
+  // Markers are derived once per game (memoized in the view) — never per frame/seek (US4-AS4).
+  const markers = useMemo(() => view.deriveMarkers(player.gameIndex), [view, player.gameIndex]);
 
   const tickStr = `${player.currentTick} / ${player.lastTick}`;
   const timeStr = `${(player.currentTick / tickRate).toFixed(1)}s`;
@@ -127,6 +129,7 @@ function BattlePlayerInner({
             lastTick={player.lastTick}
             tickRate={tickRate}
             onSeek={player.seek}
+            markers={markers}
             className="flex-1"
           />
           <span className="type-readout min-w-24 text-right text-xs text-text-muted tabular-nums">

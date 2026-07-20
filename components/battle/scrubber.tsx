@@ -12,10 +12,12 @@
  * native "big step" is a fraction of the range, not 10 ticks). The thumb + fill are the
  * `--faction-friendly` token via `accent-color`; visible focus ring is the Feature 3 `--ring`.
  *
- * US4 (T031) overlays `TimelineMarkers` on the track; this component owns only the seek slider.
+ * `TimelineMarkers` (US4) overlays Plan-B/death annotations on the track; the slider owns seek.
  */
 
+import type { TimelineMarker } from '@/sim/replay-view';
 import { cn } from '@/lib/utils';
+import { TimelineMarkers } from './timeline-markers';
 
 export interface ScrubberProps {
   currentTick: number;
@@ -23,10 +25,12 @@ export interface ScrubberProps {
   /** ticks/second, for the `aria-valuetext` seconds readout. */
   tickRate: number;
   onSeek(tick: number): void;
+  /** memoized per-game event markers (US4); omitted → no overlay. */
+  markers?: TimelineMarker[];
   className?: string;
 }
 
-export function Scrubber({ currentTick, lastTick, tickRate, onSeek, className }: ScrubberProps) {
+export function Scrubber({ currentTick, lastTick, tickRate, onSeek, markers, className }: ScrubberProps) {
   const clamp = (t: number) => Math.min(lastTick, Math.max(0, t));
   const seconds = (currentTick / (tickRate || 10)).toFixed(1);
   const valueText = `tick ${currentTick} of ${lastTick}, ${seconds} seconds`;
@@ -43,21 +47,23 @@ export function Scrubber({ currentTick, lastTick, tickRate, onSeek, className }:
   }
 
   return (
-    <input
-      type="range"
-      min={0}
-      max={lastTick}
-      step={1}
-      value={currentTick}
-      onChange={(event) => onSeek(clamp(Number(event.target.value)))}
-      onKeyDown={onKeyDown}
-      aria-label="Battle timeline"
-      aria-valuetext={valueText}
-      className={cn(
-        'h-2 w-full cursor-pointer appearance-none rounded-full bg-track accent-faction-friendly',
-        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-        className,
-      )}
-    />
+    <div className={cn('relative flex items-center', className)}>
+      <input
+        type="range"
+        min={0}
+        max={lastTick}
+        step={1}
+        value={currentTick}
+        onChange={(event) => onSeek(clamp(Number(event.target.value)))}
+        onKeyDown={onKeyDown}
+        aria-label="Battle timeline"
+        aria-valuetext={valueText}
+        className={cn(
+          'h-2 w-full cursor-pointer appearance-none rounded-full bg-track accent-faction-friendly',
+          'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+        )}
+      />
+      {markers && <TimelineMarkers markers={markers} onSeek={onSeek} />}
+    </div>
   );
 }
