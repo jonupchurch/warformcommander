@@ -31,10 +31,10 @@ types; Feature 3's `AppShell`/`UnitIcon`/`Button`/`Panel`/`StatBar`/tokens; Feat
 
 **Purpose**: Stand up the component group, the route skeleton, test wiring, and fixtures.
 
-- [ ] T001 Create the component group folder `src/components/battle/` and confirm the `@/*` path alias resolves `@/components/battle/*` + `@/sim/*` (Feature 3 `tsconfig.json`).
-- [ ] T002 [P] Create the route skeleton `app/(app)/battle/[matchId]/page.tsx` (Server Component stub — async `params`, calls a `getReplay` placeholder), `loading.tsx` (skeleton), and `error.tsx` (graceful "replay unavailable / unsupported format" state) per [contracts/battle-view.md](./contracts/battle-view.md) §4.
-- [ ] T003 [P] Add **fixture replays** under `e2e/fixtures/` (and a shared `src/sim/__fixtures__/`): a **short** battle (≤ ~15 ticks), a **full 1000-tick** battle, one with known **`planb` + `death`** events, and one with an **unsupported `formatVersion`** — committed JSON conforming to [replay-format.md](../001-battle-sim-core/contracts/replay-format.md) (produced by Feature 1's resolve/golden battery, or hand-authored minimal conforming fixtures so this feature is testable independently of Feature 1 being built).
-- [ ] T004 [P] Confirm the test harness: `@playwright/test` + `@axe-core/playwright` (present per Feature 3) and the unit runner (Vitest/RTL or repo default); add `e2e/battle-playback.spec.ts` + a `src/components/battle/*.test.ts(x)` scaffold and any missing npm scripts.
+- [x] T001 Created the component group folder `components/battle/` (root-level, **not** `src/` — repo convention); `@/*` resolves `@/components/battle/*` + `@/sim/*`.
+- [x] T002 [P] Created the route skeleton `app/(app)/battle/[matchId]/page.tsx` (Server Component stub — async `params`), `loading.tsx` (skeleton), and `error.tsx` (graceful "replay unavailable / unsupported format" state) per [contracts/battle-view.md](./contracts/battle-view.md) §4.
+- [x] T003 [P] Added fixtures: the **real native-emitted Bo3** wire replay (`tests/fixtures/replay-battery.json`, 2×145 ticks, deaths + support — `cargo run -p engine --example emit_battery`), plus a synthetic **large (1000-tick)**, **planb/death**, **tiny (2-tick)**, and **unsupported-formatVersion** builder (`tests/replay-fixtures.ts`).
+- [~] T004 [P] Unit runner wired: **pure Vitest** suites for the reader-extension + reducer (`tests/replay-view.test.ts`, `tests/use-playback.test.ts`). The Playwright `e2e/battle-playback.spec.ts` scaffold is **deferred** (browser-gated — written with the interactive stories).
 
 ---
 
@@ -46,10 +46,10 @@ every story consumes. Nothing in Phase 3+ can begin until this is done.
 **⚠️ CRITICAL**: This is the seek primitive (`replay-view.ts`) and the playback state machine
 (`use-playback.ts`) — the P6 spine. Both are engine-free by construction.
 
-- [ ] T005 Implement `src/sim/replay-view.ts` — `createReplayView(replay, playerSide)` + `ReplayView`: `lastTick`, `snapshotAt` (**O(1) index**), `eventsAt` (O(1)), `unitMaxHull`/`unitMaxShield` (**tick-0 baseline**), `gamesCount` — over Feature 1's `replay-reader.ts`. **MUST NOT import `@wfc/engine-wasm` or simulate** (data-model §Reader-extension, contract §1).
-- [ ] T006 [US-shared] Implement `buildViewModel(gameIndex, tick)` and the `UnitView`/`ZoneBucket`/`BattleViewModel`/`OverallStats` projections in `src/sim/replay-view.ts` — bucket by `zoneIdx` (player `[Rear,Middle,Front]` / enemy `[Front,Middle,Rear]`), map `typeId`→`MachineTypeKey`, compute `hullPct` vs tick-0 baseline, `alive`/`dead` (data-model Tier 3). Pure function of `(gameIndex, tick)`.
-- [ ] T007 [P] Implement `deriveMarkers(gameIndex)` in `src/sim/replay-view.ts` — **one pass** over `events` collecting `planb`/`death` into `TimelineMarker[]` (tick, kind, side, unitInstanceId, label, position), memoized per game (FR-015, research C3).
-- [ ] T008 Implement `src/components/battle/use-playback.ts` (`"use client"`) — the `PlayerState` reducer (`play`/`pause`/`tick`/`seek`/`step`/`setSpeed`/`selectGame`) + the ref-held **`requestAnimationFrame` accumulator loop** (100/speed ms → integer `tick`, halts at `lastTick`, cleaned up on pause/unmount), exposing `PlaybackApi` (contract §2, research B1/B3). `seek` is synchronous + O(1); loop dispatches only `tick`.
+- [x] T005 Implemented `sim/replay-view.ts` — `createReplayView(replay, playerSide)` + `ReplayView`: `lastTick`, `snapshotAt` (**O(1) index**), `eventsAt` (O(1)), `unitMaxHull`/`unitMaxShield` (**tick-0 baseline**), `gamesCount`, `tickRate`, `unitOrder` — over Feature 1's `replay-reader.ts`. No engine import (SC-005 test); gates `formatVersion` via the reader.
+- [x] T006 [US-shared] Implemented `buildViewModel(gameIndex, tick)` + the `UnitView`/`SideView`/`BattleViewModel`/`SideStats` projections in `sim/replay-view.ts` — bucket by `zoneIdx` (player `[Rear,Middle,Front]` / enemy `[Front,Middle,Rear]`), `hullPct`/`shieldPct` vs tick-0 baseline, `alive`. **Kept UI-pure**: `UnitView` carries raw `typeId`; the `typeId→UnitIcon` map is the render leaf's job (so `sim/` never imports `components/`). Pure function of `(gameIndex, tick)` — frame-accurate vs `snapshotAt` (SC-001 test).
+- [x] T007 [P] Implemented `deriveMarkers(gameIndex)` — one pass over `events` collecting `planb`/`death` into `TimelineMarker[]` (tick, kind, side, unitInstanceId, label, position), memoized per game (FR-015).
+- [x] T008 Implemented `components/battle/use-playback.ts` (`"use client"`) — the pure exported `playbackReducer` (`play`/`pause`/`tick`/`seek`/`step`/`setSpeed`/`selectGame`, halts at `lastTick`) + `drainTicks`/`msPerTickAt` pacing + the `requestAnimationFrame` accumulator loop (100/speed ms → integer `tick`, cleaned up on pause/unmount), exposing `PlaybackApi`. `seek` is synchronous + O(1); loop dispatches only `tick`.
 
 **Checkpoint**: the O(1) seek primitive + the playback state machine exist, both engine-free.
 
