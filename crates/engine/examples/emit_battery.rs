@@ -29,7 +29,13 @@ fn battery_input(seed: u64) -> BattleInput {
     let army_b = Army {
         machines: vec![
             stock_instance(&rs, MachineTypeId::HeavyTank, "Cavalier", ZoneId::Front, 0),
-            stock_instance(&rs, MachineTypeId::RocketArtillery, "Sentry", ZoneId::Middle, 1),
+            stock_instance(
+                &rs,
+                MachineTypeId::RocketArtillery,
+                "Sentry",
+                ZoneId::Middle,
+                1,
+            ),
             stock_instance(&rs, MachineTypeId::Mech, "Striker", ZoneId::Front, 2),
             stock_instance(&rs, MachineTypeId::Artillery, "Longbow", ZoneId::Rear, 3),
             stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),

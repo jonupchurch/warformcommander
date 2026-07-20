@@ -1,6 +1,17 @@
 /* @ts-self-types="./engine.d.ts" */
 
 /**
+ * @returns {Uint8Array}
+ */
+function default_ruleset() {
+    const ret = wasm.default_ruleset();
+    var v1 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v1;
+}
+exports.default_ruleset = default_ruleset;
+
+/**
  * @param {Uint8Array} input
  * @returns {Uint8Array}
  */
@@ -13,6 +24,20 @@ function resolve(input) {
     return v2;
 }
 exports.resolve = resolve;
+
+/**
+ * @param {Uint8Array} input
+ * @returns {Uint8Array}
+ */
+function validate(input) {
+    const ptr0 = passArray8ToWasm0(input, wasm.__wbindgen_malloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ret = wasm.validate(ptr0, len0);
+    var v2 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v2;
+}
+exports.validate = validate;
 function __wbg_get_imports() {
     const import0 = {
         __proto__: null,

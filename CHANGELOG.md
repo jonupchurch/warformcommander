@@ -149,5 +149,51 @@ once it reaches a released version. Until then, everything lives under
     guard; browsable at `/gallery`. New `web-ci` GitHub workflow gates it. The repo keeps
     root-level `components/`/`lib/` (matching `sim/`/`db/`) rather than `src/`; the user's custom
     `app/favicon.ico` was left untouched. Removed the unused create-next-app scaffold SVGs.
+- **Feature 7 — accounts & persistence (backend/DB, 2026-07-20).** The stateful account +
+  persistence layer the async-PvP product stands on, on branch `007-accounts-persistence`.
+  Feature 1's engine is stateless; **this is where all state lives** (design §16/§16.1/§16.2).
+  - **Schema** (`db/schema.ts`) — the single Drizzle/Postgres schema Features 8–12 read/write:
+    Tier A auth-adapter tables (Auth.js Postgres shape; `users` extended with `handle`/`role`/
+    `isBot`) + Tier B game tables (`squads`, `defense_snapshots`, `matches`, `replays`,
+    `ladder_standings`, `posts`, `presets`). Game content is stored as **Feature-1 typed `jsonb`**
+    (`db/types.ts` ← `sim/model.ts`), never re-declared in SQL (P8). Migration `0000` on the
+    `postgres-js` driver. Defense **immutability + the ≤3 cap + attack/defense pool exclusivity**
+    and the `net_victories` **generated column** are **DB invariants** (partial-unique indexes +
+    copy-on-designate), not app-only checks.
+  - **US1 — Google auth + server-authoritative admin role.** Auth.js v5 + `@auth/drizzle-adapter`
+    on the existing `getDb()` with **database sessions** (lazy factory, no Proxy). Admin role seeded
+    from a server-side `ADMIN_ALLOWLIST` and always re-read from the DB — instant revocation, no
+    re-login (SC-002). `server/authz.ts` (pure, unit-testable) + `server/session.ts` (the `auth()`
+    boundary guards); the service layer takes a resolved actor, never a client id.
+  - **US2 — roster CRUD** (`server/squads.ts`): ≤8 squads, each validated by the shared engine
+    `validate()` **before** insert (no illegal army persisted, SC-003) with the power rating derived
+    from the same call; ownership enforced.
+  - **US3 — immutable defense snapshots** (`server/defense.ts`): designate/redesignate/undesignate,
+    all transactional; a frozen config copy that source edits never touch (SC-004); the ≤3/slot
+    guard is the partial-unique index, proven under a real concurrent double-designation
+    (SC-005); snapshots soft-deactivated + retained when referenced (FR-014).
+  - **US4 — server-only match/replay recording** (`server/matches.ts`): a `matches` summary + a
+    `jsonb` `replays` row (1:1) with provenance promoted to scalar columns, written in one tx; the
+    outcome is **derived from the authoritative replay**, never a caller scalar (A5/P6). `getReplay`
+    **regenerates** an unsupported `formatVersion` from persisted seed+armies rather than failing
+    (FR-018).
+  - **US5 — net-victory standings** (`server/standings.ts`): attack wins − defense losses (§13),
+    updated inside `recordMatch`'s tx; leaderboard read; `recomputeStanding` reconciliation oracle
+    (SC-007, zero drift). Practice matches move nothing.
+  - **Shared** — the unified `posts` table (`server/posts.ts`: admin-authored + null-author auto
+    posts, publish, public index/article reads — FR-024/025) and the `presets` library
+    (`server/presets.ts`, for Feature 4). Idempotent **cold-start bot-defender seed**
+    (`db/seed.ts`) so the ladder is never empty at launch (P5).
+  - **Engine** — a standalone `validate` + `default_ruleset` were exported to the wasm engine so the
+    DB rejects exactly the builds the engine would (P8, no drifting TS mirror); `validate` also
+    returns the derived army power rating. Rebuilt wasm re-verified **native == wasm byte-identical**
+    across the golden battery (P6/SC-001).
+  - **Verification** — **34 Vitest integration tests** green against a local dev Postgres (auth
+    round-trip, forged-flag/revocation, roster + all of V1/V2/V4/V5/V6, snapshot immutability +
+    race-safe cap, replay provenance + regenerate, standing reconciliation, posts/presets, seed),
+    plus `tsc` + ESLint + a clean `next build` (auth route + `/api/resolve` both present). Migrations
+    are validated on a dev target before prod (`db/README.md`, SC-008); the Neon dev-branch→prod
+    apply is the remaining user-gated promote step. Note: the service layer lives at root-level
+    `server/` (matching `sim/`, `db/`, `lib/` — the repo has no `src/`).
 
 [Unreleased]: https://github.com/jonupchurch/warformcommander/commits/main

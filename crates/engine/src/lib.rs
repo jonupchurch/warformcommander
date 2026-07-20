@@ -257,8 +257,72 @@ pub fn resolve_bytes(input: &[u8]) -> Vec<u8> {
     serde_json::to_vec(&response).unwrap_or_else(|_| b"{\"status\":\"parseError\"}".to_vec())
 }
 
-/// The wasm-bindgen export (only compiled for the wasm32 target, so native/the balancer never pull
-/// in wasm-bindgen). Delegates to [`resolve_bytes`].
+/// The input to the standalone legality check ([`validate_bytes`]): one army + the balance table.
+/// Run by the Garage at edit time and by the persistence layer before a squad is stored — the **same
+/// V1–V8** the engine runs before a battle, so the DB rejects exactly the builds the engine would (P8).
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ValidateInput {
+    pub army: Army,
+    pub ruleset: Ruleset,
+}
+
+/// The response of the [`validate_bytes`] boundary — a self-describing tagged union (`status`
+/// = `ok` | `invalid` | `parseError`). On `ok` it also carries the army's derived matchmaking
+/// **power rating** (whole units), so the persistence layer validates and derives in one call.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(tag = "status", rename_all = "camelCase")]
+enum ValidateResponse {
+    Ok {
+        // enum-level `rename_all` renames variants, not struct-variant fields — rename explicitly.
+        #[serde(rename = "powerRating")]
+        power_rating: i64,
+    },
+    Invalid {
+        errors: Vec<ValidationError>,
+    },
+    ParseError {
+        message: String,
+    },
+}
+
+/// Sum the per-machine matchmaking power rating across an army (whole units). `None` if a machine
+/// fails derivation (won't happen once `validate` passes). Matchmaking-only — never combat (FR-006).
+fn army_power_rating(army: &Army, ruleset: &Ruleset) -> Option<i64> {
+    let mut total = crate::fixed::Fixed::ZERO;
+    for m in &army.machines {
+        let stats = crate::model::army::derive_effective_stats(m, ruleset).ok()?;
+        total = total.saturating_add(crate::model::army::power_rating(&stats));
+    }
+    Some(total.to_int())
+}
+
+/// Byte boundary for the standalone army-legality check (JSON [`ValidateInput`] in, JSON
+/// [`ValidateResponse`] out). Never panics — malformed input becomes a `parseError` response.
+pub fn validate_bytes(input: &[u8]) -> Vec<u8> {
+    let response = match serde_json::from_slice::<ValidateInput>(input) {
+        Ok(inp) => match validate::validate(&inp.army, &inp.ruleset) {
+            Ok(()) => ValidateResponse::Ok {
+                power_rating: army_power_rating(&inp.army, &inp.ruleset).unwrap_or(0),
+            },
+            Err(errors) => ValidateResponse::Invalid { errors },
+        },
+        Err(e) => ValidateResponse::ParseError {
+            message: e.to_string(),
+        },
+    };
+    serde_json::to_vec(&response).unwrap_or_else(|_| b"{\"status\":\"parseError\"}".to_vec())
+}
+
+/// The engine's canonical **default balance table** as JSON — the ruleset the server validates and
+/// simulates against until Feature 12 makes it DB-editable. Emitting it from the engine keeps a single
+/// source of truth (no committed ruleset fixture that could drift from the Rust content).
+pub fn default_ruleset_bytes() -> Vec<u8> {
+    serde_json::to_vec(&crate::content::seed_ruleset()).unwrap_or_else(|_| b"{}".to_vec())
+}
+
+/// The wasm-bindgen exports (only compiled for the wasm32 target, so native/the balancer never pull
+/// in wasm-bindgen). Each delegates to the corresponding `*_bytes` boundary.
 #[cfg(target_arch = "wasm32")]
 mod wasm_exports {
     use wasm_bindgen::prelude::*;
@@ -266,5 +330,15 @@ mod wasm_exports {
     #[wasm_bindgen]
     pub fn resolve(input: &[u8]) -> Vec<u8> {
         super::resolve_bytes(input)
+    }
+
+    #[wasm_bindgen]
+    pub fn validate(input: &[u8]) -> Vec<u8> {
+        super::validate_bytes(input)
+    }
+
+    #[wasm_bindgen]
+    pub fn default_ruleset() -> Vec<u8> {
+        super::default_ruleset_bytes()
     }
 }
