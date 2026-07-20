@@ -4,11 +4,14 @@ import { withSentryConfig } from "@sentry/nextjs";
 const nextConfig: NextConfig = {
   // The deterministic sim core runs server-side as WASM (constitution P6). Keep the wasm-bindgen
   // package external so Next/Turbopack doesn't try to bundle the .wasm through the JS pipeline
-  // (research B2), and make sure the .wasm file itself is traced into the /api/resolve function
-  // bundle on Vercel (otherwise the runtime import 404s).
+  // (research B2). The runtime loads it from the *real* `packages/engine-wasm` directory (see
+  // sim/index.ts) rather than the `node_modules/@wfc/engine-wasm` workspace symlink, because that
+  // symlink points at an absolute local path that doesn't exist on Vercel. So trace the whole
+  // real package — the JS glue (`engine.js`), its `package.json`, AND `engine_bg.wasm` — into the
+  // function bundle; tracing only the .wasm leaves `require` with no module entry (MODULE_NOT_FOUND).
   serverExternalPackages: ["@wfc/engine-wasm"],
   outputFileTracingIncludes: {
-    "/api/resolve": ["./node_modules/@wfc/engine-wasm/**/*.wasm"],
+    "/api/resolve": ["./packages/engine-wasm/**/*"],
   },
 };
 

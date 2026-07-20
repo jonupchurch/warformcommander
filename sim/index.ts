@@ -14,21 +14,28 @@ import { parseReplay, ReplayReader, type WireReplay } from './replay-reader';
 
 /**
  * The wasm module is loaded **lazily via a genuine Node `require`** (cached). We go through
- * `createRequire` with a *computed* specifier so the bundler (Turbopack) can't statically bundle the
- * wasm-pack glue — if it does, it rewrites the glue's `__dirname` and the runtime `readFileSync` of
- * `engine_bg.wasm` resolves to a bogus path. This keeps it a real runtime require from
- * `node_modules/@wfc/engine-wasm`, where `__dirname` is correct and the `.wasm` (traced in via
- * `outputFileTracingIncludes`) is present. Lazy so importing this module (e.g. Next collecting route
- * metadata at build time) never triggers the wasm's eager load.
+ * `createRequire` with a *computed, absolute* path so the bundler (Turbopack) can't statically
+ * bundle the wasm-pack glue — if it does, it rewrites the glue's `__dirname` and the runtime
+ * `readFileSync` of `engine_bg.wasm` resolves to a bogus path.
+ *
+ * We require the **real `packages/engine-wasm` directory** (not the `@wfc/engine-wasm` node_modules
+ * name) because that name is a workspace *symlink* to an absolute local path — it doesn't exist on
+ * Vercel, so a bare `require('@wfc/engine-wasm')` there fails with MODULE_NOT_FOUND. The real dir is
+ * traced into the function bundle via `outputFileTracingIncludes` (see `next.config.ts`), landing at
+ * `<cwd>/packages/engine-wasm/` where the glue's `__dirname` and its sibling `.wasm` line up.
+ *
+ * Lazy so importing this module (e.g. Next collecting route metadata at build time) never triggers
+ * the wasm's eager load.
  */
 type WasmEngine = { resolve: (input: Uint8Array) => Uint8Array };
 let engine: WasmEngine | null = null;
 function loadEngine(): WasmEngine {
   if (!engine) {
-    // Root resolution at the process CWD (the deployment root, where node_modules lives) rather
-    // than the bundled chunk's location. Computed specifier → opaque to the bundler.
+    // Resolve against the process CWD (the deployment root = /var/task on Vercel, the repo root
+    // locally). Computed absolute path → opaque to the bundler, real runtime require either way.
     const nodeRequire = createRequire(join(process.cwd(), 'noop.cjs'));
-    engine = nodeRequire(['@wfc', 'engine-wasm'].join('/')) as WasmEngine;
+    const enginePath = join(process.cwd(), 'packages', 'engine-wasm', 'engine.js');
+    engine = nodeRequire(enginePath) as WasmEngine;
   }
   return engine;
 }
