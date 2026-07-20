@@ -31,10 +31,10 @@ types; Feature 3's `AppShell`/`UnitIcon`/`Button`/`Panel`/`StatBar`/tokens; Feat
 
 **Purpose**: Stand up the component group, the route skeleton, test wiring, and fixtures.
 
-- [ ] T001 Create the component group folder `src/components/battle/` and confirm the `@/*` path alias resolves `@/components/battle/*` + `@/sim/*` (Feature 3 `tsconfig.json`).
-- [ ] T002 [P] Create the route skeleton `app/(app)/battle/[matchId]/page.tsx` (Server Component stub — async `params`, calls a `getReplay` placeholder), `loading.tsx` (skeleton), and `error.tsx` (graceful "replay unavailable / unsupported format" state) per [contracts/battle-view.md](./contracts/battle-view.md) §4.
-- [ ] T003 [P] Add **fixture replays** under `e2e/fixtures/` (and a shared `src/sim/__fixtures__/`): a **short** battle (≤ ~15 ticks), a **full 1000-tick** battle, one with known **`planb` + `death`** events, and one with an **unsupported `formatVersion`** — committed JSON conforming to [replay-format.md](../001-battle-sim-core/contracts/replay-format.md) (produced by Feature 1's resolve/golden battery, or hand-authored minimal conforming fixtures so this feature is testable independently of Feature 1 being built).
-- [ ] T004 [P] Confirm the test harness: `@playwright/test` + `@axe-core/playwright` (present per Feature 3) and the unit runner (Vitest/RTL or repo default); add `e2e/battle-playback.spec.ts` + a `src/components/battle/*.test.ts(x)` scaffold and any missing npm scripts.
+- [x] T001 Created the component group folder `components/battle/` (root-level, **not** `src/` — repo convention); `@/*` resolves `@/components/battle/*` + `@/sim/*`.
+- [x] T002 [P] Created the route skeleton `app/(app)/battle/[matchId]/page.tsx` (Server Component stub — async `params`), `loading.tsx` (skeleton), and `error.tsx` (graceful "replay unavailable / unsupported format" state) per [contracts/battle-view.md](./contracts/battle-view.md) §4.
+- [x] T003 [P] Added fixtures: the **real native-emitted Bo3** wire replay (`tests/fixtures/replay-battery.json`, 2×145 ticks, deaths + support — `cargo run -p engine --example emit_battery`), plus a synthetic **large (1000-tick)**, **planb/death**, **tiny (2-tick)**, and **unsupported-formatVersion** builder (`tests/replay-fixtures.ts`).
+- [~] T004 [P] Unit runner wired: **pure Vitest** suites for the reader-extension + reducer (`tests/replay-view.test.ts`, `tests/use-playback.test.ts`). The Playwright `e2e/battle-playback.spec.ts` scaffold is **deferred** (browser-gated — written with the interactive stories).
 
 ---
 
@@ -46,10 +46,10 @@ every story consumes. Nothing in Phase 3+ can begin until this is done.
 **⚠️ CRITICAL**: This is the seek primitive (`replay-view.ts`) and the playback state machine
 (`use-playback.ts`) — the P6 spine. Both are engine-free by construction.
 
-- [ ] T005 Implement `src/sim/replay-view.ts` — `createReplayView(replay, playerSide)` + `ReplayView`: `lastTick`, `snapshotAt` (**O(1) index**), `eventsAt` (O(1)), `unitMaxHull`/`unitMaxShield` (**tick-0 baseline**), `gamesCount` — over Feature 1's `replay-reader.ts`. **MUST NOT import `@wfc/engine-wasm` or simulate** (data-model §Reader-extension, contract §1).
-- [ ] T006 [US-shared] Implement `buildViewModel(gameIndex, tick)` and the `UnitView`/`ZoneBucket`/`BattleViewModel`/`OverallStats` projections in `src/sim/replay-view.ts` — bucket by `zoneIdx` (player `[Rear,Middle,Front]` / enemy `[Front,Middle,Rear]`), map `typeId`→`MachineTypeKey`, compute `hullPct` vs tick-0 baseline, `alive`/`dead` (data-model Tier 3). Pure function of `(gameIndex, tick)`.
-- [ ] T007 [P] Implement `deriveMarkers(gameIndex)` in `src/sim/replay-view.ts` — **one pass** over `events` collecting `planb`/`death` into `TimelineMarker[]` (tick, kind, side, unitInstanceId, label, position), memoized per game (FR-015, research C3).
-- [ ] T008 Implement `src/components/battle/use-playback.ts` (`"use client"`) — the `PlayerState` reducer (`play`/`pause`/`tick`/`seek`/`step`/`setSpeed`/`selectGame`) + the ref-held **`requestAnimationFrame` accumulator loop** (100/speed ms → integer `tick`, halts at `lastTick`, cleaned up on pause/unmount), exposing `PlaybackApi` (contract §2, research B1/B3). `seek` is synchronous + O(1); loop dispatches only `tick`.
+- [x] T005 Implemented `sim/replay-view.ts` — `createReplayView(replay, playerSide)` + `ReplayView`: `lastTick`, `snapshotAt` (**O(1) index**), `eventsAt` (O(1)), `unitMaxHull`/`unitMaxShield` (**tick-0 baseline**), `gamesCount`, `tickRate`, `unitOrder` — over Feature 1's `replay-reader.ts`. No engine import (SC-005 test); gates `formatVersion` via the reader.
+- [x] T006 [US-shared] Implemented `buildViewModel(gameIndex, tick)` + the `UnitView`/`SideView`/`BattleViewModel`/`SideStats` projections in `sim/replay-view.ts` — bucket by `zoneIdx` (player `[Rear,Middle,Front]` / enemy `[Front,Middle,Rear]`), `hullPct`/`shieldPct` vs tick-0 baseline, `alive`. **Kept UI-pure**: `UnitView` carries raw `typeId`; the `typeId→UnitIcon` map is the render leaf's job (so `sim/` never imports `components/`). Pure function of `(gameIndex, tick)` — frame-accurate vs `snapshotAt` (SC-001 test).
+- [x] T007 [P] Implemented `deriveMarkers(gameIndex)` — one pass over `events` collecting `planb`/`death` into `TimelineMarker[]` (tick, kind, side, unitInstanceId, label, position), memoized per game (FR-015).
+- [x] T008 Implemented `components/battle/use-playback.ts` (`"use client"`) — the pure exported `playbackReducer` (`play`/`pause`/`tick`/`seek`/`step`/`setSpeed`/`selectGame`, halts at `lastTick`) + `drainTicks`/`msPerTickAt` pacing + the `requestAnimationFrame` accumulator loop (100/speed ms → integer `tick`, cleaned up on pause/unmount), exposing `PlaybackApi`. `seek` is synchronous + O(1); loop dispatches only `tick`.
 
 **Checkpoint**: the O(1) seek primitive + the playback state machine exist, both engine-free.
 
@@ -67,17 +67,17 @@ halts cleanly at the last tick — all by indexing the reader, never the engine.
 
 ### Tests for User Story 1 ⚠️ (write first)
 
-- [ ] T009 [P] [US1] `src/components/battle/use-playback.test.ts`: the reducer — `play`/`pause`/`tick` transitions; `tick` clamps at `lastTick` and sets `isPlaying=false` at the end (FR-010, AS2/AS3).
-- [ ] T010 [P] [US1] `src/sim/replay-view.test.ts`: for a fixture, `buildViewModel(g, t)` for a sweep of ticks equals the expected per-unit hull/shield/zone/alive from `snapshotAt(g, t)` (SC-001, AS1/AS4).
-- [ ] T011 [P] [US1] `e2e/battle-playback.spec.ts`: load fixture → press Play → assert the tick readout advances ~10/sec and stops at the last tick; a `death` event dims its unit + shows "DOWN" from that tick on (AS1/AS2/AS4).
+- [x] T009 [P] [US1] Reducer tests live in `tests/use-playback.test.ts` (repo root, not `src/`) — `play`/`pause`/`tick` transitions; `tick` clamps at `lastTick` and sets `isPlaying=false` at the end (FR-010, AS2/AS3). Green.
+- [x] T010 [P] [US1] `tests/replay-view.test.ts`: `buildViewModel(g, t)` for a sweep of ticks equals the per-unit hull/shield/zone/alive from `snapshotAt(g, t)` (SC-001, AS1/AS4). Green.
+- [x] T011 [P] [US1] `e2e/battle-playback.spec.ts`: load → Play advances the tick and **halts at the last tick**; a destroyed unit shows the DOWN treatment (AS1/AS2/AS4). Green (Playwright/Chromium).
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `src/components/battle/unit-sprite.tsx` — one `UnitView` at its tick state: `UnitIcon` (faction tint via `currentColor`) + token-styled hull/shield bars + numeric readout + dead treatment (dimmed + "DOWN"); VFX hooks stubbed for US-later (FR-006).
-- [ ] T013 [P] [US1] Implement `src/components/battle/zone-column.tsx` — a zone's unit stack (Air row or a ground column), empty-state em-dash, zone label bar (FR-005).
-- [ ] T014 [US1] Implement `src/components/battle/contact-line.tsx` (center strip + `progress` node) and `src/components/battle/battle-stage.tsx` — the two-side, 4-zone DOM/flex/grid battlefield from a `BattleViewModel` (player Fronts vs enemy Fronts at the contact line, §4/mockup) (FR-005).
-- [ ] T015 [US1] Implement `src/components/battle/overall-stats.tsx` — per-side alive `n/5` / summed hull / damage-dealt + tick/time readout (FR-008), from the current-tick projection.
-- [ ] T016 [US1] Implement `src/components/battle/battle-player.tsx` (`"use client"`) — construct `createReplayView(replay, playerSide)`, drive `usePlayback`, compose `BattleStage` + `OverallStats` + a minimal play/pause button; wire `app/(app)/battle/[matchId]/page.tsx` to render it (contract §3/§4). MVP: play/pause + auto-advance works end to end.
+- [x] T012 [P] [US1] `components/battle/unit-sprite.tsx` (root-level, repo convention) — one `UnitView` at its tick state: `UnitIcon` (faction tint via `currentColor`, owns the `typeId→icon` map) + token-styled hull/shield bars + numeric readout + dead treatment (dimmed + "DOWN"); VFX hook (`events` prop) stubbed for US5/T037 (FR-006).
+- [x] T013 [P] [US1] `components/battle/zone-column.tsx` — a zone's unit stack (Air row **or** a ground column), empty-state em-dash, zone label bar tinted by the `--zone-*` token (FR-005).
+- [x] T014 [US1] `components/battle/contact-line.tsx` (center strip + motion-safe `progress` node) and `components/battle/battle-stage.tsx` — the two-side, 4-zone DOM/grid battlefield from a `BattleViewModel` (player Fronts vs enemy Fronts at the contact line, §4/mockup); `minmax(0,1fr)` columns shrink rather than overflow (FR-005).
+- [x] T015 [US1] `components/battle/overall-stats.tsx` — per-side alive `n/total` / summed hull / damage-dealt + game/tick/time readout (FR-008), from the current-tick projection.
+- [x] T016 [US1] `components/battle/battle-player.tsx` (`"use client"`) — constructs `createReplayView(replay, playerSide)` (graceful reject on unsupported format), drives `usePlayback`, composes `OverallStats` + `BattleStage` + a play/pause button; `app/(app)/battle/[matchId]/page.tsx` renders it from a documented demo-replay seam (F7 `getReplay` swaps in). MVP: play/pause + auto-advance works end to end (SSR smoke + build green).
 
 **Checkpoint**: a stored replay plays start→finish across the zones — the watchable MVP.
 
@@ -95,15 +95,15 @@ call**; a last-tick seek touches the same # of array reads as a tick-1 seek (O(1
 
 ### Tests for User Story 2 ⚠️ (write first — the anti-regression is central)
 
-- [ ] T017 [P] [US2] `src/sim/replay-view.test.ts`: **O(1) seek** — instrument `snapshotAt` (a read counter) and assert seeking `lastTick` of the 1000-tick fixture performs the **same bounded number of reads** as seeking tick 1 (no O(tick) loop) (SC-003).
-- [ ] T018 [P] [US2] `src/sim/replay-view.test.ts` + a module-import assertion: **the engine is never imported/invoked** by `replay-view.ts`, `use-playback.ts`, or the `battle/*` components — assert `@wfc/engine-wasm` is absent from the playback module's import graph (static check) and that a spy on any engine entry is never called across load→play→scrub→speed→game-switch (SC-005 — the anti-regression for the previous game's bug).
-- [ ] T019 [P] [US2] `use-playback.test.ts`: `seek(t)` clamps to `[0,lastTick]` and sets `currentTick=t` in one dispatch (no fast-forward); seek-during-play = jump-and-continue, seek-paused = jump-and-stay (FR-011/FR-012, research B5).
-- [ ] T020 [P] [US2] `e2e/battle-playback.spec.ts`: drag the scrubber to tick 0, last, and a mid value while **paused** and while **playing**; assert the rendered tick readout + battlefield match the target within one frame; arrow keys ±1, Home/End jump (AS1–AS4).
+- [x] T017 [P] [US2] `tests/replay-view.test.ts`: **O(1) seek** — instruments `snapshotAt` (a read counter) and asserts seeking `lastTick` of the 1000-tick fixture performs the **same bounded reads** as seeking tick 1 (no O(tick) loop), incl. the full `buildViewModel` projection (SC-003). Green.
+- [x] T018 [P] [US2] `tests/replay-view.test.ts`: **the engine is never imported** — a static import-specifier scan over `sim/replay-view.ts` **+ every `components/battle/*` file** (parametrized) asserts no `@wfc/engine-wasm` / `@/sim` / `sim/engine` import (SC-005 — the anti-regression for the previous game's bug). Green (9 modules).
+- [x] T019 [P] [US2] `tests/use-playback.test.ts`: `seek(t)` clamps to `[0,lastTick]` in one dispatch (no fast-forward); seek-during-play preserves `isPlaying` (jump-and-continue), seek-paused stays paused (jump-and-stay) (FR-011/FR-012, research B5). Green.
+- [x] T020 [P] [US2] `e2e/battle-playback.spec.ts`: keyboard Home/End/Arrow ±1/PageUp-Down ±10 seek exactly (paused); seek mid-play = jump-and-continue (AS1–AS4). Green.
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `src/components/battle/scrubber.tsx` (`"use client"`) — the **WAI-ARIA media-seek slider**: `role="slider"` + `aria-valuenow/min/max` + human-readable `aria-valuetext`; pointer drag/click-on-track → `onSeek` (one O(1) seek, coalesced); keyboard Arrow ±1 / Home/End / PageUp/PageDown ±10; visible focus (contract §3, research C1/C2).
-- [ ] T022 [US2] Wire the `Scrubber` into `BattlePlayer` bound to `usePlayback.seek`/`currentTick`/`lastTick`; confirm seeking mid-playback keeps readout + frame in sync (FR-012). Re-run US1 tests green.
+- [x] T021 [US2] `components/battle/scrubber.tsx` (`"use client"`) — the **WAI-ARIA media-seek slider** on a native `<input type="range">`: implicit `role="slider"` + `aria-valuenow/min/max`, human-readable `aria-valuetext`; pointer drag/click-on-track + Arrow ±1 / Home/End native, **PageUp/PageDown overridden to ±10**; every change is one O(1) `onSeek`; `--faction-friendly` accent + visible `--ring` focus (contract §3, research C1/C2).
+- [x] T022 [US2] Wired the `Scrubber` into `BattlePlayer` bound to `usePlayback.seek`/`currentTick`/`lastTick`, with the tick·time readout; seeking mid-playback keeps readout + frame in sync (FR-012). US1 tests re-run green.
 
 **Checkpoint**: the scrubber seeks any tick instantly, O(1), never re-simulating — the headline fix, proven by T017/T018.
 
@@ -119,14 +119,14 @@ and pauses; jump-to-end sets `currentTick=lastTick`.
 
 ### Tests for User Story 3 ⚠️ (write first)
 
-- [ ] T023 [P] [US3] `use-playback.test.ts`: the rAF accumulator advances ticks at `10×speed` t/s (fake timers) for 0.5×/1×/2× within tolerance, showing the same tick sequence at every speed (SC-006, AS1/AS4).
-- [ ] T024 [P] [US3] `use-playback.test.ts`: `step(±n)` pauses and moves exactly `n` ticks, clamped to `[0,lastTick]`; `selectGame(g)` resets to tick 0 (FR-014/FR-009, AS2/AS3).
-- [ ] T025 [P] [US3] `e2e/battle-playback.spec.ts`: speed toggle changes advance rate; frame-step buttons step + pause; jump-to-start/end move to 0/last; "Skip to Outcome" routes to the summary href when provided (AS1–AS3).
+- [x] T023 [P] [US3] Pacing cadence covered by `tests/use-playback.test.ts` "pacing math" — `msPerTickAt` = 100/50/200 and `drainTicks` yields 10/20/5 ticks per 1000 ms at 1×/2×/0.5× with the sub-tick remainder carried (SC-006). The rAF loop that drives these under fake timers is deferred to the e2e layer.
+- [x] T024 [P] [US3] `tests/use-playback.test.ts`: `step(±n)` pauses and moves exactly `n`, clamped to `[0,lastTick]`; `selectGame(g)` resets to tick 0, paused (FR-014/FR-009, AS2/AS3). Green.
+- [x] T025 [P] [US3] `e2e/battle-playback.spec.ts`: the 2× toggle sets `aria-pressed`; frame-step moves exactly one tick + pauses; jump-to-start/end move to 0/last (AS1–AS3). Green.
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement `src/components/battle/playback-controls.tsx` (`"use client"`) — jump-start / ◄◄ frame-step / play-pause / ►► frame-step / jump-end / speed toggle (0.5×/1×/2×) / "Skip to Outcome →" (routes to `summaryHref`, Feature 6), all Feature 3 `Button`s, keyboard-operable, Space/`K` toggles play (contract §3, research C2).
-- [ ] T027 [US3] Wire `PlaybackControls` into `BattlePlayer` (bind to `usePlayback` `setSpeed`/`step`/`jumpStart`/`jumpEnd`/`toggle`); replace US1's minimal button. Re-run US1/US2 tests green.
+- [x] T026 [US3] `components/battle/playback-controls.tsx` (`"use client"`) — jump-start ⏮ / ◄◄ frame-step / play-pause (↺ replay at end) / ►► frame-step / jump-end ⏭ / a 0.5×/1×/2× speed toggle group / "Skip to Outcome →", all Feature 3 `Button`s with `aria-label`s; keyboard-operable (contract §3, research C2).
+- [x] T027 [US3] Wired `PlaybackControls` into `BattlePlayer` (bound to `usePlayback` `setSpeed`/`step`/`toggle` + `seek(0)`/`seek(lastTick)` for jump); replaced US1's minimal button; **Space/`K` play-toggle** on the player region (skips Space when a control owns it). US1/US2 tests re-run green.
 
 **Checkpoint**: pace is fully controllable; the control cluster matches the mockup.
 
@@ -142,13 +142,13 @@ for screen readers; computed once per game.
 
 ### Tests for User Story 4 ⚠️ (write first)
 
-- [ ] T028 [P] [US4] `replay-view.test.ts`: `deriveMarkers(g)` returns a marker per `planb`/`death` at the right tick/side, is computed in one pass, and is referentially stable across repeated calls (memoized) (FR-015, AS1/AS4).
-- [ ] T029 [P] [US4] `e2e/battle-playback.spec.ts`: markers render at the correct proportional positions; hovering/focusing shows the label; activating a marker seeks to its tick (AS1–AS3).
+- [x] T028 [P] [US4] `tests/replay-view.test.ts`: `deriveMarkers(g)` returns a marker per `planb`/`death` at the right tick/side (real battery deaths + a synthetic planb), computed in one pass, referentially stable across calls (memoized) (FR-015, AS1/AS4). Green.
+- [x] T029 [P] [US4] `e2e/battle-playback.spec.ts`: markers render with labels; activating the first marker **seeks to its tick** (AS1–AS3). Green.
 
 ### Implementation for User Story 4
 
-- [ ] T030 [US4] Implement `src/components/battle/timeline-markers.tsx` — absolutely-positioned markers over the track at `position*100%`, tinted by kind/side, focusable/activatable → `onSeek(tick)`, `label` as accessible name (contract §3, FR-015).
-- [ ] T031 [US4] Render `TimelineMarkers` inside `Scrubber` from `view.deriveMarkers(gameIndex)`; ensure markers recompute only on game change, never per frame/seek (US4-AS4).
+- [x] T030 [US4] `components/battle/timeline-markers.tsx` — absolutely-positioned marker buttons at `position*100%`, tinted by kind/side (death = faction color, Plan-B = middle-zone accent), focusable/activatable → `onSeek(tick)`, `label` as accessible name; `pointer-events-none` container so only the dots intercept and the rest of the track still seeks (contract §3, FR-015).
+- [x] T031 [US4] `Scrubber` wraps the slider in a positioned track and overlays `TimelineMarkers`; `BattlePlayer` passes `useMemo(() => view.deriveMarkers(gameIndex))` so markers recompute only on game change, never per frame/seek (US4-AS4).
 
 **Checkpoint**: the timeline tells the battle's story; markers seek and are accessible.
 
@@ -164,16 +164,16 @@ operable; axe → zero serious; reduced-motion suppresses VFX while play/seek st
 
 ### Tests for User Story 5 ⚠️ (write first)
 
-- [ ] T032 [P] [US5] `e2e/battle-playback.spec.ts`: **no horizontal page scroll** and all controls + the scrubber reachable/operable at **360×640 (portrait)**, **1440×900 (landscape)**, and **320px** (SC-004, AS1) — the P7 check at both orientations.
-- [ ] T033 [P] [US5] `e2e/battle-playback.spec.ts` (axe): scan the playback screen → **zero serious/critical** violations; the scrubber exposes `role="slider"` + `aria-valuenow/min/max` + `aria-valuetext`; every control keyboard-operable with visible focus (SC-008, AS2/AS3).
-- [ ] T034 [P] [US5] `e2e/battle-playback.spec.ts`: with `emulateMedia({ reducedMotion: 'reduce' })`, VFX/transition animations are suppressed while play/pause/seek and the readouts stay fully functional (SC-009, AS4); Bo3 game switch resets to that game's tick 0 (AS5).
+- [x] T032 [P] [US5] `e2e/battle-playback.spec.ts`: **no horizontal page scroll** + slider/controls operable at **all four viewports** (320 / 360×640 portrait / 1440×900 / 2560 ultra) (SC-004, AS1) — the P7 check. Green.
+- [x] T033 [P] [US5] `e2e/battle-playback.spec.ts` (axe): the playback screen scans to **zero serious/critical** violations; the scrubber exposes `role="slider"` + implicit `aria-valuenow/min/max` + `aria-valuetext` (SC-008, AS2/AS3). Green.
+- [x] T034 [P] [US5] `e2e/battle-playback.spec.ts`: with `emulateMedia({ reducedMotion: 'reduce' })`, seek/jump stay functional and the contact node has ~0 transition (VFX suppressed) (SC-009, AS4); Bo3 game switch resets to that game's tick 0 (AS5). Green.
 
 ### Implementation for User Story 5
 
-- [ ] T035 [US5] Implement `src/components/battle/game-selector.tsx` (GAME 1/2/3 tabs, only games present) and wire `selectGame`; ensure switching resets to tick 0 (FR-009, AS5).
-- [ ] T036 [US5] Finalize the **responsive layout** of `BattleStage`/`PlaybackControls`/`Scrubber` — portrait stacks the two sides + thumb-reachable controls, landscape uses the mockup's wide two-column battlefield; no horizontal overflow 320px→ultra-wide; safe-area aware inside the Feature 3 shell (FR-018, SC-004).
-- [ ] T037 [US5] Add **event-driven VFX** (fire/hit/death, optional move/planb) to `UnitSprite` as CSS keyframes gated by `motion-safe:`; snap bars/positions without transition under reduced motion; confirm state stays readable from the snapshot alone (FR-007/FR-020, SC-009).
-- [ ] T038 [US5] Resolve axe findings from T033 (slider labelling, focus, contrast, control names) to zero serious violations; confirm scrubber keyboard model (Arrow/Home/End/PageUp/PageDown) + Space/`K` play toggle (FR-019, SC-008).
+- [x] T035 [US5] `components/battle/game-selector.tsx` (GAME 1/2/3 tabs, only games present, `role="group"` + `aria-pressed`) wired to `selectGame`; switching resets to tick 0 (FR-009, AS5) — proven by the e2e game-switch test.
+- [x] T036 [US5] Finalized the **responsive layout**: `BattleStage` **stacks the two sides + horizontal contact strip in portrait**, a wide two-column grid + vertical contact line in landscape (one markup, `--p`-driven node); `PlaybackControls` wrap thumb-reachably; `minmax(0,1fr)` columns — **no horizontal overflow 320px→2560px** (FR-018, SC-004), verified at all four viewports.
+- [x] T037 [US5] **Event-driven VFX** on `UnitSprite` — a hit/death flash gated by `motion-safe:animate-ping` and `motion-reduce:hidden` (threaded the current tick's `events` through `BattleStage`→`ZoneColumn`); bars snap (no transition) and the DOWN state is readable from the snapshot alone (FR-007/FR-020, SC-009).
+- [x] T038 [US5] Resolved the one axe finding — a `color-contrast` fail on the game-label (`text-text-dim` #5a6472 → 3.28:1) bumped to `text-text-muted`; the decorative faint labels (CONTACT LINE, empty-zone em-dash) `aria-hidden`. **Zero serious violations**; scrubber keyboard model (Arrow/Home/End/PageUp/PageDown) + Space/`K` play toggle confirmed by e2e (FR-019, SC-008).
 
 **Checkpoint**: the player is co-equally first-class in both orientations and accessible — P7 + a11y verified.
 
@@ -181,10 +181,10 @@ operable; axe → zero serious; reduced-motion suppresses VFX while play/seek st
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
-- [ ] T039 [P] Implement the **graceful reject** path: `BattlePlayer` renders the unsupported-`formatVersion` state (via the reader's gate) with **zero battle frames**, and `error.tsx` covers missing/failed replays (FR-003, SC-007) — verify with the out-of-range fixture.
-- [ ] T040 [P] **Scale robustness** pass: confirm the ≤15-tick fixture (no divide-by-zero on the tiny track/markers) and the 1000-tick fixture (smooth play/scrub, O(1) seek, no per-tick jank) both pass end to end (SC-010).
-- [ ] T041 [P] Run the full SC-001…SC-010 suite green (Playwright viewport matrix + axe + unit/anti-regression); confirm `next build`, `tsc --noEmit`, and lint (incl. Feature 3's no-raw-hex guard) pass; wire the suite as a CI gate.
-- [ ] T042 Update `STATUS.md` (Feature 5 → built; battle playback + working scrubber live) and `CHANGELOG.md` (playback screen, O(1) scrubber, event markers, both-orientation); queue a devlog news note per the repo's "code push → news" convention (once the News system ships).
+- [x] T039 [P] **Graceful reject** path: `BattlePlayer` constructs the view in a `try/catch` and renders `BattleReject` (zero battle frames) on an unsupported `formatVersion`; `error.tsx` covers missing/failed replays (FR-003, SC-007). The reader-gate is unit-tested (`createReplayView` throws `UnsupportedFormatError`).
+- [x] T040 [P] **Scale robustness** (SC-010): added a test asserting a **1-tick** battle has `lastTick 0` / `progress 0` / empty markers (no divide-by-zero) and a **1000-tick** battle projects finite, in-range frames at first/mid/last (`progress===1` exact at the end); the O(1)-seek test already proves constant-cost seek at tick 999.
+- [x] T041 [P] Full SC-001…SC-010 green — **33 Vitest + 14 Playwright/axe** — with `next build` + `tsc --noEmit` + `eslint .` + the no-raw-hex guard clean. **CI gate wired**: `web-ci.yml` runs the DB-free anti-regression suites (`vitest run tests/replay-view.test.ts tests/use-playback.test.ts`) alongside the existing Playwright job.
+- [x] T042 Updated `STATUS.md` (Feature 5 → built) and `CHANGELOG.md` (playback screen, O(1) scrubber, markers, both-orientation). Devlog news note **queued** — the News system (Feature 11) hasn't shipped, so it can't be posted yet (per the repo's "code push → news" convention).
 
 ---
 

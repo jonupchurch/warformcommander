@@ -82,6 +82,24 @@ defense), `next build` + `tsc` + ESLint + the **no-raw-hex guard** clean, both o
 e2e (T012–T014/T030/T033) + axe pass (T038) + the save-gate DB test (T016), which need a running app +
 browser + local Postgres.
 
+**Feature 5 (Battle playback — tick stream → pixel-art replay + working scrubber) — BUILT on branch
+`005-battle-playback`, all five user stories + polish.** The watchable battlefield that **fixes the
+previous game's broken viewer**, and a **pure engine-free player** (constitution P6): the reader
+extension (`sim/replay-view.ts`) indexes Feature 1's emitted snapshot stream in **O(1)** and projects a
+pure `buildViewModel(gameIndex, tick)`; the state machine + rAF loop (`components/battle/use-playback.ts`)
+advance integer ticks at `10 × speed` t/s. **No playback module imports `@wfc/engine-wasm`; seek is an
+array index, never a re-sim** (the load-bearing anti-regression, enforced by a parametrized import scan
+over every `components/battle/*` file). **US1** watch-through of the two-side/4-zone battlefield; **US2**
+the headline **O(1) WAI-ARIA media-seek scrubber**; **US3** the control cluster (jump/frame-step/speed/
+Skip-to-Outcome + Space/`K`); **US4** Plan-B/death **timeline markers** that seek and are SR-labelled;
+**US5** first-class in **both orientations** (portrait stacks the sides, landscape is the wide grid — no
+overflow 320→2560px), axe-clean, motion-safe (VFX gated by `motion-safe:`, reduced motion snaps). Verified:
+**33 pure Vitest** (SC-001 frame-accuracy, **SC-003 O(1) seek**, **SC-005 engine-never-imported**, reducer/
+pacing/markers/scale) + **14 Playwright/axe e2e** green, `next build` + `tsc` + ESLint + no-raw-hex clean;
+`web-ci` now also gates the DB-free anti-regression suites. The route renders the committed native battery
+replay via a **documented demo seam** (imported so it traces into the bundle) until **Feature 7's `getReplay`**
+lands — swap one call site.
+
 **Approach — plan-the-whole-set-first, then build foundation-first (Principle VII):**
 the full set was planned before any implementation so shared models and cross-feature
 dependencies surfaced on paper. Feature 1 (the deterministic **sim core + data model**)
@@ -138,7 +156,7 @@ implementation sequence, not the spec numbering.
 | 2 | Auto-balancer (Monte-Carlo, reuses sim core) | ✅ | ✅ | ✅ 32 | after #1 |
 | 3 | App shell + design system (nav, brand tokens) | ✅ | ✅ | ✅ 55 | **✅ MERGED — tokens + responsive shell + primitives + brand; 18 Playwright/axe e2e green** |
 | 4 | Garage (squad builder + loadout/dial editor) | ✅ | ✅ | ✅ 40 | **✅ BUILT — US1–US5 on `004-garage`; engine-parity preview + V1–V8 TS validation mirror; 133 pure tests green; e2e/axe/DB deferred to a live env** |
-| 5 | Battle playback (tick stream → pixel-art replay) | ✅ | ✅ | ✅ 42 | after #3 |
+| 5 | Battle playback (tick stream → pixel-art replay) | ✅ | ✅ | ✅ 42 | **✅ BUILT — US1–US5 + polish on `005-battle-playback`; engine-free O(1) scrubber + markers + both-orientation; 33 Vitest + 14 Playwright/axe e2e green; demo-replay seam pending F7 `getReplay`** |
 | 6 | Battle summary (post-Bo3 results) | ✅ | ✅ | ✅ 32 | after #3 |
 | 7 | Accounts & persistence (backend/DB, defense snapshots) | ✅ | ✅ | ✅ 52 | **✅ BUILT — schema + auth + service layer; 34 Vitest tests green; prod migrate pending** |
 | 8 | Arena (async matchmaking) + Practice sandbox | ✅ | ✅ | ✅ 51 | after #4/#7 |
