@@ -1,0 +1,4504 @@
+{
+  "deriveCases": [
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 8800,
+          "armorPct": 3000,
+          "cadence": "Medium",
+          "canTargetAir": false,
+          "capabilities": [],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 35000,
+          "damageType": "Kinetic",
+          "evasion": 200,
+          "family": "Kinetic",
+          "hull": 1700000,
+          "moveSpeed": 4,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "Nearest",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": null,
+          "splash": 0,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 35000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullHeavy",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "HeavyCannon"
+        },
+        "planB": [],
+        "typeId": "HeavyTank",
+        "variantId": "Grizzly",
+        "zone": "Front"
+      },
+      "label": "stock:Grizzly"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 8800,
+          "armorPct": 2800,
+          "cadence": "Medium",
+          "canTargetAir": false,
+          "capabilities": [],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 40000,
+          "damageType": "Kinetic",
+          "evasion": 500,
+          "family": "Kinetic",
+          "hull": 1360000,
+          "moveSpeed": 6,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "Nearest",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": null,
+          "splash": 0,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 40000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullHeavy",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "HeavyCannon"
+        },
+        "planB": [],
+        "typeId": "HeavyTank",
+        "variantId": "Cavalier",
+        "zone": "Front"
+      },
+      "label": "stock:Cavalier"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 8800,
+          "armorPct": 3500,
+          "cadence": "Medium",
+          "canTargetAir": false,
+          "capabilities": [],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 26000,
+          "damageType": "Kinetic",
+          "evasion": 200,
+          "family": "Kinetic",
+          "hull": 2125000,
+          "moveSpeed": 3,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "Nearest",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": null,
+          "splash": 0,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 26000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullHeavy",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "HeavyCannon"
+        },
+        "planB": [],
+        "typeId": "HeavyTank",
+        "variantId": "Bulwark",
+        "zone": "Front"
+      },
+      "label": "stock:Bulwark"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 9000,
+          "armorPct": 600,
+          "cadence": "Fast",
+          "canTargetAir": false,
+          "capabilities": [],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 5000,
+          "damageType": "Kinetic",
+          "evasion": 2500,
+          "family": "Kinetic",
+          "hull": 650000,
+          "moveSpeed": 8,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "Nearest",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": null,
+          "splash": 0,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 5000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullLight",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "Autocannon"
+        },
+        "planB": [],
+        "typeId": "LightTank",
+        "variantId": "Scout",
+        "zone": "Front"
+      },
+      "label": "stock:Scout"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 9800,
+          "armorPct": 600,
+          "cadence": "Fast",
+          "canTargetAir": false,
+          "capabilities": [],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 5000,
+          "damageType": "Kinetic",
+          "evasion": 2000,
+          "family": "Kinetic",
+          "hull": 650000,
+          "moveSpeed": 8,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "Nearest",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": null,
+          "splash": 0,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 5000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullLight",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "Autocannon"
+        },
+        "planB": [],
+        "typeId": "LightTank",
+        "variantId": "Hunter",
+        "zone": "Front"
+      },
+      "label": "stock:Hunter"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 9000,
+          "armorPct": 600,
+          "cadence": "Fast",
+          "canTargetAir": false,
+          "capabilities": [],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 5000,
+          "damageType": "Kinetic",
+          "evasion": 2800,
+          "family": "Kinetic",
+          "hull": 550000,
+          "moveSpeed": 10,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "Nearest",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": null,
+          "splash": 0,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 5000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullLight",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "Autocannon"
+        },
+        "planB": [],
+        "typeId": "LightTank",
+        "variantId": "Outrider",
+        "zone": "Front"
+      },
+      "label": "stock:Outrider"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 9300,
+          "armorPct": 1200,
+          "cadence": "Fast",
+          "canTargetAir": false,
+          "capabilities": [],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 15000,
+          "damageType": "Kinetic",
+          "evasion": 1000,
+          "family": "Kinetic",
+          "hull": 1000000,
+          "moveSpeed": 7,
+          "nativeMatch": false,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "Nearest",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": null,
+          "splash": 0,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 15000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullMech",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "AssaultCannon"
+        },
+        "planB": [],
+        "typeId": "Mech",
+        "variantId": "Vanguard",
+        "zone": "Middle"
+      },
+      "label": "stock:Vanguard"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 9300,
+          "armorPct": 1200,
+          "cadence": "Fast",
+          "canTargetAir": false,
+          "capabilities": [],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 19000,
+          "damageType": "Kinetic",
+          "evasion": 1000,
+          "family": "Kinetic",
+          "hull": 820000,
+          "moveSpeed": 8,
+          "nativeMatch": false,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "Nearest",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": null,
+          "splash": 0,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 19000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullMech",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "AssaultCannon"
+        },
+        "planB": [],
+        "typeId": "Mech",
+        "variantId": "Striker",
+        "zone": "Middle"
+      },
+      "label": "stock:Striker"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 9300,
+          "armorPct": 1200,
+          "cadence": "Fast",
+          "canTargetAir": false,
+          "capabilities": [],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 12000,
+          "damageType": "Kinetic",
+          "evasion": 1500,
+          "family": "Kinetic",
+          "hull": 1150000,
+          "moveSpeed": 7,
+          "nativeMatch": false,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "Nearest",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": null,
+          "splash": 0,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 12000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullMech",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader",
+            "ECMSuite"
+          ],
+          "weapon": "AssaultCannon"
+        },
+        "planB": [],
+        "typeId": "Mech",
+        "variantId": "Sentinel",
+        "zone": "Middle"
+      },
+      "label": "stock:Sentinel"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 8800,
+          "armorPct": 400,
+          "cadence": "Fast",
+          "canTargetAir": false,
+          "capabilities": [],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 17000,
+          "damageType": "Explosive",
+          "evasion": 3000,
+          "family": "Explosive",
+          "hull": 600000,
+          "moveSpeed": null,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "AnyGround",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": null,
+          "splash": 1500,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 17000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullHeli",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "RocketPods"
+        },
+        "planB": [],
+        "typeId": "AttackHeli",
+        "variantId": "Gunship",
+        "zone": "Air"
+      },
+      "label": "stock:Gunship"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 8800,
+          "armorPct": 400,
+          "cadence": "Fast",
+          "canTargetAir": false,
+          "capabilities": [],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 14000,
+          "damageType": "Explosive",
+          "evasion": 3500,
+          "family": "Explosive",
+          "hull": 600000,
+          "moveSpeed": null,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "AnyGround",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": null,
+          "splash": 1500,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 14000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullHeli",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "RocketPods"
+        },
+        "planB": [],
+        "typeId": "AttackHeli",
+        "variantId": "Interceptor",
+        "zone": "Air"
+      },
+      "label": "stock:Interceptor"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 8800,
+          "armorPct": 600,
+          "cadence": "Fast",
+          "canTargetAir": false,
+          "capabilities": [],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 21000,
+          "damageType": "Explosive",
+          "evasion": 2200,
+          "family": "Explosive",
+          "hull": 750000,
+          "moveSpeed": null,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "AnyGround",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": null,
+          "splash": 1500,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 21000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullHeli",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "RocketPods"
+        },
+        "planB": [],
+        "typeId": "AttackHeli",
+        "variantId": "Warhog",
+        "zone": "Air"
+      },
+      "label": "stock:Warhog"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 9300,
+          "armorPct": 1000,
+          "cadence": "Medium",
+          "canTargetAir": true,
+          "capabilities": [],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 30000,
+          "damageType": "Explosive",
+          "evasion": 600,
+          "family": "Explosive",
+          "hull": 750000,
+          "moveSpeed": 5,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "Air",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": null,
+          "splash": 2000,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 30000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullRktArty",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "SAMBattery"
+        },
+        "planB": [],
+        "typeId": "RocketArtillery",
+        "variantId": "Sentry",
+        "zone": "Middle"
+      },
+      "label": "stock:Sentry"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 9300,
+          "armorPct": 1000,
+          "cadence": "Medium",
+          "canTargetAir": true,
+          "capabilities": [],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 36000,
+          "damageType": "Explosive",
+          "evasion": 600,
+          "family": "Explosive",
+          "hull": 750000,
+          "moveSpeed": 5,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "Air",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": null,
+          "splash": 2000,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 36000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullRktArty",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "SAMBattery"
+        },
+        "planB": [],
+        "typeId": "RocketArtillery",
+        "variantId": "Aegis",
+        "zone": "Middle"
+      },
+      "label": "stock:Aegis"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 8600,
+          "armorPct": 1000,
+          "cadence": "Medium",
+          "canTargetAir": true,
+          "capabilities": [],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 34000,
+          "damageType": "Explosive",
+          "evasion": 600,
+          "family": "Explosive",
+          "hull": 750000,
+          "moveSpeed": 5,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "AnyGround",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": null,
+          "splash": 2400,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 34000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullRktArty",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "RocketBarrage"
+        },
+        "planB": [],
+        "typeId": "RocketArtillery",
+        "variantId": "Deluge",
+        "zone": "Middle"
+      },
+      "label": "stock:Deluge"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 7800,
+          "armorPct": 600,
+          "cadence": "Slow",
+          "canTargetAir": false,
+          "capabilities": [],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 65000,
+          "damageType": "Explosive",
+          "evasion": 300,
+          "family": "Explosive",
+          "hull": 620000,
+          "moveSpeed": 3,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "AnyGround",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": null,
+          "splash": 2500,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 65000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullArtillery",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "Howitzer"
+        },
+        "planB": [],
+        "typeId": "Artillery",
+        "variantId": "Longbow",
+        "zone": "Rear"
+      },
+      "label": "stock:Longbow"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 7800,
+          "armorPct": 600,
+          "cadence": "Slow",
+          "canTargetAir": false,
+          "capabilities": [],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 82000,
+          "damageType": "Explosive",
+          "evasion": 300,
+          "family": "Explosive",
+          "hull": 520000,
+          "moveSpeed": 3,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "AnyGround",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": null,
+          "splash": 2500,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 82000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullArtillery",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "Howitzer"
+        },
+        "planB": [],
+        "typeId": "Artillery",
+        "variantId": "Siege",
+        "zone": "Rear"
+      },
+      "label": "stock:Siege"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 9300,
+          "armorPct": 600,
+          "cadence": "Slow",
+          "canTargetAir": false,
+          "capabilities": [],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 58000,
+          "damageType": "Explosive",
+          "evasion": 300,
+          "family": "Explosive",
+          "hull": 620000,
+          "moveSpeed": 3,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "AnyGround",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": null,
+          "splash": 1000,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 58000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullArtillery",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "Howitzer"
+        },
+        "planB": [],
+        "typeId": "Artillery",
+        "variantId": "Marksman",
+        "zone": "Rear"
+      },
+      "label": "stock:Marksman"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 800,
+          "armorPct": 1200,
+          "cadence": "Fast",
+          "canTargetAir": false,
+          "capabilities": [],
+          "critChance": 0,
+          "critMult": 15000,
+          "damage": 0,
+          "damageType": "Kinetic",
+          "evasion": 500,
+          "family": "Support",
+          "hull": 700000,
+          "moveSpeed": 5,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "Nearest",
+          "shieldCap": 250000,
+          "shieldDelay": 30,
+          "shieldRegen": 6000,
+          "specialMitigation": null,
+          "splash": 0,
+          "supportPower": 5000,
+          "supportRange": "OwnPlusAdjacent",
+          "threat": 5000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullSupport",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "RepairBeam"
+        },
+        "planB": [],
+        "typeId": "RearSupport",
+        "variantId": "Medic",
+        "zone": "Rear"
+      },
+      "label": "stock:Medic"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 800,
+          "armorPct": 1800,
+          "cadence": "Fast",
+          "canTargetAir": false,
+          "capabilities": [],
+          "critChance": 0,
+          "critMult": 15000,
+          "damage": 0,
+          "damageType": "Kinetic",
+          "evasion": 500,
+          "family": "Support",
+          "hull": 910000,
+          "moveSpeed": 5,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "Nearest",
+          "shieldCap": 250000,
+          "shieldDelay": 30,
+          "shieldRegen": 6000,
+          "specialMitigation": null,
+          "splash": 0,
+          "supportPower": 5000,
+          "supportRange": "OwnZone",
+          "threat": 5000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullSupport",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "RepairBeam"
+        },
+        "planB": [],
+        "typeId": "RearSupport",
+        "variantId": "Warden",
+        "zone": "Rear"
+      },
+      "label": "stock:Warden"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 800,
+          "armorPct": 1200,
+          "cadence": "Fast",
+          "canTargetAir": false,
+          "capabilities": [],
+          "critChance": 0,
+          "critMult": 15000,
+          "damage": 0,
+          "damageType": "Kinetic",
+          "evasion": 1000,
+          "family": "Support",
+          "hull": 420000,
+          "moveSpeed": 2,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "Nearest",
+          "shieldCap": 250000,
+          "shieldDelay": 30,
+          "shieldRegen": 6000,
+          "specialMitigation": null,
+          "splash": 0,
+          "supportPower": 5000,
+          "supportRange": "OwnPlusAdjacent",
+          "threat": 5000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullSupport",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader",
+            "ECMSuite"
+          ],
+          "weapon": "RepairBeam"
+        },
+        "planB": [],
+        "typeId": "RearSupport",
+        "variantId": "CommandPost",
+        "zone": "Rear"
+      },
+      "label": "stock:CommandPost"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 8800,
+          "armorPct": 3000,
+          "cadence": "Medium",
+          "canTargetAir": false,
+          "capabilities": [],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 40000,
+          "damageType": "Energy",
+          "evasion": 200,
+          "family": "Energy",
+          "hull": 1700000,
+          "moveSpeed": 4,
+          "nativeMatch": false,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "Nearest",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": null,
+          "splash": 0,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 35000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullHeavy",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "SiegeLaser"
+        },
+        "planB": [],
+        "typeId": "HeavyTank",
+        "variantId": "Grizzly",
+        "zone": "Front"
+      },
+      "label": "grizzly:siege-laser(off-family)"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 8800,
+          "armorPct": 3000,
+          "cadence": "Slow",
+          "canTargetAir": false,
+          "capabilities": [],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 60000,
+          "damageType": "Kinetic",
+          "evasion": 200,
+          "family": "Kinetic",
+          "hull": 1700000,
+          "moveSpeed": 4,
+          "nativeMatch": true,
+          "penetration": 5000,
+          "planBSlots": 1,
+          "reach": "Deep",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": null,
+          "splash": 0,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 35000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullHeavy",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "Railgun"
+        },
+        "planB": [],
+        "typeId": "HeavyTank",
+        "variantId": "Grizzly",
+        "zone": "Front"
+      },
+      "label": "grizzly:railgun(deep+pen+siege)"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 8000,
+          "armorPct": 4200,
+          "cadence": "Medium",
+          "canTargetAir": false,
+          "capabilities": [
+            "ExtraPlanBSlot",
+            "AdaptiveEnergy",
+            "OpportunistStance"
+          ],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 35000,
+          "damageType": "Kinetic",
+          "evasion": 200,
+          "family": "Kinetic",
+          "hull": 1700000,
+          "moveSpeed": 3,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 2,
+          "reach": "Nearest",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": null,
+          "splash": 0,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 35000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "CompositeArmor",
+          "utilities": [
+            "Autoloader",
+            "DriveServos",
+            "CombatAI"
+          ],
+          "weapon": "HeavyCannon"
+        },
+        "planB": [],
+        "typeId": "HeavyTank",
+        "variantId": "Grizzly",
+        "zone": "Front"
+      },
+      "label": "grizzly:composite+combatai(armor+move+cadence+planb)"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 8800,
+          "armorPct": 3000,
+          "cadence": "Medium",
+          "canTargetAir": false,
+          "capabilities": [],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 35000,
+          "damageType": "Kinetic",
+          "evasion": 200,
+          "family": "Kinetic",
+          "hull": 1700000,
+          "moveSpeed": 4,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "Nearest",
+          "shieldCap": 250000,
+          "shieldDelay": 25,
+          "shieldRegen": 6000,
+          "specialMitigation": null,
+          "splash": 0,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 35000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "DeflectorShield",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "HeavyCannon"
+        },
+        "planB": [],
+        "typeId": "HeavyTank",
+        "variantId": "Grizzly",
+        "zone": "Front"
+      },
+      "label": "grizzly:deflector-shield"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 8800,
+          "armorPct": 3800,
+          "cadence": "Medium",
+          "canTargetAir": false,
+          "capabilities": [],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 35000,
+          "damageType": "Kinetic",
+          "evasion": 200,
+          "family": "Kinetic",
+          "hull": 1700000,
+          "moveSpeed": 4,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "Nearest",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": {
+            "against": "Explosive",
+            "splashTakenMult": 6000
+          },
+          "splash": 0,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 35000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "BlastPlating",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "HeavyCannon"
+        },
+        "planB": [],
+        "typeId": "HeavyTank",
+        "variantId": "Grizzly",
+        "zone": "Front"
+      },
+      "label": "grizzly:blast-plating(special-mitigation)"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 8000,
+          "armorPct": 3000,
+          "cadence": "Medium",
+          "canTargetAir": false,
+          "capabilities": [
+            "ExtendReach"
+          ],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 35000,
+          "damageType": "Kinetic",
+          "evasion": 200,
+          "family": "Kinetic",
+          "hull": 1700000,
+          "moveSpeed": 4,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "FrontMid",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": null,
+          "splash": 0,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 35000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullHeavy",
+          "utilities": [
+            "Rangefinder",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "HeavyCannon"
+        },
+        "planB": [],
+        "typeId": "HeavyTank",
+        "variantId": "Grizzly",
+        "zone": "Front"
+      },
+      "label": "grizzly:rangefinder(reach-deepen)"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 8000,
+          "armorPct": 3000,
+          "cadence": "Medium",
+          "canTargetAir": true,
+          "capabilities": [
+            "TargetAir"
+          ],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 35000,
+          "damageType": "Kinetic",
+          "evasion": 200,
+          "family": "Kinetic",
+          "hull": 1700000,
+          "moveSpeed": 4,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "Nearest",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": null,
+          "splash": 0,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 35000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullHeavy",
+          "utilities": [
+            "SensorSuite",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "HeavyCannon"
+        },
+        "planB": [],
+        "typeId": "HeavyTank",
+        "variantId": "Grizzly",
+        "zone": "Front"
+      },
+      "label": "grizzly:sensor-suite(target-air)"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 9000,
+          "armorPct": 600,
+          "cadence": "Fast",
+          "canTargetAir": false,
+          "capabilities": [],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 5000,
+          "damageType": "Kinetic",
+          "evasion": 3000,
+          "family": "Kinetic",
+          "hull": 650000,
+          "moveSpeed": 8,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "Nearest",
+          "shieldCap": 120000,
+          "shieldDelay": 12,
+          "shieldRegen": 12000,
+          "specialMitigation": null,
+          "splash": 0,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 5000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "FastCycleShield",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "ECMSuite"
+          ],
+          "weapon": "Autocannon"
+        },
+        "planB": [],
+        "typeId": "LightTank",
+        "variantId": "Scout",
+        "zone": "Front"
+      },
+      "label": "scout:fast-cycle-shield+ecm"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 8800,
+          "armorPct": 400,
+          "cadence": "Medium",
+          "canTargetAir": true,
+          "capabilities": [
+            "TargetAir"
+          ],
+          "critChance": 500,
+          "critMult": 15000,
+          "damage": 17000,
+          "damageType": "Explosive",
+          "evasion": 3000,
+          "family": "Explosive",
+          "hull": 600000,
+          "moveSpeed": null,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "AnyGround",
+          "shieldCap": 0,
+          "shieldDelay": 0,
+          "shieldRegen": 0,
+          "specialMitigation": null,
+          "splash": 1500,
+          "supportPower": null,
+          "supportRange": null,
+          "threat": 17000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullHeli",
+          "utilities": [
+            "SensorSuite",
+            "FireControl",
+            "DriveServos"
+          ],
+          "weapon": "RocketPods"
+        },
+        "planB": [],
+        "typeId": "AttackHeli",
+        "variantId": "Gunship",
+        "zone": "Air"
+      },
+      "label": "gunship:sensor(air-locked-stays-none)"
+    },
+    {
+      "expected": {
+        "ok": true,
+        "stats": {
+          "accuracy": 800,
+          "armorPct": 1200,
+          "cadence": "Fast",
+          "canTargetAir": false,
+          "capabilities": [],
+          "critChance": 0,
+          "critMult": 15000,
+          "damage": 0,
+          "damageType": "Kinetic",
+          "evasion": 1000,
+          "family": "Support",
+          "hull": 420000,
+          "moveSpeed": 2,
+          "nativeMatch": true,
+          "penetration": 0,
+          "planBSlots": 1,
+          "reach": "Nearest",
+          "shieldCap": 250000,
+          "shieldDelay": 30,
+          "shieldRegen": 6000,
+          "specialMitigation": null,
+          "splash": 0,
+          "supportPower": 5000,
+          "supportRange": "OwnPlusAdjacent",
+          "threat": 5000
+        }
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullSupport",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader",
+            "ECMSuite"
+          ],
+          "weapon": "RepairBeam"
+        },
+        "planB": [],
+        "typeId": "RearSupport",
+        "variantId": "CommandPost",
+        "zone": "Rear"
+      },
+      "label": "commandpost:four-utility(immobile+servos)"
+    },
+    {
+      "expected": {
+        "error": {
+          "UnknownEquipment": "NoSuchGun"
+        },
+        "ok": false
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullHeavy",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "NoSuchGun"
+        },
+        "planB": [],
+        "typeId": "HeavyTank",
+        "variantId": "Grizzly",
+        "zone": "Front"
+      },
+      "label": "err:unknown-equipment"
+    },
+    {
+      "expected": {
+        "error": {
+          "WrongSlotKind": {
+            "expected": "Weapon",
+            "id": "CompositeArmor"
+          }
+        },
+        "ok": false
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullHeavy",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "CompositeArmor"
+        },
+        "planB": [],
+        "typeId": "HeavyTank",
+        "variantId": "Grizzly",
+        "zone": "Front"
+      },
+      "label": "err:wrong-slot-kind(defense-in-weapon)"
+    },
+    {
+      "expected": {
+        "error": {
+          "UnknownVariant": "Ghost"
+        },
+        "ok": false
+      },
+      "instance": {
+        "dials": {
+          "energy": "Balanced",
+          "movement": "Hold",
+          "stance": "Neutral",
+          "targetRow": "FrontReachable",
+          "targetRule": "FocusFire"
+        },
+        "instanceId": 0,
+        "loadout": {
+          "defense": "StandardHullHeavy",
+          "utilities": [
+            "FireControl",
+            "DriveServos",
+            "Autoloader"
+          ],
+          "weapon": "HeavyCannon"
+        },
+        "planB": [],
+        "typeId": "HeavyTank",
+        "variantId": "Ghost",
+        "zone": "Front"
+      },
+      "label": "err:unknown-variant"
+    }
+  ],
+  "note": "Generated by `cargo run -p engine --example emit_derive_battery`. Engine parity contract for the pure TS derivation/validation mirror (Feature 4 T006, SC-002). Native == wasm is byte-identical (P6), so native output is authoritative.",
+  "ruleset": {
+    "airMods": {
+      "aaAccBonus": 1000,
+      "aaDmgMult": 15000,
+      "plinkAccPenalty": -2500,
+      "plinkDmgMult": 5000
+    },
+    "cadenceTicks": {
+      "fast": 1,
+      "medium": 3,
+      "siege": 10,
+      "slow": 5
+    },
+    "chassis": {
+      "Aegis": {
+        "id": "Aegis",
+        "typeId": "RocketArtillery"
+      },
+      "Bulwark": {
+        "id": "Bulwark",
+        "passiveAura": {
+          "kind": "DamageDealt",
+          "magnitude": -800,
+          "scope": "ZoneAllies"
+        },
+        "typeId": "HeavyTank"
+      },
+      "Cavalier": {
+        "id": "Cavalier",
+        "typeId": "HeavyTank"
+      },
+      "CommandPost": {
+        "id": "CommandPost",
+        "passiveAura": {
+          "kind": "CommandBoost",
+          "magnitude": 0,
+          "scope": "ZoneAllies"
+        },
+        "slotLayoutOverride": {
+          "defense": 1,
+          "utility": 4,
+          "weapon": 1
+        },
+        "typeId": "RearSupport"
+      },
+      "Deluge": {
+        "id": "Deluge",
+        "typeId": "RocketArtillery"
+      },
+      "Grizzly": {
+        "id": "Grizzly",
+        "typeId": "HeavyTank"
+      },
+      "Gunship": {
+        "id": "Gunship",
+        "typeId": "AttackHeli"
+      },
+      "Hunter": {
+        "id": "Hunter",
+        "typeId": "LightTank"
+      },
+      "Interceptor": {
+        "id": "Interceptor",
+        "typeId": "AttackHeli"
+      },
+      "Longbow": {
+        "id": "Longbow",
+        "typeId": "Artillery"
+      },
+      "Marksman": {
+        "id": "Marksman",
+        "typeId": "Artillery"
+      },
+      "Medic": {
+        "id": "Medic",
+        "typeId": "RearSupport"
+      },
+      "Outrider": {
+        "id": "Outrider",
+        "typeId": "LightTank"
+      },
+      "Scout": {
+        "id": "Scout",
+        "typeId": "LightTank"
+      },
+      "Sentinel": {
+        "id": "Sentinel",
+        "slotLayoutOverride": {
+          "defense": 1,
+          "utility": 4,
+          "weapon": 1
+        },
+        "typeId": "Mech"
+      },
+      "Sentry": {
+        "id": "Sentry",
+        "typeId": "RocketArtillery"
+      },
+      "Siege": {
+        "id": "Siege",
+        "typeId": "Artillery"
+      },
+      "Striker": {
+        "id": "Striker",
+        "typeId": "Mech"
+      },
+      "Vanguard": {
+        "id": "Vanguard",
+        "typeId": "Mech"
+      },
+      "Warden": {
+        "id": "Warden",
+        "typeId": "RearSupport"
+      },
+      "Warhog": {
+        "id": "Warhog",
+        "typeId": "AttackHeli"
+      }
+    },
+    "damageMatrix": {
+      "energy": {
+        "vsArmor": 12500,
+        "vsShields": 6000
+      },
+      "explosive": {
+        "vsArmor": 10000,
+        "vsShields": 10000
+      },
+      "kinetic": {
+        "vsArmor": 8500,
+        "vsShields": 14000
+      }
+    },
+    "equipment": {
+      "AssaultCannon": {
+        "family": "Kinetic",
+        "id": "AssaultCannon",
+        "kind": "Weapon",
+        "mountClass": "Mech",
+        "name": "Assault Cannon",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Medium",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "Nearest",
+          "splash": 0
+        }
+      },
+      "Autocannon": {
+        "family": "Kinetic",
+        "id": "Autocannon",
+        "kind": "Weapon",
+        "mountClass": "Light",
+        "name": "Autocannon",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Fast",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "Nearest",
+          "splash": 0
+        }
+      },
+      "Autoloader": {
+        "cadenceShift": 1,
+        "id": "Autoloader",
+        "kind": "Utility",
+        "name": "Autoloader",
+        "unlocks": []
+      },
+      "BlastPlating": {
+        "armorPctDelta": 800,
+        "id": "BlastPlating",
+        "kind": "Defense",
+        "mountClass": "Heavy",
+        "name": "Blast Plating",
+        "specialMitigation": {
+          "against": "Explosive",
+          "splashTakenMult": 6000
+        },
+        "tradeoff": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0
+        }
+      },
+      "CombatAI": {
+        "cadenceShift": 0,
+        "id": "CombatAI",
+        "kind": "Utility",
+        "name": "Combat AI Core",
+        "unlocks": [
+          "ExtraPlanBSlot",
+          "AdaptiveEnergy",
+          "OpportunistStance"
+        ]
+      },
+      "CompositeArmor": {
+        "armorPctDelta": 1200,
+        "id": "CompositeArmor",
+        "kind": "Defense",
+        "mountClass": "Heavy",
+        "name": "Composite Armor",
+        "tradeoff": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": -1,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0
+        }
+      },
+      "DeflectorShield": {
+        "armorPctDelta": 0,
+        "id": "DeflectorShield",
+        "kind": "Defense",
+        "mountClass": "Heavy",
+        "name": "Deflector Shield",
+        "shieldDelta": {
+          "cap": 250000,
+          "delay": 25,
+          "regen": 6000
+        },
+        "tradeoff": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0
+        }
+      },
+      "DriveServos": {
+        "cadenceShift": 0,
+        "id": "DriveServos",
+        "kind": "Utility",
+        "name": "Drive Servos",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 2,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0
+        },
+        "unlocks": []
+      },
+      "ECMSuite": {
+        "cadenceShift": 0,
+        "id": "ECMSuite",
+        "kind": "Utility",
+        "name": "ECM Suite",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 500,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0
+        },
+        "unlocks": []
+      },
+      "FastCycleShield": {
+        "armorPctDelta": 0,
+        "id": "FastCycleShield",
+        "kind": "Defense",
+        "mountClass": "Light",
+        "name": "Fast-Cycle Shield",
+        "shieldDelta": {
+          "cap": 120000,
+          "delay": 12,
+          "regen": 12000
+        },
+        "tradeoff": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0
+        }
+      },
+      "FireControl": {
+        "cadenceShift": 0,
+        "id": "FireControl",
+        "kind": "Utility",
+        "name": "Fire Control",
+        "statDeltas": {
+          "accuracy": 800,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0
+        },
+        "unlocks": []
+      },
+      "GaussRepeater": {
+        "family": "Kinetic",
+        "id": "GaussRepeater",
+        "kind": "Weapon",
+        "mountClass": "Light",
+        "name": "Gauss Repeater",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Fast",
+          "critChance": 0,
+          "damage": -1000,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "Nearest",
+          "splash": 0
+        }
+      },
+      "HeavyCannon": {
+        "family": "Kinetic",
+        "id": "HeavyCannon",
+        "kind": "Weapon",
+        "mountClass": "Heavy",
+        "name": "Heavy Cannon",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Slow",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "Nearest",
+          "splash": 0
+        }
+      },
+      "Howitzer": {
+        "family": "Explosive",
+        "id": "Howitzer",
+        "kind": "Weapon",
+        "mountClass": "Artillery",
+        "name": "Howitzer",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Siege",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "AnyGround",
+          "splash": 0
+        }
+      },
+      "PulseLaser": {
+        "family": "Energy",
+        "id": "PulseLaser",
+        "kind": "Weapon",
+        "mountClass": "Mech",
+        "name": "Pulse Laser",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Medium",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "Nearest",
+          "splash": 0
+        }
+      },
+      "Railgun": {
+        "family": "Kinetic",
+        "id": "Railgun",
+        "kind": "Weapon",
+        "mountClass": "Heavy",
+        "name": "Railgun",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Siege",
+          "critChance": 0,
+          "damage": 25000,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 5000,
+          "reach": "Deep",
+          "splash": 0
+        }
+      },
+      "Rangefinder": {
+        "cadenceShift": 0,
+        "id": "Rangefinder",
+        "kind": "Utility",
+        "name": "Rangefinder",
+        "unlocks": [
+          "ExtendReach"
+        ]
+      },
+      "RepairBeam": {
+        "family": "Support",
+        "id": "RepairBeam",
+        "kind": "Weapon",
+        "mountClass": "Support",
+        "name": "Repair Beam",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Medium",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "Nearest",
+          "splash": 0
+        }
+      },
+      "RocketBarrage": {
+        "family": "Explosive",
+        "id": "RocketBarrage",
+        "kind": "Weapon",
+        "mountClass": "RktArty",
+        "name": "Rocket Barrage",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Slow",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "AnyGround",
+          "splash": 0
+        }
+      },
+      "RocketPods": {
+        "family": "Explosive",
+        "id": "RocketPods",
+        "kind": "Weapon",
+        "mountClass": "Heli",
+        "name": "Rocket Pods",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Medium",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "AnyGround",
+          "splash": 0
+        }
+      },
+      "SAMBattery": {
+        "family": "Explosive",
+        "id": "SAMBattery",
+        "kind": "Weapon",
+        "mountClass": "RktArty",
+        "name": "SAM Battery",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Slow",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "Air",
+          "splash": 0
+        }
+      },
+      "SensorSuite": {
+        "cadenceShift": 0,
+        "id": "SensorSuite",
+        "kind": "Utility",
+        "name": "Sensor Suite",
+        "unlocks": [
+          "TargetAir"
+        ]
+      },
+      "SiegeLaser": {
+        "family": "Energy",
+        "id": "SiegeLaser",
+        "kind": "Weapon",
+        "mountClass": "Heavy",
+        "name": "Siege Laser",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Slow",
+          "critChance": 0,
+          "damage": 5000,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "Nearest",
+          "splash": 0
+        }
+      },
+      "StandardHullArtillery": {
+        "armorPctDelta": 0,
+        "id": "StandardHullArtillery",
+        "kind": "Defense",
+        "mountClass": "Artillery",
+        "name": "Standard Hull",
+        "tradeoff": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0
+        }
+      },
+      "StandardHullHeavy": {
+        "armorPctDelta": 0,
+        "id": "StandardHullHeavy",
+        "kind": "Defense",
+        "mountClass": "Heavy",
+        "name": "Standard Hull",
+        "tradeoff": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0
+        }
+      },
+      "StandardHullHeli": {
+        "armorPctDelta": 0,
+        "id": "StandardHullHeli",
+        "kind": "Defense",
+        "mountClass": "Heli",
+        "name": "Standard Hull",
+        "tradeoff": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0
+        }
+      },
+      "StandardHullLight": {
+        "armorPctDelta": 0,
+        "id": "StandardHullLight",
+        "kind": "Defense",
+        "mountClass": "Light",
+        "name": "Standard Hull",
+        "tradeoff": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0
+        }
+      },
+      "StandardHullMech": {
+        "armorPctDelta": 0,
+        "id": "StandardHullMech",
+        "kind": "Defense",
+        "mountClass": "Mech",
+        "name": "Standard Hull",
+        "tradeoff": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0
+        }
+      },
+      "StandardHullRktArty": {
+        "armorPctDelta": 0,
+        "id": "StandardHullRktArty",
+        "kind": "Defense",
+        "mountClass": "RktArty",
+        "name": "Standard Hull",
+        "tradeoff": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0
+        }
+      },
+      "StandardHullSupport": {
+        "armorPctDelta": 0,
+        "id": "StandardHullSupport",
+        "kind": "Defense",
+        "mountClass": "Support",
+        "name": "Standard Hull",
+        "tradeoff": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0
+        }
+      }
+    },
+    "globals": {
+      "critBaseChance": 500,
+      "critBaseMult": 15000,
+      "damageVariance": 500,
+      "hitClampMax": 9500,
+      "hitClampMin": 500,
+      "minDamageFloor": 1000,
+      "nativeBonus": 1200,
+      "splashCap": 2500,
+      "tickCap": 1000,
+      "tickRate": 10
+    },
+    "machineTypes": {
+      "Artillery": {
+        "airCapableByDefault": false,
+        "canFireFromRear": true,
+        "homeZones": [
+          "Front",
+          "Middle",
+          "Rear"
+        ],
+        "id": "Artillery",
+        "mountClass": "Artillery",
+        "nativeFamily": "Explosive",
+        "slotLayout": {
+          "defense": 1,
+          "utility": 3,
+          "weapon": 1
+        }
+      },
+      "AttackHeli": {
+        "airCapableByDefault": false,
+        "canFireFromRear": false,
+        "homeZones": [
+          "Air"
+        ],
+        "id": "AttackHeli",
+        "mountClass": "Heli",
+        "nativeFamily": "Explosive",
+        "slotLayout": {
+          "defense": 1,
+          "utility": 3,
+          "weapon": 1
+        }
+      },
+      "HeavyTank": {
+        "airCapableByDefault": false,
+        "canFireFromRear": false,
+        "homeZones": [
+          "Front",
+          "Middle",
+          "Rear"
+        ],
+        "id": "HeavyTank",
+        "mountClass": "Heavy",
+        "nativeFamily": "Kinetic",
+        "slotLayout": {
+          "defense": 1,
+          "utility": 3,
+          "weapon": 1
+        }
+      },
+      "LightTank": {
+        "airCapableByDefault": false,
+        "canFireFromRear": false,
+        "homeZones": [
+          "Front",
+          "Middle",
+          "Rear"
+        ],
+        "id": "LightTank",
+        "mountClass": "Light",
+        "nativeFamily": "Kinetic",
+        "slotLayout": {
+          "defense": 1,
+          "utility": 3,
+          "weapon": 1
+        }
+      },
+      "Mech": {
+        "airCapableByDefault": false,
+        "canFireFromRear": false,
+        "homeZones": [
+          "Front",
+          "Middle",
+          "Rear"
+        ],
+        "id": "Mech",
+        "mountClass": "Mech",
+        "slotLayout": {
+          "defense": 1,
+          "utility": 3,
+          "weapon": 1
+        }
+      },
+      "RearSupport": {
+        "airCapableByDefault": false,
+        "canFireFromRear": false,
+        "homeZones": [
+          "Front",
+          "Middle",
+          "Rear"
+        ],
+        "id": "RearSupport",
+        "mountClass": "Support",
+        "nativeFamily": "Support",
+        "slotLayout": {
+          "defense": 1,
+          "utility": 3,
+          "weapon": 1
+        }
+      },
+      "RocketArtillery": {
+        "airCapableByDefault": true,
+        "canFireFromRear": true,
+        "homeZones": [
+          "Front",
+          "Middle",
+          "Rear"
+        ],
+        "id": "RocketArtillery",
+        "mountClass": "RktArty",
+        "nativeFamily": "Explosive",
+        "slotLayout": {
+          "defense": 1,
+          "utility": 3,
+          "weapon": 1
+        }
+      }
+    },
+    "variants": {
+      "Aegis": {
+        "accuracy": 8500,
+        "armorPct": 1000,
+        "cadence": "Slow",
+        "critChance": 500,
+        "critMult": 15000,
+        "damage": 36000,
+        "damageType": "Explosive",
+        "evasion": 600,
+        "hull": 750000,
+        "moveSpeed": 3,
+        "penetration": 0,
+        "reach": "Air",
+        "shieldCap": 0,
+        "shieldDelay": 0,
+        "shieldRegen": 0,
+        "splash": 2000,
+        "threat": 36000
+      },
+      "Bulwark": {
+        "accuracy": 8000,
+        "armorPct": 3500,
+        "cadence": "Slow",
+        "critChance": 500,
+        "critMult": 15000,
+        "damage": 26000,
+        "damageType": "Kinetic",
+        "evasion": 200,
+        "hull": 2125000,
+        "moveSpeed": 1,
+        "penetration": 0,
+        "reach": "Nearest",
+        "shieldCap": 0,
+        "shieldDelay": 0,
+        "shieldRegen": 0,
+        "splash": 0,
+        "threat": 26000
+      },
+      "Cavalier": {
+        "accuracy": 8000,
+        "armorPct": 2800,
+        "cadence": "Slow",
+        "critChance": 500,
+        "critMult": 15000,
+        "damage": 40000,
+        "damageType": "Kinetic",
+        "evasion": 500,
+        "hull": 1360000,
+        "moveSpeed": 4,
+        "penetration": 0,
+        "reach": "Nearest",
+        "shieldCap": 0,
+        "shieldDelay": 0,
+        "shieldRegen": 0,
+        "splash": 0,
+        "threat": 40000
+      },
+      "CommandPost": {
+        "accuracy": 0,
+        "armorPct": 1200,
+        "cadence": "Medium",
+        "critChance": 0,
+        "critMult": 15000,
+        "damage": 0,
+        "damageType": "Kinetic",
+        "evasion": 500,
+        "hull": 420000,
+        "moveSpeed": 0,
+        "penetration": 0,
+        "reach": "Nearest",
+        "shieldCap": 250000,
+        "shieldDelay": 30,
+        "shieldRegen": 6000,
+        "splash": 0,
+        "supportPower": 5000,
+        "supportRange": "OwnPlusAdjacent",
+        "threat": 5000
+      },
+      "Deluge": {
+        "accuracy": 7800,
+        "armorPct": 1000,
+        "cadence": "Slow",
+        "critChance": 500,
+        "critMult": 15000,
+        "damage": 34000,
+        "damageType": "Explosive",
+        "evasion": 600,
+        "hull": 750000,
+        "moveSpeed": 3,
+        "penetration": 0,
+        "reach": "AnyGround",
+        "shieldCap": 0,
+        "shieldDelay": 0,
+        "shieldRegen": 0,
+        "splash": 2400,
+        "threat": 34000
+      },
+      "Grizzly": {
+        "accuracy": 8000,
+        "armorPct": 3000,
+        "cadence": "Slow",
+        "critChance": 500,
+        "critMult": 15000,
+        "damage": 35000,
+        "damageType": "Kinetic",
+        "evasion": 200,
+        "hull": 1700000,
+        "moveSpeed": 2,
+        "penetration": 0,
+        "reach": "Nearest",
+        "shieldCap": 0,
+        "shieldDelay": 0,
+        "shieldRegen": 0,
+        "splash": 0,
+        "threat": 35000
+      },
+      "Gunship": {
+        "accuracy": 8000,
+        "armorPct": 400,
+        "cadence": "Medium",
+        "critChance": 500,
+        "critMult": 15000,
+        "damage": 17000,
+        "damageType": "Explosive",
+        "evasion": 3000,
+        "hull": 600000,
+        "moveSpeed": null,
+        "penetration": 0,
+        "reach": "AnyGround",
+        "shieldCap": 0,
+        "shieldDelay": 0,
+        "shieldRegen": 0,
+        "splash": 1500,
+        "threat": 17000
+      },
+      "Hunter": {
+        "accuracy": 9000,
+        "armorPct": 600,
+        "cadence": "Fast",
+        "critChance": 500,
+        "critMult": 15000,
+        "damage": 5000,
+        "damageType": "Kinetic",
+        "evasion": 2000,
+        "hull": 650000,
+        "moveSpeed": 6,
+        "penetration": 0,
+        "reach": "Nearest",
+        "shieldCap": 0,
+        "shieldDelay": 0,
+        "shieldRegen": 0,
+        "splash": 0,
+        "threat": 5000
+      },
+      "Interceptor": {
+        "accuracy": 8000,
+        "armorPct": 400,
+        "cadence": "Medium",
+        "critChance": 500,
+        "critMult": 15000,
+        "damage": 14000,
+        "damageType": "Explosive",
+        "evasion": 3500,
+        "hull": 600000,
+        "moveSpeed": null,
+        "penetration": 0,
+        "reach": "AnyGround",
+        "shieldCap": 0,
+        "shieldDelay": 0,
+        "shieldRegen": 0,
+        "splash": 1500,
+        "threat": 14000
+      },
+      "Longbow": {
+        "accuracy": 7000,
+        "armorPct": 600,
+        "cadence": "Siege",
+        "critChance": 500,
+        "critMult": 15000,
+        "damage": 65000,
+        "damageType": "Explosive",
+        "evasion": 300,
+        "hull": 620000,
+        "moveSpeed": 1,
+        "penetration": 0,
+        "reach": "AnyGround",
+        "shieldCap": 0,
+        "shieldDelay": 0,
+        "shieldRegen": 0,
+        "splash": 2500,
+        "threat": 65000
+      },
+      "Marksman": {
+        "accuracy": 8500,
+        "armorPct": 600,
+        "cadence": "Siege",
+        "critChance": 500,
+        "critMult": 15000,
+        "damage": 58000,
+        "damageType": "Explosive",
+        "evasion": 300,
+        "hull": 620000,
+        "moveSpeed": 1,
+        "penetration": 0,
+        "reach": "AnyGround",
+        "shieldCap": 0,
+        "shieldDelay": 0,
+        "shieldRegen": 0,
+        "splash": 1000,
+        "threat": 58000
+      },
+      "Medic": {
+        "accuracy": 0,
+        "armorPct": 1200,
+        "cadence": "Medium",
+        "critChance": 0,
+        "critMult": 15000,
+        "damage": 0,
+        "damageType": "Kinetic",
+        "evasion": 500,
+        "hull": 700000,
+        "moveSpeed": 3,
+        "penetration": 0,
+        "reach": "Nearest",
+        "shieldCap": 250000,
+        "shieldDelay": 30,
+        "shieldRegen": 6000,
+        "splash": 0,
+        "supportPower": 5000,
+        "supportRange": "OwnPlusAdjacent",
+        "threat": 5000
+      },
+      "Outrider": {
+        "accuracy": 8200,
+        "armorPct": 600,
+        "cadence": "Fast",
+        "critChance": 500,
+        "critMult": 15000,
+        "damage": 5000,
+        "damageType": "Kinetic",
+        "evasion": 2800,
+        "hull": 550000,
+        "moveSpeed": 8,
+        "penetration": 0,
+        "reach": "Nearest",
+        "shieldCap": 0,
+        "shieldDelay": 0,
+        "shieldRegen": 0,
+        "splash": 0,
+        "threat": 5000
+      },
+      "Scout": {
+        "accuracy": 8200,
+        "armorPct": 600,
+        "cadence": "Fast",
+        "critChance": 500,
+        "critMult": 15000,
+        "damage": 5000,
+        "damageType": "Kinetic",
+        "evasion": 2500,
+        "hull": 650000,
+        "moveSpeed": 6,
+        "penetration": 0,
+        "reach": "Nearest",
+        "shieldCap": 0,
+        "shieldDelay": 0,
+        "shieldRegen": 0,
+        "splash": 0,
+        "threat": 5000
+      },
+      "Sentinel": {
+        "accuracy": 8500,
+        "armorPct": 1200,
+        "cadence": "Medium",
+        "critChance": 500,
+        "critMult": 15000,
+        "damage": 12000,
+        "damageType": "Kinetic",
+        "evasion": 1000,
+        "hull": 1150000,
+        "moveSpeed": 5,
+        "penetration": 0,
+        "reach": "Nearest",
+        "shieldCap": 0,
+        "shieldDelay": 0,
+        "shieldRegen": 0,
+        "splash": 0,
+        "threat": 12000
+      },
+      "Sentry": {
+        "accuracy": 8500,
+        "armorPct": 1000,
+        "cadence": "Slow",
+        "critChance": 500,
+        "critMult": 15000,
+        "damage": 30000,
+        "damageType": "Explosive",
+        "evasion": 600,
+        "hull": 750000,
+        "moveSpeed": 3,
+        "penetration": 0,
+        "reach": "Air",
+        "shieldCap": 0,
+        "shieldDelay": 0,
+        "shieldRegen": 0,
+        "splash": 2000,
+        "threat": 30000
+      },
+      "Siege": {
+        "accuracy": 7000,
+        "armorPct": 600,
+        "cadence": "Siege",
+        "critChance": 500,
+        "critMult": 15000,
+        "damage": 82000,
+        "damageType": "Explosive",
+        "evasion": 300,
+        "hull": 520000,
+        "moveSpeed": 1,
+        "penetration": 0,
+        "reach": "AnyGround",
+        "shieldCap": 0,
+        "shieldDelay": 0,
+        "shieldRegen": 0,
+        "splash": 2500,
+        "threat": 82000
+      },
+      "Striker": {
+        "accuracy": 8500,
+        "armorPct": 1200,
+        "cadence": "Medium",
+        "critChance": 500,
+        "critMult": 15000,
+        "damage": 19000,
+        "damageType": "Kinetic",
+        "evasion": 1000,
+        "hull": 820000,
+        "moveSpeed": 6,
+        "penetration": 0,
+        "reach": "Nearest",
+        "shieldCap": 0,
+        "shieldDelay": 0,
+        "shieldRegen": 0,
+        "splash": 0,
+        "threat": 19000
+      },
+      "Vanguard": {
+        "accuracy": 8500,
+        "armorPct": 1200,
+        "cadence": "Medium",
+        "critChance": 500,
+        "critMult": 15000,
+        "damage": 15000,
+        "damageType": "Kinetic",
+        "evasion": 1000,
+        "hull": 1000000,
+        "moveSpeed": 5,
+        "penetration": 0,
+        "reach": "Nearest",
+        "shieldCap": 0,
+        "shieldDelay": 0,
+        "shieldRegen": 0,
+        "splash": 0,
+        "threat": 15000
+      },
+      "Warden": {
+        "accuracy": 0,
+        "armorPct": 1800,
+        "cadence": "Medium",
+        "critChance": 0,
+        "critMult": 15000,
+        "damage": 0,
+        "damageType": "Kinetic",
+        "evasion": 500,
+        "hull": 910000,
+        "moveSpeed": 3,
+        "penetration": 0,
+        "reach": "Nearest",
+        "shieldCap": 250000,
+        "shieldDelay": 30,
+        "shieldRegen": 6000,
+        "splash": 0,
+        "supportPower": 5000,
+        "supportRange": "OwnZone",
+        "threat": 5000
+      },
+      "Warhog": {
+        "accuracy": 8000,
+        "armorPct": 600,
+        "cadence": "Medium",
+        "critChance": 500,
+        "critMult": 15000,
+        "damage": 21000,
+        "damageType": "Explosive",
+        "evasion": 2200,
+        "hull": 750000,
+        "moveSpeed": null,
+        "penetration": 0,
+        "reach": "AnyGround",
+        "shieldCap": 0,
+        "shieldDelay": 0,
+        "shieldRegen": 0,
+        "splash": 1500,
+        "threat": 21000
+      }
+    }
+  },
+  "validateCases": [
+    {
+      "army": {
+        "machines": [
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 0,
+            "loadout": {
+              "defense": "StandardHullHeavy",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "HeavyCannon"
+            },
+            "planB": [],
+            "typeId": "HeavyTank",
+            "variantId": "Grizzly",
+            "zone": "Front"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 1,
+            "loadout": {
+              "defense": "StandardHullLight",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "Autocannon"
+            },
+            "planB": [],
+            "typeId": "LightTank",
+            "variantId": "Scout",
+            "zone": "Front"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 2,
+            "loadout": {
+              "defense": "StandardHullMech",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "AssaultCannon"
+            },
+            "planB": [],
+            "typeId": "Mech",
+            "variantId": "Vanguard",
+            "zone": "Middle"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 3,
+            "loadout": {
+              "defense": "StandardHullHeli",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "RocketPods"
+            },
+            "planB": [],
+            "typeId": "AttackHeli",
+            "variantId": "Gunship",
+            "zone": "Air"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 4,
+            "loadout": {
+              "defense": "StandardHullArtillery",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "Howitzer"
+            },
+            "planB": [],
+            "typeId": "Artillery",
+            "variantId": "Longbow",
+            "zone": "Rear"
+          }
+        ]
+      },
+      "expected": {
+        "powerRating": 4707,
+        "status": "ok"
+      },
+      "label": "legal:5-army"
+    },
+    {
+      "army": {
+        "machines": [
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 0,
+            "loadout": {
+              "defense": "StandardHullHeavy",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "HeavyCannon"
+            },
+            "planB": [],
+            "typeId": "HeavyTank",
+            "variantId": "Grizzly",
+            "zone": "Front"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 1,
+            "loadout": {
+              "defense": "StandardHullLight",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "Autocannon"
+            },
+            "planB": [],
+            "typeId": "LightTank",
+            "variantId": "Scout",
+            "zone": "Front"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 2,
+            "loadout": {
+              "defense": "StandardHullMech",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "AssaultCannon"
+            },
+            "planB": [],
+            "typeId": "Mech",
+            "variantId": "Vanguard",
+            "zone": "Middle"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 3,
+            "loadout": {
+              "defense": "StandardHullHeli",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "RocketPods"
+            },
+            "planB": [],
+            "typeId": "AttackHeli",
+            "variantId": "Gunship",
+            "zone": "Air"
+          }
+        ]
+      },
+      "expected": {
+        "errors": [
+          {
+            "code": "SquadSize",
+            "instanceId": null,
+            "reason": "squad has 4 machines; exactly 5 are required"
+          }
+        ],
+        "status": "invalid"
+      },
+      "label": "v1:wrong-size"
+    },
+    {
+      "army": {
+        "machines": [
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 0,
+            "loadout": {
+              "defense": "StandardHullHeavy",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "HeavyCannon"
+            },
+            "planB": [],
+            "typeId": "HeavyTank",
+            "variantId": "Grizzly",
+            "zone": "Front"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 1,
+            "loadout": {
+              "defense": "StandardHullLight",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "Autocannon"
+            },
+            "planB": [],
+            "typeId": "LightTank",
+            "variantId": "Scout",
+            "zone": "Front"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 2,
+            "loadout": {
+              "defense": "StandardHullMech",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "AssaultCannon"
+            },
+            "planB": [],
+            "typeId": "Mech",
+            "variantId": "Vanguard",
+            "zone": "Front"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 3,
+            "loadout": {
+              "defense": "StandardHullHeli",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "RocketPods"
+            },
+            "planB": [],
+            "typeId": "AttackHeli",
+            "variantId": "Gunship",
+            "zone": "Air"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 4,
+            "loadout": {
+              "defense": "StandardHullArtillery",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "Howitzer"
+            },
+            "planB": [],
+            "typeId": "Artillery",
+            "variantId": "Longbow",
+            "zone": "Front"
+          }
+        ]
+      },
+      "expected": {
+        "errors": [
+          {
+            "code": "ZoneCap",
+            "instanceId": null,
+            "reason": "4 machines in Front exceeds the cap of 3"
+          }
+        ],
+        "status": "invalid"
+      },
+      "label": "v2:zone-cap"
+    },
+    {
+      "army": {
+        "machines": [
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 0,
+            "loadout": {
+              "defense": "StandardHullHeavy",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "HeavyCannon"
+            },
+            "planB": [],
+            "typeId": "HeavyTank",
+            "variantId": "Grizzly",
+            "zone": "Air"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 1,
+            "loadout": {
+              "defense": "StandardHullLight",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "Autocannon"
+            },
+            "planB": [],
+            "typeId": "LightTank",
+            "variantId": "Scout",
+            "zone": "Front"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 2,
+            "loadout": {
+              "defense": "StandardHullMech",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "AssaultCannon"
+            },
+            "planB": [],
+            "typeId": "Mech",
+            "variantId": "Vanguard",
+            "zone": "Middle"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 3,
+            "loadout": {
+              "defense": "StandardHullHeli",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "RocketPods"
+            },
+            "planB": [],
+            "typeId": "AttackHeli",
+            "variantId": "Gunship",
+            "zone": "Air"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 4,
+            "loadout": {
+              "defense": "StandardHullArtillery",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "Howitzer"
+            },
+            "planB": [],
+            "typeId": "Artillery",
+            "variantId": "Longbow",
+            "zone": "Rear"
+          }
+        ]
+      },
+      "expected": {
+        "errors": [
+          {
+            "code": "HomeZone",
+            "instanceId": 0,
+            "reason": "HeavyTank may not start in Air"
+          }
+        ],
+        "status": "invalid"
+      },
+      "label": "v3:off-home-zone"
+    },
+    {
+      "army": {
+        "machines": [
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 0,
+            "loadout": {
+              "defense": "StandardHullHeavy",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "Autocannon"
+            },
+            "planB": [],
+            "typeId": "HeavyTank",
+            "variantId": "Grizzly",
+            "zone": "Front"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 1,
+            "loadout": {
+              "defense": "StandardHullLight",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "Autocannon"
+            },
+            "planB": [],
+            "typeId": "LightTank",
+            "variantId": "Scout",
+            "zone": "Front"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 2,
+            "loadout": {
+              "defense": "StandardHullMech",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "AssaultCannon"
+            },
+            "planB": [],
+            "typeId": "Mech",
+            "variantId": "Vanguard",
+            "zone": "Middle"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 3,
+            "loadout": {
+              "defense": "StandardHullHeli",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "RocketPods"
+            },
+            "planB": [],
+            "typeId": "AttackHeli",
+            "variantId": "Gunship",
+            "zone": "Air"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 4,
+            "loadout": {
+              "defense": "StandardHullArtillery",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "Howitzer"
+            },
+            "planB": [],
+            "typeId": "Artillery",
+            "variantId": "Longbow",
+            "zone": "Rear"
+          }
+        ]
+      },
+      "expected": {
+        "errors": [
+          {
+            "code": "MountMismatch",
+            "instanceId": 0,
+            "reason": "weapon 'Autocannon' is Light-mount, machine is Heavy"
+          }
+        ],
+        "status": "invalid"
+      },
+      "label": "v4:mount-mismatch"
+    },
+    {
+      "army": {
+        "machines": [
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 0,
+            "loadout": {
+              "defense": "StandardHullHeavy",
+              "utilities": [
+                "FireControl",
+                "FireControl",
+                "Autoloader"
+              ],
+              "weapon": "HeavyCannon"
+            },
+            "planB": [],
+            "typeId": "HeavyTank",
+            "variantId": "Grizzly",
+            "zone": "Front"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 1,
+            "loadout": {
+              "defense": "StandardHullLight",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "Autocannon"
+            },
+            "planB": [],
+            "typeId": "LightTank",
+            "variantId": "Scout",
+            "zone": "Front"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 2,
+            "loadout": {
+              "defense": "StandardHullMech",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "AssaultCannon"
+            },
+            "planB": [],
+            "typeId": "Mech",
+            "variantId": "Vanguard",
+            "zone": "Middle"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 3,
+            "loadout": {
+              "defense": "StandardHullHeli",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "RocketPods"
+            },
+            "planB": [],
+            "typeId": "AttackHeli",
+            "variantId": "Gunship",
+            "zone": "Air"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 4,
+            "loadout": {
+              "defense": "StandardHullArtillery",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "Howitzer"
+            },
+            "planB": [],
+            "typeId": "Artillery",
+            "variantId": "Longbow",
+            "zone": "Rear"
+          }
+        ]
+      },
+      "expected": {
+        "errors": [
+          {
+            "code": "Utilities",
+            "instanceId": 0,
+            "reason": "duplicate utility 'FireControl'"
+          }
+        ],
+        "status": "invalid"
+      },
+      "label": "v5:duplicate-utility"
+    },
+    {
+      "army": {
+        "machines": [
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 0,
+            "loadout": {
+              "defense": "StandardHullHeavy",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "HeavyCannon"
+            },
+            "planB": [],
+            "typeId": "HeavyTank",
+            "variantId": "Grizzly",
+            "zone": "Front"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 1,
+            "loadout": {
+              "defense": "StandardHullLight",
+              "utilities": [
+                "FireControl"
+              ],
+              "weapon": "Autocannon"
+            },
+            "planB": [],
+            "typeId": "LightTank",
+            "variantId": "Scout",
+            "zone": "Front"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 2,
+            "loadout": {
+              "defense": "StandardHullMech",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "AssaultCannon"
+            },
+            "planB": [],
+            "typeId": "Mech",
+            "variantId": "Vanguard",
+            "zone": "Middle"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 3,
+            "loadout": {
+              "defense": "StandardHullHeli",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "RocketPods"
+            },
+            "planB": [],
+            "typeId": "AttackHeli",
+            "variantId": "Gunship",
+            "zone": "Air"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 4,
+            "loadout": {
+              "defense": "StandardHullArtillery",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "Howitzer"
+            },
+            "planB": [],
+            "typeId": "Artillery",
+            "variantId": "Longbow",
+            "zone": "Rear"
+          }
+        ]
+      },
+      "expected": {
+        "errors": [
+          {
+            "code": "Utilities",
+            "instanceId": 1,
+            "reason": "1 utilities equipped; the slot layout allows 3"
+          }
+        ],
+        "status": "invalid"
+      },
+      "label": "v5:wrong-utility-count"
+    },
+    {
+      "army": {
+        "machines": [
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 0,
+            "loadout": {
+              "defense": "StandardHullHeavy",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "HeavyCannon"
+            },
+            "planB": [],
+            "typeId": "HeavyTank",
+            "variantId": "Grizzly",
+            "zone": "Front"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 1,
+            "loadout": {
+              "defense": "StandardHullLight",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "Autocannon"
+            },
+            "planB": [
+              {
+                "condition": {
+                  "HullBelowPct": 5000
+                },
+                "dial": "Movement",
+                "planBValue": {
+                  "Movement": "FallBack"
+                },
+                "slot": "Slot1"
+              },
+              {
+                "condition": {
+                  "AfterTick": 100
+                },
+                "dial": "Energy",
+                "planBValue": {
+                  "Energy": "Offense"
+                },
+                "slot": "Slot2"
+              }
+            ],
+            "typeId": "LightTank",
+            "variantId": "Scout",
+            "zone": "Front"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 2,
+            "loadout": {
+              "defense": "StandardHullMech",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "AssaultCannon"
+            },
+            "planB": [],
+            "typeId": "Mech",
+            "variantId": "Vanguard",
+            "zone": "Middle"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 3,
+            "loadout": {
+              "defense": "StandardHullHeli",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "RocketPods"
+            },
+            "planB": [],
+            "typeId": "AttackHeli",
+            "variantId": "Gunship",
+            "zone": "Air"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 4,
+            "loadout": {
+              "defense": "StandardHullArtillery",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "Howitzer"
+            },
+            "planB": [],
+            "typeId": "Artillery",
+            "variantId": "Longbow",
+            "zone": "Rear"
+          }
+        ]
+      },
+      "expected": {
+        "errors": [
+          {
+            "code": "PlanB",
+            "instanceId": 1,
+            "reason": "2 Plan-B triggers exceed the 1 available slots (Combat AI grants a 2nd)"
+          },
+          {
+            "code": "PlanB",
+            "instanceId": 1,
+            "reason": "a Slot-2 Plan-B trigger requires the Combat-AI capability"
+          }
+        ],
+        "status": "invalid"
+      },
+      "label": "v6:ungated-2nd-planb"
+    },
+    {
+      "army": {
+        "machines": [
+          {
+            "dials": {
+              "energy": "Adaptive",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 0,
+            "loadout": {
+              "defense": "StandardHullHeavy",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "HeavyCannon"
+            },
+            "planB": [],
+            "typeId": "HeavyTank",
+            "variantId": "Grizzly",
+            "zone": "Front"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 1,
+            "loadout": {
+              "defense": "StandardHullLight",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "Autocannon"
+            },
+            "planB": [],
+            "typeId": "LightTank",
+            "variantId": "Scout",
+            "zone": "Front"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 2,
+            "loadout": {
+              "defense": "StandardHullMech",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "AssaultCannon"
+            },
+            "planB": [],
+            "typeId": "Mech",
+            "variantId": "Vanguard",
+            "zone": "Middle"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 3,
+            "loadout": {
+              "defense": "StandardHullHeli",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "RocketPods"
+            },
+            "planB": [],
+            "typeId": "AttackHeli",
+            "variantId": "Gunship",
+            "zone": "Air"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 4,
+            "loadout": {
+              "defense": "StandardHullArtillery",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "Howitzer"
+            },
+            "planB": [],
+            "typeId": "Artillery",
+            "variantId": "Longbow",
+            "zone": "Rear"
+          }
+        ]
+      },
+      "expected": {
+        "errors": [
+          {
+            "code": "DialGating",
+            "instanceId": 0,
+            "reason": "dial option 'Adaptive energy' requires the AdaptiveEnergy capability"
+          }
+        ],
+        "status": "invalid"
+      },
+      "label": "v7:ungated-dial"
+    },
+    {
+      "army": {
+        "machines": [
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 0,
+            "loadout": {
+              "defense": "StandardHullHeavy",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "HeavyCannon"
+            },
+            "planB": [],
+            "typeId": "HeavyTank",
+            "variantId": "Grizzly",
+            "zone": "Front"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 1,
+            "loadout": {
+              "defense": "StandardHullLight",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "Autocannon"
+            },
+            "planB": [],
+            "typeId": "LightTank",
+            "variantId": "Scout",
+            "zone": "Front"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 2,
+            "loadout": {
+              "defense": "StandardHullMech",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "AssaultCannon"
+            },
+            "planB": [],
+            "typeId": "Mech",
+            "variantId": "Vanguard",
+            "zone": "Middle"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Advance",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 3,
+            "loadout": {
+              "defense": "StandardHullHeli",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "RocketPods"
+            },
+            "planB": [],
+            "typeId": "AttackHeli",
+            "variantId": "Gunship",
+            "zone": "Air"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 4,
+            "loadout": {
+              "defense": "StandardHullArtillery",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "Howitzer"
+            },
+            "planB": [],
+            "typeId": "Artillery",
+            "variantId": "Longbow",
+            "zone": "Rear"
+          }
+        ]
+      },
+      "expected": {
+        "errors": [
+          {
+            "code": "Movement",
+            "instanceId": 3,
+            "reason": "an immobile / air-locked machine cannot take a movement order"
+          }
+        ],
+        "status": "invalid"
+      },
+      "label": "v8:movement-on-air-locked"
+    },
+    {
+      "army": {
+        "machines": [
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 0,
+            "loadout": {
+              "defense": "StandardHullHeavy",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "HeavyCannon"
+            },
+            "planB": [],
+            "typeId": "HeavyTank",
+            "variantId": "Grizzly",
+            "zone": "Air"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 1,
+            "loadout": {
+              "defense": "StandardHullLight",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "Autocannon"
+            },
+            "planB": [],
+            "typeId": "LightTank",
+            "variantId": "Scout",
+            "zone": "Front"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 2,
+            "loadout": {
+              "defense": "StandardHullMech",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "AssaultCannon"
+            },
+            "planB": [],
+            "typeId": "Mech",
+            "variantId": "Vanguard",
+            "zone": "Middle"
+          },
+          {
+            "dials": {
+              "energy": "Balanced",
+              "movement": "Hold",
+              "stance": "Neutral",
+              "targetRow": "FrontReachable",
+              "targetRule": "FocusFire"
+            },
+            "instanceId": 3,
+            "loadout": {
+              "defense": "StandardHullHeli",
+              "utilities": [
+                "FireControl",
+                "DriveServos",
+                "Autoloader"
+              ],
+              "weapon": "RocketPods"
+            },
+            "planB": [],
+            "typeId": "AttackHeli",
+            "variantId": "Gunship",
+            "zone": "Air"
+          }
+        ]
+      },
+      "expected": {
+        "errors": [
+          {
+            "code": "SquadSize",
+            "instanceId": null,
+            "reason": "squad has 4 machines; exactly 5 are required"
+          },
+          {
+            "code": "HomeZone",
+            "instanceId": 0,
+            "reason": "HeavyTank may not start in Air"
+          }
+        ],
+        "status": "invalid"
+      },
+      "label": "multi:v1+v3-accumulate"
+    }
+  ]
+}
