@@ -54,9 +54,16 @@ function Bar({ pct, fill }: { pct: number; fill: string }) {
   );
 }
 
-export function UnitSprite({ unit, className }: UnitSpriteProps) {
+export function UnitSprite({ unit, events, className }: UnitSpriteProps) {
   const iconKey = ICON_KEY[unit.typeId] ?? 'heavytank';
   const label = `${unit.typeId} ${unit.variantId}`;
+
+  // Event-driven VFX (T037): a flash on the tick this unit is hit or destroyed. Gated behind
+  // `motion-safe:` and hidden under reduced motion — the unit's state is always readable from the
+  // snapshot alone (hull bars + "DOWN"), so nothing is lost when the flash is suppressed (FR-020).
+  const died = events?.some((e) => e.t === 'death' && e.u === unit.column) ?? false;
+  const hit = events?.some((e) => e.t === 'hit' && e.d === unit.column) ?? false;
+  const flash = died ? 'bg-faction-enemy/40' : hit ? 'bg-faction-friendly/30' : null;
 
   return (
     <div
@@ -72,11 +79,17 @@ export function UnitSprite({ unit, className }: UnitSpriteProps) {
     >
       <div
         className={cn(
-          'flex aspect-64/40 w-full items-center justify-center rounded-md border p-0.5',
+          'relative flex aspect-64/40 w-full items-center justify-center rounded-md border p-0.5',
           FRAME[unit.faction],
         )}
       >
         <UnitIcon type={iconKey} title={label} className="h-full w-full" />
+        {flash && (
+          <span
+            aria-hidden
+            className={cn('pointer-events-none absolute inset-0 rounded-md motion-reduce:hidden motion-safe:animate-ping', flash)}
+          />
+        )}
       </div>
 
       <Bar pct={unit.hullPct} fill={HULL_FILL[unit.faction]} />

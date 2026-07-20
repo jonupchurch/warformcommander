@@ -69,7 +69,7 @@ halts cleanly at the last tick — all by indexing the reader, never the engine.
 
 - [x] T009 [P] [US1] Reducer tests live in `tests/use-playback.test.ts` (repo root, not `src/`) — `play`/`pause`/`tick` transitions; `tick` clamps at `lastTick` and sets `isPlaying=false` at the end (FR-010, AS2/AS3). Green.
 - [x] T010 [P] [US1] `tests/replay-view.test.ts`: `buildViewModel(g, t)` for a sweep of ticks equals the per-unit hull/shield/zone/alive from `snapshotAt(g, t)` (SC-001, AS1/AS4). Green.
-- [~] T011 [P] [US1] `e2e/battle-playback.spec.ts` — **deferred** (browser-gated; written with the interactive stories). SSR smoke stands in meanwhile: the route renders tick-0 across both sides' AIR/FRONT/MIDDLE/REAR + stats, no reject.
+- [x] T011 [P] [US1] `e2e/battle-playback.spec.ts`: load → Play advances the tick and **halts at the last tick**; a destroyed unit shows the DOWN treatment (AS1/AS2/AS4). Green (Playwright/Chromium).
 
 ### Implementation for User Story 1
 
@@ -98,7 +98,7 @@ call**; a last-tick seek touches the same # of array reads as a tick-1 seek (O(1
 - [x] T017 [P] [US2] `tests/replay-view.test.ts`: **O(1) seek** — instruments `snapshotAt` (a read counter) and asserts seeking `lastTick` of the 1000-tick fixture performs the **same bounded reads** as seeking tick 1 (no O(tick) loop), incl. the full `buildViewModel` projection (SC-003). Green.
 - [x] T018 [P] [US2] `tests/replay-view.test.ts`: **the engine is never imported** — a static import-specifier scan over `sim/replay-view.ts` **+ every `components/battle/*` file** (parametrized) asserts no `@wfc/engine-wasm` / `@/sim` / `sim/engine` import (SC-005 — the anti-regression for the previous game's bug). Green (9 modules).
 - [x] T019 [P] [US2] `tests/use-playback.test.ts`: `seek(t)` clamps to `[0,lastTick]` in one dispatch (no fast-forward); seek-during-play preserves `isPlaying` (jump-and-continue), seek-paused stays paused (jump-and-stay) (FR-011/FR-012, research B5). Green.
-- [~] T020 [P] [US2] `e2e/battle-playback.spec.ts` — **deferred** (browser-gated). SSR smoke confirms the slider renders `type="range"` + `aria-label="Battle timeline"` + `aria-valuetext`.
+- [x] T020 [P] [US2] `e2e/battle-playback.spec.ts`: keyboard Home/End/Arrow ±1/PageUp-Down ±10 seek exactly (paused); seek mid-play = jump-and-continue (AS1–AS4). Green.
 
 ### Implementation for User Story 2
 
@@ -121,7 +121,7 @@ and pauses; jump-to-end sets `currentTick=lastTick`.
 
 - [x] T023 [P] [US3] Pacing cadence covered by `tests/use-playback.test.ts` "pacing math" — `msPerTickAt` = 100/50/200 and `drainTicks` yields 10/20/5 ticks per 1000 ms at 1×/2×/0.5× with the sub-tick remainder carried (SC-006). The rAF loop that drives these under fake timers is deferred to the e2e layer.
 - [x] T024 [P] [US3] `tests/use-playback.test.ts`: `step(±n)` pauses and moves exactly `n`, clamped to `[0,lastTick]`; `selectGame(g)` resets to tick 0, paused (FR-014/FR-009, AS2/AS3). Green.
-- [~] T025 [P] [US3] `e2e/battle-playback.spec.ts` — **deferred** (browser-gated). SSR smoke confirms the jump/step/play buttons + speed group render.
+- [x] T025 [P] [US3] `e2e/battle-playback.spec.ts`: the 2× toggle sets `aria-pressed`; frame-step moves exactly one tick + pauses; jump-to-start/end move to 0/last (AS1–AS3). Green.
 
 ### Implementation for User Story 3
 
@@ -143,7 +143,7 @@ for screen readers; computed once per game.
 ### Tests for User Story 4 ⚠️ (write first)
 
 - [x] T028 [P] [US4] `tests/replay-view.test.ts`: `deriveMarkers(g)` returns a marker per `planb`/`death` at the right tick/side (real battery deaths + a synthetic planb), computed in one pass, referentially stable across calls (memoized) (FR-015, AS1/AS4). Green.
-- [~] T029 [P] [US4] `e2e/battle-playback.spec.ts` — **deferred** (browser-gated). SSR smoke confirms markers render with humanized accessible labels ("Heavy Tank down — tick N", …) over the track.
+- [x] T029 [P] [US4] `e2e/battle-playback.spec.ts`: markers render with labels; activating the first marker **seeks to its tick** (AS1–AS3). Green.
 
 ### Implementation for User Story 4
 
@@ -164,16 +164,16 @@ operable; axe → zero serious; reduced-motion suppresses VFX while play/seek st
 
 ### Tests for User Story 5 ⚠️ (write first)
 
-- [ ] T032 [P] [US5] `e2e/battle-playback.spec.ts`: **no horizontal page scroll** and all controls + the scrubber reachable/operable at **360×640 (portrait)**, **1440×900 (landscape)**, and **320px** (SC-004, AS1) — the P7 check at both orientations.
-- [ ] T033 [P] [US5] `e2e/battle-playback.spec.ts` (axe): scan the playback screen → **zero serious/critical** violations; the scrubber exposes `role="slider"` + `aria-valuenow/min/max` + `aria-valuetext`; every control keyboard-operable with visible focus (SC-008, AS2/AS3).
-- [ ] T034 [P] [US5] `e2e/battle-playback.spec.ts`: with `emulateMedia({ reducedMotion: 'reduce' })`, VFX/transition animations are suppressed while play/pause/seek and the readouts stay fully functional (SC-009, AS4); Bo3 game switch resets to that game's tick 0 (AS5).
+- [x] T032 [P] [US5] `e2e/battle-playback.spec.ts`: **no horizontal page scroll** + slider/controls operable at **all four viewports** (320 / 360×640 portrait / 1440×900 / 2560 ultra) (SC-004, AS1) — the P7 check. Green.
+- [x] T033 [P] [US5] `e2e/battle-playback.spec.ts` (axe): the playback screen scans to **zero serious/critical** violations; the scrubber exposes `role="slider"` + implicit `aria-valuenow/min/max` + `aria-valuetext` (SC-008, AS2/AS3). Green.
+- [x] T034 [P] [US5] `e2e/battle-playback.spec.ts`: with `emulateMedia({ reducedMotion: 'reduce' })`, seek/jump stay functional and the contact node has ~0 transition (VFX suppressed) (SC-009, AS4); Bo3 game switch resets to that game's tick 0 (AS5). Green.
 
 ### Implementation for User Story 5
 
-- [ ] T035 [US5] Implement `src/components/battle/game-selector.tsx` (GAME 1/2/3 tabs, only games present) and wire `selectGame`; ensure switching resets to tick 0 (FR-009, AS5).
-- [ ] T036 [US5] Finalize the **responsive layout** of `BattleStage`/`PlaybackControls`/`Scrubber` — portrait stacks the two sides + thumb-reachable controls, landscape uses the mockup's wide two-column battlefield; no horizontal overflow 320px→ultra-wide; safe-area aware inside the Feature 3 shell (FR-018, SC-004).
-- [ ] T037 [US5] Add **event-driven VFX** (fire/hit/death, optional move/planb) to `UnitSprite` as CSS keyframes gated by `motion-safe:`; snap bars/positions without transition under reduced motion; confirm state stays readable from the snapshot alone (FR-007/FR-020, SC-009).
-- [ ] T038 [US5] Resolve axe findings from T033 (slider labelling, focus, contrast, control names) to zero serious violations; confirm scrubber keyboard model (Arrow/Home/End/PageUp/PageDown) + Space/`K` play toggle (FR-019, SC-008).
+- [x] T035 [US5] `components/battle/game-selector.tsx` (GAME 1/2/3 tabs, only games present, `role="group"` + `aria-pressed`) wired to `selectGame`; switching resets to tick 0 (FR-009, AS5) — proven by the e2e game-switch test.
+- [x] T036 [US5] Finalized the **responsive layout**: `BattleStage` **stacks the two sides + horizontal contact strip in portrait**, a wide two-column grid + vertical contact line in landscape (one markup, `--p`-driven node); `PlaybackControls` wrap thumb-reachably; `minmax(0,1fr)` columns — **no horizontal overflow 320px→2560px** (FR-018, SC-004), verified at all four viewports.
+- [x] T037 [US5] **Event-driven VFX** on `UnitSprite` — a hit/death flash gated by `motion-safe:animate-ping` and `motion-reduce:hidden` (threaded the current tick's `events` through `BattleStage`→`ZoneColumn`); bars snap (no transition) and the DOWN state is readable from the snapshot alone (FR-007/FR-020, SC-009).
+- [x] T038 [US5] Resolved the one axe finding — a `color-contrast` fail on the game-label (`text-text-dim` #5a6472 → 3.28:1) bumped to `text-text-muted`; the decorative faint labels (CONTACT LINE, empty-zone em-dash) `aria-hidden`. **Zero serious violations**; scrubber keyboard model (Arrow/Home/End/PageUp/PageDown) + Space/`K` play toggle confirmed by e2e (FR-019, SC-008).
 
 **Checkpoint**: the player is co-equally first-class in both orientations and accessible — P7 + a11y verified.
 

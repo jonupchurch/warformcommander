@@ -8,6 +8,7 @@
  * `--zone-*` tokens (Air purple / Front cyan / Middle orange / Rear ink); no raw hex.
  */
 
+import type { WireEvent } from '@/sim/replay-reader';
 import type { UnitView } from '@/sim/replay-view';
 import { cn } from '@/lib/utils';
 import { UnitSprite } from './unit-sprite';
@@ -27,11 +28,19 @@ export interface ZoneColumnProps {
   units: UnitView[];
   side: 'friendly' | 'enemy';
   isEmpty: boolean;
+  /** the current tick's events → forwarded to each sprite for motion-safe VFX (T037). */
+  events?: WireEvent[];
   className?: string;
 }
 
 function EmptyDash() {
-  return <span className="type-readout self-center text-[0.625rem] text-text-faint">—</span>;
+  // Decorative empty-zone marker — the absence of sprites conveys "empty" to AT; kept out of the a11y
+  // tree so its intentionally-faint tint never trips the contrast audit (T038/SC-008).
+  return (
+    <span aria-hidden className="type-readout self-center text-[0.625rem] text-text-faint">
+      —
+    </span>
+  );
 }
 
 function ZoneLabel({ zone, className }: { zone: ZoneName; className?: string }) {
@@ -42,7 +51,7 @@ function ZoneLabel({ zone, className }: { zone: ZoneName; className?: string }) 
   );
 }
 
-export function ZoneColumn({ zone, units, side, isEmpty, className }: ZoneColumnProps) {
+export function ZoneColumn({ zone, units, side, isEmpty, events, className }: ZoneColumnProps) {
   if (zone === 'Air') {
     // Horizontal strip; the vertical AIR label sits outboard (left for the player, right for the enemy).
     const label = (
@@ -68,7 +77,11 @@ export function ZoneColumn({ zone, units, side, isEmpty, className }: ZoneColumn
             side === 'friendly' ? 'justify-end' : 'justify-start',
           )}
         >
-          {isEmpty ? <EmptyDash /> : units.map((u) => <UnitSprite key={u.instanceId} unit={u} />)}
+          {isEmpty ? (
+            <EmptyDash />
+          ) : (
+            units.map((u) => <UnitSprite key={u.instanceId} unit={u} events={events} />)
+          )}
         </div>
         {side === 'enemy' && label}
       </div>
@@ -85,7 +98,11 @@ export function ZoneColumn({ zone, units, side, isEmpty, className }: ZoneColumn
       )}
     >
       <div className="flex flex-1 flex-col items-center justify-end gap-2 p-2.5">
-        {isEmpty ? <EmptyDash /> : units.map((u) => <UnitSprite key={u.instanceId} unit={u} />)}
+        {isEmpty ? (
+          <EmptyDash />
+        ) : (
+          units.map((u) => <UnitSprite key={u.instanceId} unit={u} events={events} />)
+        )}
       </div>
       <div className={cn('border-t bg-surface-rail/60 px-1.5 py-1.5 text-center', ZONE_ACCENT[zone].split(' ')[1])}>
         <ZoneLabel zone={zone} />

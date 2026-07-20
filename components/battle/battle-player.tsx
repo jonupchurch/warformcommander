@@ -19,6 +19,7 @@ import type { Side, WireReplay } from '@/sim/replay-reader';
 import { createReplayView, type ReplayView } from '@/sim/replay-view';
 
 import { BattleStage } from './battle-stage';
+import { GameSelector } from './game-selector';
 import { OverallStats } from './overall-stats';
 import { PlaybackControls } from './playback-controls';
 import { Scrubber } from './scrubber';
@@ -78,6 +79,7 @@ function BattlePlayerInner({
   const tickRate = view.tickRate || 10;
   // Markers are derived once per game (memoized in the view) — never per frame/seek (US4-AS4).
   const markers = useMemo(() => view.deriveMarkers(player.gameIndex), [view, player.gameIndex]);
+  const events = view.eventsAt(player.gameIndex, player.currentTick); // O(1) — current tick's VFX
 
   const tickStr = `${player.currentTick} / ${player.lastTick}`;
   const timeStr = `${(player.currentTick / tickRate).toFixed(1)}s`;
@@ -99,6 +101,12 @@ function BattlePlayerInner({
 
   return (
     <section className="flex flex-col gap-3" onKeyDown={onKeyDown}>
+      {view.gamesCount > 1 && (
+        <div className="flex justify-center">
+          <GameSelector count={view.gamesCount} active={player.gameIndex} onSelect={player.selectGame} />
+        </div>
+      )}
+
       <OverallStats
         player={vm.stats.player}
         enemy={vm.stats.enemy}
@@ -107,7 +115,7 @@ function BattlePlayerInner({
         gameLabel={gameLabel}
       />
 
-      <BattleStage view={vm} progress={vm.progress} />
+      <BattleStage view={vm} progress={vm.progress} events={events} />
 
       {/* Transport panel: the full control cluster over the O(1) media-seek scrubber (US4 overlays
           event markers on the track). */}

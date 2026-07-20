@@ -53,7 +53,7 @@ export function OverallStats({ player, enemy, tickStr, timeStr, gameLabel, class
       </div>
 
       <div className="flex flex-col items-center gap-0.5 px-2 text-center">
-        <span className="type-readout text-[0.625rem] text-text-dim">{gameLabel}</span>
+        <span className="type-readout text-[0.625rem] text-text-muted">{gameLabel}</span>
         <span className="type-label text-sm text-text-strong">TICK {tickStr}</span>
         <span className="type-readout text-[0.625rem] text-text-muted">{timeStr}</span>
       </div>
