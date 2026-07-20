@@ -22,7 +22,9 @@ export interface ValidationError {
   instanceId: number | null;
 }
 
-export type ValidateResult = { ok: true } | { ok: false; errors: ValidationError[] };
+export type ValidateResult =
+  | { ok: true; powerRating: number }
+  | { ok: false; errors: ValidationError[] };
 
 /** Thrown when a squad fails validation and the caller wants an exception (e.g. a write path). */
 export class SquadValidationError extends Error {
@@ -59,16 +61,20 @@ export function validateSquad(
   const { validate } = loadEngine();
   const out = validate(encoder.encode(JSON.stringify({ army: config, ruleset })));
   const res = JSON.parse(decoder.decode(out)) as
-    | { status: 'ok' }
+    | { status: 'ok'; powerRating: number }
     | { status: 'invalid'; errors: ValidationError[] }
     | { status: 'parseError'; message?: string };
-  if (res.status === 'ok') return { ok: true };
+  if (res.status === 'ok') return { ok: true, powerRating: res.powerRating };
   if (res.status === 'invalid') return { ok: false, errors: res.errors };
   throw new Error(`validateSquad: malformed input — ${res.message ?? 'parseError'}`);
 }
 
-/** Like {@link validateSquad} but throws {@link SquadValidationError} on any violation. */
-export function assertValidSquad(config: SquadConfig, ruleset?: Ruleset): void {
+/**
+ * Like {@link validateSquad} but throws {@link SquadValidationError} on any violation and returns the
+ * derived matchmaking **power rating** on success — the one call a write path needs (validate + derive).
+ */
+export function assertValidSquad(config: SquadConfig, ruleset?: Ruleset): number {
   const result = ruleset ? validateSquad(config, ruleset) : validateSquad(config);
   if (!result.ok) throw new SquadValidationError(result.errors);
+  return result.powerRating;
 }

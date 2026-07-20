@@ -268,13 +268,33 @@ pub struct ValidateInput {
 }
 
 /// The response of the [`validate_bytes`] boundary — a self-describing tagged union (`status`
-/// = `ok` | `invalid` | `parseError`). Mirrors [`ResolveResponse`]'s shape for a consistent host.
+/// = `ok` | `invalid` | `parseError`). On `ok` it also carries the army's derived matchmaking
+/// **power rating** (whole units), so the persistence layer validates and derives in one call.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(tag = "status", rename_all = "camelCase")]
 enum ValidateResponse {
-    Ok,
-    Invalid { errors: Vec<ValidationError> },
-    ParseError { message: String },
+    Ok {
+        // enum-level `rename_all` renames variants, not struct-variant fields — rename explicitly.
+        #[serde(rename = "powerRating")]
+        power_rating: i64,
+    },
+    Invalid {
+        errors: Vec<ValidationError>,
+    },
+    ParseError {
+        message: String,
+    },
+}
+
+/// Sum the per-machine matchmaking power rating across an army (whole units). `None` if a machine
+/// fails derivation (won't happen once `validate` passes). Matchmaking-only — never combat (FR-006).
+fn army_power_rating(army: &Army, ruleset: &Ruleset) -> Option<i64> {
+    let mut total = crate::fixed::Fixed::ZERO;
+    for m in &army.machines {
+        let stats = crate::model::army::derive_effective_stats(m, ruleset).ok()?;
+        total = total.saturating_add(crate::model::army::power_rating(&stats));
+    }
+    Some(total.to_int())
 }
 
 /// Byte boundary for the standalone army-legality check (JSON [`ValidateInput`] in, JSON
@@ -282,7 +302,9 @@ enum ValidateResponse {
 pub fn validate_bytes(input: &[u8]) -> Vec<u8> {
     let response = match serde_json::from_slice::<ValidateInput>(input) {
         Ok(inp) => match validate::validate(&inp.army, &inp.ruleset) {
-            Ok(()) => ValidateResponse::Ok,
+            Ok(()) => ValidateResponse::Ok {
+                power_rating: army_power_rating(&inp.army, &inp.ruleset).unwrap_or(0),
+            },
             Err(errors) => ValidateResponse::Invalid { errors },
         },
         Err(e) => ValidateResponse::ParseError {
