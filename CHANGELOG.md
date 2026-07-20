@@ -149,6 +149,34 @@ once it reaches a released version. Until then, everything lives under
     guard; browsable at `/gallery`. New `web-ci` GitHub workflow gates it. The repo keeps
     root-level `components/`/`lib/` (matching `sim/`/`db/`) rather than `src/`; the user's custom
     `app/favicon.ico` was left untouched. Removed the unused create-next-app scaffold SVGs.
+- **Feature 5 — battle playback: tick stream → pixel-art replay + working scrubber
+  (2026-07-20).** The watchable battlefield that fixes the previous game's broken viewer, on branch
+  `005-battle-playback`. A **pure, engine-free player** (constitution P6): every frame is an O(1)
+  index into the emitted snapshot stream — **no component or helper imports `@wfc/engine-wasm`, and
+  seek is an array index, never a re-simulation** (the load-bearing anti-regression).
+  - **Reader extension** (`sim/replay-view.ts`) over Feature 1's `replay-reader` — `snapshotAt`/
+    `eventsAt`/`lastTick` O(1), the `buildViewModel(gameIndex, tick)` projection (bucket by zone,
+    hull/shield vs the tick-0 baseline, per-side alive/hull/damage), and a memoized-per-game
+    `deriveMarkers`. Holds no UI type; the `typeId → UnitIcon` map lives in the render leaf.
+  - **State machine + rAF loop** (`components/battle/use-playback.ts`) — a pure exported reducer
+    (play/pause/tick-halt, O(1) seek clamp, frame-step, speed, game-select) + a `requestAnimationFrame`
+    accumulator advancing integer ticks at `10 × speed` t/s, torn down on pause/unmount.
+  - **US1** watch a stored replay play through the two-side / 4-zone battlefield (UnitSprite +
+    ZoneColumn + ContactLine + BattleStage + OverallStats); **US2** the headline **O(1) media-seek
+    scrubber** (WAI-ARIA slider, `aria-valuetext`, Arrow/Home/End native + PageUp/PageDown ±10);
+    **US3** the control cluster (jump / frame-step / 0.5×–1×–2× speed / Skip-to-Outcome, Space/`K`
+    toggle); **US4** Plan-B/death **timeline markers** that seek and are screen-reader labelled;
+    **US5** first-class in **both orientations** (portrait stacks the sides, landscape is the wide
+    two-column grid — no overflow 320px→2560px), accessible (axe zero serious), and motion-safe
+    (hit/death VFX gated by `motion-safe:`, reduced motion snaps; state readable from the snapshot
+    alone). Bo3 game selector resets to that game's tick 0.
+  - **Verification** — 33 pure Vitest tests (frame-accuracy SC-001, **O(1)-seek SC-003**,
+    **engine-never-imported SC-005** across every playback module, reducer/pacing, markers, scale
+    robustness) + **14 Playwright/axe e2e** (play-through halt, keyboard seek, jump-and-continue,
+    speed/step/jump, marker-seek, four-viewport no-overflow, zero-serious a11y, reduced-motion),
+    all green with `next build` + `tsc` + ESLint + the token guard. `web-ci` now also gates the
+    DB-free anti-regression suites. The route renders the committed native battery replay via a
+    documented demo seam until Feature 7's `getReplay` lands.
 - **Feature 7 — accounts & persistence (backend/DB, 2026-07-20).** The stateful account +
   persistence layer the async-PvP product stands on, on branch `007-accounts-persistence`.
   Feature 1's engine is stateless; **this is where all state lives** (design §16/§16.1/§16.2).

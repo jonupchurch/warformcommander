@@ -10,19 +10,14 @@
  * F7 fetch (and derive `playerSide` from the match) when it lands — a single call site.
  */
 
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { BattlePlayer } from '@/components/battle/battle-player';
 import type { Side, WireReplay } from '@/sim/replay-reader';
-
-// Request-time only: the demo source reads a committed file, so never pre-render this route.
-export const dynamic = 'force-dynamic';
+// Imported (not fs-read) so Next traces it into the function bundle — prod-safe until F7's getReplay
+// lands. The reader validates the shape at runtime, so the JSON's inferred type is cast opaquely.
+import battery from '@/tests/fixtures/replay-battery.json';
 
 function loadReplay(): { replay: WireReplay; playerSide: Side } {
-  const path = join(process.cwd(), 'tests', 'fixtures', 'replay-battery.json');
-  const replay = JSON.parse(readFileSync(path, 'utf8')) as WireReplay;
-  return { replay, playerSide: 'A' };
+  return { replay: battery as unknown as WireReplay, playerSide: 'A' };
 }
 
 export default async function BattlePage({ params }: { params: Promise<{ matchId: string }> }) {

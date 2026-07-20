@@ -181,10 +181,10 @@ operable; axe → zero serious; reduced-motion suppresses VFX while play/seek st
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
-- [ ] T039 [P] Implement the **graceful reject** path: `BattlePlayer` renders the unsupported-`formatVersion` state (via the reader's gate) with **zero battle frames**, and `error.tsx` covers missing/failed replays (FR-003, SC-007) — verify with the out-of-range fixture.
-- [ ] T040 [P] **Scale robustness** pass: confirm the ≤15-tick fixture (no divide-by-zero on the tiny track/markers) and the 1000-tick fixture (smooth play/scrub, O(1) seek, no per-tick jank) both pass end to end (SC-010).
-- [ ] T041 [P] Run the full SC-001…SC-010 suite green (Playwright viewport matrix + axe + unit/anti-regression); confirm `next build`, `tsc --noEmit`, and lint (incl. Feature 3's no-raw-hex guard) pass; wire the suite as a CI gate.
-- [ ] T042 Update `STATUS.md` (Feature 5 → built; battle playback + working scrubber live) and `CHANGELOG.md` (playback screen, O(1) scrubber, event markers, both-orientation); queue a devlog news note per the repo's "code push → news" convention (once the News system ships).
+- [x] T039 [P] **Graceful reject** path: `BattlePlayer` constructs the view in a `try/catch` and renders `BattleReject` (zero battle frames) on an unsupported `formatVersion`; `error.tsx` covers missing/failed replays (FR-003, SC-007). The reader-gate is unit-tested (`createReplayView` throws `UnsupportedFormatError`).
+- [x] T040 [P] **Scale robustness** (SC-010): added a test asserting a **1-tick** battle has `lastTick 0` / `progress 0` / empty markers (no divide-by-zero) and a **1000-tick** battle projects finite, in-range frames at first/mid/last (`progress===1` exact at the end); the O(1)-seek test already proves constant-cost seek at tick 999.
+- [x] T041 [P] Full SC-001…SC-010 green — **33 Vitest + 14 Playwright/axe** — with `next build` + `tsc --noEmit` + `eslint .` + the no-raw-hex guard clean. **CI gate wired**: `web-ci.yml` runs the DB-free anti-regression suites (`vitest run tests/replay-view.test.ts tests/use-playback.test.ts`) alongside the existing Playwright job.
+- [x] T042 Updated `STATUS.md` (Feature 5 → built) and `CHANGELOG.md` (playback screen, O(1) scrubber, markers, both-orientation). Devlog news note **queued** — the News system (Feature 11) hasn't shipped, so it can't be posted yet (per the repo's "code push → news" convention).
 
 ---
 

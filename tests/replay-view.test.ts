@@ -142,6 +142,31 @@ describe('the playback surface never imports the engine (SC-005, anti-regression
   });
 });
 
+describe('scale robustness — tiny and large tracks (SC-010)', () => {
+  it('a 1-tick battle has lastTick 0, progress 0, and empty markers (no divide-by-zero)', () => {
+    const view = createReplayView(makeSyntheticReplay({ ticks: 1 }), 'A');
+    expect(view.lastTick(0)).toBe(0);
+    const vm = view.buildViewModel(0, 0);
+    expect(vm.progress).toBe(0);
+    expect(vm.tick).toBe(0);
+    expect(view.deriveMarkers(0)).toEqual([]); // no events → no markers, no NaN position
+  });
+
+  it('a 1000-tick battle projects a valid frame at first / mid / last with finite progress', () => {
+    const view = createReplayView(makeSyntheticReplay({ ticks: 1000 }), 'A');
+    expect(view.lastTick(0)).toBe(999);
+    for (const tick of [0, 500, 999]) {
+      const vm = view.buildViewModel(0, tick);
+      expect(Number.isFinite(vm.progress)).toBe(true);
+      expect(vm.progress).toBeGreaterThanOrEqual(0);
+      expect(vm.progress).toBeLessThanOrEqual(1);
+      const units = [...vm.player.ground.flatMap((z) => z.units), ...vm.player.air];
+      for (const u of units) expect(u.hullPct).toBeGreaterThanOrEqual(0);
+    }
+    expect(view.buildViewModel(0, 999).progress).toBe(1); // exact at the last tick
+  });
+});
+
 describe('deriveMarkers — one memoized pass (FR-015)', () => {
   it('collects death markers from the real battery with correct tick/side', () => {
     const view = createReplayView(loadBatteryReplay(), 'A');
