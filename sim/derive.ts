@@ -11,6 +11,13 @@
  */
 
 import type { Army, Loadout, MachineInstance } from './model';
+
+/**
+ * The fields the derivation actually reads — `type + variant + equipment`. A `MachineInstance`
+ * satisfies it, and so does the Garage's `DraftMachine` (no `instanceId`/`zone`/`dials` needed), so
+ * the live preview can derive an in-progress machine directly.
+ */
+export type DerivableMachine = Pick<MachineInstance, 'typeId' | 'variantId' | 'loadout'>;
 import {
   CAPABILITY_ORDER,
   type CadenceTier,
@@ -154,7 +161,7 @@ function sortCapabilities(caps: Set<Capability>): Capability[] {
  * the {@link Ruleset} — the shared, pure derivation (FR-007). Returns a structural
  * {@link DerivationError} (rather than throwing) on a broken build, matching the engine.
  */
-export function deriveEffectiveStats(machine: MachineInstance, ruleset: Ruleset): DeriveResult {
+export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset): DeriveResult {
   const base = ruleset.variants[machine.variantId];
   if (!base) return { ok: false, error: { UnknownVariant: machine.variantId } };
   const mtype = ruleset.machineTypes[machine.typeId];

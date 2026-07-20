@@ -45,11 +45,7 @@ describe('defaultFor is legal-shaped for every variant (T010)', () => {
     expect(seed.planB).toEqual([]);
 
     // Derives to effective stats without a structural fault.
-    const zone = defaultZoneFor(typeId, rs);
-    const derived = deriveEffectiveStats(
-      { instanceId: 0, typeId, variantId, loadout: seed.loadout, dials: seed.dials, planB: seed.planB, zone },
-      rs,
-    );
+    const derived = deriveEffectiveStats({ typeId, variantId, loadout: seed.loadout }, rs);
     expect(derived.ok).toBe(true);
   });
 });
