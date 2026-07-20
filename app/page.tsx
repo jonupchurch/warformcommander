@@ -1,13 +1,23 @@
+import Link from "next/link";
+
 /**
- * Placeholder home. The real marketing Home is Feature 11; the authenticated app-shell demo
- * lands in this feature (US2, T027). This minimal stub replaces the Next.js scaffold page so the
- * token guard (SC-002) stays green from Phase 1 on.
+ * Placeholder home. The real marketing Home (with its own marketing shell) is Feature 11; here it's
+ * a minimal landing that links into the authenticated app shell built in this feature (US2, T027).
  */
 export default function Home() {
   return (
-    <main className="mx-auto flex min-h-dvh max-w-(--container-shell) flex-col items-center justify-center gap-3 px-6 text-center">
-      <h1 className="font-display text-h1 text-text-strong">WARFORM COMMANDER</h1>
-      <p className="text-text-muted">Non-pay-to-win configurable auto-battler.</p>
+    <main className="mx-auto flex min-h-dvh max-w-(--container-shell) flex-col items-center justify-center gap-6 px-6 text-center">
+      <h1 className="type-display text-text-strong">WARFORM</h1>
+      <p className="type-body-lg max-w-prose text-text-muted">
+        Non-pay-to-win configurable auto-battler. Build your squads, set their doctrine, let
+        deterministic battles decide the ladder.
+      </p>
+      <Link
+        href="/garage"
+        className="type-label rounded-md bg-faction-friendly px-6 py-3 text-void shadow-glow-cyan transition-colors motion-safe:duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+      >
+        Enter the Garage
+      </Link>
     </main>
   );
 }

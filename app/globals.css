@@ -334,3 +334,9 @@ body {
   letter-spacing: var(--tracking-eyebrow);
   text-transform: uppercase;
 }
+
+/* Safe-area-aware inline padding for the shell chrome (FR-010) — clears the notch in landscape. */
+@utility px-safe {
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
