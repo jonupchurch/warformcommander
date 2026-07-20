@@ -6,13 +6,19 @@
 
 ## Current phase
 
-**Feature 1 (sim core) — COMPLETE end-to-end on branch `001-battle-sim-core`; ready to
-merge.** All 12 v1 features are specced, planned, and tasked (Spec-Kit `spec` + `plan` +
-`tasks` under `specs/00X-*/`, each with a passing Constitution Check), and **Feature 1 is
-fully implemented**: the Rust engine (all five user stories) resolves best-of-three
-battles deterministically — **82 native tests green** (unit + integration + committed
-golden battery) plus clippy/rustfmt clean — and now runs **server-side as WASM**, with
-`native == wasm` proven **byte-for-byte** across the golden battery (P6/SC-001, T017).
+**Feature 1 (sim core) — COMPLETE, MERGED to `main`, and LIVE in production
+(prod-verified).** All 12 v1 features are specced, planned, and tasked (Spec-Kit `spec` +
+`plan` + `tasks` under `specs/00X-*/`, each with a passing Constitution Check), and
+**Feature 1 is fully implemented and deployed**: the Rust engine (all five user stories)
+resolves best-of-three battles deterministically — **82 native tests green** (unit +
+integration + committed golden battery) plus clippy/rustfmt clean — and now runs
+**server-side as WASM**, with `native == wasm` proven **byte-for-byte** across the golden
+battery (P6/SC-001, T017). **`POST /api/resolve` is live at `warformcommander.vercel.app`
+and prod-verified**: all four golden inputs return HTTP 200 with responses byte-for-byte
+identical to the native Rust output — cross-platform determinism holds all the way to
+production. (The first prod deploy 500'd on wasm module resolution; fixed in `25965b1` —
+trace the whole real `packages/engine-wasm/` dir into the function and load it by real
+path, not the workspace-symlink package name. See the engine README / build-state notes.)
 What's built: fixed-point + pinned-PRNG determinism, the typed 3-tier data model, the
 V1–V8 validation trust boundary, the tick loop → row-based targeting → damage pipeline →
 behavior/Plan-B → Conquest/Time/Bo3 outcomes, the compact random-access **wire replay** +
@@ -58,10 +64,8 @@ feature's `specs/00X-*/` directory is its detailed blueprint.
 - [x] **News page mockup** committed to `reference/` (10 screen mockups now).
 - [x] **Full v1 feature set planned (2026-07-19)** — all **12 features** carried through Spec-Kit `spec → plan → tasks` under `specs/00X-*/` (Feature 1 in the foreground with dedicated Rust/WASM + determinism + replay research; Features 2–12 via parallel briefed subagents), each with a passing Constitution Check. **~536 tasks** across the set. Root `PLAN.md` is the one-page overview.
 
-## Next up
-
-1. **Merge `001-battle-sim-core`** — Feature 1 is complete and verified (native + WASM + host route). Before merging, note: pushing to `main` **auto-deploys to production**, and the merge carries the prebuilt `packages/engine-wasm/` + the `/api/resolve` route. (Regenerate the wasm with `wasm-pack build crates/engine --target nodejs --out-dir ../../packages/engine-wasm --release` whenever the engine changes.)
-2. **Then build in dependency order:** Feature 3 (app shell) + Feature 7 (accounts/persistence) as the next foundations → Features 4/5/6 (garage/playback/summary — Feature 4 owns the **V1–V8 TS validation mirror**) → 8/9/10 (arena/ladder/profile; Feature 8 wraps `/api/resolve` with auth + a server-loaded ruleset) → 2 (balancer, fleshed from the Feature 1 stub) → 11 (marketing/news) → 12 (admin). Each `/speckit-implement` from its `specs/00X-*/tasks.md`, on its own feature branch.
+1. ~~**Merge `001-battle-sim-core`**~~ ✅ **DONE (2026-07-20)** — merged to `main` (`--no-ff`, `2686b64`), deployed, and prod-verified (`POST /api/resolve` returns byte-for-byte-native replays live). Regenerate the wasm with `wasm-pack build crates/engine --target nodejs --out-dir ../../packages/engine-wasm --release` whenever the engine changes — and re-verify the prod route (see the wasm-on-Vercel notes below), since a wasm/host change can break module resolution in the function bundle without breaking local dev.
+2. **Build in dependency order:** Feature 3 (app shell) + Feature 7 (accounts/persistence) as the next foundations → Features 4/5/6 (garage/playback/summary — Feature 4 owns the **V1–V8 TS validation mirror**) → 8/9/10 (arena/ladder/profile; Feature 8 wraps `/api/resolve` with auth + a server-loaded ruleset) → 2 (balancer, fleshed from the Feature 1 stub) → 11 (marketing/news) → 12 (admin). Each `/speckit-implement` from its `specs/00X-*/tasks.md`, on its own feature branch.
 3. **Before creating DB tables** (Feature 7): set up a Neon **dev branch** and extend the Neon env vars to Preview.
 4. Reconcile the three cross-feature items listed under **Current phase** as their features are built.
 5. **Balance rough edge for Feature 2** (surfaced by the counter-web tests): on placeholder numbers, air alpha beats every non-AA archetype (only AA counters it) — the counter-web *shape* is right; the *spread* wants tuning (affordable AA for more archetypes, or trim air's alpha).
@@ -77,7 +81,7 @@ implementation sequence, not the spec numbering.
 
 | # | Feature | Spec | Plan | Tasks | Build order |
 |---|---|---|---|---|---|
-| 1 | Sim core + game data model | ✅ | ✅ | ✅ 54 | **✅ COMPLETE — native engine (82 tests) + WASM + /api/resolve; native==wasm proven** |
+| 1 | Sim core + game data model | ✅ | ✅ | ✅ 54 | **✅ MERGED + LIVE — native engine (82 tests) + WASM + /api/resolve prod-verified; native==wasm proven byte-for-byte in production** |
 | 2 | Auto-balancer (Monte-Carlo, reuses sim core) | ✅ | ✅ | ✅ 32 | after #1 |
 | 3 | App shell + design system (nav, brand tokens) | ✅ | ✅ | ✅ 55 | 2nd |
 | 4 | Garage (squad builder + loadout/dial editor) | ✅ | ✅ | ✅ 40 | after #3/#7 |

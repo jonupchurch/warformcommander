@@ -115,5 +115,14 @@ once it reaches a released version. Until then, everything lives under
     the wasm-parity check, fmt/clippy, and the TS typecheck. **Feature 1 is complete;**
     the only carried-forward item is the V1–V8 TypeScript validation mirror (Garage /
     Feature 4).
+  - **Merged to `main` and verified live in production (2026-07-20).** `POST /api/resolve`
+    on `warformcommander.vercel.app` resolves all four golden-battery inputs to HTTP 200
+    replays that are **byte-for-byte identical to the native Rust output** — cross-platform
+    determinism (P6) confirmed end-to-end on Vercel's runtime, not just locally. The first
+    production deploy surfaced a wasm-loading bug (the function 500'd with
+    `MODULE_NOT_FOUND '@wfc/engine-wasm'`) that local dev couldn't catch; fixed by tracing
+    the whole real `packages/engine-wasm/` directory into the function bundle (not just the
+    `.wasm`) and loading the engine from that real path rather than the npm-workspace
+    symlink, which resolves to an absolute local path that doesn't exist on Vercel.
 
 [Unreleased]: https://github.com/jonupchurch/warformcommander/commits/main
