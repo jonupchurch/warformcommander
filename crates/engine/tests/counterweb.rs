@@ -1,0 +1,282 @@
+//! US3 (T036–T038): the counter-web at the *battle* level, via the public `resolve`. Curated
+//! matchups over the seed ruleset assert the designed rock-paper-scissors emerges — AA hard-counters
+//! air, indirect artillery can never touch air (but its splash punishes a stacked row), and no
+//! single squad sweeps every matchup (SC-003). These check **correctness of shape**, not tuned
+//! balance — the numbers are the balancer's job (Feature 2, P4).
+
+use engine::content::{seed_ruleset, stock_instance};
+use engine::model::army::Army;
+use engine::model::ruleset::Ruleset;
+use engine::model::types::{EquipmentId, MachineTypeId, ZoneId};
+use engine::replay::{Adaptation, Fate, MatchConfig, Replay, Side, TickEvent, UnitRef};
+use engine::{resolve, BattleInput, BattleOutput};
+
+fn config() -> MatchConfig {
+    MatchConfig {
+        adaptation: Adaptation::Locked,
+        defender_side: Side::B,
+        best_of: 3,
+    }
+}
+
+fn run(rs: &Ruleset, a: Army, b: Army, seed: u64) -> BattleOutput {
+    resolve(&BattleInput {
+        armies: [a, b],
+        ruleset: rs.clone(),
+        seed,
+        match_config: config(),
+    })
+    .expect("curated squads are legal")
+}
+
+/// The fate of a specific machine in the result.
+fn fate_of(out: &BattleOutput, side: Side, instance_id: u8) -> Fate {
+    out.result
+        .machine_fates
+        .iter()
+        .find(|f| f.unit == UnitRef { side, instance_id })
+        .expect("machine present")
+        .fate
+}
+
+fn destroyed(fate: Fate) -> bool {
+    matches!(fate, Fate::DestroyedAtTick(_))
+}
+
+/// Does any Hit event in the replay carry `splash = true`?
+fn has_splash_hit(replay: &Replay) -> bool {
+    replay.games.iter().flat_map(|g| &g.ticks).any(|t| {
+        t.events
+            .iter()
+            .any(|e| matches!(e, TickEvent::Hit { splash: true, .. }))
+    })
+}
+
+/// A squad of two air helicopters (i0, i1) + three ground fillers (i2–i4) in Front.
+fn air_squad(rs: &Ruleset) -> Army {
+    Army {
+        machines: vec![
+            stock_instance(rs, MachineTypeId::AttackHeli, "Gunship", ZoneId::Air, 0),
+            stock_instance(rs, MachineTypeId::AttackHeli, "Gunship", ZoneId::Air, 1),
+            stock_instance(rs, MachineTypeId::LightTank, "Scout", ZoneId::Front, 2),
+            stock_instance(rs, MachineTypeId::LightTank, "Scout", ZoneId::Front, 3),
+            stock_instance(rs, MachineTypeId::LightTank, "Scout", ZoneId::Front, 4),
+        ],
+    }
+}
+
+/// T036 (AS2, stat block E): AA hard-counters air. A squad with SAM rocket-artillery destroys the
+/// enemy's helicopters; a squad with no air-capable weapon leaves them untouched.
+#[test]
+fn aa_hard_counters_air_and_no_aa_cannot_touch_it() {
+    let rs = seed_ruleset();
+
+    // Attacker WITH AA: two SAM Sentries (reach Air) + three heavy tanks.
+    let aa = Army {
+        machines: vec![
+            stock_instance(
+                &rs,
+                MachineTypeId::RocketArtillery,
+                "Sentry",
+                ZoneId::Middle,
+                0,
+            ),
+            stock_instance(
+                &rs,
+                MachineTypeId::RocketArtillery,
+                "Sentry",
+                ZoneId::Middle,
+                1,
+            ),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 2),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 3),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 4),
+        ],
+    };
+    let out = run(&rs, aa, air_squad(&rs), 0x5A11);
+    assert!(
+        destroyed(fate_of(&out, Side::B, 0)) && destroyed(fate_of(&out, Side::B, 1)),
+        "AA must destroy both enemy helicopters"
+    );
+
+    // Attacker WITHOUT AA: five heavy tanks — none can target the air.
+    let no_aa = Army {
+        machines: vec![
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 0),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 1),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 2),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Cavalier", ZoneId::Middle, 3),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Bulwark", ZoneId::Middle, 4),
+        ],
+    };
+    let out2 = run(&rs, no_aa, air_squad(&rs), 0x5A11);
+    assert!(
+        !destroyed(fate_of(&out2, Side::B, 0)) && !destroyed(fate_of(&out2, Side::B, 1)),
+        "without AA the helicopters must survive (nothing can hit them)"
+    );
+}
+
+/// T037 (AS3/AS4): indirect artillery can *never* damage air, and its splash punishes a stacked row.
+#[test]
+fn artillery_never_hits_air_but_splashes_a_stacked_row() {
+    let rs = seed_ruleset();
+
+    // Attacker: five Longbow artillery (indirect, no air capability).
+    let arty = Army {
+        machines: vec![
+            stock_instance(&rs, MachineTypeId::Artillery, "Longbow", ZoneId::Front, 0),
+            stock_instance(&rs, MachineTypeId::Artillery, "Longbow", ZoneId::Front, 1),
+            stock_instance(&rs, MachineTypeId::Artillery, "Longbow", ZoneId::Front, 2),
+            stock_instance(&rs, MachineTypeId::Artillery, "Longbow", ZoneId::Middle, 3),
+            stock_instance(&rs, MachineTypeId::Artillery, "Longbow", ZoneId::Middle, 4),
+        ],
+    };
+    // Defender: two helis (air) + three scouts STACKED in Front (splash bait).
+    let defender = Army {
+        machines: vec![
+            stock_instance(&rs, MachineTypeId::AttackHeli, "Gunship", ZoneId::Air, 0),
+            stock_instance(&rs, MachineTypeId::AttackHeli, "Gunship", ZoneId::Air, 1),
+            stock_instance(&rs, MachineTypeId::LightTank, "Scout", ZoneId::Front, 2),
+            stock_instance(&rs, MachineTypeId::LightTank, "Scout", ZoneId::Front, 3),
+            stock_instance(&rs, MachineTypeId::LightTank, "Scout", ZoneId::Front, 4),
+        ],
+    };
+
+    let out = run(&rs, arty, defender, 0xA27);
+
+    // The helicopters are never scratched — indirect artillery cannot target air (AS3).
+    assert_eq!(
+        fate_of(&out, Side::B, 0),
+        Fate::SurvivedWithHullPct(10_000),
+        "heli 0 untouched by artillery"
+    );
+    assert_eq!(
+        fate_of(&out, Side::B, 1),
+        Fate::SurvivedWithHullPct(10_000),
+        "heli 1 untouched by artillery"
+    );
+    // No Hit event ever targets an air unit.
+    let air_units = [
+        UnitRef {
+            side: Side::B,
+            instance_id: 0,
+        },
+        UnitRef {
+            side: Side::B,
+            instance_id: 1,
+        },
+    ];
+    let hit_air = out.replay.games.iter().flat_map(|g| &g.ticks).any(|t| {
+        t.events.iter().any(|e| match e {
+            TickEvent::Hit { target, .. } => air_units.contains(target),
+            _ => false,
+        })
+    });
+    assert!(!hit_air, "no Hit event may ever land on an air unit");
+
+    // Splash landed on the stacked front row (AS4).
+    assert!(
+        has_splash_hit(&out.replay),
+        "artillery splash should hit the stacked row"
+    );
+}
+
+/// T038 (SC-003): across a round-robin of diverse archetypes, no single squad sweeps every matchup.
+#[test]
+fn no_single_archetype_wins_every_matchup() {
+    let rs = seed_ruleset();
+
+    let energy_mechs = |rs: &Ruleset| {
+        let mut a = Army {
+            machines: vec![
+                stock_instance(rs, MachineTypeId::Mech, "Vanguard", ZoneId::Front, 0),
+                stock_instance(rs, MachineTypeId::Mech, "Vanguard", ZoneId::Front, 1),
+                stock_instance(rs, MachineTypeId::Mech, "Striker", ZoneId::Front, 2),
+                stock_instance(rs, MachineTypeId::Mech, "Sentinel", ZoneId::Middle, 3),
+                stock_instance(rs, MachineTypeId::Mech, "Vanguard", ZoneId::Middle, 4),
+            ],
+        };
+        for m in &mut a.machines {
+            m.loadout.weapon = EquipmentId::new("PulseLaser"); // energy crossover
+        }
+        a
+    };
+    let kinetic_tanks = |rs: &Ruleset| Army {
+        machines: vec![
+            stock_instance(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 0),
+            stock_instance(rs, MachineTypeId::HeavyTank, "Cavalier", ZoneId::Front, 1),
+            stock_instance(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 2),
+            stock_instance(rs, MachineTypeId::LightTank, "Scout", ZoneId::Middle, 3),
+            stock_instance(rs, MachineTypeId::LightTank, "Hunter", ZoneId::Middle, 4),
+        ],
+    };
+    let aa_rocket = |rs: &Ruleset| Army {
+        machines: vec![
+            stock_instance(
+                rs,
+                MachineTypeId::RocketArtillery,
+                "Sentry",
+                ZoneId::Middle,
+                0,
+            ),
+            stock_instance(
+                rs,
+                MachineTypeId::RocketArtillery,
+                "Aegis",
+                ZoneId::Middle,
+                1,
+            ),
+            stock_instance(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 2),
+            stock_instance(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 3),
+            stock_instance(rs, MachineTypeId::Mech, "Vanguard", ZoneId::Front, 4),
+        ],
+    };
+    let air_alpha = air_squad;
+
+    type Archetype = (&'static str, fn(&Ruleset) -> Army);
+    let archetypes: Vec<Archetype> = vec![
+        ("energy_mechs", energy_mechs),
+        ("kinetic_tanks", kinetic_tanks),
+        ("aa_rocket", aa_rocket),
+        ("air_alpha", air_alpha),
+    ];
+
+    // Round-robin over both attacker/defender roles; tally wins and total games per archetype.
+    let mut wins = std::collections::BTreeMap::new();
+    let mut games = std::collections::BTreeMap::new();
+    for i in 0..archetypes.len() {
+        for j in 0..archetypes.len() {
+            if i == j {
+                continue;
+            }
+            let (na, fa) = archetypes[i];
+            let (nb, fb) = archetypes[j];
+            let out = run(&rs, fa(&rs), fb(&rs), 0xC0DE + (i * 10 + j) as u64);
+            *games.entry(na).or_insert(0) += 1;
+            *games.entry(nb).or_insert(0) += 1;
+            match out.result.winner {
+                Side::A => *wins.entry(na).or_insert(0) += 1,
+                Side::B => *wins.entry(nb).or_insert(0) += 1,
+            }
+        }
+    }
+
+    // SC-003 (correctness of shape): more than one archetype wins somewhere (no single dominant
+    // strategy), and every archetype loses at least one game (nothing beats everything).
+    let distinct_winners = wins.iter().filter(|(_, &w)| w > 0).count();
+    assert!(
+        distinct_winners >= 2,
+        "expected ≥2 distinct winning archetypes (got {distinct_winners}); wins = {wins:?}"
+    );
+    for (name, total) in &games {
+        let w = wins.get(name).copied().unwrap_or(0);
+        assert!(
+            w < *total,
+            "archetype {name} won all {total} of its games (no counter exists) — wins={w}; balance regressed"
+        );
+    }
+    // FIRST-PASS ROUGH EDGE (for the balancer, T039/Feature 2): on the placeholder numbers, air
+    // alpha beats every non-AA archetype and only AA counters it — so 3 of 4 archetypes want an
+    // affordable AA option, or air's alpha wants trimming, to widen the counter-web. The *shape* is
+    // correct here (AA hard-counters air; air hard-counters non-AA); the *spread* is the tuning job.
+}

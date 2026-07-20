@@ -1,0 +1,78 @@
+# Engine CI (Feature 1, T006) — the determinism gate.
+#
+# Native tests run on x86-64 (ubuntu) AND ARM64 (macos) so the golden hashes are proven
+# identical across architectures; a wasm32 job runs the same suite under Node via wasm-pack.
+# Together with the committed golden manifest, this is the P6/SC-001 native == wasm contract.
+name: engine-ci
+
+on:
+  push:
+    paths:
+      - 'crates/**'
+      - 'sim/**'
+      - '.github/workflows/engine-ci.yml'
+  pull_request:
+    paths:
+      - 'crates/**'
+      - 'sim/**'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  fmt-clippy:
+    name: fmt + clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets -- -D warnings
+
+  native-tests:
+    name: native tests (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest] # x86-64 + ARM64: golden hashes must match on both
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test --workspace
+
+  wasm-parity:
+    name: native == wasm parity (T017)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - name: Build the wasm engine
+        run: wasm-pack build crates/engine --target nodejs --out-dir ../../packages/engine-wasm --release
+      # Emit the golden battery natively, then feed the same inputs through the wasm build: the
+      # outputs must be byte-identical (P6/SC-001). This is the real native==wasm contract.
+      - run: cargo run -p engine --example emit_battery -- "$RUNNER_TEMP/battery"
+      - run: node scripts/wasm-parity.mjs "$RUNNER_TEMP/battery"
+
+  typecheck-ts:
+    name: typecheck (replay reader)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run typecheck

@@ -1,0 +1,15 @@
+# Feature 2 — the native Monte-Carlo auto-balancer. Reserved here by Feature 1
+# (stub); built out in specs/002-auto-balancer/. Native only, never WASM.
+[package]
+name = "balancer"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+publish = false
+
+[[bin]]
+name = "balancer"
+path = "src/main.rs"
+
+[dependencies]
+engine = { path = "../engine" }

@@ -1,0 +1,39 @@
+# Feature 1 — the deterministic sim core. Compiles to WASM (server) and native (balancer/tests).
+# crate-type: cdylib -> the .wasm artifact (wasm-pack); rlib -> native link for the balancer + tests.
+[package]
+name = "engine"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+# Dependencies are added task-by-task once each is actually used, so the skeleton
+# always compiles. Determinism rules (research A1-A4): no floats, no HashMap
+# iteration, single-threaded resolve, pinned value-stable PRNG.
+#
+# rand_pcg is value-stable + portable (reference-vector tested) unlike StdRng/SmallRng
+# (research A3). Version pinned; the golden-hash / reference-vector tests are the real
+# stability contract, so a bump can't silently shift output unnoticed.
+[dependencies]
+rand_pcg = "=0.9.0" # exact-pinned: the algorithm's output is our determinism contract
+rand_core = "0.9"
+# serde is the typed game-data model's (de)serializer + the replay wire format.
+# Integer-only state means serde_json's output is byte-stable across versions; the
+# golden-hash test (research A5) is the real guard, so a caret range is safe here
+# (unlike rand_pcg, whose *algorithm* is the contract).
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# blake3: a *portable, spec-defined* hash (identical bytes on native + wasm32), used for
+# `rulesetHash` provenance and the golden-hash determinism harness (research A5). Output
+# stability is the hash spec's guarantee; the golden test is still the backstop.
+blake3 = "1"
+
+# wasm-bindgen is pulled in ONLY for the wasm32 target (the server build). Native (the balancer +
+# tests) never links it, keeping the offline build lean. The wasm export is cfg(target_arch=wasm32).
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2"
+
+[dev-dependencies]
