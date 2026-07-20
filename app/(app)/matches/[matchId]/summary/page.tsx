@@ -10,7 +10,10 @@
  */
 
 import { GameBreakdown } from '@/components/battle-summary/game-breakdown';
+import { MatchTotals } from '@/components/battle-summary/match-totals';
+import { MvpCard } from '@/components/battle-summary/mvp-card';
 import { OutcomeHero } from '@/components/battle-summary/outcome-hero';
+import { PerMachineFates } from '@/components/battle-summary/per-machine-fates';
 import { loadSummaryContext } from '@/lib/battle-summary/demo';
 import { deriveSummaryViewModel } from '@/lib/battle-summary/view-model';
 
@@ -24,12 +27,23 @@ export default async function BattleSummaryPage({
   const vm = deriveSummaryViewModel(result, ctx);
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-5">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
       <OutcomeHero outcome={vm.outcome} series={vm.series} />
 
+      <MatchTotals totals={vm.totals} />
+
+      {/* Per-game breakdown beside the MVP in landscape; stacked in portrait (D4). */}
+      <div className={vm.mvp ? 'grid gap-5 lg:grid-cols-[1fr_20rem]' : 'grid gap-5'}>
+        <section className="flex flex-col gap-3">
+          <h2 className="type-eyebrow text-text-muted">PER-GAME BREAKDOWN</h2>
+          <GameBreakdown perGame={vm.perGame} />
+        </section>
+        <MvpCard mvp={vm.mvp} />
+      </div>
+
       <section className="flex flex-col gap-3">
-        <h2 className="type-eyebrow text-text-muted">PER-GAME BREAKDOWN</h2>
-        <GameBreakdown perGame={vm.perGame} />
+        <h2 className="type-eyebrow text-text-muted">MACHINE FATES</h2>
+        <PerMachineFates perMachine={vm.perMachine} />
       </section>
     </div>
   );
