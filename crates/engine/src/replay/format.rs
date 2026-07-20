@@ -17,7 +17,8 @@ use crate::model::ruleset::{Ruleset, RulesetHash};
 use crate::model::types::{DialKey, MachineTypeId, PlanBSlot, VariantId, ZoneId};
 
 use super::{
-    DamageLayer, GameResult, MatchConfig, MatchResult, Replay, Side, SupportKind, TickEvent, UnitRef,
+    DamageLayer, GameResult, MatchConfig, MatchResult, Replay, Side, SupportKind, TickEvent,
+    UnitRef,
 };
 
 /// Wire versions this build can read (inclusive). A replay outside the range is rejected, not
@@ -95,7 +96,10 @@ impl WireGame {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
 #[serde(tag = "t", rename_all = "camelCase")]
 pub enum WireEvent {
-    Shot { a: u8, d: u8 },
+    Shot {
+        a: u8,
+        d: u8,
+    },
     Hit {
         a: u8,
         d: u8,
@@ -104,11 +108,30 @@ pub enum WireEvent {
         crit: bool,
         splash: bool,
     },
-    Miss { a: u8, d: u8 },
-    Death { u: u8, k: Option<u8> },
-    Move { u: u8, from: u8, to: u8 },
-    Planb { u: u8, slot: PlanBSlot, dial: DialKey },
-    Support { a: u8, d: u8, amt: i64, kind: SupportKind },
+    Miss {
+        a: u8,
+        d: u8,
+    },
+    Death {
+        u: u8,
+        k: Option<u8>,
+    },
+    Move {
+        u: u8,
+        from: u8,
+        to: u8,
+    },
+    Planb {
+        u: u8,
+        slot: PlanBSlot,
+        dial: DialKey,
+    },
+    Support {
+        a: u8,
+        d: u8,
+        amt: i64,
+        kind: SupportKind,
+    },
 }
 
 /// Convert the in-memory [`Replay`] to its compact wire form. `ruleset` supplies the `tickRate`/

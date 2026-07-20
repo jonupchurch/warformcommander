@@ -13,16 +13,16 @@
 use std::collections::BTreeMap;
 
 use crate::fixed::Fixed;
+use crate::model::army::MachineInstance;
 use crate::model::ruleset::{
     AirModifiers, CadenceTicks, DamageMatrix, GlobalConstants, LayerMultipliers, Ruleset,
 };
 use crate::model::types::{
-    AuraEffect, AuraKind, AuraScope, BaseStats, CadenceTier, Capability, ChassisVariant, DamageFamily,
-    DamageType, DefenseSpec, EquipmentId, EquipmentModule, EquipmentSpec, Loadout, MachineType,
-    MachineTypeId, MitigationMod, MountClass, ReachTag, ShieldDelta, SlotLayout, StatDeltas,
-    SupportRange, VariantId, WeaponSpec,
+    AuraEffect, AuraKind, AuraScope, BaseStats, CadenceTier, Capability, ChassisVariant,
+    DamageFamily, DamageType, DefenseSpec, EquipmentId, EquipmentModule, EquipmentSpec, Loadout,
+    MachineType, MachineTypeId, MitigationMod, MountClass, ReachTag, ShieldDelta, SlotLayout,
+    StatDeltas, SupportRange, VariantId, WeaponSpec,
 };
-use crate::model::army::MachineInstance;
 use crate::model::types::{
     BehaviorDials, EnergyMode, MovementMode, Stance, TargetRow, TargetRule, ZoneId,
 };
@@ -54,8 +54,8 @@ pub fn seed_ruleset() -> Ruleset {
                 vs_armor: 8_500,    // ×0.85 folds to armor
             },
             energy: LayerMultipliers {
-                vs_shields: 6_000,  // ×0.6 bounces
-                vs_armor: 12_500,   // ×1.25 melts armor
+                vs_shields: 6_000, // ×0.6 bounces
+                vs_armor: 12_500,  // ×1.25 melts armor
             },
             explosive: LayerMultipliers {
                 vs_shields: 10_000,
@@ -69,22 +69,22 @@ pub fn seed_ruleset() -> Ruleset {
             siege: 10,
         },
         air_mods: AirModifiers {
-            aa_acc_bonus: 1_000,     // +0.10
-            aa_dmg_mult: 15_000,     // ×1.5
+            aa_acc_bonus: 1_000,       // +0.10
+            aa_dmg_mult: 15_000,       // ×1.5
             plink_acc_penalty: -2_500, // −0.25
-            plink_dmg_mult: 5_000,   // ×0.5
+            plink_dmg_mult: 5_000,     // ×0.5
         },
         globals: GlobalConstants {
             tick_rate: 10,
             tick_cap: 1000,
-            damage_variance: 500,   // ±5%
-            crit_base_chance: 500,  // 5%
-            crit_base_mult: 15_000, // ×1.5
-            native_bonus: 1_200,    // +12%
+            damage_variance: 500,    // ±5%
+            crit_base_chance: 500,   // 5%
+            crit_base_mult: 15_000,  // ×1.5
+            native_bonus: 1_200,     // +12%
             min_damage_floor: 1_000, // 10%
-            splash_cap: 2_500,      // 25%
-            hit_clamp_min: 500,     // 5%
-            hit_clamp_max: 9_500,   // 95%
+            splash_cap: 2_500,       // 25%
+            hit_clamp_min: 500,      // 5%
+            hit_clamp_max: 9_500,    // 95%
         },
     }
 }
@@ -519,7 +519,7 @@ fn seed_variants(
         shield_cap: q(250),
         shield_regen: q(6),
         shield_delay: 30,
-        damage: Fixed::ZERO, // no offense
+        damage: Fixed::ZERO,              // no offense
         damage_type: DamageType::Kinetic, // placeholder; damage is 0
         cadence: CadenceTier::Medium,
         accuracy: 0,
@@ -612,7 +612,15 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
     };
 
     // --- Weapons (deltas relative to the mount's std chassis) ---
-    add("HeavyCannon", "Heavy Cannon", weapon(MountClass::Heavy, DamageFamily::Kinetic, gun(CadenceTier::Slow, ReachTag::Nearest)));
+    add(
+        "HeavyCannon",
+        "Heavy Cannon",
+        weapon(
+            MountClass::Heavy,
+            DamageFamily::Kinetic,
+            gun(CadenceTier::Slow, ReachTag::Nearest),
+        ),
+    );
     add(
         "SiegeLaser",
         "Siege Laser",
@@ -634,7 +642,7 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
             MountClass::Heavy,
             DamageFamily::Kinetic,
             StatDeltas {
-                damage: q(25), // 35 → 60
+                damage: q(25),      // 35 → 60
                 penetration: 5_000, // pierces 50% of shields
                 cadence_tier: Some(CadenceTier::Siege),
                 reach: Some(ReachTag::Deep),
@@ -642,7 +650,15 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
             },
         ),
     );
-    add("Autocannon", "Autocannon", weapon(MountClass::Light, DamageFamily::Kinetic, gun(CadenceTier::Fast, ReachTag::Nearest)));
+    add(
+        "Autocannon",
+        "Autocannon",
+        weapon(
+            MountClass::Light,
+            DamageFamily::Kinetic,
+            gun(CadenceTier::Fast, ReachTag::Nearest),
+        ),
+    );
     add(
         "GaussRepeater",
         "Gauss Repeater",
@@ -657,13 +673,69 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
             },
         ),
     );
-    add("AssaultCannon", "Assault Cannon", weapon(MountClass::Mech, DamageFamily::Kinetic, gun(CadenceTier::Medium, ReachTag::Nearest)));
-    add("PulseLaser", "Pulse Laser", weapon(MountClass::Mech, DamageFamily::Energy, gun(CadenceTier::Medium, ReachTag::Nearest)));
-    add("RocketPods", "Rocket Pods", weapon(MountClass::Heli, DamageFamily::Explosive, gun(CadenceTier::Medium, ReachTag::AnyGround)));
-    add("SAMBattery", "SAM Battery", weapon(MountClass::RktArty, DamageFamily::Explosive, gun(CadenceTier::Slow, ReachTag::Air)));
-    add("RocketBarrage", "Rocket Barrage", weapon(MountClass::RktArty, DamageFamily::Explosive, gun(CadenceTier::Slow, ReachTag::AnyGround)));
-    add("Howitzer", "Howitzer", weapon(MountClass::Artillery, DamageFamily::Explosive, gun(CadenceTier::Siege, ReachTag::AnyGround)));
-    add("RepairBeam", "Repair Beam", weapon(MountClass::Support, DamageFamily::Support, gun(CadenceTier::Medium, ReachTag::Nearest)));
+    add(
+        "AssaultCannon",
+        "Assault Cannon",
+        weapon(
+            MountClass::Mech,
+            DamageFamily::Kinetic,
+            gun(CadenceTier::Medium, ReachTag::Nearest),
+        ),
+    );
+    add(
+        "PulseLaser",
+        "Pulse Laser",
+        weapon(
+            MountClass::Mech,
+            DamageFamily::Energy,
+            gun(CadenceTier::Medium, ReachTag::Nearest),
+        ),
+    );
+    add(
+        "RocketPods",
+        "Rocket Pods",
+        weapon(
+            MountClass::Heli,
+            DamageFamily::Explosive,
+            gun(CadenceTier::Medium, ReachTag::AnyGround),
+        ),
+    );
+    add(
+        "SAMBattery",
+        "SAM Battery",
+        weapon(
+            MountClass::RktArty,
+            DamageFamily::Explosive,
+            gun(CadenceTier::Slow, ReachTag::Air),
+        ),
+    );
+    add(
+        "RocketBarrage",
+        "Rocket Barrage",
+        weapon(
+            MountClass::RktArty,
+            DamageFamily::Explosive,
+            gun(CadenceTier::Slow, ReachTag::AnyGround),
+        ),
+    );
+    add(
+        "Howitzer",
+        "Howitzer",
+        weapon(
+            MountClass::Artillery,
+            DamageFamily::Explosive,
+            gun(CadenceTier::Siege, ReachTag::AnyGround),
+        ),
+    );
+    add(
+        "RepairBeam",
+        "Repair Beam",
+        weapon(
+            MountClass::Support,
+            DamageFamily::Support,
+            gun(CadenceTier::Medium, ReachTag::Nearest),
+        ),
+    );
 
     // --- Defenses: a base/identity hull per mount (keeps every std build legal) ---
     for mount in [
@@ -927,11 +999,22 @@ mod tests {
     #[test]
     fn spot_check_stat_block_numbers() {
         let rs = seed_ruleset();
-        assert_eq!(rs.base_stats(&VariantId::new("Grizzly")).unwrap().hull, q(1700));
-        assert_eq!(rs.base_stats(&VariantId::new("Bulwark")).unwrap().hull, q(2125));
-        assert_eq!(rs.base_stats(&VariantId::new("Siege")).unwrap().damage, q(82));
+        assert_eq!(
+            rs.base_stats(&VariantId::new("Grizzly")).unwrap().hull,
+            q(1700)
+        );
+        assert_eq!(
+            rs.base_stats(&VariantId::new("Bulwark")).unwrap().hull,
+            q(2125)
+        );
+        assert_eq!(
+            rs.base_stats(&VariantId::new("Siege")).unwrap().damage,
+            q(82)
+        );
         // Bulwark's damage aura is present.
-        assert!(rs.chassis[&VariantId::new("Bulwark")].passive_aura.is_some());
+        assert!(rs.chassis[&VariantId::new("Bulwark")]
+            .passive_aura
+            .is_some());
     }
 
     /// Every variant's stock build derives to legal effective stats without error — proves the
@@ -978,7 +1061,11 @@ mod tests {
             } else {
                 3
             };
-            assert_eq!(m.loadout.utilities.len(), expected_utils, "{variant} utility count");
+            assert_eq!(
+                m.loadout.utilities.len(),
+                expected_utils,
+                "{variant} utility count"
+            );
             // Air-locked helis keep move_speed None through derivation.
             if type_id == MachineTypeId::AttackHeli {
                 assert_eq!(e.move_speed, None, "heli stays air-locked");

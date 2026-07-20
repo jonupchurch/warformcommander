@@ -326,7 +326,10 @@ mod tests {
                 },
             ],
             events: vec![
-                TickEvent::Shot { actor: a, target: b },
+                TickEvent::Shot {
+                    actor: a,
+                    target: b,
+                },
                 TickEvent::Hit {
                     actor: a,
                     target: b,

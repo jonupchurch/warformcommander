@@ -74,8 +74,20 @@ fn aa_hard_counters_air_and_no_aa_cannot_touch_it() {
     // Attacker WITH AA: two SAM Sentries (reach Air) + three heavy tanks.
     let aa = Army {
         machines: vec![
-            stock_instance(&rs, MachineTypeId::RocketArtillery, "Sentry", ZoneId::Middle, 0),
-            stock_instance(&rs, MachineTypeId::RocketArtillery, "Sentry", ZoneId::Middle, 1),
+            stock_instance(
+                &rs,
+                MachineTypeId::RocketArtillery,
+                "Sentry",
+                ZoneId::Middle,
+                0,
+            ),
+            stock_instance(
+                &rs,
+                MachineTypeId::RocketArtillery,
+                "Sentry",
+                ZoneId::Middle,
+                1,
+            ),
             stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 2),
             stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 3),
             stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 4),
@@ -144,7 +156,16 @@ fn artillery_never_hits_air_but_splashes_a_stacked_row() {
         "heli 1 untouched by artillery"
     );
     // No Hit event ever targets an air unit.
-    let air_units = [UnitRef { side: Side::B, instance_id: 0 }, UnitRef { side: Side::B, instance_id: 1 }];
+    let air_units = [
+        UnitRef {
+            side: Side::B,
+            instance_id: 0,
+        },
+        UnitRef {
+            side: Side::B,
+            instance_id: 1,
+        },
+    ];
     let hit_air = out.replay.games.iter().flat_map(|g| &g.ticks).any(|t| {
         t.events.iter().any(|e| match e {
             TickEvent::Hit { target, .. } => air_units.contains(target),
@@ -154,7 +175,10 @@ fn artillery_never_hits_air_but_splashes_a_stacked_row() {
     assert!(!hit_air, "no Hit event may ever land on an air unit");
 
     // Splash landed on the stacked front row (AS4).
-    assert!(has_splash_hit(&out.replay), "artillery splash should hit the stacked row");
+    assert!(
+        has_splash_hit(&out.replay),
+        "artillery splash should hit the stacked row"
+    );
 }
 
 /// T038 (SC-003): across a round-robin of diverse archetypes, no single squad sweeps every matchup.
@@ -188,8 +212,20 @@ fn no_single_archetype_wins_every_matchup() {
     };
     let aa_rocket = |rs: &Ruleset| Army {
         machines: vec![
-            stock_instance(rs, MachineTypeId::RocketArtillery, "Sentry", ZoneId::Middle, 0),
-            stock_instance(rs, MachineTypeId::RocketArtillery, "Aegis", ZoneId::Middle, 1),
+            stock_instance(
+                rs,
+                MachineTypeId::RocketArtillery,
+                "Sentry",
+                ZoneId::Middle,
+                0,
+            ),
+            stock_instance(
+                rs,
+                MachineTypeId::RocketArtillery,
+                "Aegis",
+                ZoneId::Middle,
+                1,
+            ),
             stock_instance(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 2),
             stock_instance(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 3),
             stock_instance(rs, MachineTypeId::Mech, "Vanguard", ZoneId::Front, 4),

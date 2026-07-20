@@ -19,8 +19,8 @@ use engine::model::army::Army;
 use engine::model::ruleset::RulesetHash;
 use engine::model::types::{MachineTypeId, TargetRule, ZoneId};
 use engine::replay::{
-    Adaptation, DamageLayer, GameReplay, GameResult, MachineFate, MachineSnapshot, MatchConfig,
-    MatchResult, Replay, RewardTier, Side, SideSummary, Fate, Tick, TickEvent, UnitRef,
+    Adaptation, DamageLayer, Fate, GameReplay, GameResult, MachineFate, MachineSnapshot,
+    MatchConfig, MatchResult, Replay, RewardTier, Side, SideSummary, Tick, TickEvent, UnitRef,
     WinCondition, CURRENT_FORMAT_VERSION,
 };
 use engine::{resolve, BattleInput};
@@ -121,7 +121,10 @@ fn fixed_replay() -> Replay {
             },
         ],
         events: vec![
-            TickEvent::Shot { actor: a, target: b },
+            TickEvent::Shot {
+                actor: a,
+                target: b,
+            },
             TickEvent::Hit {
                 actor: a,
                 target: b,
@@ -231,7 +234,13 @@ fn fixed_battle_input(seed: u64) -> BattleInput {
     let army_b = Army {
         machines: vec![
             stock_instance(&rs, MachineTypeId::HeavyTank, "Cavalier", ZoneId::Front, 0),
-            stock_instance(&rs, MachineTypeId::RocketArtillery, "Sentry", ZoneId::Middle, 1),
+            stock_instance(
+                &rs,
+                MachineTypeId::RocketArtillery,
+                "Sentry",
+                ZoneId::Middle,
+                1,
+            ),
             stock_instance(&rs, MachineTypeId::Mech, "Striker", ZoneId::Front, 2),
             stock_instance(&rs, MachineTypeId::Artillery, "Longbow", ZoneId::Rear, 3),
             stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
@@ -259,7 +268,10 @@ fn battle_resolves_and_terminates() {
     );
     for game in &out.replay.games {
         assert!(!game.ticks.is_empty(), "each game produced ticks");
-        assert!(game.ticks.len() <= 1000, "each game terminates within the hard tick cap");
+        assert!(
+            game.ticks.len() <= 1000,
+            "each game terminates within the hard tick cap"
+        );
     }
     // The reconciliation invariant (SC-002): summed Hit damage equals the result totals.
     assert_eq!(
@@ -295,12 +307,20 @@ fn input_changes_change_the_hash() {
     // (b) a dial change on one machine.
     let mut dial = fixed_battle_input(1);
     dial.armies[0].machines[0].dials.target_rule = TargetRule::DisperseFire;
-    assert_ne!(h0, resolve(&dial).unwrap().replay.digest(), "dial change matters");
+    assert_ne!(
+        h0,
+        resolve(&dial).unwrap().replay.digest(),
+        "dial change matters"
+    );
 
     // (c) a placement change.
     let mut placed = fixed_battle_input(1);
     placed.armies[0].machines[1].zone = ZoneId::Middle;
-    assert_ne!(h0, resolve(&placed).unwrap().replay.digest(), "placement matters");
+    assert_ne!(
+        h0,
+        resolve(&placed).unwrap().replay.digest(),
+        "placement matters"
+    );
 }
 
 /// SC-001 (run-twice invariant) swept across many seeds — resolve(x) == resolve(x) for all x.

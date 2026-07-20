@@ -35,7 +35,9 @@ pub type Bp = i64;
 /// A fixed-point quantity in milli-units (scale [`SCALE`]). Integer-only and total-order.
 /// Serializes **transparently as its raw `i64` milli value** — the wire/replay contract is
 /// integer milli-units (the TS mirror divides by [`SCALE`] for display).
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
+#[derive(
+    Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize,
+)]
 #[serde(transparent)]
 pub struct Fixed(pub i64);
 
@@ -161,7 +163,7 @@ mod tests {
     fn mul_bp_identity_and_matrix() {
         let h = Fixed::from_int(1700);
         assert_eq!(h.mul_bp(BP_ONE), h); // ×1.0 is identity
-        // Damage-type × defense matrix as basis points (stat-block §1):
+                                         // Damage-type × defense matrix as basis points (stat-block §1):
         assert_eq!(h.mul_bp(14_000), Fixed::from_int(2380)); // Kinetic ×1.4 vs shields
         assert_eq!(h.mul_bp(8_500), Fixed::from_int(1445)); // Kinetic ×0.85 vs armor
         assert_eq!(h.mul_bp(6_000), Fixed::from_int(1020)); // Energy ×0.6 vs shields
@@ -171,7 +173,10 @@ mod tests {
     #[test]
     fn mul_bp_truncates_toward_zero() {
         // 1001 milli × 0.5 = 500.5 milli -> truncates to 500.
-        assert_eq!(Fixed::from_milli(1001).mul_bp(5_000), Fixed::from_milli(500));
+        assert_eq!(
+            Fixed::from_milli(1001).mul_bp(5_000),
+            Fixed::from_milli(500)
+        );
     }
 
     #[test]
@@ -182,7 +187,10 @@ mod tests {
         let one_minus_armor_pct = 7_000; // (1 − 0.30) = 0.70
         let mitigated = hull_in.mul_bp(energy_vs_armor).mul_bp(one_minus_armor_pct);
         let floor = hull_in.mul_bp(1_000); // 10% min-damage floor
-        assert_eq!(mitigated, Fixed::from_int(87).saturating_add(Fixed::from_milli(500)));
+        assert_eq!(
+            mitigated,
+            Fixed::from_int(87).saturating_add(Fixed::from_milli(500))
+        );
         assert_eq!(floor, Fixed::from_int(10));
         assert_eq!(mitigated.max(floor), mitigated); // the mitigated hit clears the floor
     }

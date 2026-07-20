@@ -1,0 +1,3 @@
+# Formatting is enforced in CI (`cargo fmt --check`). Stable-rustfmt defaults, pinned edition.
+edition = "2021"
+max_width = 100

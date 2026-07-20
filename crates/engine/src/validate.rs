@@ -11,8 +11,8 @@ use serde::{Deserialize, Serialize};
 use crate::model::army::{derive_effective_stats, Army, DerivationError, MachineInstance};
 use crate::model::ruleset::Ruleset;
 use crate::model::types::{
-    Capability, EnergyMode, EquipmentId, EquipmentSpec, MovementMode, PlanBSlot, SlotLayout, Stance,
-    TargetRule, ZoneId,
+    Capability, EnergyMode, EquipmentId, EquipmentSpec, MovementMode, PlanBSlot, SlotLayout,
+    Stance, TargetRule, ZoneId,
 };
 
 /// Zone caps (game rules, not tunable balance): ground rows hold 3, Air holds 2.
@@ -133,13 +133,25 @@ fn validate_machine(m: &MachineInstance, ruleset: &Ruleset, errors: &mut Vec<Val
     }
 
     // V4 — weapon + defense mount class must match the machine's mount.
-    check_mount(ruleset, &m.loadout.weapon, mtype.mount_class, "weapon", id, errors);
-    check_mount(ruleset, &m.loadout.defense, mtype.mount_class, "defense", id, errors);
+    check_mount(
+        ruleset,
+        &m.loadout.weapon,
+        mtype.mount_class,
+        "weapon",
+        id,
+        errors,
+    );
+    check_mount(
+        ruleset,
+        &m.loadout.defense,
+        mtype.mount_class,
+        "defense",
+        id,
+        errors,
+    );
 
     // V5 — utility count + no duplicates.
-    let slots = m
-        .variant_slot_layout(ruleset)
-        .unwrap_or(mtype.slot_layout);
+    let slots = m.variant_slot_layout(ruleset).unwrap_or(mtype.slot_layout);
     validate_utilities(m, slots, ruleset, errors);
 
     // Capability-dependent rules (V6–V8) need the derived stats.
@@ -208,7 +220,10 @@ fn check_mount(
         Some(em) if em != mount => errors.push(ValidationError::machine(
             ValidationCode::MountMismatch,
             id,
-            format!("{slot} '{}' is {em:?}-mount, machine is {mount:?}", equip.as_str()),
+            format!(
+                "{slot} '{}' is {em:?}-mount, machine is {mount:?}",
+                equip.as_str()
+            ),
         )),
         None => errors.push(ValidationError::machine(
             ValidationCode::MountMismatch,
@@ -231,7 +246,11 @@ fn validate_utilities(
         errors.push(ValidationError::machine(
             ValidationCode::Utilities,
             id,
-            format!("{} utilities equipped; the slot layout allows {}", utils.len(), slots.utility),
+            format!(
+                "{} utilities equipped; the slot layout allows {}",
+                utils.len(),
+                slots.utility
+            ),
         ));
     }
     // No duplicates (ordered scan → deterministic).
@@ -318,7 +337,8 @@ mod tests {
     use super::*;
     use crate::content::{seed_ruleset, stock_instance};
     use crate::model::types::{
-        DialValue, MachineTypeId, MovementMode, PlanBTrigger, TriggerCondition, DialKey, EquipmentId,
+        DialKey, DialValue, EquipmentId, MachineTypeId, MovementMode, PlanBTrigger,
+        TriggerCondition,
     };
 
     fn legal_army() -> Army {
@@ -388,8 +408,11 @@ mod tests {
         let rs = seed_ruleset();
         let mut army = legal_army();
         // Duplicate a utility.
-        army.machines[0].loadout.utilities =
-            vec![EquipmentId::new("FireControl"), EquipmentId::new("FireControl"), EquipmentId::new("Autoloader")];
+        army.machines[0].loadout.utilities = vec![
+            EquipmentId::new("FireControl"),
+            EquipmentId::new("FireControl"),
+            EquipmentId::new("Autoloader"),
+        ];
         let errs = validate(&army, &rs).unwrap_err();
         assert!(errs
             .iter()

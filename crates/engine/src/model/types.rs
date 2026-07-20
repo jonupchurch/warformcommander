@@ -730,10 +730,7 @@ mod tests {
             DialValue::Energy(EnergyMode::Overdrive).dial(),
             DialKey::Energy
         );
-        assert_eq!(
-            DialValue::Stance(Stance::Protector).dial(),
-            DialKey::Stance
-        );
+        assert_eq!(DialValue::Stance(Stance::Protector).dial(), DialKey::Stance);
     }
 
     /// Cadence shifts saturate at the ends (Autoloader "min Fast"; Siege never faster than Slow-1).

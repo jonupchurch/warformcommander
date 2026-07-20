@@ -9,7 +9,7 @@ use engine::content::{seed_ruleset, stock_instance};
 use engine::model::army::Army;
 use engine::model::ruleset::Ruleset;
 use engine::model::types::{MachineTypeId, ZoneId};
-use engine::replay::{Adaptation, MatchConfig, MachineSnapshot, Side};
+use engine::replay::{Adaptation, MachineSnapshot, MatchConfig, Side};
 use engine::{resolve, resolve_series, BattleInput};
 
 fn base(rs: &Ruleset, adaptation: Adaptation) -> BattleInput {
@@ -79,5 +79,8 @@ fn free_honors_per_game_changes() {
 
     let open1 = opening_zones(&out.replay.games[0].ticks[0].snapshot);
     let open2 = opening_zones(&out.replay.games[1].ticks[0].snapshot);
-    assert_ne!(open1, open2, "Free: the per-game placement change is reflected in game 2");
+    assert_ne!(
+        open1, open2,
+        "Free: the per-game placement change is reflected in game 2"
+    );
 }

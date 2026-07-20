@@ -56,7 +56,8 @@ pub(crate) fn resolve_attack(
             air_dmg_mult = ruleset.air_mods.plink_dmg_mult;
         }
     }
-    let hit_chance = (acc - combatants[target_idx].stats.evasion).clamp(g.hit_clamp_min, g.hit_clamp_max);
+    let hit_chance =
+        (acc - combatants[target_idx].stats.evasion).clamp(g.hit_clamp_min, g.hit_clamp_max);
 
     let target_ref = combatants[target_idx].unit;
     if rng.roll_bp() >= hit_chance {
@@ -85,7 +86,13 @@ pub(crate) fn resolve_attack(
     d0 = d0.mul_bp(BP_ONE + variance);
 
     // --- Primary hit: shields then hull. ---
-    let (sh, hu, died) = apply_damage(&mut combatants[target_idx], d0, prof.damage_type, prof.penetration, ruleset);
+    let (sh, hu, died) = apply_damage(
+        &mut combatants[target_idx],
+        d0,
+        prof.damage_type,
+        prof.penetration,
+        ruleset,
+    );
     emit_hit(events, prof.actor, target_ref, sh, hu, crit, false);
     let mut dealt = sh.saturating_add(hu);
     if died {
@@ -118,7 +125,13 @@ pub(crate) fn resolve_attack(
                 }
             }
             let sunit = combatants[j].unit;
-            let (s2, h2, died2) = apply_damage(&mut combatants[j], sd0, prof.damage_type, prof.penetration, ruleset);
+            let (s2, h2, died2) = apply_damage(
+                &mut combatants[j],
+                sd0,
+                prof.damage_type,
+                prof.penetration,
+                ruleset,
+            );
             emit_hit(events, prof.actor, sunit, s2, h2, false, true);
             dealt = dealt.saturating_add(s2).saturating_add(h2);
             if died2 {
@@ -273,7 +286,13 @@ mod counterweb_tests {
     }
 
     /// Shots to destroy `hull0` behind `armor_pct` (no shield) with a `d0`-per-hit `dtype` weapon.
-    fn shots_to_kill_hull(rs: &Ruleset, dtype: DamageType, d0: Fixed, hull0: Fixed, armor_pct: i64) -> u32 {
+    fn shots_to_kill_hull(
+        rs: &Ruleset,
+        dtype: DamageType,
+        d0: Fixed,
+        hull0: Fixed,
+        armor_pct: i64,
+    ) -> u32 {
         let mut hull = hull0;
         let mut n = 0;
         while hull.milli() > 0 && n < 100_000 {
@@ -301,7 +320,8 @@ mod counterweb_tests {
         );
 
         // Kinetic vs a 30%-armor hull is much slower than Kinetic vs a shield (folds to armor).
-        let kin_hull = shots_to_kill_hull(&rs, DamageType::Kinetic, d0, Fixed::from_int(250), 3_000);
+        let kin_hull =
+            shots_to_kill_hull(&rs, DamageType::Kinetic, d0, Fixed::from_int(250), 3_000);
         assert!(
             kin_hull > kin,
             "kinetic folds to armor: shield strip {kin} < armor kill {kin_hull}"
@@ -319,7 +339,10 @@ mod counterweb_tests {
 
         let kin = shots_to_kill_hull(&rs, DamageType::Kinetic, d0, hull, armor);
         let energy = shots_to_kill_hull(&rs, DamageType::Energy, d0, hull, armor);
-        assert!(energy < kin, "energy must out-DPS kinetic vs armor: kin={kin} energy={energy}");
+        assert!(
+            energy < kin,
+            "energy must out-DPS kinetic vs armor: kin={kin} energy={energy}"
+        );
         // ~30% faster ⇒ energy ≈ 0.62–0.75 × kinetic shots.
         let ratio_pct = energy * 100 / kin;
         assert!(
@@ -342,6 +365,9 @@ mod counterweb_tests {
             &rs,
         );
         assert!(shield_dmg.milli() > 0, "part still hits the shield");
-        assert!(hull_dmg.milli() > 0, "penetration leaks to hull despite a full shield");
+        assert!(
+            hull_dmg.milli() > 0,
+            "penetration leaks to hull despite a full shield"
+        );
     }
 }

@@ -7,8 +7,8 @@ use engine::model::army::Army;
 use engine::model::types::{MachineTypeId, ZoneId};
 use engine::replay::format::{is_supported, to_wire, zone_index, WireEvent, WireReplay};
 use engine::replay::Side;
-use engine::{resolve, BattleInput};
 use engine::replay::{Adaptation, MatchConfig};
+use engine::{resolve, BattleInput};
 
 fn battle() -> BattleInput {
     let rs = seed_ruleset();
@@ -24,7 +24,13 @@ fn battle() -> BattleInput {
     let b = Army {
         machines: vec![
             stock_instance(&rs, MachineTypeId::HeavyTank, "Cavalier", ZoneId::Front, 0),
-            stock_instance(&rs, MachineTypeId::RocketArtillery, "Sentry", ZoneId::Middle, 1),
+            stock_instance(
+                &rs,
+                MachineTypeId::RocketArtillery,
+                "Sentry",
+                ZoneId::Middle,
+                1,
+            ),
             stock_instance(&rs, MachineTypeId::Mech, "Striker", ZoneId::Front, 2),
             stock_instance(&rs, MachineTypeId::Artillery, "Longbow", ZoneId::Rear, 3),
             stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
@@ -65,12 +71,18 @@ fn wire_snapshots_reconstruct_engine_state() {
                     .meta
                     .unit_order
                     .iter()
-                    .position(|u| u.side == snap.unit.side && u.instance_id == snap.unit.instance_id)
+                    .position(|u| {
+                        u.side == snap.unit.side && u.instance_id == snap.unit.instance_id
+                    })
                     .expect("unit in dictionary");
                 let row = wgame.row(t, col).expect("row present"); // O(1) seek
                 assert_eq!(row[0], snap.hull.milli(), "hull at g{g} t{t} col{col}");
                 assert_eq!(row[1], snap.shield.milli(), "shield at g{g} t{t} col{col}");
-                assert_eq!(row[2], zone_index(snap.zone) as i64, "zone at g{g} t{t} col{col}");
+                assert_eq!(
+                    row[2],
+                    zone_index(snap.zone) as i64,
+                    "zone at g{g} t{t} col{col}"
+                );
                 assert_eq!(row[3], snap.alive as i64, "alive at g{g} t{t} col{col}");
             }
         }
@@ -119,7 +131,10 @@ fn format_version_is_gated() {
     let input = battle();
     let out = resolve(&input).unwrap();
     let wire = to_wire(&out.replay, &input.ruleset);
-    assert!(is_supported(wire.format_version), "the emitted version is supported");
+    assert!(
+        is_supported(wire.format_version),
+        "the emitted version is supported"
+    );
     assert!(!is_supported(9999), "an unknown version is rejected");
 }
 
@@ -131,6 +146,10 @@ fn wire_meta_is_complete() {
     let wire = to_wire(&out.replay, &input.ruleset);
     assert_eq!(wire.meta.seed, input.seed.to_string());
     assert_eq!(wire.meta.ruleset_hash, input.ruleset.hash());
-    assert_eq!(wire.meta.unit_order.len(), 10, "all 10 units in the dictionary");
+    assert_eq!(
+        wire.meta.unit_order.len(),
+        10,
+        "all 10 units in the dictionary"
+    );
     assert_eq!(wire.meta.tick_cap, 1000);
 }

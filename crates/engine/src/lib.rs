@@ -103,16 +103,27 @@ pub fn resolve(input: &BattleInput) -> Result<BattleOutput, ResolveError> {
             None => {}
         }
         total_ticks = total_ticks.saturating_add(game.game_result.duration_ticks);
-        cum_a = cum_a.saturating_add(sim::outcome::side_damage(&combatants, crate::replay::Side::A));
-        cum_b = cum_b.saturating_add(sim::outcome::side_damage(&combatants, crate::replay::Side::B));
+        cum_a = cum_a.saturating_add(sim::outcome::side_damage(
+            &combatants,
+            crate::replay::Side::A,
+        ));
+        cum_b = cum_b.saturating_add(sim::outcome::side_damage(
+            &combatants,
+            crate::replay::Side::B,
+        ));
         game_results.push(game.game_result);
         games.push(game);
         final_combatants = Some(combatants);
     }
 
     let final_combatants = final_combatants.expect("a match always plays at least one game");
-    let result =
-        sim::outcome::build_match_result(&final_combatants, game_results, total_ticks, cum_a, cum_b);
+    let result = sim::outcome::build_match_result(
+        &final_combatants,
+        game_results,
+        total_ticks,
+        cum_a,
+        cum_b,
+    );
 
     let replay = Replay {
         format_version: CURRENT_FORMAT_VERSION,
@@ -166,16 +177,27 @@ pub fn resolve_series(
             None => {}
         }
         total_ticks = total_ticks.saturating_add(game.game_result.duration_ticks);
-        cum_a = cum_a.saturating_add(sim::outcome::side_damage(&combatants, crate::replay::Side::A));
-        cum_b = cum_b.saturating_add(sim::outcome::side_damage(&combatants, crate::replay::Side::B));
+        cum_a = cum_a.saturating_add(sim::outcome::side_damage(
+            &combatants,
+            crate::replay::Side::A,
+        ));
+        cum_b = cum_b.saturating_add(sim::outcome::side_damage(
+            &combatants,
+            crate::replay::Side::B,
+        ));
         game_results.push(game.game_result);
         games.push(game);
         final_combatants = Some(combatants);
     }
 
     let final_combatants = final_combatants.expect("a match always plays at least one game");
-    let result =
-        sim::outcome::build_match_result(&final_combatants, game_results, total_ticks, cum_a, cum_b);
+    let result = sim::outcome::build_match_result(
+        &final_combatants,
+        game_results,
+        total_ticks,
+        cum_a,
+        cum_b,
+    );
 
     let replay = Replay {
         format_version: CURRENT_FORMAT_VERSION,

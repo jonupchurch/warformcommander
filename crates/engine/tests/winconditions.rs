@@ -23,7 +23,13 @@ fn strong_vs_weak() -> (Army, Army) {
             stock_instance(&rs, MachineTypeId::HeavyTank, "Cavalier", ZoneId::Front, 0),
             stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 1),
             stock_instance(&rs, MachineTypeId::Mech, "Striker", ZoneId::Front, 2),
-            stock_instance(&rs, MachineTypeId::RocketArtillery, "Sentry", ZoneId::Middle, 3),
+            stock_instance(
+                &rs,
+                MachineTypeId::RocketArtillery,
+                "Sentry",
+                ZoneId::Middle,
+                3,
+            ),
             stock_instance(&rs, MachineTypeId::Artillery, "Siege", ZoneId::Rear, 4),
         ],
     };
@@ -82,7 +88,11 @@ fn time_limit_tie_goes_to_defender_at_lesser_reward() {
     let (a, b) = all_support();
     let out = resolve(&input(&rs, a, b, 3)).unwrap();
     let g0 = &out.replay.games[0].game_result;
-    assert_eq!(g0.condition, WinCondition::Time, "no kills → runs to the cap");
+    assert_eq!(
+        g0.condition,
+        WinCondition::Time,
+        "no kills → runs to the cap"
+    );
     assert_eq!(g0.reward_tier, RewardTier::Lesser);
     assert_eq!(g0.duration_ticks, 1000, "hit the hard tick cap");
     assert_eq!(g0.winner, Some(Side::B), "0–0 tie → defender");
@@ -96,7 +106,10 @@ fn best_of_three_is_first_to_two() {
     let (a, b) = strong_vs_weak();
     let out = resolve(&input(&rs, a, b, 11)).unwrap();
     let games = out.replay.games.len();
-    assert!((2..=3).contains(&games), "a decided Bo3 plays 2 or 3 games (got {games})");
+    assert!(
+        (2..=3).contains(&games),
+        "a decided Bo3 plays 2 or 3 games (got {games})"
+    );
 
     let winner = out.result.winner;
     let winner_games = out
@@ -105,7 +118,10 @@ fn best_of_three_is_first_to_two() {
         .iter()
         .filter(|g| g.game_result.winner == Some(winner))
         .count();
-    assert!(winner_games >= 2, "the match winner took ≥2 games (got {winner_games})");
+    assert!(
+        winner_games >= 2,
+        "the match winner took ≥2 games (got {winner_games})"
+    );
     // The match stops as soon as someone reaches two — no extra games are played.
     assert_eq!(games, out.result.games.len());
 }

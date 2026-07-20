@@ -62,8 +62,8 @@ impl Combatant {
         if self.max_hull.milli() <= 0 {
             0
         } else {
-            ((self.hull.milli() as i128 * crate::fixed::BP_ONE as i128) / self.max_hull.milli() as i128)
-                as Bp
+            ((self.hull.milli() as i128 * crate::fixed::BP_ONE as i128)
+                / self.max_hull.milli() as i128) as Bp
         }
     }
 }
@@ -134,7 +134,9 @@ pub(crate) fn build_combatants(
 
 /// Indices of every living combatant, in deterministic acting order: `(zone, side, instance_id)`.
 fn acting_order(combatants: &[Combatant]) -> Vec<usize> {
-    let mut idx: Vec<usize> = (0..combatants.len()).filter(|&i| combatants[i].alive).collect();
+    let mut idx: Vec<usize> = (0..combatants.len())
+        .filter(|&i| combatants[i].alive)
+        .collect();
     idx.sort_by_key(|&i| {
         let c = &combatants[i];
         (c.zone, c.unit.side, c.unit.instance_id)
@@ -214,7 +216,10 @@ pub(crate) fn run_game(
                 && c.ticks_since_hit >= c.stats.shield_delay
                 && c.stats.shield_regen.milli() > 0
             {
-                c.shield = c.shield.saturating_add(c.stats.shield_regen).min(c.stats.shield_cap);
+                c.shield = c
+                    .shield
+                    .saturating_add(c.stats.shield_regen)
+                    .min(c.stats.shield_cap);
             }
         }
 
@@ -258,10 +263,7 @@ pub(crate) fn run_game(
     let game_result = game_over
         .unwrap_or_else(|| outcome::time_result(combatants, tick_cap, config.defender_side));
 
-    GameReplay {
-        ticks,
-        game_result,
-    }
+    GameReplay { ticks, game_result }
 }
 
 /// Each living support machine heals the most-wounded ally in range by its support power.

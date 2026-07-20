@@ -20,8 +20,8 @@ pub(crate) fn energy_damage_mult(energy: EnergyMode) -> Bp {
         EnergyMode::Overdrive => 12_000, // ×1.20
         EnergyMode::Offense => 11_000,   // ×1.10
         EnergyMode::Balanced | EnergyMode::Adaptive => BP_ONE,
-        EnergyMode::Defense => 9_000,    // ×0.90 (trades offense for the defensive posture)
-        EnergyMode::Fortify => 8_500,    // ×0.85
+        EnergyMode::Defense => 9_000, // ×0.90 (trades offense for the defensive posture)
+        EnergyMode::Fortify => 8_500, // ×0.85
     }
 }
 
@@ -57,7 +57,8 @@ fn latch_plan_b(combatants: &mut [Combatant], tick: u16, events: &mut Vec<TickEv
             }
         }
         // Recompute active dials from base + the fired set (Slot-2 then Slot-1 → Slot-1 wins).
-        combatants[i].dials = active_dials(&combatants[i].base_dials, &triggers, &combatants[i].fired);
+        combatants[i].dials =
+            active_dials(&combatants[i].base_dials, &triggers, &combatants[i].fired);
     }
 }
 

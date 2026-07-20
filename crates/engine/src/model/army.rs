@@ -134,7 +134,10 @@ pub enum DerivationError {
     UnknownVariant(VariantId),
     UnknownEquipment(EquipmentId),
     /// The slot referenced an equipment id of the wrong kind (e.g. a defense in the weapon slot).
-    WrongSlotKind { id: EquipmentId, expected: SlotKind },
+    WrongSlotKind {
+        id: EquipmentId,
+        expected: SlotKind,
+    },
 }
 
 /// Which equipment kind a slot expects (kept `Serialize`/`Deserialize`-friendly for the boundary).
@@ -628,22 +631,36 @@ mod tests {
     #[test]
     fn base_weapon_is_identity() {
         let rs = test_ruleset();
-        let m = instance("HeavyCannon", "CompositeArmor", &["Autoloader", "DriveServos", "CombatAI"]);
+        let m = instance(
+            "HeavyCannon",
+            "CompositeArmor",
+            &["Autoloader", "DriveServos", "CombatAI"],
+        );
         let e = derive_effective_stats(&m, &rs).unwrap();
         assert_eq!(e.damage, Fixed::from_int(35), "base weapon adds no damage");
         assert_eq!(e.damage_type, DamageType::Kinetic);
-        assert!(e.native_match, "Kinetic weapon on Kinetic-native heavy matches");
+        assert!(
+            e.native_match,
+            "Kinetic weapon on Kinetic-native heavy matches"
+        );
     }
 
     /// Off-family weapon: family/type flip, +5 damage, and the native bonus is lost.
     #[test]
     fn off_family_weapon_flips_type_and_drops_native_match() {
         let rs = test_ruleset();
-        let m = instance("SiegeLaser", "CompositeArmor", &["Autoloader", "DriveServos", "CombatAI"]);
+        let m = instance(
+            "SiegeLaser",
+            "CompositeArmor",
+            &["Autoloader", "DriveServos", "CombatAI"],
+        );
         let e = derive_effective_stats(&m, &rs).unwrap();
         assert_eq!(e.damage, Fixed::from_int(40), "35 base + 5 weapon delta");
         assert_eq!(e.damage_type, DamageType::Energy);
-        assert!(!e.native_match, "Energy weapon on Kinetic-native heavy does not match");
+        assert!(
+            !e.native_match,
+            "Energy weapon on Kinetic-native heavy does not match"
+        );
     }
 
     /// Composite Armor adds armor% and pays −1 move; Autoloader shifts cadence Slow→Medium;
@@ -651,7 +668,11 @@ mod tests {
     #[test]
     fn deltas_stack_across_slots() {
         let rs = test_ruleset();
-        let m = instance("HeavyCannon", "CompositeArmor", &["Autoloader", "DriveServos", "CombatAI"]);
+        let m = instance(
+            "HeavyCannon",
+            "CompositeArmor",
+            &["Autoloader", "DriveServos", "CombatAI"],
+        );
         let e = derive_effective_stats(&m, &rs).unwrap();
         assert_eq!(e.armor_pct, 4_200, "30% base + 12% composite");
         assert_eq!(e.cadence, CadenceTier::Medium, "Autoloader: Slow → Medium");
@@ -664,28 +685,44 @@ mod tests {
     #[test]
     fn shield_defense_adds_a_shield_pool() {
         let rs = test_ruleset();
-        let m = instance("HeavyCannon", "DeflectorShield", &["Autoloader", "DriveServos", "CombatAI"]);
+        let m = instance(
+            "HeavyCannon",
+            "DeflectorShield",
+            &["Autoloader", "DriveServos", "CombatAI"],
+        );
         let e = derive_effective_stats(&m, &rs).unwrap();
         assert_eq!(e.shield_cap, Fixed::from_int(250));
         assert_eq!(e.shield_regen, Fixed::from_int(6));
         assert_eq!(e.shield_delay, 25);
-        assert_eq!(e.armor_pct, 3_000, "no armor delta from a pure shield module");
+        assert_eq!(
+            e.armor_pct, 3_000,
+            "no armor delta from a pure shield module"
+        );
     }
 
     /// A missing equipment id is a typed error, not a panic; a wrong-kind slot is caught too.
     #[test]
     fn structural_faults_are_typed_errors() {
         let rs = test_ruleset();
-        let missing = instance("NoSuchGun", "CompositeArmor", &["Autoloader", "DriveServos", "CombatAI"]);
+        let missing = instance(
+            "NoSuchGun",
+            "CompositeArmor",
+            &["Autoloader", "DriveServos", "CombatAI"],
+        );
         assert_eq!(
             derive_effective_stats(&missing, &rs),
-            Err(DerivationError::UnknownEquipment(EquipmentId::new("NoSuchGun")))
+            Err(DerivationError::UnknownEquipment(EquipmentId::new(
+                "NoSuchGun"
+            )))
         );
         // A defense id in the weapon slot → WrongSlotKind.
         let swapped = instance("CompositeArmor", "CompositeArmor", &["Autoloader"]);
         assert!(matches!(
             derive_effective_stats(&swapped, &rs),
-            Err(DerivationError::WrongSlotKind { expected: SlotKind::Weapon, .. })
+            Err(DerivationError::WrongSlotKind {
+                expected: SlotKind::Weapon,
+                ..
+            })
         ));
     }
 
@@ -693,7 +730,11 @@ mod tests {
     #[test]
     fn derivation_is_deterministic() {
         let rs = test_ruleset();
-        let m = instance("SiegeLaser", "CompositeArmor", &["Autoloader", "DriveServos", "CombatAI"]);
+        let m = instance(
+            "SiegeLaser",
+            "CompositeArmor",
+            &["Autoloader", "DriveServos", "CombatAI"],
+        );
         assert_eq!(
             derive_effective_stats(&m, &rs).unwrap(),
             derive_effective_stats(&m, &rs).unwrap()

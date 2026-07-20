@@ -13,20 +13,68 @@ fn main() {
 
     let army_a = Army {
         machines: vec![
-            stock_instance(&ruleset, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 0),
-            stock_instance(&ruleset, MachineTypeId::LightTank, "Scout", ZoneId::Front, 1),
+            stock_instance(
+                &ruleset,
+                MachineTypeId::HeavyTank,
+                "Grizzly",
+                ZoneId::Front,
+                0,
+            ),
+            stock_instance(
+                &ruleset,
+                MachineTypeId::LightTank,
+                "Scout",
+                ZoneId::Front,
+                1,
+            ),
             stock_instance(&ruleset, MachineTypeId::Mech, "Vanguard", ZoneId::Middle, 2),
-            stock_instance(&ruleset, MachineTypeId::AttackHeli, "Gunship", ZoneId::Air, 3),
-            stock_instance(&ruleset, MachineTypeId::Artillery, "Longbow", ZoneId::Rear, 4),
+            stock_instance(
+                &ruleset,
+                MachineTypeId::AttackHeli,
+                "Gunship",
+                ZoneId::Air,
+                3,
+            ),
+            stock_instance(
+                &ruleset,
+                MachineTypeId::Artillery,
+                "Longbow",
+                ZoneId::Rear,
+                4,
+            ),
         ],
     };
     let army_b = Army {
         machines: vec![
-            stock_instance(&ruleset, MachineTypeId::HeavyTank, "Cavalier", ZoneId::Front, 0),
-            stock_instance(&ruleset, MachineTypeId::RocketArtillery, "Sentry", ZoneId::Middle, 1),
+            stock_instance(
+                &ruleset,
+                MachineTypeId::HeavyTank,
+                "Cavalier",
+                ZoneId::Front,
+                0,
+            ),
+            stock_instance(
+                &ruleset,
+                MachineTypeId::RocketArtillery,
+                "Sentry",
+                ZoneId::Middle,
+                1,
+            ),
             stock_instance(&ruleset, MachineTypeId::Mech, "Striker", ZoneId::Front, 2),
-            stock_instance(&ruleset, MachineTypeId::Artillery, "Longbow", ZoneId::Rear, 3),
-            stock_instance(&ruleset, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
+            stock_instance(
+                &ruleset,
+                MachineTypeId::Artillery,
+                "Longbow",
+                ZoneId::Rear,
+                3,
+            ),
+            stock_instance(
+                &ruleset,
+                MachineTypeId::RearSupport,
+                "Medic",
+                ZoneId::Rear,
+                4,
+            ),
         ],
     };
 
@@ -52,7 +100,10 @@ fn main() {
         "  win condition : {:?} ({:?})",
         game.game_result.condition, game.game_result.reward_tier
     );
-    println!("  duration      : {} ticks", game.game_result.duration_ticks);
+    println!(
+        "  duration      : {} ticks",
+        game.game_result.duration_ticks
+    );
     println!(
         "  survivors     : A={} B={}",
         out.result.side_a.survivors, out.result.side_b.survivors

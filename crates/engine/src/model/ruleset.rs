@@ -18,8 +18,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::fixed::Bp;
 use crate::model::types::{
-    BaseStats, CadenceTier, ChassisVariant, DamageType, EquipmentId, EquipmentModule,
-    MachineType, MachineTypeId, VariantId,
+    BaseStats, CadenceTier, ChassisVariant, DamageType, EquipmentId, EquipmentModule, MachineType,
+    MachineTypeId, VariantId,
 };
 
 /// A stable, portable digest of a [`Ruleset`] (BLAKE3 hex). Stamped into each Replay/Result

@@ -111,7 +111,9 @@ fn reachable_enemies(
     let occ = Occupancy {
         air: enemies.iter().any(|&j| combatants[j].zone == ZoneId::Air),
         front: enemies.iter().any(|&j| combatants[j].zone == ZoneId::Front),
-        middle: enemies.iter().any(|&j| combatants[j].zone == ZoneId::Middle),
+        middle: enemies
+            .iter()
+            .any(|&j| combatants[j].zone == ZoneId::Middle),
         rear: enemies.iter().any(|&j| combatants[j].zone == ZoneId::Rear),
     };
 
@@ -195,7 +197,12 @@ fn pick_unit(combatants: &[Combatant], row: &[usize], att: &Combatant) -> usize 
         // Highest aggro weight.
         TargetRule::BiggestThreat => *row
             .iter()
-            .max_by_key(|&&j| (combatants[j].stats.threat.milli(), std::cmp::Reverse(tiebreak(j))))
+            .max_by_key(|&&j| {
+                (
+                    combatants[j].stats.threat.milli(),
+                    std::cmp::Reverse(tiebreak(j)),
+                )
+            })
             .unwrap(),
         // Prefer support machines; else fall back to weakest.
         TargetRule::TargetSupport => row
@@ -231,7 +238,11 @@ fn pick_unit(combatants: &[Combatant], row: &[usize], att: &Combatant) -> usize 
                     (crate::model::types::DamageType::Energy, false) => 2,
                     _ => 1,
                 };
-                (counter_score, std::cmp::Reverse(combatants[j].hull.milli()), std::cmp::Reverse(tiebreak(j)))
+                (
+                    counter_score,
+                    std::cmp::Reverse(combatants[j].hull.milli()),
+                    std::cmp::Reverse(tiebreak(j)),
+                )
             })
             .unwrap(),
     }
