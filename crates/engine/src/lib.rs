@@ -15,12 +15,14 @@ pub mod model;
 pub mod replay;
 pub mod rng;
 mod sim;
+pub mod validate;
 
 use serde::{Deserialize, Serialize};
 
 use crate::model::army::{Army, DerivationError};
 use crate::model::ruleset::Ruleset;
 use crate::replay::{MatchConfig, MatchResult, Replay, CURRENT_FORMAT_VERSION};
+use crate::validate::ValidationError;
 
 /// Crate version, surfaced so the balancer/host can confirm they linked the expected engine build.
 pub fn engine_version() -> &'static str {
@@ -51,6 +53,8 @@ pub struct BattleOutput {
 /// legality errors are added in US2 (`validate`).
 #[derive(Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub enum ResolveError {
+    /// One or both armies failed validation (V1–V8) — the engine refuses to simulate illegal input.
+    Invalid(Vec<ValidationError>),
     /// A machine's build could not be reduced to effective stats (unknown id / wrong slot kind).
     Derivation(DerivationError),
 }
@@ -65,6 +69,18 @@ impl From<DerivationError> for ResolveError {
 /// ambient randomness, no panics on well-formed input. US1 runs a **single game**; the Bo3 wrapper
 /// lands in US4.
 pub fn resolve(input: &BattleInput) -> Result<BattleOutput, ResolveError> {
+    // Trust boundary: never simulate an illegal army (FR-009). Both armies are validated up front;
+    // all violations across both sides are surfaced together.
+    let mut invalid = Vec::new();
+    for army in &input.armies {
+        if let Err(mut errs) = validate::validate(army, &input.ruleset) {
+            invalid.append(&mut errs);
+        }
+    }
+    if !invalid.is_empty() {
+        return Err(ResolveError::Invalid(invalid));
+    }
+
     let mut combatants = sim::build_combatants(&input.armies, &input.ruleset)?;
     let mut rng = crate::rng::Rng::from_seed(input.seed);
 

@@ -316,6 +316,19 @@ fn run_twice_invariant_across_seeds() {
     }
 }
 
+/// The trust boundary end-to-end (SC-005): `resolve` refuses an illegal army rather than
+/// simulating it, returning the validation errors.
+#[test]
+fn resolve_rejects_an_illegal_army() {
+    use engine::ResolveError;
+    let mut input = fixed_battle_input(1);
+    input.armies[0].machines.pop(); // now a 4-machine squad (V1 violation)
+    match resolve(&input) {
+        Err(ResolveError::Invalid(errs)) => assert!(!errs.is_empty()),
+        other => panic!("expected Invalid, got {other:?}"),
+    }
+}
+
 /// The committed golden battery (T026): a handful of fixed battles pinned to exact hashes — the
 /// real determinism contract. The wasm build asserts these same hashes (T017) to prove native ==
 /// wasm. Re-bless (BLESS_GOLDEN=1) only for an intended engine change.
