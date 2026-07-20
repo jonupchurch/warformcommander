@@ -5,7 +5,7 @@
  * `deriveMarkers` collects planb/death in one memoized pass (FR-015).
  */
 
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
@@ -119,17 +119,26 @@ describe('seek is O(1), not O(tick) (SC-003)', () => {
   });
 });
 
-describe('the reader-extension never imports the engine (SC-005, anti-regression)', () => {
-  it('replay-view.ts + use-playback.ts have no @wfc/engine-wasm / sim engine import', () => {
+describe('the playback surface never imports the engine (SC-005, anti-regression)', () => {
+  // The whole surface, not just the two foundational files: the reader extension + every playback
+  // component. Seek must stay an array index; nothing here may reach the wasm engine (P6). This is
+  // the load-bearing anti-regression for the previous game's broken viewer — never weaken it.
+  const battleDir = join(process.cwd(), 'components', 'battle');
+  const playbackModules = [
+    'sim/replay-view.ts',
+    ...readdirSync(battleDir)
+      .filter((f) => /\.tsx?$/.test(f) && !f.endsWith('.test.ts'))
+      .map((f) => join('components', 'battle', f)),
+  ];
+
+  it.each(playbackModules)('%s has no @wfc/engine-wasm / sim engine import', (rel) => {
     // Match import/require *specifiers* — not prose in a doc comment (which legitimately names the
     // module it promises never to import).
-    for (const rel of ['sim/replay-view.ts', 'components/battle/use-playback.ts']) {
-      const src = readFileSync(join(process.cwd(), rel), 'utf8');
-      expect(src).not.toMatch(/from\s+['"]@wfc\/engine-wasm['"]/);
-      expect(src).not.toMatch(/require\(\s*['"]@wfc\/engine-wasm['"]/);
-      expect(src).not.toMatch(/from\s+['"][@./\w-]*\/sim\/engine['"]/); // the wasm loader
-      expect(src).not.toMatch(/from\s+['"]@\/sim['"]/); // the wasm boundary barrel
-    }
+    const src = readFileSync(join(process.cwd(), rel), 'utf8');
+    expect(src).not.toMatch(/from\s+['"]@wfc\/engine-wasm['"]/);
+    expect(src).not.toMatch(/require\(\s*['"]@wfc\/engine-wasm['"]/);
+    expect(src).not.toMatch(/from\s+['"][@./\w-]*\/sim\/engine['"]/); // the wasm loader
+    expect(src).not.toMatch(/from\s+['"]@\/sim['"]/); // the wasm boundary barrel
   });
 });
 

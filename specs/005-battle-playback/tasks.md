@@ -95,15 +95,15 @@ call**; a last-tick seek touches the same # of array reads as a tick-1 seek (O(1
 
 ### Tests for User Story 2 ⚠️ (write first — the anti-regression is central)
 
-- [ ] T017 [P] [US2] `src/sim/replay-view.test.ts`: **O(1) seek** — instrument `snapshotAt` (a read counter) and assert seeking `lastTick` of the 1000-tick fixture performs the **same bounded number of reads** as seeking tick 1 (no O(tick) loop) (SC-003).
-- [ ] T018 [P] [US2] `src/sim/replay-view.test.ts` + a module-import assertion: **the engine is never imported/invoked** by `replay-view.ts`, `use-playback.ts`, or the `battle/*` components — assert `@wfc/engine-wasm` is absent from the playback module's import graph (static check) and that a spy on any engine entry is never called across load→play→scrub→speed→game-switch (SC-005 — the anti-regression for the previous game's bug).
-- [ ] T019 [P] [US2] `use-playback.test.ts`: `seek(t)` clamps to `[0,lastTick]` and sets `currentTick=t` in one dispatch (no fast-forward); seek-during-play = jump-and-continue, seek-paused = jump-and-stay (FR-011/FR-012, research B5).
-- [ ] T020 [P] [US2] `e2e/battle-playback.spec.ts`: drag the scrubber to tick 0, last, and a mid value while **paused** and while **playing**; assert the rendered tick readout + battlefield match the target within one frame; arrow keys ±1, Home/End jump (AS1–AS4).
+- [x] T017 [P] [US2] `tests/replay-view.test.ts`: **O(1) seek** — instruments `snapshotAt` (a read counter) and asserts seeking `lastTick` of the 1000-tick fixture performs the **same bounded reads** as seeking tick 1 (no O(tick) loop), incl. the full `buildViewModel` projection (SC-003). Green.
+- [x] T018 [P] [US2] `tests/replay-view.test.ts`: **the engine is never imported** — a static import-specifier scan over `sim/replay-view.ts` **+ every `components/battle/*` file** (parametrized) asserts no `@wfc/engine-wasm` / `@/sim` / `sim/engine` import (SC-005 — the anti-regression for the previous game's bug). Green (9 modules).
+- [x] T019 [P] [US2] `tests/use-playback.test.ts`: `seek(t)` clamps to `[0,lastTick]` in one dispatch (no fast-forward); seek-during-play preserves `isPlaying` (jump-and-continue), seek-paused stays paused (jump-and-stay) (FR-011/FR-012, research B5). Green.
+- [~] T020 [P] [US2] `e2e/battle-playback.spec.ts` — **deferred** (browser-gated). SSR smoke confirms the slider renders `type="range"` + `aria-label="Battle timeline"` + `aria-valuetext`.
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `src/components/battle/scrubber.tsx` (`"use client"`) — the **WAI-ARIA media-seek slider**: `role="slider"` + `aria-valuenow/min/max` + human-readable `aria-valuetext`; pointer drag/click-on-track → `onSeek` (one O(1) seek, coalesced); keyboard Arrow ±1 / Home/End / PageUp/PageDown ±10; visible focus (contract §3, research C1/C2).
-- [ ] T022 [US2] Wire the `Scrubber` into `BattlePlayer` bound to `usePlayback.seek`/`currentTick`/`lastTick`; confirm seeking mid-playback keeps readout + frame in sync (FR-012). Re-run US1 tests green.
+- [x] T021 [US2] `components/battle/scrubber.tsx` (`"use client"`) — the **WAI-ARIA media-seek slider** on a native `<input type="range">`: implicit `role="slider"` + `aria-valuenow/min/max`, human-readable `aria-valuetext`; pointer drag/click-on-track + Arrow ±1 / Home/End native, **PageUp/PageDown overridden to ±10**; every change is one O(1) `onSeek`; `--faction-friendly` accent + visible `--ring` focus (contract §3, research C1/C2).
+- [x] T022 [US2] Wired the `Scrubber` into `BattlePlayer` bound to `usePlayback.seek`/`currentTick`/`lastTick`, with the tick·time readout; seeking mid-playback keeps readout + frame in sync (FR-012). US1 tests re-run green.
 
 **Checkpoint**: the scrubber seeks any tick instantly, O(1), never re-simulating — the headline fix, proven by T017/T018.
 

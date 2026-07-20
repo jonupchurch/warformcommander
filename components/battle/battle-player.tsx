@@ -21,6 +21,7 @@ import { createReplayView, type ReplayView } from '@/sim/replay-view';
 
 import { BattleStage } from './battle-stage';
 import { OverallStats } from './overall-stats';
+import { Scrubber } from './scrubber';
 import { usePlayback } from './use-playback';
 
 export interface BattlePlayerProps {
@@ -92,11 +93,22 @@ function BattlePlayerInner({
 
       <BattleStage view={vm} progress={vm.progress} />
 
-      {/* Minimal US1 transport — the full control cluster + scrubber + markers arrive in US2–US5. */}
-      <div className="flex items-center justify-center gap-3">
+      {/* Transport row: play/pause + the O(1) media-seek scrubber. The full control cluster + event
+          markers arrive in US3–US4. */}
+      <div className="flex items-center gap-3 rounded-xl border border-border bg-surface-rail px-3 py-3 sm:px-5">
         <Button type="button" onClick={player.toggle} aria-label={player.isPlaying ? 'Pause' : 'Play'}>
-          {player.isPlaying ? '❚❚ Pause' : '▶ Play'}
+          {player.isPlaying ? '❚❚' : '▶'}
         </Button>
+        <Scrubber
+          currentTick={player.currentTick}
+          lastTick={player.lastTick}
+          tickRate={tickRate}
+          onSeek={player.seek}
+          className="flex-1"
+        />
+        <span className="type-readout min-w-24 text-right text-xs text-text-muted tabular-nums">
+          {tickStr} · {timeStr}
+        </span>
         {summaryHref && (
           <Button asChild variant="secondary">
             <a href={summaryHref}>Skip to Outcome →</a>
