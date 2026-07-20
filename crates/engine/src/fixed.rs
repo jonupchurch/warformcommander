@@ -74,6 +74,15 @@ impl Fixed {
         Fixed(((self.0 as i128 * bp as i128) / BP_ONE as i128) as i64)
     }
 
+    /// Divide by a basis-point fraction — the inverse of [`mul_bp`] (`div_bp(10_000)` is identity).
+    /// Used to convert shield-overflow damage back through the shield multiplier (§9.2). Widens to
+    /// `i128`; truncates toward zero. `bp` must be non-zero.
+    #[inline]
+    pub fn div_bp(self, bp: i64) -> Fixed {
+        debug_assert!(bp != 0, "div_bp(0) is undefined");
+        Fixed(((self.0 as i128 * BP_ONE as i128) / bp as i128) as i64)
+    }
+
     /// Saturating add (never overflows / panics — keeps debug == release).
     #[inline]
     pub fn saturating_add(self, other: Fixed) -> Fixed {
@@ -212,6 +221,18 @@ mod tests {
         let a = x.mul_bp(8_500).mul_bp(12_500);
         // Recompute the same order -> identical (determinism), independent of run.
         assert_eq!(a, x.mul_bp(8_500).mul_bp(12_500));
+    }
+
+    #[test]
+    fn div_bp_inverts_mul_bp() {
+        // Overflow-conversion shape: (D0 × mult − pool) ÷ mult recovers the leaked hull damage.
+        let d0 = Fixed::from_int(100);
+        let mult = 14_000; // ×1.4 shields
+        let shield_dmg = d0.mul_bp(mult); // 140
+        let pool = Fixed::from_int(40);
+        let leaked = shield_dmg.saturating_sub(pool).div_bp(mult); // (140−40)/1.4 = 71.42→71.428
+        assert_eq!(leaked, Fixed::from_milli(71_428));
+        assert_eq!(Fixed::from_int(250).div_bp(BP_ONE), Fixed::from_int(250)); // ÷1.0 identity
     }
 
     #[test]

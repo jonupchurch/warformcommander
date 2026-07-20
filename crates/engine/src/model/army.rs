@@ -134,10 +134,15 @@ pub enum DerivationError {
     UnknownVariant(VariantId),
     UnknownEquipment(EquipmentId),
     /// The slot referenced an equipment id of the wrong kind (e.g. a defense in the weapon slot).
-    WrongSlotKind {
-        id: EquipmentId,
-        expected: &'static str,
-    },
+    WrongSlotKind { id: EquipmentId, expected: SlotKind },
+}
+
+/// Which equipment kind a slot expects (kept `Serialize`/`Deserialize`-friendly for the boundary).
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
+pub enum SlotKind {
+    Weapon,
+    Defense,
+    Utility,
 }
 
 /// Internal additive accumulator — folds each module's [`StatDeltas`] in one place so the
@@ -321,7 +326,7 @@ fn lookup_weapon<'r>(
             EquipmentSpec::Weapon(w) => Ok(w),
             _ => Err(DerivationError::WrongSlotKind {
                 id: id.clone(),
-                expected: "Weapon",
+                expected: SlotKind::Weapon,
             }),
         },
         None => Err(DerivationError::UnknownEquipment(id.clone())),
@@ -337,7 +342,7 @@ fn lookup_defense<'r>(
             EquipmentSpec::Defense(d) => Ok(d),
             _ => Err(DerivationError::WrongSlotKind {
                 id: id.clone(),
-                expected: "Defense",
+                expected: SlotKind::Defense,
             }),
         },
         None => Err(DerivationError::UnknownEquipment(id.clone())),
@@ -353,7 +358,7 @@ fn lookup_utility<'r>(
             EquipmentSpec::Utility(u) => Ok(u),
             _ => Err(DerivationError::WrongSlotKind {
                 id: id.clone(),
-                expected: "Utility",
+                expected: SlotKind::Utility,
             }),
         },
         None => Err(DerivationError::UnknownEquipment(id.clone())),
@@ -680,7 +685,7 @@ mod tests {
         let swapped = instance("CompositeArmor", "CompositeArmor", &["Autoloader"]);
         assert!(matches!(
             derive_effective_stats(&swapped, &rs),
-            Err(DerivationError::WrongSlotKind { expected: "Weapon", .. })
+            Err(DerivationError::WrongSlotKind { expected: SlotKind::Weapon, .. })
         ));
     }
 

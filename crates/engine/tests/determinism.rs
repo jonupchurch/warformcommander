@@ -13,15 +13,17 @@
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
+use engine::content::{seed_ruleset, stock_instance};
 use engine::fixed::Fixed;
 use engine::model::army::Army;
 use engine::model::ruleset::RulesetHash;
-use engine::model::types::ZoneId;
+use engine::model::types::{MachineTypeId, TargetRule, ZoneId};
 use engine::replay::{
     Adaptation, DamageLayer, GameReplay, GameResult, MachineFate, MachineSnapshot, MatchConfig,
     MatchResult, Replay, RewardTier, Side, SideSummary, Fate, Tick, TickEvent, UnitRef,
     WinCondition, CURRENT_FORMAT_VERSION,
 };
+use engine::{resolve, BattleInput};
 
 // ---------------------------------------------------------------------------
 // Golden manifest machinery
@@ -207,4 +209,120 @@ fn hit_damage_reconciles() {
         r.total_hit_damage_by(Side::A),
         r.result.side(Side::A).damage_dealt
     );
+}
+
+// ---------------------------------------------------------------------------
+// US1 — a real 5v5 battle resolved by the engine
+// ---------------------------------------------------------------------------
+
+/// A fixed, legal 5v5 exercising the counter-web: heli vs SAM (AA), tanks trading, artillery
+/// splash, a healer. Two armies within zone caps (Air ≤ 2, ground ≤ 3).
+fn fixed_battle_input(seed: u64) -> BattleInput {
+    let rs = seed_ruleset();
+    let army_a = Army {
+        machines: vec![
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 0),
+            stock_instance(&rs, MachineTypeId::LightTank, "Scout", ZoneId::Front, 1),
+            stock_instance(&rs, MachineTypeId::Mech, "Vanguard", ZoneId::Middle, 2),
+            stock_instance(&rs, MachineTypeId::AttackHeli, "Gunship", ZoneId::Air, 3),
+            stock_instance(&rs, MachineTypeId::Artillery, "Longbow", ZoneId::Rear, 4),
+        ],
+    };
+    let army_b = Army {
+        machines: vec![
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Cavalier", ZoneId::Front, 0),
+            stock_instance(&rs, MachineTypeId::RocketArtillery, "Sentry", ZoneId::Middle, 1),
+            stock_instance(&rs, MachineTypeId::Mech, "Striker", ZoneId::Front, 2),
+            stock_instance(&rs, MachineTypeId::Artillery, "Longbow", ZoneId::Rear, 3),
+            stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
+        ],
+    };
+    BattleInput {
+        armies: [army_a, army_b],
+        ruleset: rs,
+        seed,
+        match_config: MatchConfig {
+            adaptation: Adaptation::Locked,
+            defender_side: Side::B,
+            best_of: 3,
+        },
+    }
+}
+
+/// A real battle resolves: it terminates with a tick stream and a winner.
+#[test]
+fn battle_resolves_and_terminates() {
+    let out = resolve(&fixed_battle_input(0xC0FFEE)).expect("valid armies resolve");
+    assert_eq!(out.replay.games.len(), 1, "US1 runs a single game");
+    let game = &out.replay.games[0];
+    assert!(!game.ticks.is_empty(), "the game produced ticks");
+    assert!(
+        game.ticks.len() <= 1000,
+        "terminates within the hard tick cap"
+    );
+    // The reconciliation invariant (SC-002): summed Hit damage equals the result totals.
+    assert_eq!(
+        out.replay.total_hit_damage_by(Side::A),
+        out.result.side(Side::A).damage_dealt
+    );
+    assert_eq!(
+        out.replay.total_hit_damage_by(Side::B),
+        out.result.side(Side::B).damage_dealt
+    );
+}
+
+/// SC-001 (intra-run): the same input resolved many times is byte-identical every time.
+#[test]
+fn same_input_hashes_equal_many_times() {
+    let input = fixed_battle_input(0xABCD_1234);
+    let baseline = resolve(&input).unwrap().replay.digest();
+    for _ in 0..1000 {
+        assert_eq!(resolve(&input).unwrap().replay.digest(), baseline);
+    }
+}
+
+/// AS3 sensitivity: flipping the seed, a dial, or a placement changes the output hash.
+#[test]
+fn input_changes_change_the_hash() {
+    let base = fixed_battle_input(1);
+    let h0 = resolve(&base).unwrap().replay.digest();
+
+    // (a) a different seed.
+    let h_seed = resolve(&fixed_battle_input(2)).unwrap().replay.digest();
+    assert_ne!(h0, h_seed, "seed change must change the outcome");
+
+    // (b) a dial change on one machine.
+    let mut dial = fixed_battle_input(1);
+    dial.armies[0].machines[0].dials.target_rule = TargetRule::DisperseFire;
+    assert_ne!(h0, resolve(&dial).unwrap().replay.digest(), "dial change matters");
+
+    // (c) a placement change.
+    let mut placed = fixed_battle_input(1);
+    placed.armies[0].machines[1].zone = ZoneId::Middle;
+    assert_ne!(h0, resolve(&placed).unwrap().replay.digest(), "placement matters");
+}
+
+/// SC-001 (run-twice invariant) swept across many seeds — resolve(x) == resolve(x) for all x.
+/// (A deterministic seed sweep gives the same signal as a proptest for a pure, total function.)
+#[test]
+fn run_twice_invariant_across_seeds() {
+    for seed in 0..64u64 {
+        let input = fixed_battle_input(seed.wrapping_mul(0x9E37_79B9_7F4A_7C15));
+        assert_eq!(
+            resolve(&input).unwrap().replay.digest(),
+            resolve(&input).unwrap().replay.digest(),
+            "seed {seed} must be reproducible"
+        );
+    }
+}
+
+/// The committed golden battery (T026): a handful of fixed battles pinned to exact hashes — the
+/// real determinism contract. The wasm build asserts these same hashes (T017) to prove native ==
+/// wasm. Re-bless (BLESS_GOLDEN=1) only for an intended engine change.
+#[test]
+fn battle_battery_matches_golden() {
+    for seed in [1u64, 42, 0xDEAD_BEEF, 0x1234_5678] {
+        let digest = resolve(&fixed_battle_input(seed)).unwrap().replay.digest();
+        assert_golden(&format!("battle_seed_{seed:016x}"), &digest);
+    }
 }
