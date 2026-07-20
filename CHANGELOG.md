@@ -124,5 +124,30 @@ once it reaches a released version. Until then, everything lives under
     the whole real `packages/engine-wasm/` directory into the function bundle (not just the
     `.wasm`) and loading the engine from that real path rather than the npm-workspace
     symlink, which resolves to an absolute local path that doesn't exist on Vercel.
+- **Feature 3 — app shell + design system (2026-07-20).** The visual + structural
+  foundation every screen composes, on branch `003-app-shell`:
+  - **Design tokens** (`app/globals.css`) — the full Brand Foundation as a tiered
+    Tailwind v4 system: primitive ramps → semantic faction/zone/family roles → published
+    `bg-*`/`text-*`/`border-*` utilities → shadcn base tokens re-pointed on-brand, dark-only,
+    with a reduced-motion reset. Fonts: Archivo (variable, width axis → expanded display face)
+    + Space Mono via `next/font`. A `lint:tokens` guard forbids raw brand hex outside the token
+    file (SC-002). The brand purple was brightened `#7b5cff`→`#8a6dff` to clear WCAG AA as small
+    text (FR-005).
+  - **Responsive app shell** (`components/shell/`) — `AppShell` (sticky blurred header +
+    max-width/safe-area content + skip link + nav landmark), `PrimaryNav` (top-tab in
+    landscape, viewport-pinned bottom bar in portrait — the P7 spine), `IdentityBadge`; an
+    `app/(app)` route group so every later screen inherits the chrome.
+  - **Primitive kit** (`components/ui/`) — Button (cva variants + `asChild`), Panel,
+    SectionLabel, Chip, StatBar, Stat, BracketFrame, GridBackdrop, plus shadcn
+    dropdown-menu/dialog/sheet themed by the base tokens alone (SC-007). Conventions in
+    `components/README.md`.
+  - **Brand marks** (`components/brand/`) — the two-wedge `Logo` (all lockups), `Wordmark`,
+    and `UnitIcon` inlining the 7 machine SVGs with `currentColor` faction tinting (SC-008).
+  - **Verification** — 18 Playwright + `@axe-core/playwright` e2e (token fidelity, AA contrast,
+    responsive shell no-overflow/chrome-switch, primitive variants, brand lockups, focus rings,
+    reduced motion — SC-001…SC-010), all green with `next build` + `tsc` + ESLint + the token
+    guard; browsable at `/gallery`. New `web-ci` GitHub workflow gates it. The repo keeps
+    root-level `components/`/`lib/` (matching `sim/`/`db/`) rather than `src/`; the user's custom
+    `app/favicon.ico` was left untouched. Removed the unused create-next-app scaffold SVGs.
 
 [Unreleased]: https://github.com/jonupchurch/warformcommander/commits/main
