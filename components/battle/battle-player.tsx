@@ -14,13 +14,13 @@
 
 import { useMemo } from 'react';
 
-import { Button } from '@/components/ui/button';
 import { Panel } from '@/components/ui/panel';
 import type { Side, WireReplay } from '@/sim/replay-reader';
 import { createReplayView, type ReplayView } from '@/sim/replay-view';
 
 import { BattleStage } from './battle-stage';
 import { OverallStats } from './overall-stats';
+import { PlaybackControls } from './playback-controls';
 import { Scrubber } from './scrubber';
 import { usePlayback } from './use-playback';
 
@@ -81,8 +81,22 @@ function BattlePlayerInner({
   const timeStr = `${(player.currentTick / tickRate).toFixed(1)}s`;
   const gameLabel = `GAME ${player.gameIndex + 1} / ${view.gamesCount}`;
 
+  // Space / K toggle play from anywhere in the player region (research C2). Space is skipped when a
+  // control that owns it has focus (a Button activates on Space) — K stays a universal toggle.
+  function onKeyDown(event: React.KeyboardEvent<HTMLElement>) {
+    const tag = (event.target as HTMLElement).tagName;
+    const controlHasSpace = tag === 'BUTTON' || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+    if (event.key === 'k' || event.key === 'K') {
+      event.preventDefault();
+      player.toggle();
+    } else if (event.key === ' ' && !controlHasSpace) {
+      event.preventDefault();
+      player.toggle();
+    }
+  }
+
   return (
-    <section className="flex flex-col gap-3">
+    <section className="flex flex-col gap-3" onKeyDown={onKeyDown}>
       <OverallStats
         player={vm.stats.player}
         enemy={vm.stats.enemy}
@@ -93,27 +107,32 @@ function BattlePlayerInner({
 
       <BattleStage view={vm} progress={vm.progress} />
 
-      {/* Transport row: play/pause + the O(1) media-seek scrubber. The full control cluster + event
-          markers arrive in US3–US4. */}
-      <div className="flex items-center gap-3 rounded-xl border border-border bg-surface-rail px-3 py-3 sm:px-5">
-        <Button type="button" onClick={player.toggle} aria-label={player.isPlaying ? 'Pause' : 'Play'}>
-          {player.isPlaying ? '❚❚' : '▶'}
-        </Button>
-        <Scrubber
-          currentTick={player.currentTick}
-          lastTick={player.lastTick}
-          tickRate={tickRate}
-          onSeek={player.seek}
-          className="flex-1"
+      {/* Transport panel: the full control cluster over the O(1) media-seek scrubber (US4 overlays
+          event markers on the track). */}
+      <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface-rail px-3 py-3 sm:px-5">
+        <PlaybackControls
+          isPlaying={player.isPlaying}
+          speed={player.speed}
+          atEnd={player.atEnd}
+          onToggle={player.toggle}
+          onStep={player.step}
+          onJumpStart={() => player.seek(0)}
+          onJumpEnd={() => player.seek(player.lastTick)}
+          onSetSpeed={player.setSpeed}
+          summaryHref={summaryHref}
         />
-        <span className="type-readout min-w-24 text-right text-xs text-text-muted tabular-nums">
-          {tickStr} · {timeStr}
-        </span>
-        {summaryHref && (
-          <Button asChild variant="secondary">
-            <a href={summaryHref}>Skip to Outcome →</a>
-          </Button>
-        )}
+        <div className="flex items-center gap-3">
+          <Scrubber
+            currentTick={player.currentTick}
+            lastTick={player.lastTick}
+            tickRate={tickRate}
+            onSeek={player.seek}
+            className="flex-1"
+          />
+          <span className="type-readout min-w-24 text-right text-xs text-text-muted tabular-nums">
+            {tickStr} · {timeStr}
+          </span>
+        </div>
       </div>
     </section>
   );

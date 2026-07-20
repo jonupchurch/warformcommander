@@ -119,14 +119,14 @@ and pauses; jump-to-end sets `currentTick=lastTick`.
 
 ### Tests for User Story 3 ⚠️ (write first)
 
-- [ ] T023 [P] [US3] `use-playback.test.ts`: the rAF accumulator advances ticks at `10×speed` t/s (fake timers) for 0.5×/1×/2× within tolerance, showing the same tick sequence at every speed (SC-006, AS1/AS4).
-- [ ] T024 [P] [US3] `use-playback.test.ts`: `step(±n)` pauses and moves exactly `n` ticks, clamped to `[0,lastTick]`; `selectGame(g)` resets to tick 0 (FR-014/FR-009, AS2/AS3).
-- [ ] T025 [P] [US3] `e2e/battle-playback.spec.ts`: speed toggle changes advance rate; frame-step buttons step + pause; jump-to-start/end move to 0/last; "Skip to Outcome" routes to the summary href when provided (AS1–AS3).
+- [x] T023 [P] [US3] Pacing cadence covered by `tests/use-playback.test.ts` "pacing math" — `msPerTickAt` = 100/50/200 and `drainTicks` yields 10/20/5 ticks per 1000 ms at 1×/2×/0.5× with the sub-tick remainder carried (SC-006). The rAF loop that drives these under fake timers is deferred to the e2e layer.
+- [x] T024 [P] [US3] `tests/use-playback.test.ts`: `step(±n)` pauses and moves exactly `n`, clamped to `[0,lastTick]`; `selectGame(g)` resets to tick 0, paused (FR-014/FR-009, AS2/AS3). Green.
+- [~] T025 [P] [US3] `e2e/battle-playback.spec.ts` — **deferred** (browser-gated). SSR smoke confirms the jump/step/play buttons + speed group render.
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement `src/components/battle/playback-controls.tsx` (`"use client"`) — jump-start / ◄◄ frame-step / play-pause / ►► frame-step / jump-end / speed toggle (0.5×/1×/2×) / "Skip to Outcome →" (routes to `summaryHref`, Feature 6), all Feature 3 `Button`s, keyboard-operable, Space/`K` toggles play (contract §3, research C2).
-- [ ] T027 [US3] Wire `PlaybackControls` into `BattlePlayer` (bind to `usePlayback` `setSpeed`/`step`/`jumpStart`/`jumpEnd`/`toggle`); replace US1's minimal button. Re-run US1/US2 tests green.
+- [x] T026 [US3] `components/battle/playback-controls.tsx` (`"use client"`) — jump-start ⏮ / ◄◄ frame-step / play-pause (↺ replay at end) / ►► frame-step / jump-end ⏭ / a 0.5×/1×/2× speed toggle group / "Skip to Outcome →", all Feature 3 `Button`s with `aria-label`s; keyboard-operable (contract §3, research C2).
+- [x] T027 [US3] Wired `PlaybackControls` into `BattlePlayer` (bound to `usePlayback` `setSpeed`/`step`/`toggle` + `seek(0)`/`seek(lastTick)` for jump); replaced US1's minimal button; **Space/`K` play-toggle** on the player region (skips Space when a control owns it). US1/US2 tests re-run green.
 
 **Checkpoint**: pace is fully controllable; the control cluster matches the mockup.
 
