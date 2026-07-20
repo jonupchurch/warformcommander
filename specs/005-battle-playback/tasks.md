@@ -67,17 +67,17 @@ halts cleanly at the last tick — all by indexing the reader, never the engine.
 
 ### Tests for User Story 1 ⚠️ (write first)
 
-- [ ] T009 [P] [US1] `src/components/battle/use-playback.test.ts`: the reducer — `play`/`pause`/`tick` transitions; `tick` clamps at `lastTick` and sets `isPlaying=false` at the end (FR-010, AS2/AS3).
-- [ ] T010 [P] [US1] `src/sim/replay-view.test.ts`: for a fixture, `buildViewModel(g, t)` for a sweep of ticks equals the expected per-unit hull/shield/zone/alive from `snapshotAt(g, t)` (SC-001, AS1/AS4).
-- [ ] T011 [P] [US1] `e2e/battle-playback.spec.ts`: load fixture → press Play → assert the tick readout advances ~10/sec and stops at the last tick; a `death` event dims its unit + shows "DOWN" from that tick on (AS1/AS2/AS4).
+- [x] T009 [P] [US1] Reducer tests live in `tests/use-playback.test.ts` (repo root, not `src/`) — `play`/`pause`/`tick` transitions; `tick` clamps at `lastTick` and sets `isPlaying=false` at the end (FR-010, AS2/AS3). Green.
+- [x] T010 [P] [US1] `tests/replay-view.test.ts`: `buildViewModel(g, t)` for a sweep of ticks equals the per-unit hull/shield/zone/alive from `snapshotAt(g, t)` (SC-001, AS1/AS4). Green.
+- [~] T011 [P] [US1] `e2e/battle-playback.spec.ts` — **deferred** (browser-gated; written with the interactive stories). SSR smoke stands in meanwhile: the route renders tick-0 across both sides' AIR/FRONT/MIDDLE/REAR + stats, no reject.
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `src/components/battle/unit-sprite.tsx` — one `UnitView` at its tick state: `UnitIcon` (faction tint via `currentColor`) + token-styled hull/shield bars + numeric readout + dead treatment (dimmed + "DOWN"); VFX hooks stubbed for US-later (FR-006).
-- [ ] T013 [P] [US1] Implement `src/components/battle/zone-column.tsx` — a zone's unit stack (Air row or a ground column), empty-state em-dash, zone label bar (FR-005).
-- [ ] T014 [US1] Implement `src/components/battle/contact-line.tsx` (center strip + `progress` node) and `src/components/battle/battle-stage.tsx` — the two-side, 4-zone DOM/flex/grid battlefield from a `BattleViewModel` (player Fronts vs enemy Fronts at the contact line, §4/mockup) (FR-005).
-- [ ] T015 [US1] Implement `src/components/battle/overall-stats.tsx` — per-side alive `n/5` / summed hull / damage-dealt + tick/time readout (FR-008), from the current-tick projection.
-- [ ] T016 [US1] Implement `src/components/battle/battle-player.tsx` (`"use client"`) — construct `createReplayView(replay, playerSide)`, drive `usePlayback`, compose `BattleStage` + `OverallStats` + a minimal play/pause button; wire `app/(app)/battle/[matchId]/page.tsx` to render it (contract §3/§4). MVP: play/pause + auto-advance works end to end.
+- [x] T012 [P] [US1] `components/battle/unit-sprite.tsx` (root-level, repo convention) — one `UnitView` at its tick state: `UnitIcon` (faction tint via `currentColor`, owns the `typeId→icon` map) + token-styled hull/shield bars + numeric readout + dead treatment (dimmed + "DOWN"); VFX hook (`events` prop) stubbed for US5/T037 (FR-006).
+- [x] T013 [P] [US1] `components/battle/zone-column.tsx` — a zone's unit stack (Air row **or** a ground column), empty-state em-dash, zone label bar tinted by the `--zone-*` token (FR-005).
+- [x] T014 [US1] `components/battle/contact-line.tsx` (center strip + motion-safe `progress` node) and `components/battle/battle-stage.tsx` — the two-side, 4-zone DOM/grid battlefield from a `BattleViewModel` (player Fronts vs enemy Fronts at the contact line, §4/mockup); `minmax(0,1fr)` columns shrink rather than overflow (FR-005).
+- [x] T015 [US1] `components/battle/overall-stats.tsx` — per-side alive `n/total` / summed hull / damage-dealt + game/tick/time readout (FR-008), from the current-tick projection.
+- [x] T016 [US1] `components/battle/battle-player.tsx` (`"use client"`) — constructs `createReplayView(replay, playerSide)` (graceful reject on unsupported format), drives `usePlayback`, composes `OverallStats` + `BattleStage` + a play/pause button; `app/(app)/battle/[matchId]/page.tsx` renders it from a documented demo-replay seam (F7 `getReplay` swaps in). MVP: play/pause + auto-advance works end to end (SSR smoke + build green).
 
 **Checkpoint**: a stored replay plays start→finish across the zones — the watchable MVP.
 
