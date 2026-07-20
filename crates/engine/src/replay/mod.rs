@@ -8,6 +8,8 @@
 //! serialize to a canonical byte string and hash deterministically (research A5) — the golden
 //! test's foundation.
 
+pub mod format;
+
 use serde::{Deserialize, Serialize};
 
 use crate::fixed::{Bp, Fixed};

@@ -210,19 +210,22 @@ fn validate_both(armies: &[Army; 2], ruleset: &Ruleset) -> Result<(), ResolveErr
 #[derive(Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
 #[serde(tag = "status", rename_all = "camelCase")]
 enum ResolveResponse {
-    // Boxed: a `BattleOutput` (a whole Replay) dwarfs the error variants; boxing keeps the enum small.
-    Ok(Box<BattleOutput>),
+    // Boxed: a `WireReplay` (a whole tick stream) dwarfs the error variants; boxing keeps it small.
+    Ok(Box<crate::replay::format::WireReplay>),
     Error(ResolveError),
     ParseError { message: String },
 }
 
-/// The thin JS↔WASM boundary (engine-api §JS↔WASM): JSON bytes in ([`BattleInput`]), JSON bytes out
-/// ([`ResolveResponse`]). Never panics — a bad input becomes a `ParseError` response. Rust owns both
-/// buffers; the host copies across the boundary.
+/// The thin JS↔WASM boundary (engine-api §JS↔WASM): JSON bytes in ([`BattleInput`]), JSON bytes out.
+/// The success payload is the **compact wire replay** (positional/columnar, seekable) the client
+/// consumes — see [`replay::format`]. Never panics — a bad input becomes a `parseError` response;
+/// Rust owns both buffers, the host copies across the boundary.
 pub fn resolve_bytes(input: &[u8]) -> Vec<u8> {
     let response = match serde_json::from_slice::<BattleInput>(input) {
         Ok(inp) => match resolve(&inp) {
-            Ok(out) => ResolveResponse::Ok(Box::new(out)),
+            Ok(out) => {
+                ResolveResponse::Ok(Box::new(replay::format::to_wire(&out.replay, &inp.ruleset)))
+            }
             Err(e) => ResolveResponse::Error(e),
         },
         Err(e) => ResolveResponse::ParseError {
