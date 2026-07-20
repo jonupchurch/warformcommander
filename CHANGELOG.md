@@ -101,9 +101,19 @@ once it reaches a released version. Until then, everything lives under
     conditions + Bo3 + adaptation modes, wire reconstruction/reconciliation),
     `cargo clippy --all-targets -D warnings` + `cargo fmt --check` clean, a
     `resolve_demo` example, and a balancer throughput smoke (**10k Bo3 ≈ 3.5s**,
-    SC-006). Engine CI workflow added (native x86-64 + ARM64 matrix, a wasm-pack
-    Node job, fmt/clippy, TS typecheck). Six per-damage-type muzzle/explosion SVGs
-    added for the Feature 5 playback renderer. **Remaining:** the WASM cross-compile
-    + Next.js host route + native==wasm golden check (needs `wasm-pack`).
+    SC-006). Six per-damage-type muzzle/explosion SVGs added for the Feature 5
+    playback renderer.
+  - **WASM + web host (complete).** The engine is cross-compiled to WebAssembly
+    (`wasm-pack build --target nodejs`) and the artifact is **prebuilt-and-committed**
+    to `packages/engine-wasm/` (`@wfc/engine-wasm`, an npm workspace) so Vercel needs
+    no Rust toolchain. `native == wasm` is proven **byte-for-byte** across the golden
+    battery (`examples/emit_battery.rs` + `scripts/wasm-parity.mjs`; P6/SC-001, T017).
+    A `POST /api/resolve` Next.js route (Node runtime) resolves a `BattleInput` to a
+    wire replay via a server-only host (`sim/index.ts`), verified with `next build`
+    and a live HTTP smoke. `next.config` externalizes the wasm + traces the `.wasm`
+    into the function bundle. Engine CI workflow added: native x86-64 + ARM64 matrix,
+    the wasm-parity check, fmt/clippy, and the TS typecheck. **Feature 1 is complete;**
+    the only carried-forward item is the V1–V8 TypeScript validation mirror (Garage /
+    Feature 4).
 
 [Unreleased]: https://github.com/jonupchurch/warformcommander/commits/main

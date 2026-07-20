@@ -6,19 +6,23 @@
 
 ## Current phase
 
-**Feature 1 (sim core) — native engine complete; WASM/web-host wiring is the only
-remainder.** All 12 v1 features are specced, planned, and tasked (Spec-Kit `spec` +
-`plan` + `tasks` under `specs/00X-*/`, each with a passing Constitution Check), and
-**Feature 1 is now implemented on branch `001-battle-sim-core`**: the full Rust engine
-(all five user stories) resolves best-of-three battles deterministically, with **82
-tests green** (unit + integration + a committed golden battery) and clippy/rustfmt
-clean. What's built: fixed-point + pinned-PRNG determinism, the typed 3-tier data
-model, the V1–V8 validation trust boundary, the tick loop → row-based targeting →
-damage pipeline → behavior/Plan-B → Conquest/Time/Bo3 outcomes, the compact
-random-access **wire replay** + a pure TS reader, the seed content fixtures, and the
-balancer throughput hook (**10,000 Bo3 in ~3.5s**, SC-006). **Remaining for Feature 1:**
-the WASM cross-compile (wasm-pack) + the Next.js host route + the native==wasm golden
-check (T004/5/7, T017, T027, T033, T052) — needs `wasm-pack` installed.
+**Feature 1 (sim core) — COMPLETE end-to-end on branch `001-battle-sim-core`; ready to
+merge.** All 12 v1 features are specced, planned, and tasked (Spec-Kit `spec` + `plan` +
+`tasks` under `specs/00X-*/`, each with a passing Constitution Check), and **Feature 1 is
+fully implemented**: the Rust engine (all five user stories) resolves best-of-three
+battles deterministically — **82 native tests green** (unit + integration + committed
+golden battery) plus clippy/rustfmt clean — and now runs **server-side as WASM**, with
+`native == wasm` proven **byte-for-byte** across the golden battery (P6/SC-001, T017).
+What's built: fixed-point + pinned-PRNG determinism, the typed 3-tier data model, the
+V1–V8 validation trust boundary, the tick loop → row-based targeting → damage pipeline →
+behavior/Plan-B → Conquest/Time/Bo3 outcomes, the compact random-access **wire replay** +
+a pure TS reader, the seed content fixtures, the balancer throughput hook (**10,000 Bo3
+in ~3.5s**, SC-006), the prebuilt-and-committed `packages/engine-wasm/`, and a live
+`POST /api/resolve` Next.js route (verified via `next build` + an HTTP smoke). Engine CI
+covers native x86-64 + ARM64, the wasm-parity check, fmt/clippy, and the TS typecheck.
+The only carried-forward item is the full **V1–V8 TypeScript validation mirror**, which
+belongs to the Garage (Feature 4) where edit-time validation UX lives — the WASM engine
+remains the authoritative validator meanwhile.
 
 **Approach — plan-the-whole-set-first, then build foundation-first (Principle VII):**
 the full set was planned before any implementation so shared models and cross-feature
@@ -56,8 +60,8 @@ feature's `specs/00X-*/` directory is its detailed blueprint.
 
 ## Next up
 
-1. **Finish Feature 1's WASM/host path** — install `wasm-pack`; `wasm-pack build --target nodejs` (prebuild-and-commit `packages/engine-wasm/`); wire `next.config` (`serverExternalPackages` + `outputFileTracingIncludes`) + `sim/index.ts` + `app/api/resolve/route.ts`; add the TS validation mirror; and prove the **wasm golden hashes equal the native golden battery** (T017, the P6 native==wasm check). CI (`.github/workflows/engine-ci.yml`) already has the native x86/ARM matrix + a wasm-pack job ready. Then merge `001-battle-sim-core`.
-2. **Then build in dependency order:** Feature 3 (app shell) + Feature 7 (accounts/persistence) as the next foundations → Features 4/5/6 (garage/playback/summary) → 8/9/10 (arena/ladder/profile) → 2 (balancer, fleshed from the Feature 1 stub) → 11 (marketing/news) → 12 (admin). Each `/speckit-implement` from its `specs/00X-*/tasks.md`, on its own feature branch.
+1. **Merge `001-battle-sim-core`** — Feature 1 is complete and verified (native + WASM + host route). Before merging, note: pushing to `main` **auto-deploys to production**, and the merge carries the prebuilt `packages/engine-wasm/` + the `/api/resolve` route. (Regenerate the wasm with `wasm-pack build crates/engine --target nodejs --out-dir ../../packages/engine-wasm --release` whenever the engine changes.)
+2. **Then build in dependency order:** Feature 3 (app shell) + Feature 7 (accounts/persistence) as the next foundations → Features 4/5/6 (garage/playback/summary — Feature 4 owns the **V1–V8 TS validation mirror**) → 8/9/10 (arena/ladder/profile; Feature 8 wraps `/api/resolve` with auth + a server-loaded ruleset) → 2 (balancer, fleshed from the Feature 1 stub) → 11 (marketing/news) → 12 (admin). Each `/speckit-implement` from its `specs/00X-*/tasks.md`, on its own feature branch.
 3. **Before creating DB tables** (Feature 7): set up a Neon **dev branch** and extend the Neon env vars to Preview.
 4. Reconcile the three cross-feature items listed under **Current phase** as their features are built.
 5. **Balance rough edge for Feature 2** (surfaced by the counter-web tests): on placeholder numbers, air alpha beats every non-AA archetype (only AA counters it) — the counter-web *shape* is right; the *spread* wants tuning (affordable AA for more archetypes, or trim air's alpha).
@@ -73,7 +77,7 @@ implementation sequence, not the spec numbering.
 
 | # | Feature | Spec | Plan | Tasks | Build order |
 |---|---|---|---|---|---|
-| 1 | Sim core + game data model | ✅ | ✅ | ✅ 54 | **1st — native engine BUILT (82 tests); WASM/host pending** |
+| 1 | Sim core + game data model | ✅ | ✅ | ✅ 54 | **✅ COMPLETE — native engine (82 tests) + WASM + /api/resolve; native==wasm proven** |
 | 2 | Auto-balancer (Monte-Carlo, reuses sim core) | ✅ | ✅ | ✅ 32 | after #1 |
 | 3 | App shell + design system (nav, brand tokens) | ✅ | ✅ | ✅ 55 | 2nd |
 | 4 | Garage (squad builder + loadout/dial editor) | ✅ | ✅ | ✅ 40 | after #3/#7 |
