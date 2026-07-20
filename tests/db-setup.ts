@@ -6,6 +6,8 @@
 import { sql } from "drizzle-orm";
 
 import { getDb } from "@/db";
+import { users } from "@/db/schema";
+import type { SessionUser } from "@/server/authz";
 
 /** Every table, child-first, for a clean slate between tests. */
 const TABLES = [
@@ -38,4 +40,15 @@ export function testId(prefix = "t"): string {
 /** Close the pooled connection so vitest exits cleanly. Call in `afterAll`. */
 export async function closeDb(): Promise<void> {
   await getDb().$client.end();
+}
+
+/** Insert a user and return an authenticated actor (as `requireSession` would produce). */
+export async function createTestUser(
+  opts: { role?: "player" | "admin"; email?: string; isBot?: boolean } = {},
+): Promise<SessionUser> {
+  const id = crypto.randomUUID();
+  const email = opts.email ?? `${testId("user")}@example.com`;
+  const role = opts.role ?? "player";
+  await getDb().insert(users).values({ id, email, role, isBot: opts.isBot ?? false });
+  return { id, role, email };
 }

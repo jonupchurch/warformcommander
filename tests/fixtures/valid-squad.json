@@ -1,0 +1,119 @@
+{
+  "machines": [
+    {
+      "instanceId": 0,
+      "typeId": "HeavyTank",
+      "variantId": "Grizzly",
+      "loadout": {
+        "weapon": "HeavyCannon",
+        "defense": "StandardHullHeavy",
+        "utilities": [
+          "FireControl",
+          "DriveServos",
+          "Autoloader"
+        ]
+      },
+      "dials": {
+        "targetRow": "FrontReachable",
+        "targetRule": "FocusFire",
+        "energy": "Balanced",
+        "movement": "Hold",
+        "stance": "Neutral"
+      },
+      "planB": [],
+      "zone": "Front"
+    },
+    {
+      "instanceId": 1,
+      "typeId": "LightTank",
+      "variantId": "Scout",
+      "loadout": {
+        "weapon": "Autocannon",
+        "defense": "StandardHullLight",
+        "utilities": [
+          "FireControl",
+          "DriveServos",
+          "Autoloader"
+        ]
+      },
+      "dials": {
+        "targetRow": "FrontReachable",
+        "targetRule": "FocusFire",
+        "energy": "Balanced",
+        "movement": "Hold",
+        "stance": "Neutral"
+      },
+      "planB": [],
+      "zone": "Front"
+    },
+    {
+      "instanceId": 2,
+      "typeId": "Mech",
+      "variantId": "Vanguard",
+      "loadout": {
+        "weapon": "AssaultCannon",
+        "defense": "StandardHullMech",
+        "utilities": [
+          "FireControl",
+          "DriveServos",
+          "Autoloader"
+        ]
+      },
+      "dials": {
+        "targetRow": "FrontReachable",
+        "targetRule": "FocusFire",
+        "energy": "Balanced",
+        "movement": "Hold",
+        "stance": "Neutral"
+      },
+      "planB": [],
+      "zone": "Middle"
+    },
+    {
+      "instanceId": 3,
+      "typeId": "AttackHeli",
+      "variantId": "Gunship",
+      "loadout": {
+        "weapon": "RocketPods",
+        "defense": "StandardHullHeli",
+        "utilities": [
+          "FireControl",
+          "DriveServos",
+          "Autoloader"
+        ]
+      },
+      "dials": {
+        "targetRow": "FrontReachable",
+        "targetRule": "FocusFire",
+        "energy": "Balanced",
+        "movement": "Hold",
+        "stance": "Neutral"
+      },
+      "planB": [],
+      "zone": "Air"
+    },
+    {
+      "instanceId": 4,
+      "typeId": "Artillery",
+      "variantId": "Longbow",
+      "loadout": {
+        "weapon": "Howitzer",
+        "defense": "StandardHullArtillery",
+        "utilities": [
+          "FireControl",
+          "DriveServos",
+          "Autoloader"
+        ]
+      },
+      "dials": {
+        "targetRow": "FrontReachable",
+        "targetRule": "FocusFire",
+        "energy": "Balanced",
+        "movement": "Hold",
+        "stance": "Neutral"
+      },
+      "planB": [],
+      "zone": "Rear"
+    }
+  ]
+}

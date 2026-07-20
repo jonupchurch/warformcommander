@@ -24,10 +24,10 @@ async function makeUser(role: "player" | "admin", email = "u@example.com"): Prom
   return id;
 }
 
-describe("server-authoritative role (SC-002)", () => {
-  beforeEach(truncateAll);
-  afterAll(closeDb);
+beforeEach(truncateAll);
+afterAll(closeDb);
 
+describe("server-authoritative role (SC-002)", () => {
   it("reads the role from the DB, and a revocation is seen on the next request (no re-login)", async () => {
     const id = await makeUser("admin", "admin@example.com");
     expect(await getUserRole(id)).toBe("admin");
