@@ -30,8 +30,8 @@ The only carried-forward item is the full **V1–V8 TypeScript validation mirror
 belongs to the Garage (Feature 4) where edit-time validation UX lives — the WASM engine
 remains the authoritative validator meanwhile.
 
-**Feature 3 (app shell + design system) — COMPLETE on branch `003-app-shell`, ready to
-merge.** The visual + structural foundation every screen composes: the full Brand Foundation
+**Feature 3 (app shell + design system) — COMPLETE and MERGED to `main`.** The visual +
+structural foundation every screen composes: the full Brand Foundation
 **token system** in `app/globals.css` (primitive ramps → semantic faction/zone/family roles →
 published utilities → shadcn base tokens re-pointed on-brand), Archivo + Space Mono via
 `next/font`, the **responsive app shell** (`components/shell/` — top-tab in landscape /
@@ -47,6 +47,22 @@ New CI: `.github/workflows/web-ci.yml`. Notable calls: the repo keeps root-level
 next/font so the display face uses Archivo's variable width axis (`font-stretch`); the brand
 purple was brightened `#7b5cff`→`#8a6dff` for AA (FR-005); the user's custom `app/favicon.ico`
 was left untouched (the Logo can generate a mark-based favicon on request).
+
+**Feature 7 (accounts & persistence) — COMPLETE on branch `007-accounts-persistence`, ready to
+merge.** The stateful backend/DB layer the async-PvP product stands on: the single Drizzle schema
+(`db/schema.ts`) Features 8–12 read/write — Tier A Auth.js tables + Tier B game tables (squads,
+defense snapshots, matches, replays, ladder standings, posts, presets), game content as Feature-1
+typed `jsonb` (P8), with **defense immutability + the ≤3 cap + pool exclusivity + `net_victories`
+as DB invariants**. **US1** Google auth (Auth.js v5 + Drizzle adapter, **database sessions**,
+server-side admin allowlist with instant revocation); **US2** roster CRUD gated by the shared engine
+`validate()` (no illegal army persisted); **US3** copy-on-designate immutable defense snapshots;
+**US4** server-only match+`jsonb`-replay recording with regenerate-not-migrate; **US5** net-victory
+standings + reconciliation oracle; plus the unified `posts` table, the `presets` library, and an
+idempotent cold-start bot-defender seed (P5). The engine gained wasm `validate`/`default_ruleset`
+exports so the DB validates exactly as the engine does (rebuilt wasm re-verified byte-identical).
+Verified: **34 Vitest integration tests green** on a local dev Postgres + `tsc` + ESLint + a clean
+`next build`. Remaining: the user-gated **Neon dev-branch → prod** migration promote (SC-008;
+`db/README.md`). New env: `AUTH_SECRET`/`AUTH_GOOGLE_ID`/`AUTH_GOOGLE_SECRET`/`ADMIN_ALLOWLIST`.
 
 **Approach — plan-the-whole-set-first, then build foundation-first (Principle VII):**
 the full set was planned before any implementation so shared models and cross-feature
@@ -83,8 +99,9 @@ feature's `specs/00X-*/` directory is its detailed blueprint.
 - [x] **Full v1 feature set planned (2026-07-19)** — all **12 features** carried through Spec-Kit `spec → plan → tasks` under `specs/00X-*/` (Feature 1 in the foreground with dedicated Rust/WASM + determinism + replay research; Features 2–12 via parallel briefed subagents), each with a passing Constitution Check. **~536 tasks** across the set. Root `PLAN.md` is the one-page overview.
 
 1. ~~**Merge `001-battle-sim-core`**~~ ✅ **DONE (2026-07-20)** — merged to `main` (`--no-ff`, `2686b64`), deployed, and prod-verified (`POST /api/resolve` returns byte-for-byte-native replays live). Regenerate the wasm with `wasm-pack build crates/engine --target nodejs --out-dir ../../packages/engine-wasm --release` whenever the engine changes — and re-verify the prod route (see the wasm-on-Vercel notes below), since a wasm/host change can break module resolution in the function bundle without breaking local dev.
-2. ~~**Feature 3 (app shell + design system)**~~ ✅ **DONE (2026-07-20)** — built + verified (18 e2e) on branch `003-app-shell`, ready to merge. **Build the rest in dependency order:** Feature 7 (accounts/persistence) as the remaining foundation → Features 4/5/6 (garage/playback/summary — Feature 4 owns the **V1–V8 TS validation mirror**) → 8/9/10 (arena/ladder/profile; Feature 8 wraps `/api/resolve` with auth + a server-loaded ruleset) → 2 (balancer, fleshed from the Feature 1 stub) → 11 (marketing/news) → 12 (admin). Each on its own feature branch.
-3. **Before creating DB tables** (Feature 7): set up a Neon **dev branch** and extend the Neon env vars to Preview.
+2. ~~**Feature 3 (app shell + design system)**~~ ✅ **DONE + MERGED (2026-07-20)**.
+3. ~~**Feature 7 (accounts & persistence)**~~ ✅ **DONE (2026-07-20)** — built + verified (34 Vitest tests) on branch `007-accounts-persistence`, ready to merge. **Build the rest in dependency order:** Features 4/5/6 (garage/playback/summary — Feature 4 owns the **V1–V8 TS validation mirror**; a TS `sim/model.ts` type mirror + a wasm `validate`/`default_ruleset` export already landed in Feature 7) → 8/9/10 (arena/ladder/profile; Feature 8 wraps `/api/resolve` with auth + a server-loaded ruleset, and consumes the Feature-7 service API) → 2 (balancer) → 11 (marketing/news) → 12 (admin). Each on its own feature branch.
+4. **Neon prod promote (user-gated):** the schema is migrated + tested on **local dev Postgres**; before Features 8–12 write prod data, apply the reviewed migration to the Neon **production** branch (`npm run db:migrate` with the prod `DATABASE_URL`) and seed cold-start defenders — see `db/README.md` (SC-008). Extend the auth env (`AUTH_SECRET`/`AUTH_GOOGLE_*`/`ADMIN_ALLOWLIST`) to Vercel Production + Preview.
 4. Reconcile the three cross-feature items listed under **Current phase** as their features are built.
 5. **Balance rough edge for Feature 2** (surfaced by the counter-web tests): on placeholder numbers, air alpha beats every non-AA archetype (only AA counters it) — the counter-web *shape* is right; the *spread* wants tuning (affordable AA for more archetypes, or trim air's alpha).
 
@@ -101,11 +118,11 @@ implementation sequence, not the spec numbering.
 |---|---|---|---|---|---|
 | 1 | Sim core + game data model | ✅ | ✅ | ✅ 54 | **✅ MERGED + LIVE — native engine (82 tests) + WASM + /api/resolve prod-verified; native==wasm proven byte-for-byte in production** |
 | 2 | Auto-balancer (Monte-Carlo, reuses sim core) | ✅ | ✅ | ✅ 32 | after #1 |
-| 3 | App shell + design system (nav, brand tokens) | ✅ | ✅ | ✅ 55 | **✅ BUILT — tokens + responsive shell + primitives + brand; 18 Playwright/axe e2e green** |
+| 3 | App shell + design system (nav, brand tokens) | ✅ | ✅ | ✅ 55 | **✅ MERGED — tokens + responsive shell + primitives + brand; 18 Playwright/axe e2e green** |
 | 4 | Garage (squad builder + loadout/dial editor) | ✅ | ✅ | ✅ 40 | after #3/#7 |
 | 5 | Battle playback (tick stream → pixel-art replay) | ✅ | ✅ | ✅ 42 | after #3 |
 | 6 | Battle summary (post-Bo3 results) | ✅ | ✅ | ✅ 32 | after #3 |
-| 7 | Accounts & persistence (backend/DB, defense snapshots) | ✅ | ✅ | ✅ 52 | 3rd (foundation) |
+| 7 | Accounts & persistence (backend/DB, defense snapshots) | ✅ | ✅ | ✅ 52 | **✅ BUILT — schema + auth + service layer; 34 Vitest tests green; prod migrate pending** |
 | 8 | Arena (async matchmaking) + Practice sandbox | ✅ | ✅ | ✅ 51 | after #4/#7 |
 | 9 | Ladder (seasons, metrics, tiers/MMR) | ✅ | ✅ | ✅ 38 | after #7/#8 |
 | 10 | Profile (career stats, achievements) | ✅ | ✅ | ✅ 33 | after #7 |
