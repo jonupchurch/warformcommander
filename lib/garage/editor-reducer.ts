@@ -14,6 +14,7 @@ import { produce } from 'immer';
 
 import type {
   BehaviorDials,
+  EquipmentId,
   Loadout,
   MachineTypeId,
   PlanBTrigger,
@@ -44,6 +45,10 @@ export type EditorAction =
   | { type: 'setRosterSlot'; index: number | null }
   | { type: 'setType'; slot: SlotIndex; typeId: MachineTypeId; seed: MachineSeed; zone: ZoneId }
   | { type: 'setVariant'; slot: SlotIndex; seed: MachineSeed }
+  | { type: 'setWeapon'; slot: SlotIndex; equipmentId: EquipmentId }
+  | { type: 'setDefense'; slot: SlotIndex; equipmentId: EquipmentId }
+  | { type: 'setUtility'; slot: SlotIndex; index: number; equipmentId: EquipmentId }
+  | { type: 'clearUtility'; slot: SlotIndex; index: number }
   | { type: 'clearSlot'; slot: SlotIndex }
   | { type: 'selectMachine'; slot: SlotIndex | null }
   | { type: 'pickUpForPlacement'; slot: SlotIndex | null }
@@ -142,6 +147,42 @@ export function garageReducer(session: EditorSession, action: EditorAction): Edi
             machine.dials = action.seed.dials;
             machine.planB = action.seed.planB;
             machine.sourcePresetId = undefined;
+            break;
+          }
+
+          case 'setWeapon': {
+            const machine = d.draft.machines[action.slot];
+            if (machine === null) break;
+            machine.loadout.weapon = action.equipmentId;
+            machine.sourcePresetId = undefined;
+            break;
+          }
+
+          case 'setDefense': {
+            const machine = d.draft.machines[action.slot];
+            if (machine === null) break;
+            machine.loadout.defense = action.equipmentId;
+            machine.sourcePresetId = undefined;
+            break;
+          }
+
+          case 'setUtility': {
+            const machine = d.draft.machines[action.slot];
+            if (machine === null) break;
+            if (action.index >= 0 && action.index < machine.loadout.utilities.length) {
+              machine.loadout.utilities[action.index] = action.equipmentId;
+              machine.sourcePresetId = undefined;
+            }
+            break;
+          }
+
+          case 'clearUtility': {
+            const machine = d.draft.machines[action.slot];
+            if (machine === null) break;
+            if (action.index >= 0 && action.index < machine.loadout.utilities.length) {
+              machine.loadout.utilities.splice(action.index, 1);
+              machine.sourcePresetId = undefined;
+            }
             break;
           }
 

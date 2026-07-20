@@ -26,6 +26,8 @@ import {
 import { useGarageEditor } from '@/lib/garage/use-garage-editor';
 import { cn } from '@/lib/utils';
 
+import { CustomizeSurface } from './customize-surface';
+
 export function UnitDetailPanel() {
   const { session, dispatch, ruleset, preview } = useGarageEditor();
   const slot = session.selection.selectedSlot;
@@ -105,23 +107,26 @@ export function UnitDetailPanel() {
         </div>
       </div>
 
-      <div className="mt-auto flex gap-2">
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          onClick={() => dispatch({ type: 'pickUpForPlacement', slot })}
-        >
-          MOVE
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => dispatch({ type: 'clearSlot', slot })}
-        >
-          REMOVE
-        </Button>
+      <div className="mt-auto flex flex-col gap-2">
+        <CustomizeSurface />
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => dispatch({ type: 'pickUpForPlacement', slot })}
+          >
+            MOVE
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => dispatch({ type: 'clearSlot', slot })}
+          >
+            REMOVE
+          </Button>
+        </div>
       </div>
     </Panel>
   );
