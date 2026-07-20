@@ -121,6 +121,29 @@ derives from the committed demo battery via a **documented seam** (imported JSON
 `GameResult` doesn't expose the exact-tie flag; surfacing exact-tie→defender needs an engine result
 change).
 
+**Feature 8 (Arena async matchmaking + Practice sandbox) — BUILT on branch `008-arena-practice`, all
+five user stories + the real round-trip.** The server-authoritative attack loop — a ranked result the
+client can **never** fabricate (P6, non-negotiable). Feature 8 owns no schema; it orchestrates the
+Feature 1 engine + Feature 7 service layer and hands off by match id. **US1** deploy → resolve →
+record: `previewRankedMatch` (no WASM) matchmakes + fogs, `startRankedMatch` re-validates
+attackability, binds the snapshot **by id**, resolves the Bo3 in-process (`adaptation:"Locked"`, one
+call = all three games), and calls `recordMatch` **exactly once** → returns only `{ matchId }`. **US2**
+`pickRankedOpponent` two-step per-player-fair random (never self, never empty, real+bot) + the **↻
+Skip** re-roll (records nothing). **US3** `fogPreview` builds a fresh allow-listed preview that
+**structurally** omits behavior dials / Plan-B, snapshot bound by id through a re-designate. **US4**
+Practice mirrors ranked with `adaptation:"Free"`, records `mode='practice'` (no standing), opponent
+anonymous + fogged, refreshable. **US5** the two Node resolve routes **strict-parse** the body
+(forged `result`/`winner`/`seed`/`opponentId` structurally unreadable); a static call-graph test pins
+`recordMatch` to the two orchestrators + a reproducibility test. Screens: `app/(app)/{arena,practice}`
+(pickers + blind board + Deploy/Skip·Refresh), shared token-only `PreviewBoard`, both orientations,
+signed-out gate. **Real round-trip:** `server/match-read.ts` turns a persisted match into the Summary/
+Playback shapes (cashing in the F5/F6 read-path seam), so **deploy → summary → replay is real
+end-to-end**; a non-uuid demo id falls back to the committed battery; `next.config.ts` traces
+engine-wasm into `/arena`, `/practice`, `/battle/*`, `/matches/*/summary`. Verified: **25 Vitest
+DB-integration + 6 DB-free route anti-forgery** (gated in `web-ci`) + `e2e/{arena,practice}.spec.ts`,
+`next build` + `tsc` + ESLint + token guard clean. **Open coordination:** `loadCurrentRuleset()` stays
+the v1 default until Feature 12's live ruleset store renames it to `getCurrentRuleset()` (F12 T045).
+
 **Approach — plan-the-whole-set-first, then build foundation-first (Principle VII):**
 the full set was planned before any implementation so shared models and cross-feature
 dependencies surfaced on paper. Feature 1 (the deterministic **sim core + data model**)
@@ -180,7 +203,7 @@ implementation sequence, not the spec numbering.
 | 5 | Battle playback (tick stream → pixel-art replay) | ✅ | ✅ | ✅ 42 | **✅ BUILT — US1–US5 + polish on `005-battle-playback`; engine-free O(1) scrubber + markers + both-orientation; 33 Vitest + 14 Playwright/axe e2e green; demo-replay seam pending F7 `getReplay`** |
 | 6 | Battle summary (post-Bo3 results) | ✅ | ✅ | ✅ 32 | **✅ BUILT — US1–US4 + polish on `006-battle-summary`; pure `deriveSummaryViewModel` spine; 22 Vitest + 10 Playwright/axe e2e green; demo-result seam pending F7 read path** |
 | 7 | Accounts & persistence (backend/DB, defense snapshots) | ✅ | ✅ | ✅ 52 | **✅ BUILT — schema + auth + service layer; 34 Vitest tests green; prod migrate pending** |
-| 8 | Arena (async matchmaking) + Practice sandbox | ✅ | ✅ | ✅ 51 | after #4/#7 |
+| 8 | Arena (async matchmaking) + Practice sandbox | ✅ | ✅ | ✅ 51 | **✅ BUILT — US1–US5 + real round-trip on `008-arena-practice`; server-authoritative resolve/record, fogged blind+locked matchmaking, practice sandbox, strict-parse anti-forgery; 31 Vitest + arena/practice e2e green; F5/F6 read-path seam cashed in** |
 | 9 | Ladder (seasons, metrics, tiers/MMR) | ✅ | ✅ | ✅ 38 | after #7/#8 |
 | 10 | Profile (career stats, achievements) | ✅ | ✅ | ✅ 33 | after #7 |
 | 11 | Marketing site (Home + News index + article template) | ✅ | ✅ | ✅ 59 | after #3/#7 |

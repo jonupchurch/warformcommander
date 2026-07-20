@@ -1,0 +1,48 @@
+import { test, expect, type Page } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+
+import { VIEWPORTS } from './viewports';
+
+/**
+ * Feature 8 — Practice e2e (T049). The draw → refresh → deploy → summary handoff needs an
+ * authenticated session + DB + WASM and is covered by the DB-integration suites
+ * (`tests/practice.test.ts`) + the route test. Here a real browser verifies the **signed-out
+ * Practice screen**: it renders, is first-class in both orientations, and is accessible.
+ */
+
+const ROUTE = '/practice';
+
+async function pageOverflow(page: Page): Promise<number> {
+  return page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+}
+
+test.describe('signed-out gate', () => {
+  test('renders the PRACTICE heading and a sign-in call to action', async ({ page }) => {
+    await page.goto(ROUTE);
+    await expect(page.getByRole('heading', { level: 1, name: 'PRACTICE' })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Sign in/ })).toHaveAttribute(
+      'href',
+      '/api/auth/signin',
+    );
+  });
+});
+
+test.describe('polish — both orientations, accessible', () => {
+  for (const [name, vp] of Object.entries(VIEWPORTS)) {
+    test(`no horizontal overflow at ${name} (${vp.width}px)`, async ({ page }) => {
+      await page.setViewportSize(vp);
+      await page.goto(ROUTE);
+      expect(await pageOverflow(page)).toBeLessThanOrEqual(1);
+      await expect(page.getByRole('heading', { level: 1, name: 'PRACTICE' })).toBeVisible();
+    });
+  }
+
+  test('no serious/critical a11y violations', async ({ page }) => {
+    await page.goto(ROUTE);
+    const { violations } = await new AxeBuilder({ page }).analyze();
+    const bad = violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
+    expect(bad.map((v) => `${v.id}: ${v.nodes.length}`).join(', ')).toBe('');
+  });
+});

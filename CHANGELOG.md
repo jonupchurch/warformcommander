@@ -149,6 +149,43 @@ once it reaches a released version. Until then, everything lives under
     guard; browsable at `/gallery`. New `web-ci` GitHub workflow gates it. The repo keeps
     root-level `components/`/`lib/` (matching `sim/`/`db/`) rather than `src/`; the user's custom
     `app/favicon.ico` was left untouched. Removed the unused create-next-app scaffold SVGs.
+- **Feature 8 — Arena (async matchmaking) + Practice sandbox (2026-07-20).** The server-authoritative
+  attack loop on branch `008-arena-practice`: a ranked result the client can **never** fabricate (P6,
+  non-negotiable). Feature 8 owns no schema — it orchestrates the Feature 1 engine + the Feature 7
+  service layer and hands off by match id.
+  - **US1 — deploy → resolve → record.** `previewRankedMatch` (no WASM) matchmakes + fogs a defender;
+    `startRankedMatch` re-validates attackability at deploy, binds the served snapshot **by id**,
+    resolves the Bo3 in-process (`adaptation:"Locked"`, one call = all three games vs the one served
+    army), and calls `recordMatch` **exactly once** — returning only `{ matchId }`.
+  - **US2 — matchmaking.** `pickRankedOpponent` is a two-step per-player-fair random draw (defender ≠
+    self via SQL, then a random active snapshot), real+bot pool, never self, never empty. The Arena
+    **↻ Skip** re-rolls a fresh ticket and records nothing.
+  - **US3 — blind + locked.** `fogPreview` builds a fresh allow-listed `MatchTicketPreview`
+    (composition/placement/power/derived family tags) that **structurally** omits behavior dials /
+    Plan-B — a defender's logic cannot leak pre-battle. The snapshot is bound by id even if the
+    defender re-designates in the preview→deploy window.
+  - **US4 — Practice.** `startPracticeMatch` mirrors ranked with `adaptation:"Free"`, records
+    `mode='practice'` (moves **no** standing), and keeps the opponent anonymous (`defenderUserId:null`);
+    the draw is fogged the same way, so no build leaks even in practice. Refreshable before deploy.
+  - **US5 — anti-forgery.** The two Node resolve routes (`app/api/{arena,practice}/resolve`) **strict-parse**
+    the body — destructure exactly the allow-listed fields, so a forged `result`/`winner`/`seed`/
+    `opponentId` is structurally unreadable, not merely discarded. A static call-graph test asserts
+    `recordMatch` is reachable only from inside the two orchestrators; a reproducibility test re-runs
+    the persisted seed+armies to a byte-identical replay.
+  - **Screens** — `app/(app)/arena` (attackable-squad picker + blind enemy board + Deploy/Skip) and
+    `app/(app)/practice` (own-squad picker + hidden draw + Deploy/Refresh), sharing a token-only,
+    AA-safe `PreviewBoard`; both first-class in both orientations, signed-out gate + Garage on-ramp.
+  - **Real round-trip** — cashed in the Feature 5/6 read-path seam: `server/match-read.ts`
+    (`loadRealSummary`/`loadRealReplay`) turns a persisted match into the exact shapes those routes
+    consume (viewer-scoped standing + opponent, practice hidden), so **deploy → summary → replay is
+    real end-to-end**; a non-uuid demo id falls back to the committed battery. `next.config.ts` traces
+    engine-wasm into `/arena`, `/practice`, `/battle/*`, `/matches/*/summary` (each reaches the engine
+    at render).
+  - **Verification** — 25 Vitest DB-integration (matchmaking fairness/never-self, one-write record +
+    standings move, blind+locked, practice-no-standing, anti-forgery + reproducibility, real read
+    round-trip) + 6 DB-free route anti-forgery (gated in `web-ci`) + `e2e/{arena,practice}.spec.ts`,
+    all green with `next build` + `tsc` + ESLint + the token guard. Open: `loadCurrentRuleset()` stays
+    the v1 default until Feature 12's live ruleset store renames the call site (`getCurrentRuleset()`).
 - **Feature 6 — battle summary: post-Bo3 results (2026-07-20).** The post-match outcome screen and
   the Skip-to-Outcome target that pairs with Battle Playback, on branch `006-battle-summary`. A
   **reader** — it never re-simulates, recomputes the winner, or renders MMR/tiers; if a value isn't

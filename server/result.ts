@@ -21,7 +21,12 @@ export type ErrorCode =
   | "NOT_DESIGNATED"
   | "SLUG_TAKEN"
   | "UNSUPPORTED_FORMAT"
-  | "FORBIDDEN";
+  | "FORBIDDEN"
+  // Feature 8 — Arena matchmaking / resolve
+  | "NOT_ATTACKABLE" // the caller has no attackable squad, or the chosen squad isn't attackable
+  | "NO_OPPONENT" // no eligible ranked defender in the pool (should not occur with cold-start bots)
+  | "NO_PRACTICE_OPPONENT" // no other squad to draw for practice
+  | "INVALID_TICKET"; // the previewed defender snapshot is no longer resolvable
 
 export const ok = <T>(value: T): Ok<T> => ({ ok: true, value });
 export const err = (error: ErrorCode, reason?: string): Err => ({ ok: false, error, reason });

@@ -20,6 +20,18 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/api/resolve": ["./packages/engine-wasm/**/*"],
     "/garage": ["./packages/engine-wasm/**/*"],
+    // Feature 8: the two ranked/practice resolve routes call resolveBattle in-process (P6).
+    "/api/arena/resolve": ["./packages/engine-wasm/**/*"],
+    "/api/practice/resolve": ["./packages/engine-wasm/**/*"],
+    // Feature 8 pages reach the engine at render: previewRankedMatch / the practice draw load the
+    // default ruleset (loadDefaultRuleset → wasm) to fog the served opponent.
+    "/arena": ["./packages/engine-wasm/**/*"],
+    "/practice": ["./packages/engine-wasm/**/*"],
+    // The playback + summary reads can hit getReplay's regenerate path (resolveBattleRaw +
+    // loadDefaultRuleset → wasm) for a stale formatVersion; trace so that path can't 500 in prod.
+    // NB: the key is a glob, so `[matchId]` would be read as a char-class — use `*` for the segment.
+    "/battle/*": ["./packages/engine-wasm/**/*"],
+    "/matches/*/summary": ["./packages/engine-wasm/**/*"],
   },
 };
 

@@ -4,9 +4,10 @@
  * breakdown inside the Feature 3 shell. **Reader, not simulator** (SC-007): no replay player is
  * mounted and no simulation runs — the replay is only *referenced* via the action hrefs.
  *
- * NOTE — read source: Feature 7's ownership-scoped read path is the real source; until it merges the
- * route derives from the committed demo battery (`lib/battle-summary/demo.ts`). US2–US4 panels layer
- * onto this same page in their phases.
+ * NOTE — read source: a real persisted match (Feature 7 `getMatch`/`getReplay`, scoped to the signed-in
+ * viewer via `loadRealSummary`) is the source now that Feature 8 records matches. A non-real id (the
+ * `e2e-*` demo links) falls back to the committed demo battery (`lib/battle-summary/demo.ts`), so the
+ * demo surface and its e2e stay exercisable. Still a reader (SC-007) — no player is mounted.
  */
 
 import { GameBreakdown } from '@/components/battle-summary/game-breakdown';
@@ -18,6 +19,11 @@ import { StandingDelta } from '@/components/battle-summary/standing-delta';
 import { SummaryActions } from '@/components/battle-summary/summary-actions';
 import { loadSummaryContext } from '@/lib/battle-summary/demo';
 import { deriveSummaryViewModel } from '@/lib/battle-summary/view-model';
+import { AuthError } from '@/server/authz';
+import { loadRealSummary } from '@/server/match-read';
+import { requireSession } from '@/server/session';
+
+export const dynamic = 'force-dynamic';
 
 export default async function BattleSummaryPage({
   params,
@@ -25,7 +31,16 @@ export default async function BattleSummaryPage({
   params: Promise<{ matchId: string }>;
 }) {
   const { matchId } = await params;
-  const { result, ctx } = loadSummaryContext(matchId);
+
+  let viewerId: string | undefined;
+  try {
+    viewerId = (await requireSession()).id;
+  } catch (e) {
+    if (!(e instanceof AuthError)) throw e; // anonymous → demo fallback below
+  }
+
+  const real = await loadRealSummary(matchId, viewerId);
+  const { result, ctx } = real ?? loadSummaryContext(matchId);
   const vm = deriveSummaryViewModel(result, ctx);
 
   return (
