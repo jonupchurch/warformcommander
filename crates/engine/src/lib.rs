@@ -65,28 +65,54 @@ impl From<DerivationError> for ResolveError {
     }
 }
 
-/// Resolve a battle: pure and total — same input → byte-identical output (SC-001), no I/O, no
-/// ambient randomness, no panics on well-formed input. US1 runs a **single game**; the Bo3 wrapper
-/// lands in US4.
+/// Per-game seed derivation: distinct, deterministic seeds for each game of a match, all reproducible
+/// from the single match seed (P6). Uses the SplitMix64 golden-ratio increment.
+fn game_seed(base: u64, game_index: usize) -> u64 {
+    base.wrapping_add((game_index as u64).wrapping_mul(0x9E37_79B9_7F4A_7C15))
+}
+
+/// Resolve a **best-of-three ranked match** (adaptation = `Locked`): pure and total — same input →
+/// byte-identical output (SC-001), no I/O, no ambient randomness, no panics on well-formed input.
+/// The **same armies + placement** are used for all games (FR-020); the match ends first-to-two.
 pub fn resolve(input: &BattleInput) -> Result<BattleOutput, ResolveError> {
-    // Trust boundary: never simulate an illegal army (FR-009). Both armies are validated up front;
-    // all violations across both sides are surfaced together.
-    let mut invalid = Vec::new();
-    for army in &input.armies {
-        if let Err(mut errs) = validate::validate(army, &input.ruleset) {
-            invalid.append(&mut errs);
+    validate_both(&input.armies, &input.ruleset)?;
+
+    let best_of = input.match_config.best_of.max(1) as usize;
+    let need = best_of / 2 + 1;
+
+    let mut games: Vec<crate::replay::GameReplay> = Vec::new();
+    let mut game_results = Vec::new();
+    let (mut a_wins, mut b_wins) = (0usize, 0usize);
+    let mut total_ticks: u16 = 0;
+    let (mut cum_a, mut cum_b) = (fixed::Fixed::ZERO, fixed::Fixed::ZERO);
+    let mut final_combatants = None;
+
+    for g in 0..best_of {
+        if a_wins >= need || b_wins >= need {
+            break;
         }
-    }
-    if !invalid.is_empty() {
-        return Err(ResolveError::Invalid(invalid));
+        let (game, combatants) = sim::play_game(
+            &input.armies,
+            &input.ruleset,
+            game_seed(input.seed, g),
+            &input.match_config,
+        )?;
+        match game.game_result.winner {
+            Some(crate::replay::Side::A) => a_wins += 1,
+            Some(crate::replay::Side::B) => b_wins += 1,
+            None => {}
+        }
+        total_ticks = total_ticks.saturating_add(game.game_result.duration_ticks);
+        cum_a = cum_a.saturating_add(sim::outcome::side_damage(&combatants, crate::replay::Side::A));
+        cum_b = cum_b.saturating_add(sim::outcome::side_damage(&combatants, crate::replay::Side::B));
+        game_results.push(game.game_result);
+        games.push(game);
+        final_combatants = Some(combatants);
     }
 
-    let mut combatants = sim::build_combatants(&input.armies, &input.ruleset)?;
-    let mut rng = crate::rng::Rng::from_seed(input.seed);
-
-    let game = sim::run_game(&mut combatants, &input.ruleset, &mut rng, &input.match_config);
-    let total_ticks = game.ticks.len() as u16;
-    let result = sim::outcome::build_match_result(&combatants, vec![game.game_result], total_ticks);
+    let final_combatants = final_combatants.expect("a match always plays at least one game");
+    let result =
+        sim::outcome::build_match_result(&final_combatants, game_results, total_ticks, cum_a, cum_b);
 
     let replay = Replay {
         format_version: CURRENT_FORMAT_VERSION,
@@ -94,11 +120,89 @@ pub fn resolve(input: &BattleInput) -> Result<BattleOutput, ResolveError> {
         ruleset_hash: input.ruleset.hash(),
         match_config: input.match_config,
         armies: input.armies.clone(),
-        games: vec![game],
+        games,
         result: result.clone(),
     };
-
     Ok(BattleOutput { replay, result })
+}
+
+/// Resolve a **Free-adaptation match** where the inputs may change between games (practice /
+/// balancer, FR-020, SC-007): game *i* uses `per_game[i]`'s armies + seed. The shared ruleset,
+/// match config, and stored replay armies come from `base`; the match ends first-to-two. Every
+/// per-game army is validated. Falls back to `base.armies` for any game beyond `per_game`'s length.
+pub fn resolve_series(
+    base: &BattleInput,
+    per_game: &[[Army; 2]],
+) -> Result<BattleOutput, ResolveError> {
+    validate_both(&base.armies, &base.ruleset)?;
+    for armies in per_game {
+        validate_both(armies, &base.ruleset)?;
+    }
+
+    let best_of = base.match_config.best_of.max(1) as usize;
+    let need = best_of / 2 + 1;
+
+    let mut games: Vec<crate::replay::GameReplay> = Vec::new();
+    let mut game_results = Vec::new();
+    let (mut a_wins, mut b_wins) = (0usize, 0usize);
+    let mut total_ticks: u16 = 0;
+    let (mut cum_a, mut cum_b) = (fixed::Fixed::ZERO, fixed::Fixed::ZERO);
+    let mut final_combatants = None;
+
+    for g in 0..best_of {
+        if a_wins >= need || b_wins >= need {
+            break;
+        }
+        let armies = per_game.get(g).unwrap_or(&base.armies);
+        let (game, combatants) = sim::play_game(
+            armies,
+            &base.ruleset,
+            game_seed(base.seed, g),
+            &base.match_config,
+        )?;
+        match game.game_result.winner {
+            Some(crate::replay::Side::A) => a_wins += 1,
+            Some(crate::replay::Side::B) => b_wins += 1,
+            None => {}
+        }
+        total_ticks = total_ticks.saturating_add(game.game_result.duration_ticks);
+        cum_a = cum_a.saturating_add(sim::outcome::side_damage(&combatants, crate::replay::Side::A));
+        cum_b = cum_b.saturating_add(sim::outcome::side_damage(&combatants, crate::replay::Side::B));
+        game_results.push(game.game_result);
+        games.push(game);
+        final_combatants = Some(combatants);
+    }
+
+    let final_combatants = final_combatants.expect("a match always plays at least one game");
+    let result =
+        sim::outcome::build_match_result(&final_combatants, game_results, total_ticks, cum_a, cum_b);
+
+    let replay = Replay {
+        format_version: CURRENT_FORMAT_VERSION,
+        seed: base.seed,
+        ruleset_hash: base.ruleset.hash(),
+        match_config: base.match_config,
+        armies: base.armies.clone(),
+        games,
+        result: result.clone(),
+    };
+    Ok(BattleOutput { replay, result })
+}
+
+/// Validate both armies, surfacing every violation across both sides together (never trust client
+/// state — FR-009). Shared by [`resolve`] and [`resolve_series`].
+fn validate_both(armies: &[Army; 2], ruleset: &Ruleset) -> Result<(), ResolveError> {
+    let mut invalid = Vec::new();
+    for army in armies {
+        if let Err(mut errs) = validate::validate(army, ruleset) {
+            invalid.append(&mut errs);
+        }
+    }
+    if invalid.is_empty() {
+        Ok(())
+    } else {
+        Err(ResolveError::Invalid(invalid))
+    }
 }
 
 /// The response shape of the byte boundary — a self-describing tagged union so the host can tell a

@@ -177,6 +177,20 @@ fn snapshot(combatants: &[Combatant]) -> Vec<MachineSnapshot> {
         .collect()
 }
 
+/// Build combatants, run one game, and return the replay **plus the final combatant state** (so the
+/// match loop can read damage dealt, survivors, and fates). One game of a Bo3 (US4).
+pub(crate) fn play_game(
+    armies: &[Army; 2],
+    ruleset: &Ruleset,
+    seed: u64,
+    config: &MatchConfig,
+) -> Result<(GameReplay, Vec<Combatant>), DerivationError> {
+    let mut combatants = build_combatants(armies, ruleset)?;
+    let mut rng = Rng::from_seed(seed);
+    let game = run_game(&mut combatants, ruleset, &mut rng, config);
+    Ok((game, combatants))
+}
+
 /// Run one game to termination and return its replay. The single-seed [`Rng`] threads through the
 /// whole game; the caller advances the seed per game for a Bo3 (US4).
 pub(crate) fn run_game(

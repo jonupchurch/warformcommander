@@ -253,13 +253,14 @@ fn fixed_battle_input(seed: u64) -> BattleInput {
 #[test]
 fn battle_resolves_and_terminates() {
     let out = resolve(&fixed_battle_input(0xC0FFEE)).expect("valid armies resolve");
-    assert_eq!(out.replay.games.len(), 1, "US1 runs a single game");
-    let game = &out.replay.games[0];
-    assert!(!game.ticks.is_empty(), "the game produced ticks");
     assert!(
-        game.ticks.len() <= 1000,
-        "terminates within the hard tick cap"
+        (1..=3).contains(&out.replay.games.len()),
+        "a Bo3 plays 1–3 games (first to two)"
     );
+    for game in &out.replay.games {
+        assert!(!game.ticks.is_empty(), "each game produced ticks");
+        assert!(game.ticks.len() <= 1000, "each game terminates within the hard tick cap");
+    }
     // The reconciliation invariant (SC-002): summed Hit damage equals the result totals.
     assert_eq!(
         out.replay.total_hit_damage_by(Side::A),

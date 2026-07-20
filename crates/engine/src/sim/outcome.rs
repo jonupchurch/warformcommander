@@ -28,16 +28,21 @@ pub(crate) fn conquest_result(combatants: &[Combatant], duration: u16) -> GameRe
 pub(crate) fn time_result(combatants: &[Combatant], duration: u16, defender: Side) -> GameResult {
     let da = side_damage(combatants, Side::A);
     let db = side_damage(combatants, Side::B);
-    let winner = match da.milli().cmp(&db.milli()) {
-        std::cmp::Ordering::Greater => Side::A,
-        std::cmp::Ordering::Less => Side::B,
-        std::cmp::Ordering::Equal => defender, // exact-damage tie → defender (§9.3)
-    };
     GameResult {
-        winner: Some(winner),
+        winner: Some(decide_time(da, db, defender)),
         condition: WinCondition::Time,
         reward_tier: RewardTier::Lesser,
         duration_ticks: duration,
+    }
+}
+
+/// The Time-win tiebreak (pure): most cumulative damage wins; an **exact** tie goes to the defender
+/// (§9.3).
+fn decide_time(da: Fixed, db: Fixed, defender: Side) -> Side {
+    match da.milli().cmp(&db.milli()) {
+        std::cmp::Ordering::Greater => Side::A,
+        std::cmp::Ordering::Less => Side::B,
+        std::cmp::Ordering::Equal => defender,
     }
 }
 
@@ -49,18 +54,21 @@ pub(crate) fn side_damage(combatants: &[Combatant], side: Side) -> Fixed {
         .fold(Fixed::ZERO, |acc, c| acc.saturating_add(c.damage_dealt))
 }
 
-/// Assemble the [`MatchResult`] from the final combatant state + the games played.
+/// Assemble the [`MatchResult`]. Per-machine fates + survivor counts come from the **deciding
+/// (final) game**'s combatants; damage totals are **summed across all games** (`cum_a`/`cum_b`);
+/// the winner is whoever took the majority of games (first-to-two in a Bo3).
 pub(crate) fn build_match_result(
-    combatants: &[Combatant],
+    final_combatants: &[Combatant],
     games: Vec<GameResult>,
     total_ticks: u16,
+    cum_a: Fixed,
+    cum_b: Fixed,
 ) -> MatchResult {
-    // Match winner = whoever won the majority of games (US1: exactly one game).
     let a_wins = games.iter().filter(|g| g.winner == Some(Side::A)).count();
     let b_wins = games.iter().filter(|g| g.winner == Some(Side::B)).count();
     let winner = if a_wins >= b_wins { Side::A } else { Side::B };
 
-    let machine_fates: Vec<MachineFate> = combatants
+    let machine_fates: Vec<MachineFate> = final_combatants
         .iter()
         .map(|c| MachineFate {
             unit: c.unit,
@@ -76,13 +84,30 @@ pub(crate) fn build_match_result(
         games,
         machine_fates,
         side_a: SideSummary {
-            damage_dealt: side_damage(combatants, Side::A),
-            survivors: super::survivors(combatants, Side::A),
+            damage_dealt: cum_a,
+            survivors: super::survivors(final_combatants, Side::A),
         },
         side_b: SideSummary {
-            damage_dealt: side_damage(combatants, Side::B),
-            survivors: super::survivors(combatants, Side::B),
+            damage_dealt: cum_b,
+            survivors: super::survivors(final_combatants, Side::B),
         },
         duration_ticks: total_ticks,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::fixed::Fixed;
+
+    #[test]
+    fn time_tiebreak_favors_most_damage_then_defender() {
+        let a = Fixed::from_int(500);
+        let b = Fixed::from_int(300);
+        assert_eq!(decide_time(a, b, Side::B), Side::A, "more damage wins");
+        assert_eq!(decide_time(b, a, Side::A), Side::B, "more damage wins (B)");
+        // Exact tie → the defender, whichever side that is.
+        assert_eq!(decide_time(a, a, Side::B), Side::B);
+        assert_eq!(decide_time(a, a, Side::A), Side::A);
     }
 }
