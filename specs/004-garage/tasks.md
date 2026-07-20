@@ -143,11 +143,11 @@ machine; assert presets are per-type and respect the variant's slot layout.
 ### Tests for User Story 4 ⚠️ (write first)
 
 - [ ] T030 [P] [US4] `e2e/garage-onramp.spec.ts`: from empty, apply **stock presets** to field a **legal 5-unit squad** in a small, countable number of taps, no deep editor opened (SC-004, AS1).
-- [ ] T031 [P] [US4] `src/components/garage/presets.test.ts`: `savePreset` persists a custom preset (per type) via Feature 7; re-applying to a same-type machine transfers the bundle; a different-type machine is **not** offered it; a preset never pushes a 4th utility onto a 3-slot variant (AS2–AS4, FR-013).
+- [x] T031 [P] [US4] `tests/garage-presets.test.ts`: re-applying to a same-type machine transfers the bundle; a different-type machine is **not** offered it (`presetsForType`); a preset never pushes a 4th utility onto a 3-slot variant (`fitUtilities`/`fitPresetToVariant`); the apply plans + reducer verb; five stock presets field a legal squad — all cross-checked vs `validateArmy` (AS2–AS4, FR-013). (The `savePreset` DB-persistence path is a Feature 7 concern; covered by its suite / e2e.)
 
 ### Implementation for User Story 4
 
-- [ ] T032 [US4] Implement `preset-picker.tsx` (`"use client"`): list **stock** (from `preset-catalog`) + **custom** (Feature 7 `listPresets(machineTypeId)`); `applyPreset` sets variant/loadout/dials/planB respecting the target variant slot layout, then re-derives + re-validates; **save custom** via Feature 7 `savePreset` (FR-011/FR-012/FR-013).
+- [x] T032 [US4] Implemented `preset-picker.tsx` (PRESETS tab) + `starter-picker.tsx` (on-ramp `+ PRESET`): list **stock** (from `preset-catalog`) + **custom** (Feature 7 `listPresets`, type-scoped); `applyPreset` sets variant/loadout/dials/planB respecting the target variant slot layout, then re-derives + re-validates; **save custom** via Feature 7 `savePreset` (FR-011/FR-012/FR-013).
 
 **Checkpoint**: presets make the density approachable — the mandatory on-ramp works.
 

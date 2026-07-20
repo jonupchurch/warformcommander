@@ -2,6 +2,7 @@ import { GarageScreen } from '@/components/garage/garage-screen';
 import { freshSession } from '@/lib/garage/editor-reducer';
 import { GarageEditorProvider } from '@/lib/garage/use-garage-editor';
 import { AuthError } from '@/server/authz';
+import { listPresets, type Preset } from '@/server/presets';
 import { requireSession } from '@/server/session';
 import { BASELINE_SLOTS, listSquads, type Squad } from '@/server/squads';
 import { loadDefaultRuleset } from '@/sim/validate';
@@ -19,10 +20,15 @@ export default async function GaragePage() {
   const ruleset = loadDefaultRuleset();
 
   let roster: Squad[] = [];
+  let presets: Preset[] = [];
   try {
     const actor = await requireSession();
-    const result = await listSquads(actor);
-    if (result.ok) roster = result.value;
+    const [squadsResult, presetsResult] = await Promise.all([
+      listSquads(actor),
+      listPresets(actor),
+    ]);
+    if (squadsResult.ok) roster = squadsResult.value;
+    if (presetsResult.ok) presets = presetsResult.value;
   } catch (e) {
     if (!(e instanceof AuthError)) throw e; // anonymous → empty roster, build still works
   }
@@ -39,7 +45,12 @@ export default async function GaragePage() {
   }
 
   return (
-    <GarageEditorProvider ruleset={ruleset} roster={roster} initialSession={initialSession}>
+    <GarageEditorProvider
+      ruleset={ruleset}
+      roster={roster}
+      presets={presets}
+      initialSession={initialSession}
+    >
       <GarageScreen />
     </GarageEditorProvider>
   );

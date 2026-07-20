@@ -24,6 +24,7 @@ import { cn } from '@/lib/utils';
 import { DialEditor } from './dial-editor';
 import { LoadoutEditor } from './loadout-editor';
 import { PlanBEditor } from './planb-editor';
+import { PresetPicker } from './preset-picker';
 
 function Tab({
   active,
@@ -57,8 +58,9 @@ export function CustomizeSurface() {
   const machine = slot === null ? null : session.draft.machines[slot];
   if (machine === null) return null;
 
-  // Only Loadout / Dials are surfaced as tabs here; other panes fall back to Loadout.
-  const pane: EditorPane = session.selection.activePane === 'Dials' ? 'Dials' : 'Loadout';
+  // Loadout / Dials / Presets are surfaced as tabs; any other pane falls back to Loadout.
+  const active = session.selection.activePane;
+  const pane: EditorPane = active === 'Dials' || active === 'Presets' ? active : 'Loadout';
   const setPane = (next: EditorPane) => dispatch({ type: 'setActivePane', pane: next });
 
   return (
@@ -87,6 +89,9 @@ export function CustomizeSurface() {
           <Tab active={pane === 'Dials'} onClick={() => setPane('Dials')}>
             BEHAVIOR
           </Tab>
+          <Tab active={pane === 'Presets'} onClick={() => setPane('Presets')}>
+            PRESETS
+          </Tab>
         </div>
         <div className="flex-1 overflow-y-auto p-4">
           {pane === 'Dials' ? (
@@ -94,6 +99,8 @@ export function CustomizeSurface() {
               <DialEditor />
               <PlanBEditor />
             </div>
+          ) : pane === 'Presets' ? (
+            <PresetPicker />
           ) : (
             <LoadoutEditor />
           )}

@@ -27,7 +27,7 @@ import { err, type Result } from '@/server/result';
 import type { DefenseSnapshot } from '@/server/defense';
 import type { Preset } from '@/server/presets';
 import type { Squad } from '@/server/squads';
-import type { PresetConfig } from '@/sim/model';
+import type { MachineTypeId, PresetConfig } from '@/sim/model';
 import type { Ruleset } from '@/sim/ruleset';
 
 import {
@@ -42,8 +42,10 @@ import {
   isDirty as computeIsDirty,
   type EditorAction,
 } from './editor-reducer';
+import type { CatalogPreset } from './preset-catalog';
+import { planCustomApply, planStockApply } from './presets';
 import { toSquadConfig } from './to-squad-config';
-import type { EditorSession } from './types';
+import type { EditorSession, SlotIndex } from './types';
 import {
   computeStatPreview,
   computeValidationView,
@@ -59,6 +61,8 @@ export interface GarageEditorContextValue {
   ruleset: Ruleset;
   /** The player's saved roster (Feature 7 `listSquads`), for the rail. */
   roster: Squad[];
+  /** The player's custom presets (Feature 7 `listPresets`), for the preset picker. */
+  presets: Preset[];
   /** The selected machine's live derived readout + squad aggregate (memoized). */
   preview: StatPreview;
   /** The client `validate()` view — gates the Save button (convenience only). */
@@ -73,6 +77,10 @@ export interface GarageEditorContextValue {
   designate: (slot: 0 | 1 | 2) => Promise<Result<DefenseSnapshot>>;
   /** Save the selected machine's setup as a custom per-type preset via Feature 7. */
   saveCurrentAsPreset: (name: string) => Promise<Result<Preset>>;
+  /** Apply a **stock** preset into a slot (fields it if empty), fitting to the target variant. */
+  applyStock: (slot: SlotIndex, preset: CatalogPreset) => void;
+  /** Apply a **custom** preset into a slot (fields it if empty), fitting to the target variant. */
+  applyCustom: (slot: SlotIndex, preset: Preset) => void;
 }
 
 const GarageEditorContext = createContext<GarageEditorContextValue | null>(null);
@@ -80,6 +88,7 @@ const GarageEditorContext = createContext<GarageEditorContextValue | null>(null)
 export interface GarageEditorProviderProps {
   ruleset: Ruleset;
   roster: Squad[];
+  presets?: Preset[];
   initialSession?: EditorSession;
   children: ReactNode;
 }
@@ -87,6 +96,7 @@ export interface GarageEditorProviderProps {
 export function GarageEditorProvider({
   ruleset,
   roster,
+  presets = [],
   initialSession,
   children,
 }: GarageEditorProviderProps) {
@@ -160,12 +170,36 @@ export function GarageEditorProvider({
     [session.draft, session.selection.selectedSlot],
   );
 
+  const applyStock = useCallback<GarageEditorContextValue['applyStock']>(
+    (slot, preset) => {
+      const current = session.draft.machines[slot];
+      const plan = planStockApply(preset, current?.zone ?? null, ruleset);
+      dispatch({ type: 'applyPreset', slot, ...plan });
+    },
+    [session.draft, ruleset],
+  );
+
+  const applyCustom = useCallback<GarageEditorContextValue['applyCustom']>(
+    (slot, preset) => {
+      const current = session.draft.machines[slot];
+      const plan = planCustomApply(
+        { id: preset.id, machineTypeId: preset.machineTypeId as MachineTypeId, config: preset.config },
+        current?.variantId ?? null,
+        current?.zone ?? null,
+        ruleset,
+      );
+      dispatch({ type: 'applyPreset', slot, ...plan });
+    },
+    [session.draft, ruleset],
+  );
+
   const value = useMemo<GarageEditorContextValue>(
     () => ({
       session,
       dispatch,
       ruleset,
       roster,
+      presets,
       preview,
       validation,
       isDirty,
@@ -173,8 +207,24 @@ export function GarageEditorProvider({
       save,
       designate,
       saveCurrentAsPreset,
+      applyStock,
+      applyCustom,
     }),
-    [session, ruleset, roster, preview, validation, isDirty, saving, save, designate, saveCurrentAsPreset],
+    [
+      session,
+      ruleset,
+      roster,
+      presets,
+      preview,
+      validation,
+      isDirty,
+      saving,
+      save,
+      designate,
+      saveCurrentAsPreset,
+      applyStock,
+      applyCustom,
+    ],
   );
 
   return <GarageEditorContext.Provider value={value}>{children}</GarageEditorContext.Provider>;

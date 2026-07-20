@@ -46,6 +46,14 @@ export type EditorAction =
   | { type: 'setRosterSlot'; index: number | null }
   | { type: 'setType'; slot: SlotIndex; typeId: MachineTypeId; seed: MachineSeed; zone: ZoneId }
   | { type: 'setVariant'; slot: SlotIndex; seed: MachineSeed }
+  | {
+      type: 'applyPreset';
+      slot: SlotIndex;
+      typeId: MachineTypeId;
+      zone: ZoneId;
+      seed: MachineSeed;
+      sourcePresetId: string;
+    }
   | { type: 'setWeapon'; slot: SlotIndex; equipmentId: EquipmentId }
   | { type: 'setDefense'; slot: SlotIndex; equipmentId: EquipmentId }
   | { type: 'setUtility'; slot: SlotIndex; index: number; equipmentId: EquipmentId }
@@ -154,6 +162,22 @@ export function garageReducer(session: EditorSession, action: EditorAction): Edi
             machine.sourcePresetId = undefined;
             break;
           }
+
+          case 'applyPreset':
+            // Fully specifies the slot's machine: the caller (with the ruleset) has already fit the
+            // bundle to the target variant (utility slot count) and chosen the zone. Works on an
+            // empty slot (the on-ramp — fields a fresh machine) or a filled one (re-apply). Unlike a
+            // hand edit, this **stamps** `sourcePresetId` so the UI can show "from <preset>".
+            d.draft.machines[action.slot] = {
+              typeId: action.typeId,
+              variantId: action.seed.variantId,
+              loadout: action.seed.loadout,
+              dials: action.seed.dials,
+              planB: action.seed.planB,
+              zone: action.zone,
+              sourcePresetId: action.sourcePresetId,
+            };
+            break;
 
           case 'setWeapon': {
             const machine = d.draft.machines[action.slot];

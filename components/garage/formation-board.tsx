@@ -24,6 +24,7 @@ import { useGarageEditor } from '@/lib/garage/use-garage-editor';
 import type { MachineTypeId } from '@/sim/model';
 import type { DamageFamily } from '@/sim/ruleset';
 
+import { StarterPicker } from './starter-picker';
 import { TypePicker } from './type-picker';
 import { ValidationNotice } from './validation-notice';
 import { ZoneRow } from './zone-row';
@@ -92,6 +93,7 @@ export function FormationBoard() {
         </div>
 
         <div className="flex items-center gap-2">
+          <StarterPicker slot={emptySlot} disabled={emptySlot === null} />
           <TypePicker onPick={addUnit} disabled={emptySlot === null} />
           <Button
             type="button"
