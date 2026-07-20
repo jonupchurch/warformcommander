@@ -4,7 +4,7 @@
  * returns a fresh deep clone so a test can mutate it into an illegal variant without side effects.
  */
 
-import type { SquadConfig } from "@/db/types";
+import type { SquadConfig, PresetConfig } from "@/db/types";
 import type { WireReplay } from "@/sim/replay-reader";
 import { resolveBattleRaw } from "@/sim";
 import { loadDefaultRuleset } from "@/sim/validate";
@@ -21,6 +21,12 @@ export function validSquad(): SquadConfig {
 /** A second, distinct legal army (battery defender) — for multi-squad / defense tests. */
 export function validSquadB(): SquadConfig {
   return clone(squadB) as SquadConfig;
+}
+
+/** A per-machine-type preset config (loadout + dials + planB), lifted from a real machine. */
+export function validPreset(): PresetConfig {
+  const m = validSquad().machines[0];
+  return { loadout: m.loadout, dials: m.dials, planB: m.planB };
 }
 
 /**
