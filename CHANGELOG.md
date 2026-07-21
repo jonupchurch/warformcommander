@@ -534,4 +534,21 @@ once it reaches a released version. Until then, everything lives under
     `beforeSend` filter (server + edge Sentry configs) that drops it, matching how Sentry already
     filters `NEXT_REDIRECT`.
 
+- **Commander handles — required at registration, editable later (Feature 7 onboarding).** `users.handle`
+  existed in the schema but nothing ever wrote it, so every commander fell back to their Google name.
+  Now:
+  - **Registration gate.** A signed-in commander with no handle is redirected by the `(app)` layout to
+    a new top-level `/onboarding` route (outside the `(app)` group, so the gate can't loop) to choose
+    one before using the app. Signed-out visitors are not gated.
+  - **Editable on the profile.** The own-profile hero gains an inline handle editor.
+  - **Rules + uniqueness.** `lib/handle.ts` — 3–20 chars, `[A-Za-z0-9_]`, at least one letter, reserved
+    words blocked. `server/handle.ts` `setHandle` is server-authoritative and enforces **case-insensitive**
+    uniqueness (new `HANDLE_TAKEN` error). The handle now rides the DB session (`session.user.handle`),
+    so the header badge and gate read it without an extra query.
+  - **Tests.** `tests/handle.test.ts` (validation) + `tests/set-handle.test.ts` (DB: claim, dup rejected
+    case-insensitively, self-rename, invalid writes nothing, frees on rename) — 14 green; typecheck +
+    ESLint + no-raw-hex + build clean.
+  - Known pre-existing issue (not from this change): the shell e2e flags horizontal overflow on `/garage`
+    at the 320px floor (Feature 4's e2e was deferred) — tracked separately.
+
 [Unreleased]: https://github.com/jonupchurch/warformcommander/commits/main

@@ -20,6 +20,7 @@ export type ErrorCode =
   | "SLOT_OCCUPIED_RACE"
   | "NOT_DESIGNATED"
   | "SLUG_TAKEN"
+  | "HANDLE_TAKEN" // the chosen commander handle is already in use (case-insensitive)
   | "UNSUPPORTED_FORMAT"
   | "FORBIDDEN"
   // Feature 8 — Arena matchmaking / resolve
