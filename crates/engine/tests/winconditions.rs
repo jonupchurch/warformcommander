@@ -98,7 +98,10 @@ fn time_limit_tie_goes_to_defender_at_lesser_reward() {
     assert_eq!(g0.winner, Some(Side::B), "0–0 tie → defender");
     assert_eq!(out.result.winner, Side::B, "and the match");
     // The stalemate guard fires immediately (tick 0) instead of running the full cap.
-    assert_eq!(g0.duration_ticks, 1, "stalemate guard resolves at once, no idling to the cap");
+    assert_eq!(
+        g0.duration_ticks, 1,
+        "stalemate guard resolves at once, no idling to the cap"
+    );
 }
 
 /// T041: a Bo3 is first-to-two — the match winner takes at least two games, in ≤3 games.
