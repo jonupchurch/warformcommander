@@ -29,7 +29,7 @@ const PILLARS: { index: string; title: string; body: string }[] = [
 export function Pillars() {
   return (
     <section className="px-safe mx-auto max-w-shell py-16 sm:py-24">
-      <SectionLabel index="01">Why it&apos;s different</SectionLabel>
+      <SectionLabel index="02">Why it&apos;s different</SectionLabel>
       <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-2">
         {PILLARS.map((p) => (
           <Panel key={p.index} className="flex flex-col gap-3">

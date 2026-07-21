@@ -22,7 +22,7 @@ const LATER = [
 export function RoadmapSnapshot() {
   return (
     <section id="roadmap" className="px-safe mx-auto max-w-shell scroll-mt-16 py-16 sm:py-24">
-      <SectionLabel index="02">Roadmap</SectionLabel>
+      <SectionLabel index="03">Roadmap</SectionLabel>
       <div className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Panel eyebrow="In v1" className="flex flex-col gap-4">
           <ul className="flex flex-col gap-2">

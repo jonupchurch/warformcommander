@@ -13,7 +13,7 @@ export function CommunityCta() {
   return (
     <section id="community" className="scroll-mt-16 border-t border-border">
       <GridBackdrop glow="cyan" scanlines={false} className="px-safe mx-auto max-w-shell py-20 sm:py-28">
-        <SectionLabel index="04">Enlist</SectionLabel>
+        <SectionLabel index="05">Enlist</SectionLabel>
         <h2 className="type-h1 mt-8 max-w-3xl text-balance text-text-strong">
           Ready to command? Plan your first squad.
         </h2>
