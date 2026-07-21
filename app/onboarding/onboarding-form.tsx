@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { HANDLE_MAX, HANDLE_MIN } from "@/lib/handle";
@@ -10,12 +9,11 @@ import { claimHandle } from "./actions";
 
 /**
  * The registration handle form. Client-side `useTransition` for pending state (repo convention), but
- * the server action is authoritative — it re-validates and enforces case-insensitive uniqueness, so a
- * clash or bad format comes back as a typed error. On success we enter the app; the DB session then
- * carries the handle and the `(app)` gate no longer redirects here.
+ * the server action is authoritative — it re-validates, enforces case-insensitive uniqueness, and on
+ * success **redirects** into the app itself (so there's no client `push`+`refresh` race). A clash or
+ * bad format comes back as a typed error; any unexpected throw is caught so the button never hangs.
  */
 export function OnboardingForm() {
-  const router = useRouter();
   const [handle, setHandle] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -24,13 +22,13 @@ export function OnboardingForm() {
     e.preventDefault();
     setError(null);
     startTransition(async () => {
-      const res = await claimHandle(handle);
-      if (!res.ok) {
-        setError(res.error);
-        return;
+      try {
+        const res = await claimHandle(handle);
+        if (res?.error) setError(res.error);
+        // success → the server action issued a redirect; the framework navigates us to /garage.
+      } catch {
+        setError("Something went wrong claiming that handle. Please try again.");
       }
-      router.push("/garage");
-      router.refresh();
     });
   }
 
