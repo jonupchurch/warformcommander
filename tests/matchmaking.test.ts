@@ -25,6 +25,19 @@ describe('pickRankedOpponent — basic selection (T010, US1)', () => {
     expect(pick.value.defenderUserId).not.toBe(ctx.id);
     expect(snapshotIds).toContain(pick.value.defenderSnapshotId);
     expect(pick.value.poolSource).toBe('real');
+    // A handle-less defender resolves to the stable id-derived fallback (Arena shows *who* you face).
+    expect(pick.value.defenderHandle).toBe(`Commander ${userId.slice(0, 6)}`);
+  });
+
+  it('surfaces the defender commander handle when they have one (US3 — identity, not behavior)', async () => {
+    const { ctx } = await seedAttacker();
+    const { userId } = await seedDefender({ handle: 'AceDefender' });
+
+    const pick = await pickRankedOpponent(ctx);
+    expect(pick.ok).toBe(true);
+    if (!pick.ok) return;
+    expect(pick.value.defenderUserId).toBe(userId);
+    expect(pick.value.defenderHandle).toBe('AceDefender');
   });
 
   it('errors NO_OPPONENT when the pool holds only the attacker (never self-matches)', async () => {
@@ -102,9 +115,13 @@ describe('drawPracticeOpponent — random, self-excluding (US4)', () => {
   it('honors the exclude list so a refresh re-draws a different squad', async () => {
     const { ctx } = await seedAttacker();
     const a = await seedAttacker();
-    const bId = await seedSquad((await seedAttacker()).ctx.id, 1);
+    // `third` gets its own slot-0 squad from seedAttacker; `bId` is its slot-1 squad. Exclude BOTH the
+    // other attackers' slot-0 squads so `bId` is the *only* eligible draw — otherwise `third`'s slot-0
+    // is also eligible and the random pick is a coin flip (this test used to be ~50% flaky).
+    const third = await seedAttacker();
+    const bId = await seedSquad(third.ctx.id, 1);
 
-    const draw = await drawPracticeOpponent(ctx, [a.squadId]);
+    const draw = await drawPracticeOpponent(ctx, [a.squadId, third.squadId]);
     expect(draw.ok).toBe(true);
     if (!draw.ok) return;
     expect(draw.value.opponentSquadId).toBe(bId);
