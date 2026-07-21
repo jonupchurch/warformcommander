@@ -23,7 +23,9 @@
     "db:push:dev": "dotenv -e .env.dev.local -- drizzle-kit push",
     "db:studio:dev": "dotenv -e .env.dev.local -- drizzle-kit studio",
     "db:seed": "dotenv -e .env.local -- tsx db/seed.ts",
-    "db:seed:dev": "dotenv -e .env.dev.local -- tsx db/seed.ts"
+    "db:seed:dev": "dotenv -e .env.dev.local -- tsx db/seed.ts",
+    "db:seed:testbots": "dotenv -e .env.local -- tsx db/seed-test-bots.ts",
+    "db:seed:testbots:dev": "dotenv -e .env.dev.local -- tsx db/seed-test-bots.ts"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.2",
