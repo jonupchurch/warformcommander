@@ -35,17 +35,18 @@ const MARKUP: Record<MachineTypeKey, string> = {
 /**
  * Which way each SVG's art points by default (barrel / rotor / launcher). Co-located with the markup
  * so a redraw updates both here. Consumed by the battle sprite to flip units so they **face each
- * other** across the contact line (friendly points right, enemy points left): the heli's nose points
- * left (its tail rotor is on the right), every other machine points right; `support` is symmetric so
- * the value is a no-op. NOT applied by `UnitIcon` itself — the default render stays as-drawn, and
- * only the battle-playback leaf opts into mirroring.
+ * other** across the contact line (friendly points right, enemy points left). Facing is read from
+ * each machine's *nose/cab* (its front), not its weapon: the heli's cockpit and the rocket truck's
+ * cab both sit on the left (tail rotor / launcher slung to the right), so those two face left; every
+ * other machine's front points right. `support` is symmetric so its value is a no-op. NOT applied by
+ * `UnitIcon` itself — the default render stays as-drawn, and only the battle-playback leaf mirrors.
  */
 export const ICON_FACES_RIGHT: Record<MachineTypeKey, boolean> = {
   heavytank: true,
   lighttank: true,
   mech: true,
   heli: false,
-  rocketarty: true,
+  rocketarty: false,
   artillery: true,
   support: true,
 };
