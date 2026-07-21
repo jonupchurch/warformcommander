@@ -24,6 +24,19 @@ export default function AdminHome() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Panel eyebrow="Moderation">
+          <h2 className="type-h3 text-text-strong">User management</h2>
+          <p className="mt-2 type-body-sm text-text-muted">
+            Search commanders, review their record, and ban or delete accounts. Deleting keeps every
+            opponent&rsquo;s match history intact — no one else&rsquo;s stats change.
+          </p>
+          <div className="mt-4">
+            <Button asChild size="sm">
+              <Link href="/admin/users">Open moderation</Link>
+            </Button>
+          </div>
+        </Panel>
+
         <Panel eyebrow="Balance">
           <h2 className="type-h3 text-text-strong">Live balance editor</h2>
           <p className="mt-2 type-body-sm text-text-muted">

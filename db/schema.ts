@@ -66,6 +66,7 @@ export const users = pgTable("user", {
   handle: text("handle").unique(), // commander handle, assigned on onboarding
   role: roleEnum("role").notNull().default("player"), // 'admin' set from the server-side allowlist
   isBot: boolean("isBot").notNull().default(false), // seeded/AI cold-start defenders (P5)
+  banned: boolean("banned").notNull().default(false), // admin moderation: blocked from all authed actions
   createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
 });
 
