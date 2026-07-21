@@ -144,6 +144,22 @@ DB-integration + 6 DB-free route anti-forgery** (gated in `web-ci`) + `e2e/{aren
 `next build` + `tsc` + ESLint + token guard clean. **Open coordination:** `loadCurrentRuleset()` stays
 the v1 default until Feature 12's live ruleset store renames it to `getCurrentRuleset()` (F12 T045).
 
+**Feature 9 (Ladder — net-victory leaderboard) — BUILT on branch `009-ladder`, all four user stories.**
+The competitive spine: every commander ranked by **net victories** (attack wins − defense losses), so a
+weak defense visibly bleeds rank. **Read-only** — composes Feature 7's standings/matches reads, never
+writes (P6, FR-015). **US1** the board — `getLadderPage`/`getViewerStanding` (actor-less; public board)
+with the **deterministic tiebreak** (metric DESC → net → totalDamage → userId ASC), 1-based ranks, a
+`COUNT`-above viewer rank (correct off-page), `{state:'unranked'}` for no row, `includeBots` default true
+(P5); the screen is a podium + landscape table (`overflow-x-auto`, `hidden lg:block`) + portrait card
+list (`lg:hidden`) from one dataset (SC-003) + pagination + an always-on viewer standing card + `#my-rank`
+jump. **US2** MetricTabs (net/damage/defenses) re-query via URL; the defense-loss-lowers-rank stake is
+pinned by a query test (SC-002). **US3** per-period rollups — `week`/`month` roll up **ranked** matches
+in the calendar window (`date_trunc(now())`, attacker+defender contribs UNIONed/grouped), practice
+excluded, season reads `ladder_standings`; RangeTabs switch. **US4** NetVictoryExplainer states the model
+inline. Verified: **18 Vitest DB-integration + 6 pure view-model** (CI-gated) + **8 Playwright/axe e2e**,
+`next build` + `tsc` + ESLint + token guard clean; the **full suite is 269 tests green across 30 files**.
+No WASM (pure DB reads), so no new tracing entry. Seasons/MMR/tiers/trend deferred (spec FR-016).
+
 **Approach — plan-the-whole-set-first, then build foundation-first (Principle VII):**
 the full set was planned before any implementation so shared models and cross-feature
 dependencies surfaced on paper. Feature 1 (the deterministic **sim core + data model**)
@@ -204,7 +220,7 @@ implementation sequence, not the spec numbering.
 | 6 | Battle summary (post-Bo3 results) | ✅ | ✅ | ✅ 32 | **✅ BUILT — US1–US4 + polish on `006-battle-summary`; pure `deriveSummaryViewModel` spine; 22 Vitest + 10 Playwright/axe e2e green; demo-result seam pending F7 read path** |
 | 7 | Accounts & persistence (backend/DB, defense snapshots) | ✅ | ✅ | ✅ 52 | **✅ BUILT — schema + auth + service layer; 34 Vitest tests green; prod migrate pending** |
 | 8 | Arena (async matchmaking) + Practice sandbox | ✅ | ✅ | ✅ 51 | **✅ BUILT — US1–US5 + real round-trip on `008-arena-practice`; server-authoritative resolve/record, fogged blind+locked matchmaking, practice sandbox, strict-parse anti-forgery; 31 Vitest + arena/practice e2e green; F5/F6 read-path seam cashed in** |
-| 9 | Ladder (seasons, metrics, tiers/MMR) | ✅ | ✅ | ✅ 38 | after #7/#8 |
+| 9 | Ladder (seasons, metrics, tiers/MMR) | ✅ | ✅ | ✅ 38 | **✅ BUILT — US1–US4 on `009-ladder`; net-victory board + deterministic tiebreak + period rollups + both-orientation; read-only over F7; 24 Vitest + 8 e2e green** |
 | 10 | Profile (career stats, achievements) | ✅ | ✅ | ✅ 33 | after #7 |
 | 11 | Marketing site (Home + News index + article template) | ✅ | ✅ | ✅ 59 | after #3/#7 |
 | 12 | Admin console + balance publishing (live stat editing → auto news) | ✅ | ✅ | ✅ 48 | after #7 |
