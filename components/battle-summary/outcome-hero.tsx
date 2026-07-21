@@ -5,8 +5,10 @@
  * token-only. The verdict is the page's `h1` heading landmark (T030).
  */
 
+import Link from 'next/link';
 import type { ReactNode } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { BattleSummaryViewModel } from '@/lib/battle-summary/view-model';
 import { SeriesPips } from './series-pips';
@@ -14,12 +16,15 @@ import { SeriesPips } from './series-pips';
 export interface OutcomeHeroProps {
   outcome: BattleSummaryViewModel['outcome'];
   series: BattleSummaryViewModel['series'];
+  /** Battle Playback route for this match — the primary "watch the replay" CTA lives up here in the
+   * hero (above the fold), not only in the footer action row (SC-007: a link, no player mounted). */
+  watchReplayHref: string;
   /** US4 standing panel slot. */
   children?: ReactNode;
   className?: string;
 }
 
-export function OutcomeHero({ outcome, series, children, className }: OutcomeHeroProps) {
+export function OutcomeHero({ outcome, series, watchReplayHref, children, className }: OutcomeHeroProps) {
   const won = outcome.verdict === 'VICTORY';
   const opponentName = outcome.opponent.hidden
     ? 'Practice Opponent'
@@ -45,15 +50,25 @@ export function OutcomeHero({ outcome, series, children, className }: OutcomeHer
       />
 
       <div className="relative flex flex-col gap-5">
-        <span className="type-eyebrow text-faction-friendly">MATCH COMPLETE · BEST OF {outcome.bestOf}</span>
-        <h1
-          className={cn(
-            'type-display leading-none text-text-strong',
-            won && 'motion-safe:[text-shadow:0_0_30px_var(--color-faction-friendly-soft)]',
-          )}
-        >
-          {outcome.verdict}
-        </h1>
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+          <div className="flex flex-col gap-5">
+            <span className="type-eyebrow text-faction-friendly">MATCH COMPLETE · BEST OF {outcome.bestOf}</span>
+            <h1
+              className={cn(
+                'type-display leading-none text-text-strong',
+                won && 'motion-safe:[text-shadow:0_0_30px_var(--color-faction-friendly-soft)]',
+              )}
+            >
+              {outcome.verdict}
+            </h1>
+          </div>
+
+          {/* Primary CTA, kept high in the hero so watching the replay is the obvious first action
+              (was previously only in the footer, below the fold). Full-width in portrait. */}
+          <Button asChild size="lg" className="w-full sm:w-auto sm:shrink-0">
+            <Link href={watchReplayHref}>► Watch Full Replay</Link>
+          </Button>
+        </div>
 
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-8">
           <SeriesPips series={series} />

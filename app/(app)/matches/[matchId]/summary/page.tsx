@@ -45,7 +45,11 @@ export default async function BattleSummaryPage({
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
-      <OutcomeHero outcome={vm.outcome} series={vm.series}>
+      <OutcomeHero
+        outcome={vm.outcome}
+        series={vm.series}
+        watchReplayHref={vm.actions.watchReplayHref}
+      >
         <StandingDelta standing={vm.standing} />
       </OutcomeHero>
 
