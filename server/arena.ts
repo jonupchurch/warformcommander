@@ -39,6 +39,7 @@ export async function previewRankedMatch(ctx: SessionUser): Promise<Result<Match
   const power = armyPowerRating(selection.value.servedConfig, ruleset);
   return ok({
     defenderSnapshotId: selection.value.defenderSnapshotId,
+    defenderHandle: selection.value.defenderHandle,
     preview: fogPreview(selection.value.servedConfig, ruleset, power),
   });
 }

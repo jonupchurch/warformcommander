@@ -25,11 +25,11 @@ export async function pickRankedOpponent(ctx: SessionUser): Promise<Result<Match
   const db = getDb();
 
   const [defender] = await db
-    .select({ userId: defenseSnapshots.userId, isBot: users.isBot })
+    .select({ userId: defenseSnapshots.userId, isBot: users.isBot, handle: users.handle })
     .from(defenseSnapshots)
     .innerJoin(users, eq(users.id, defenseSnapshots.userId))
     .where(and(eq(defenseSnapshots.active, true), ne(defenseSnapshots.userId, ctx.id)))
-    .groupBy(defenseSnapshots.userId, users.isBot)
+    .groupBy(defenseSnapshots.userId, users.isBot, users.handle)
     .orderBy(sql`random()`)
     .limit(1);
 
@@ -46,6 +46,8 @@ export async function pickRankedOpponent(ctx: SessionUser): Promise<Result<Match
 
   return ok({
     defenderUserId: defender.userId,
+    // Display handle with the same id-derived fallback the ladder uses when a handle is absent.
+    defenderHandle: defender.handle?.trim() || `Commander ${defender.userId.slice(0, 6)}`,
     defenderSnapshotId: snapshot.id,
     poolSource: defender.isBot ? 'bot' : 'real',
     servedConfig: snapshot.config,

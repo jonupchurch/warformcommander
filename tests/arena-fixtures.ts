@@ -39,8 +39,8 @@ export async function seedAttacker(): Promise<{ ctx: SessionUser; squadId: strin
 }
 
 /** A defender (real or bot) holding `count` active snapshots (1–3). */
-export async function seedDefender(opts: { isBot?: boolean; count?: number } = {}): Promise<{ userId: string; snapshotIds: string[] }> {
-  const user = await createTestUser({ isBot: opts.isBot ?? false });
+export async function seedDefender(opts: { isBot?: boolean; count?: number; handle?: string } = {}): Promise<{ userId: string; snapshotIds: string[] }> {
+  const user = await createTestUser({ isBot: opts.isBot ?? false, handle: opts.handle });
   const count = opts.count ?? 1;
   const snapshotIds: string[] = [];
   for (let slot = 0; slot < count; slot += 1) {

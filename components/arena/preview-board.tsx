@@ -67,10 +67,12 @@ function EnemyMachine({ machine }: { machine: PreviewMachine }) {
 
 export interface PreviewBoardProps {
   preview: MatchTicketPreview;
+  /** The opponent commander's handle (Arena only). Practice omits it — draws stay anonymous (FR-014). */
+  opponentHandle?: string;
   className?: string;
 }
 
-export function PreviewBoard({ preview, className }: PreviewBoardProps) {
+export function PreviewBoard({ preview, opponentHandle, className }: PreviewBoardProps) {
   const byZone = ZONE_ORDER.map((zone) => ({
     zone,
     machines: preview.composition.filter((m) => m.zone === zone),
@@ -79,7 +81,14 @@ export function PreviewBoard({ preview, className }: PreviewBoardProps) {
   return (
     <div className={cn('flex flex-col gap-4', className)}>
       <div className="flex items-baseline justify-between gap-3">
-        <span className="type-eyebrow text-text-muted">ENEMY DEFENSE</span>
+        <div className="flex min-w-0 flex-col">
+          <span className="type-eyebrow text-text-muted">ENEMY DEFENSE</span>
+          {opponentHandle && (
+            <span className="type-h3 truncate text-text-strong" title={opponentHandle}>
+              {opponentHandle}
+            </span>
+          )}
+        </div>
         <span className="type-readout text-sm tabular-nums text-faction-enemy">
           PWR {preview.power.toLocaleString()}
         </span>

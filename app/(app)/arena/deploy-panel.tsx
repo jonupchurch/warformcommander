@@ -102,7 +102,11 @@ export function DeployPanel({ attackable, initial }: DeployPanelProps) {
   return (
     <div className="flex flex-col gap-4">
       <Panel inset="rail" eyebrow="ENEMY DEFENSE — SERVED BLIND" className="flex flex-col gap-4">
-        <PreviewBoard preview={ticket.preview} className={cn(isRerolling && 'opacity-50 transition-opacity')} />
+        <PreviewBoard
+          preview={ticket.preview}
+          opponentHandle={ticket.defenderHandle}
+          className={cn(isRerolling && 'opacity-50 transition-opacity')}
+        />
         <Button
           type="button"
           variant="ghost"

@@ -46,11 +46,13 @@ export async function closeDb(): Promise<void> {
 
 /** Insert a user and return an authenticated actor (as `requireSession` would produce). */
 export async function createTestUser(
-  opts: { role?: "player" | "admin"; email?: string; isBot?: boolean } = {},
+  opts: { role?: "player" | "admin"; email?: string; isBot?: boolean; handle?: string } = {},
 ): Promise<SessionUser> {
   const id = crypto.randomUUID();
   const email = opts.email ?? `${testId("user")}@example.com`;
   const role = opts.role ?? "player";
-  await getDb().insert(users).values({ id, email, role, isBot: opts.isBot ?? false });
+  await getDb()
+    .insert(users)
+    .values({ id, email, role, isBot: opts.isBot ?? false, handle: opts.handle ?? null });
   return { id, role, email };
 }

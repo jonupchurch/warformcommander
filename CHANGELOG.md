@@ -606,4 +606,14 @@ once it reaches a released version. Until then, everything lives under
     idling untouched is a **stale, pre-fix battle** (replays are immutable snapshots) — fresh battles
     show the trade.
 
+- **Arena: show the opponent commander on the pre-battle screen.** The ranked pre-battle board now
+  names *who* you're facing (their handle, above `ENEMY DEFENSE`). The board stays behavior-blind —
+  the fog rule (US3/FR-007) hides the defender's dials / Plan-B, not their identity; only **Practice**
+  is deliberately anonymous (FR-014), so the handle rides `MatchTicket` (not the fogged preview) and
+  reaches `PreviewBoard` as an Arena-only prop Practice omits. `pickRankedOpponent` already joins
+  `users`, so the handle comes with the existing query (no extra round-trip); it falls back to the
+  ladder's `Commander <id6>` label when absent. Tests: matchmaking now asserts the handle is surfaced
+  (real handle + id-derived fallback). Also fixed a pre-existing ~50%-flaky practice-draw test (an
+  extra eligible squad made the "exclude" draw a coin flip).
+
 [Unreleased]: https://github.com/jonupchurch/warformcommander/commits/main

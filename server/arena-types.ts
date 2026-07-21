@@ -39,6 +39,9 @@ export type PoolSource = 'real' | 'bot';
  *  serialized to the client as-is; only the fogged preview reaches the browser (US3). */
 export interface MatchmakingSelection {
   defenderUserId: string;
+  /** The defender commander's display handle (identity, not behavior — safe to show; US3 blinds only
+   *  the behavior config). Falls back to a stable id-derived label when a handle is somehow absent. */
+  defenderHandle: string;
   defenderSnapshotId: string;
   poolSource: PoolSource;
   servedConfig: SquadConfig;
@@ -62,6 +65,9 @@ export interface MatchTicketPreview {
 /** The opaque handle preview returns and deploy consumes — binds the served snapshot BY ID (FR-008). */
 export interface MatchTicket {
   defenderSnapshotId: string;
+  /** The defender commander's display handle. Identity only — the board itself stays behavior-blind
+   *  (the fog is in {@link MatchTicketPreview}); Ranked reveals *who* you face, not *how* they fight. */
+  defenderHandle: string;
   preview: MatchTicketPreview;
 }
 
