@@ -10,13 +10,13 @@ function MetadataStrip({ metadata }: { metadata: Record<string, unknown> | null 
     <dl className="mb-8 flex flex-wrap gap-x-8 gap-y-2 rounded-lg border border-border-hairline bg-surface-sunken p-4">
       {commitSha && (
         <div className="flex flex-col gap-1">
-          <dt className="type-eyebrow text-text-dim">Commit</dt>
+          <dt className="type-eyebrow text-text-muted">Commit</dt>
           <dd className="type-readout text-text-strong">{commitSha.slice(0, 12)}</dd>
         </div>
       )}
       {balanceDelta && (
         <div className="flex flex-col gap-1">
-          <dt className="type-eyebrow text-text-dim">Balance delta</dt>
+          <dt className="type-eyebrow text-text-muted">Balance delta</dt>
           <dd className="type-readout text-text-strong">{balanceDelta}</dd>
         </div>
       )}
@@ -42,7 +42,7 @@ export function ArticleBody({ post }: { post: PostView }) {
           "[&_p]:my-4 [&_p]:leading-relaxed",
           "[&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-6",
           "[&_ol]:my-4 [&_ol]:list-decimal [&_ol]:pl-6",
-          "[&_li]:my-1 [&_li]:marker:text-text-dim",
+          "[&_li]:my-1 [&_li]:marker:text-text-muted",
           "[&_a]:text-faction-friendly [&_a]:underline [&_a]:underline-offset-2",
           "[&_strong]:text-text-strong [&_strong]:font-semibold",
           "[&_blockquote]:my-6 [&_blockquote]:border-l-2 [&_blockquote]:border-faction-friendly [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-text-muted",

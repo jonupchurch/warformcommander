@@ -36,7 +36,9 @@ test.describe('US1 — Home sells the game + the non-P2W promise', () => {
     await expect(page.getByText('Later', { exact: true })).toBeVisible();
     await expect(page.getByText('Deterministic Bo3 battle engine')).toBeVisible();
 
-    // Working CTAs (rendered as links via Button asChild).
+    // Working CTAs (rendered as links via Button asChild): Play is primary + bridges into the app.
+    await expect(page.getByRole('link', { name: 'Play now' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Play now' }).first()).toHaveAttribute('href', '/garage');
     await expect(page.getByRole('link', { name: 'Wishlist' }).first()).toBeVisible();
     await expect(page.getByRole('link', { name: 'How to Play' }).first()).toBeVisible();
   });
@@ -64,13 +66,17 @@ test.describe('US1 — Home sells the game + the non-P2W promise', () => {
 });
 
 test.describe('US2 — the shared shell frames every page', () => {
-  test('header (brand + nav + Wishlist) and footer render on Home and News', async ({ page }) => {
+  test('header (brand + marketing nav + game bridge) and footer render on Home and News', async ({ page }) => {
     for (const route of ['/', '/news']) {
       await page.goto(route);
-      // Nav destinations (present in DOM in both the landscape + portrait navs — assert ≥1).
-      for (const label of ['Overview', 'News', 'Roadmap', 'Community']) {
+      // Marketing sections + the game (app) destinations — present in the nav + footer so the built
+      // app is reachable from the front door, not just by direct URL (present in both navs → assert ≥1).
+      for (const label of ['Overview', 'News', 'Roadmap', 'Garage', 'Arena', 'Ladder', 'Practice']) {
         expect(await page.getByRole('link', { name: label, exact: true }).count()).toBeGreaterThan(0);
       }
+      // The game links point at the real app routes (the bridge marketing → app).
+      await expect(page.getByRole('link', { name: 'Garage', exact: true }).first()).toHaveAttribute('href', '/garage');
+      await expect(page.getByRole('link', { name: 'Ladder', exact: true }).first()).toHaveAttribute('href', '/ladder');
       // Footer brand blurb + copyright.
       await expect(page.getByText('© Warform Commander. All systems nominal.')).toBeVisible();
     }

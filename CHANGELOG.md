@@ -502,5 +502,19 @@ once it reaches a released version. Until then, everything lives under
     `warformcommander.vercel.app/api/admin/devlog`: absent/wrong secret → **401** (no write), valid
     secret + intentionally-incomplete body → **400** (auth passed, still no write). Shared surfaces
     (`/`, `/news`, `/arena`, `/practice`, `/ladder`) unregressed at 200; `/admin` still 307.
+- **Marketing → app bridge + post-date contrast fix.** The public marketing site now links into the
+  built game instead of only referring to itself:
+  - The marketing nav gains the game destinations (`Garage · Arena · Ladder · Practice`) after the
+    marketing sections, and a primary **Play** CTA (→ `/garage`). The hero and the "Enlist" CTA lead
+    with **Play now** (Wishlist demoted to secondary). The footer's first column is now **Play**
+    (Garage/Arena/Ladder/Practice). Previously every marketing nav/footer link resolved to a Home
+    anchor or `/news`, so the built app (Garage/Arena/Ladder/Practice/Profile) was reachable only by
+    typing the URL — the site read as a single page (`lib/marketing-nav.ts` gains `APP_DESTINATIONS`
+    + `PLAY_CTA`).
+  - Fixed a latent WCAG-AA contrast failure on marketing post dates/labels: `text-text-dim`
+    (#5a6472, 3.2:1 on the near-black chrome) → `text-text-muted` in `post-card`, `featured-post`,
+    `article-body`, and `news-pagination`. It was invisible in the Feature 11 e2e because the DB had
+    no published posts; the first real devlog post surfaced it. **15/15 marketing e2e green** (incl.
+    both axe passes) + typecheck + ESLint + no-raw-hex clean.
 
 [Unreleased]: https://github.com/jonupchurch/warformcommander/commits/main

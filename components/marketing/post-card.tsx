@@ -14,7 +14,7 @@ export function PostCard({ post }: { post: PostSummary }) {
     <Panel as="article" className="group relative flex flex-col gap-3 transition-colors hover:bg-surface-raised">
       <div className="flex items-center justify-between gap-3">
         <PostBadge badge={post.badge} />
-        <time dateTime={post.publishedAt.toISOString()} className="type-eyebrow text-text-dim">
+        <time dateTime={post.publishedAt.toISOString()} className="type-eyebrow text-text-muted">
           {formatPostDate(post.publishedAt)}
         </time>
       </div>
