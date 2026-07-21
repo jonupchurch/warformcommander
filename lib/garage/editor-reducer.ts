@@ -74,6 +74,7 @@ export type EditorAction =
       defenseSlot: 0 | 1 | 2 | null;
       draft: DraftSquad;
     }
+  | { type: 'duplicateSquad'; rosterSlotIndex: number; draft: DraftSquad }
   | { type: 'markSaved'; squadId: string; rosterSlotIndex: number | null };
 
 /** A fresh, empty five-slot draft. */
@@ -127,6 +128,20 @@ export function garageReducer(session: EditorSession, action: EditorAction): Edi
         rosterSlotIndex: action.rosterSlotIndex,
         defenseSlot: action.defenseSlot,
         editingSquadId: action.squadId,
+        status: 'Editing',
+      };
+
+    case 'duplicateSquad':
+      // A fork of an existing squad into a **new, unsaved** build: same machines, a free roster slot,
+      // no `editingSquadId` (so Save inserts rather than overwriting the source) and no baseline (so
+      // it is dirty and the source's defense designation does not carry over).
+      return {
+        draft: cloneDraft(action.draft),
+        savedBaseline: null,
+        selection: { selectedSlot: null, placingSlot: null, activePane: 'Formation' },
+        rosterSlotIndex: action.rosterSlotIndex,
+        defenseSlot: null,
+        editingSquadId: null,
         status: 'Editing',
       };
 

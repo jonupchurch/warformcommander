@@ -135,6 +135,56 @@ describe('isDirty', () => {
   });
 });
 
+describe('duplicateSquad', () => {
+  /** A saved squad loaded into the editor (occupies slot 0, designated for defense). */
+  function loadedSquad(): EditorSession {
+    const draft = run(
+      { type: 'setType', slot: 0, typeId: 'HeavyTank', seed: seedFor('Grizzly'), zone: 'Front' },
+    ).draft;
+    return garageReducer(freshSession(), {
+      type: 'loadSquad',
+      squadId: 'sq1',
+      rosterSlotIndex: 0,
+      defenseSlot: 1,
+      draft: { ...draft, name: 'Alpha' },
+    });
+  }
+
+  it('forks the machines into a fresh, unsaved build in the target slot', () => {
+    const source = loadedSquad();
+    const copy = garageReducer(source, {
+      type: 'duplicateSquad',
+      rosterSlotIndex: 3,
+      draft: { name: 'Alpha (copy)', machines: source.draft.machines },
+    });
+
+    expect(copy.draft.name).toBe('Alpha (copy)');
+    expect(copy.draft.machines).toEqual(source.draft.machines);
+    // A new squad: Save must INSERT, not overwrite the source; and it lands in the free slot.
+    expect(copy.editingSquadId).toBeNull();
+    expect(copy.rosterSlotIndex).toBe(3);
+    // No baseline ⇒ dirty; the source's defense designation does not carry over.
+    expect(copy.savedBaseline).toBeNull();
+    expect(copy.defenseSlot).toBeNull();
+    expect(isDirty(copy)).toBe(true);
+    expect(copy.status).toBe('Editing');
+    expect(copy.selection).toEqual({ selectedSlot: null, placingSlot: null, activePane: 'Formation' });
+  });
+
+  it('deep-clones the draft — editing the copy does not touch the source', () => {
+    const source = loadedSquad();
+    const copy = garageReducer(source, {
+      type: 'duplicateSquad',
+      rosterSlotIndex: 1,
+      draft: { name: 'Alpha (copy)', machines: source.draft.machines },
+    });
+    const edited = garageReducer(copy, { type: 'clearSlot', slot: 0 });
+
+    expect(edited.draft.machines[0]).toBeNull();
+    expect(source.draft.machines[0]).not.toBeNull();
+  });
+});
+
 describe('defaultVariantFor', () => {
   it('returns a variant belonging to the requested type', () => {
     const v = defaultVariantFor('AttackHeli', rs);

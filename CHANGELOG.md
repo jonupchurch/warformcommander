@@ -573,4 +573,14 @@ once it reaches a released version. Until then, everything lives under
     (pre-existing): `air-alpha`/`artillery-line` dominant vs `aa-rocket`/`support-ball` — a balance-spread
     tuning pass, not this change.
 
+- **Garage: duplicate a squad.** A new **DUPLICATE** button on the formation board forks the
+  loaded, already-saved squad into a fresh *unsaved* copy — same machines, named `"<name> (copy)"`,
+  dropped into the lowest free roster slot — so you can rename it and save a variant without
+  rebuilding. Save goes through the existing insert path (no new server action; `editingSquadId`
+  is cleared so it never overwrites the source, and no baseline ⇒ dirty), and the source's defense
+  designation does not carry over. Disabled with an explanatory tooltip when nothing saved is loaded
+  or the 8-slot roster is full. The roster-cap/free-slot logic the rail and board share now lives in
+  one place (`lib/garage/roster.ts`). New reducer verb `duplicateSquad` with tests; typecheck +
+  ESLint clean, all 9 garage Vitest files green.
+
 [Unreleased]: https://github.com/jonupchurch/warformcommander/commits/main

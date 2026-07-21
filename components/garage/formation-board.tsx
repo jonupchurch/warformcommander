@@ -19,6 +19,7 @@ import {
   type ChipTone,
 } from '@/lib/garage/display';
 import { defaultFor, defaultVariantFor, defaultZoneFor } from '@/lib/garage/preset-catalog';
+import { firstFreeRosterSlot } from '@/lib/garage/roster';
 import type { DraftSquad, SlotIndex } from '@/lib/garage/types';
 import { useGarageEditor } from '@/lib/garage/use-garage-editor';
 import type { MachineTypeId } from '@/sim/model';
@@ -43,9 +44,14 @@ function tagTone(tag: string): ChipTone | 'rear' {
 }
 
 export function FormationBoard() {
-  const { session, dispatch, ruleset, preview, validation, isDirty, saving, save } =
+  const { session, dispatch, ruleset, roster, preview, validation, isDirty, saving, save } =
     useGarageEditor();
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  // Duplicate is available only for an already-saved squad and only when a roster slot is free — the
+  // fork lands in that slot as a fresh unsaved build (see the `duplicateSquad` reducer verb).
+  const freeSlot = firstFreeRosterSlot(new Set(roster.map((r) => r.slotIndex)));
+  const canDuplicate = session.editingSquadId !== null && freeSlot !== null && !saving;
 
   const emptySlot = firstEmptySlot(session.draft);
   const placingSlot = session.selection.placingSlot;
@@ -69,6 +75,16 @@ export function FormationBoard() {
     setSaveError(null);
     const res = await save();
     if (!res.ok) setSaveError(res.reason ?? res.error);
+  }
+
+  function onDuplicate() {
+    if (session.editingSquadId === null || freeSlot === null) return;
+    setSaveError(null);
+    dispatch({
+      type: 'duplicateSquad',
+      rosterSlotIndex: freeSlot,
+      draft: { name: `${session.draft.name} (copy)`, machines: session.draft.machines },
+    });
   }
 
   return (
@@ -95,6 +111,22 @@ export function FormationBoard() {
         <div className="flex items-center gap-2">
           <StarterPicker slot={emptySlot} disabled={emptySlot === null} />
           <TypePicker onPick={addUnit} disabled={emptySlot === null} />
+          <Button
+            type="button"
+            variant="secondary"
+            size="md"
+            onClick={onDuplicate}
+            disabled={!canDuplicate}
+            title={
+              session.editingSquadId === null
+                ? 'Save this squad first, then duplicate it'
+                : freeSlot === null
+                  ? 'Roster is full — free a slot to duplicate'
+                  : 'Copy this squad into a free slot to save under a new name'
+            }
+          >
+            DUPLICATE
+          </Button>
           <Button
             type="button"
             variant="primary"
