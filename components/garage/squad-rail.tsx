@@ -11,18 +11,11 @@ import { Chip } from '@/components/ui/chip';
 import { Panel } from '@/components/ui/panel';
 import { SectionLabel } from '@/components/ui/section-label';
 import { ZONE_DOT_CLASS } from '@/lib/garage/display';
+import { firstFreeRosterSlot } from '@/lib/garage/roster';
 import { fromSquadConfig } from '@/lib/garage/to-squad-config';
 import { useGarageEditor } from '@/lib/garage/use-garage-editor';
 import type { SquadConfig } from '@/sim/model';
 import { cn } from '@/lib/utils';
-
-const ROSTER_CAP = 8;
-
-/** The lowest roster slot (0..7) not already occupied, or `null` if the roster is full. */
-function firstFreeRosterSlot(taken: Set<number>): number | null {
-  for (let i = 0; i < ROSTER_CAP; i += 1) if (!taken.has(i)) return i;
-  return null;
-}
 
 export function SquadRail() {
   const { roster, session, dispatch } = useGarageEditor();
