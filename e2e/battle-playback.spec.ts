@@ -8,11 +8,11 @@ import { VIEWPORTS } from './viewports';
  * test can't reach: the play-through halts at the last tick, the O(1) scrubber seeks by keyboard +
  * marker while paused and playing, the control cluster paces/steps/jumps, and the whole surface is
  * first-class in both orientations, accessible, and motion-safe. The route renders the committed
- * native battery replay (2 games × 145 ticks, with deaths).
+ * native battery replay (2 games, 153 + 161 ticks, with deaths).
  */
 
 const ROUTE = '/battle/e2e';
-const LAST_TICK = 144; // 145 ticks → last index
+const LAST_TICK = 152; // game 0 now 153 ticks → last index 152
 
 const slider = (page: Page) => page.getByRole('slider', { name: 'Battle timeline' });
 const value = async (page: Page) => Number(await slider(page).inputValue());
@@ -30,8 +30,8 @@ test.describe('US1 — watch a stored replay start→finish', () => {
 
     // Seek near the end so the halt is observable fast; keyboard seek is one O(1) index.
     await slider(page).focus();
-    await page.keyboard.press('End'); // → 144
-    await page.keyboard.press('PageDown'); // → 134
+    await page.keyboard.press('End'); // → 152
+    await page.keyboard.press('PageDown'); // → 142
     expect(await value(page)).toBe(LAST_TICK - 10);
 
     await page.getByRole('button', { name: 'Play' }).click();

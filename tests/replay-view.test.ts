@@ -19,7 +19,7 @@ describe('createReplayView — basics + graceful reject', () => {
   it('exposes games/ticks and rejects an unsupported formatVersion (FR-003/SC-007)', () => {
     const view = createReplayView(loadBatteryReplay(), 'A');
     expect(view.gamesCount).toBe(2);
-    expect(view.lastTick(0)).toBe(144); // 145 ticks → last index 144
+    expect(view.lastTick(0)).toBe(152); // 153 ticks → last index 152
     expect(view.tickRate).toBe(10);
 
     expect(() => createReplayView(makeSyntheticReplay({ ticks: 5, formatVersion: 99 }), 'A')).toThrow(

@@ -4,7 +4,8 @@
 //! Reach is governed by the **firing unit's row** (stat block §4): Front → nearest occupied enemy
 //! ground row (collapsing forward); Middle → enemy Front+Middle (Rear only once both clear); Rear →
 //! nothing unless the unit fires indirectly (Artillery / Rocket-Artillery). Special weapon reach
-//! tags override: `AnyGround`/`Deep` reach any ground row from any row; `Air` reaches only air.
+//! tags override: `AnyGround`/`Deep` reach any ground row from any row; `Air` (a SAM) reaches enemy
+//! air while any is present, and bombards ground once the skies are clear (never idles).
 //!
 //! An **air-capable** unit (heli, SAM rocket-artillery) additionally reaches enemy air whenever any is
 //! present; because `ZoneId::Air` sorts frontmost, the default Target Row engages air **before** ground
@@ -39,8 +40,16 @@ fn reach_zones(att: &Combatant, occupied: &Occupancy) -> (Vec<ZoneId>, bool) {
     let occ = |z: ZoneId| occupied.has(z);
 
     match att.stats.reach {
-        // AA / air-only weapon: air targets only.
-        ReachTag::Air => (vec![], true),
+        // AA weapon (SAM rocket-artillery): engages enemy air *exclusively* while any is present — true
+        // air-first, independent of the Target Row dial. Once the skies are clear it depresses its
+        // launchers and bombards ground (explosive, no air multiplier) rather than sitting idle.
+        ReachTag::Air => {
+            if occ(ZoneId::Air) {
+                (vec![], true)
+            } else {
+                (ground.into_iter().filter(|&z| occ(z)).collect(), false)
+            }
+        }
         // Indirect / long: any occupied ground row from any row.
         ReachTag::AnyGround | ReachTag::Deep => {
             let zones: Vec<ZoneId> = ground.into_iter().filter(|&z| occ(z)).collect();

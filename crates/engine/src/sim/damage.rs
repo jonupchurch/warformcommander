@@ -44,17 +44,24 @@ pub(crate) fn resolve_attack(
     let g = &ruleset.globals;
     let target_air = combatants[target_idx].zone == ZoneId::Air;
 
-    // --- Hit chance: accuracy − evasion, with air modifiers, clamped. ---
+    // --- Hit chance: accuracy − evasion, with off-domain modifiers, clamped. ---
+    // `domain_mult` scales damage for a weapon firing outside its element: AA vs air gets the bonus;
+    // a ground weapon plinking air, OR a SAM bombarding ground once the skies are clear, takes the
+    // matching "plink" penalty (symmetric off-role fire). Same-domain fire is BP_ONE (no change).
     let mut acc = prof.accuracy;
-    let mut air_dmg_mult = BP_ONE;
+    let mut domain_mult = BP_ONE;
     if target_air {
         if prof.reach == ReachTag::Air {
             acc += ruleset.air_mods.aa_acc_bonus; // AA bonus
-            air_dmg_mult = ruleset.air_mods.aa_dmg_mult;
+            domain_mult = ruleset.air_mods.aa_dmg_mult;
         } else {
             acc += ruleset.air_mods.plink_acc_penalty; // direct-fire "plink"
-            air_dmg_mult = ruleset.air_mods.plink_dmg_mult;
+            domain_mult = ruleset.air_mods.plink_dmg_mult;
         }
+    } else if prof.reach == ReachTag::Air {
+        // SAM suppressing ground: same plink penalty a ground weapon takes against air.
+        acc += ruleset.air_mods.plink_acc_penalty;
+        domain_mult = ruleset.air_mods.plink_dmg_mult;
     }
     let hit_chance =
         (acc - combatants[target_idx].stats.evasion).clamp(g.hit_clamp_min, g.hit_clamp_max);
@@ -80,9 +87,7 @@ pub(crate) fn resolve_attack(
         d0 = d0.mul_bp(prof.crit_mult);
     }
     d0 = d0.mul_bp(prof.energy_mult);
-    if target_air {
-        d0 = d0.mul_bp(air_dmg_mult);
-    }
+    d0 = d0.mul_bp(domain_mult); // BP_ONE for ordinary same-domain fire
     d0 = d0.mul_bp(BP_ONE + variance);
 
     // --- Primary hit: shields then hull. ---
