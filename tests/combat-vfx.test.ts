@@ -13,6 +13,7 @@ import type { DamageType } from '@/sim/ruleset';
 const hit = (a: number, d: number): WireEvent => ({ t: 'hit', a, d, dmg: 10, layer: 'Hull', crit: false, splash: false });
 const miss = (a: number, d: number): WireEvent => ({ t: 'miss', a, d });
 const death = (u: number): WireEvent => ({ t: 'death', u, k: 0 });
+const support = (a: number, d: number): WireEvent => ({ t: 'support', a, d, amt: 5, kind: 'Heal' });
 
 // columns: 0 = friendly kinetic, 1 = enemy energy, 2 = enemy explosive
 const TYPES: (DamageType | null)[] = ['Kinetic', 'Energy', 'Explosive'];
@@ -25,6 +26,8 @@ describe('pickCombatVfx', () => {
       impacted: false,
       impactType: null,
       died: false,
+      healing: false,
+      healed: false,
     });
   });
 
@@ -79,7 +82,23 @@ describe('pickCombatVfx', () => {
 
   it('events for other columns are ignored', () => {
     const v = pickCombatVfx([hit(1, 2), miss(2, 1), death(1)], 0, TYPES);
-    expect(v).toEqual({ fired: false, muzzleType: null, impacted: false, impactType: null, died: false });
+    expect(v).toEqual({
+      fired: false,
+      muzzleType: null,
+      impacted: false,
+      impactType: null,
+      died: false,
+      healing: false,
+      healed: false,
+    });
+  });
+
+  it('support event → the healer (a) emits, the mended target (d) receives', () => {
+    // medic at col 4 heals the unit at col 0.
+    const healer = pickCombatVfx([support(4, 0)], 4, TYPES);
+    expect(healer).toMatchObject({ healing: true, healed: false, fired: false });
+    const mended = pickCombatVfx([support(4, 0)], 0, TYPES);
+    expect(mended).toMatchObject({ healed: true, healing: false, impacted: false });
   });
 
   it('missing damageTypes → flags still set, types fall back to null (untyped flash)', () => {

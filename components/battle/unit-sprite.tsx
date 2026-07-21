@@ -17,7 +17,7 @@ import type { WireEvent } from '@/sim/replay-reader';
 import type { DamageType } from '@/sim/ruleset';
 import { ICON_FACES_RIGHT, UnitIcon, type MachineTypeKey } from '@/components/brand/unit-icon';
 import { cn } from '@/lib/utils';
-import { CombatVfx, pickCombatVfx } from './combat-vfx';
+import { CombatVfx, SupportVfx, pickCombatVfx } from './combat-vfx';
 
 /** The seven engine `MachineTypeId`s → the Feature 3 `UnitIcon` keys (the only UI-facing map). */
 const ICON_KEY: Record<string, MachineTypeKey> = {
@@ -135,6 +135,11 @@ export function UnitSprite({ unit, events, damageTypes, className }: UnitSpriteP
           ) : (
             <EdgeFlash side={muzzleSide} tone="bg-text-strong/25" />
           ))}
+
+        {/* Support: the mended unit shows restorative waves; the healer emits on its inboard edge
+            (mirrored for the defending side, like the muzzle). Now the medic is visibly working. */}
+        {vfx.healed && <SupportVfx kind="receive" />}
+        {vfx.healing && <SupportVfx kind="emit" side={muzzleSide} mirrored={mirrored} />}
       </div>
 
       <Bar pct={unit.hullPct} fill={HULL_FILL[unit.faction]} />
