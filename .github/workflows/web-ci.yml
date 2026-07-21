@@ -52,9 +52,9 @@ jobs:
       # Pure, DB-free feature suites — run directly so they gate without the Postgres the full
       # `npm test` needs. F5 anti-regression (SC-003 O(1) seek, SC-005 engine-never-imported) +
       # F6 Battle Summary ViewModel (SC-001/002/003 full-field/reconciliation) + F8 route-level
-      # anti-forgery (US5 strict-parse; the DB-backed matchmaking/arena/practice suites need Postgres
-      # and run under `npm test`).
-      - run: npx vitest run tests/replay-view.test.ts tests/use-playback.test.ts tests/summary-view-model.test.ts tests/summary-mvp.test.ts tests/arena-route.test.ts
+      # anti-forgery (US5 strict-parse) + F9 ladder view-model (signed labels / mapping). The DB-backed
+      # matchmaking/arena/practice/ladder-query suites need Postgres and run under `npm test`.
+      - run: npx vitest run tests/replay-view.test.ts tests/use-playback.test.ts tests/summary-view-model.test.ts tests/summary-mvp.test.ts tests/arena-route.test.ts tests/ladder-view-model.test.ts
       - run: npm run build
 
   e2e:

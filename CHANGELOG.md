@@ -149,6 +149,33 @@ once it reaches a released version. Until then, everything lives under
     guard; browsable at `/gallery`. New `web-ci` GitHub workflow gates it. The repo keeps
     root-level `components/`/`lib/` (matching `sim/`/`db/`) rather than `src/`; the user's custom
     `app/favicon.ico` was left untouched. Removed the unused create-next-app scaffold SVGs.
+- **Feature 9 — Ladder (net-victory leaderboard) (2026-07-20).** The competitive spine on branch
+  `009-ladder`: every commander ranked by **net victories** (attack wins − defense losses), so a weak
+  defense visibly bleeds rank (§13). **Read-only** — it composes Feature 7's standings/matches reads
+  and never writes (P6, FR-015).
+  - **Read surface** (`server/ladder/queries.ts`) — `getLadderPage` + `getViewerStanding`, actor-less
+    (the board is public). The **deterministic tiebreak** is the load-bearing guarantee (contract §3):
+    selected metric DESC → net → totalDamage → `userId` ASC, so the order is exact and reproducible;
+    negatives sort below non-negatives naturally. Ranks are 1-based positions; the viewer's rank is a
+    `COUNT`-above so it's correct off the first page; no standing row → `{ state:'unranked' }` (never a
+    fabricated rank). `includeBots` defaults true (P5 never-empty).
+  - **Per-period rollups** — `range='week'|'month'` rolls up **ranked** `matches` in the calendar
+    window (`date_trunc(..., now())`), UNIONing each match's attacker + defender contributions and
+    grouping by commander; `practice` is structurally excluded; season reads the maintained
+    `ladder_standings` (not a rollup). Verified equal to an independent recompute.
+  - **Screen** — a podium (top 3), the landscape **table** (`overflow-x-auto`, `hidden lg:block`) and
+    portrait **card list** (`lg:hidden`) from one dataset (SC-003), pagination, and the always-on
+    **viewer standing card** (rank + net victories / unranked Arena CTA / anonymous sign-in) with a
+    `#my-rank` jump anchor; own row highlighted cyan. **MetricTabs** (Net Victories / Total Damage /
+    Defenses Held) and **RangeTabs** (Season / This Week / This Month) re-query via the URL (server
+    round-trip, `aria-current`). **NetVictoryExplainer** states the model inline (defense losses
+    subtract). Params validated/clamped before use (Principle II).
+  - **Verification** — 18 Vitest DB-integration (order==tiebreak vs an independent sort, negatives
+    last + stable, computed rank + unranked, metric orderings, **defense-loss-lowers-rank** SC-002,
+    period rollup + practice-excluded + season≠rollup, includeBots) + 6 pure view-model (signed labels
+    / mapping, CI-gated) + 8 Playwright/axe e2e (both-orientation no-overflow, viewer card, explainer,
+    zero-serious a11y), all green with `next build` + `tsc` + ESLint + the token guard. Seasons/MMR/
+    tiers/trend stay deferred (spec FR-016).
 - **Feature 8 — Arena (async matchmaking) + Practice sandbox (2026-07-20).** The server-authoritative
   attack loop on branch `008-arena-practice`: a ranked result the client can **never** fabricate (P6,
   non-negotiable). Feature 8 owns no schema — it orchestrates the Feature 1 engine + the Feature 7
