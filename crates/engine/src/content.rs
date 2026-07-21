@@ -144,9 +144,9 @@ fn seed_machine_types(m: &mut BTreeMap<MachineTypeId, MachineType>) {
             mount_class: MountClass::Heli,
             slot_layout: SlotLayout::STANDARD,
             can_fire_from_rear: false,
-            // Its guns are ground-first, but it CAN engage air — as a fallback, and only at the
-            // non-AA "plink" rate (see sim/target.rs reach_zones + sim/damage.rs). So helis bomb
-            // ground while any is reachable and only trade with air once ground is gone.
+            // A heli engages enemy air FIRST (air sorts frontmost, see sim/target.rs reach_zones) and
+            // only at the non-AA "plink" rate (sim/damage.rs air_mods): it clears the skies, then turns
+            // its guns on ground. With no enemy air present it bombs ground as normal.
             air_capable_by_default: true,
         },
     );

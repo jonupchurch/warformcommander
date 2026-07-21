@@ -181,16 +181,16 @@ fn artillery_never_hits_air_but_splashes_a_stacked_row() {
     );
 }
 
-/// Air-to-air fallback (live-testing fix): with **no AA** on either side, once the ground has traded
-/// off, the surviving helicopters plink *each other* — some Hit event lands on an air unit, instead of
-/// the battle idling to the tick cap / stalemate guard with both air wings untouched (the bug the user
-/// reported: 2 friendly + 1 enemy heli all alive at full hull when the game ended).
+/// Air-FIRST (live-testing decision): an air-capable unit engages enemy air *before* ground — it
+/// clears the skies, then bombs. In a symmetric heli + ground mirror the helicopters dogfight from the
+/// opening rather than ignoring each other until ground is gone (the earlier fallback behavior that
+/// read as "helis fight everything but air").
 #[test]
-fn air_trades_with_air_once_ground_is_gone() {
+fn air_capable_units_engage_air_first() {
     let rs = seed_ruleset();
 
-    // Symmetric heli + light-tank squads. Neither side has any air-capable weapon, so the ONLY way an
-    // air unit can be hit is a helicopter engaging air after its ground targets are gone.
+    // Symmetric heli + light-tank squads (instances 0,1 = Air helis; 2–4 = Front ground). No AA, so
+    // the only unit that can hit air is a helicopter — and with air-first it should do so immediately.
     let heli_ground = |rs: &Ruleset| Army {
         machines: vec![
             stock_instance(rs, MachineTypeId::AttackHeli, "Gunship", ZoneId::Air, 0),
@@ -203,16 +203,19 @@ fn air_trades_with_air_once_ground_is_gone() {
 
     let out = run(&rs, heli_ground(&rs), heli_ground(&rs), 0xA1A2);
 
-    // Instances 0 and 1 are the Air helis on both sides; a Hit on either is an air-to-air engagement.
-    let hit_air = out.replay.games.iter().flat_map(|g| &g.ticks).any(|t| {
-        t.events.iter().any(|e| match e {
-            TickEvent::Hit { target, .. } => target.instance_id <= 1,
-            _ => false,
+    // The FIRST hit a helicopter lands (actor instance 0/1) must be on an air unit (target 0/1), not a
+    // ground filler — proving air is prioritized over ground while both are reachable.
+    let first_heli_hit = out.replay.games.iter().flat_map(|g| &g.ticks).find_map(|t| {
+        t.events.iter().find_map(|e| match e {
+            TickEvent::Hit { actor, target, .. } if actor.instance_id <= 1 => Some(*target),
+            _ => None,
         })
     });
+    let target = first_heli_hit.expect("a helicopter must land a hit");
     assert!(
-        hit_air,
-        "with no AA, helis must engage enemy air once ground is gone (air-to-air fallback)"
+        target.instance_id <= 1,
+        "air-first: a helicopter's first landed hit must be on an air unit, got instance {}",
+        target.instance_id,
     );
 }
 

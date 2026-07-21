@@ -622,4 +622,22 @@ once it reaches a released version. Until then, everything lives under
   Server Component, token-only, both orientations. The rest of the home narrative renumbers 02–05
   (Why it's different / Roadmap / Latest dispatches / Enlist).
 
+- **Engine: air-capable units now target air FIRST.** Replaces last session's ground-first *fallback*
+  (helis only touched air once all enemy ground was destroyed — which in practice read as "helis fight
+  everything but air"). Air is now a co-equal candidate for any air-capable unit whenever enemy air is
+  present, and because `ZoneId::Air` sorts frontmost the default Target Row engages it **before** ground
+  (`sim/target.rs` `reach_zones`: `air = can_air`). So helis clear the skies, then bomb — dogfights
+  happen from the opening. Non-AA still hits air only at the plink rate; a unit with no enemy air in
+  reach bombs ground exactly as before; ground units never reach air.
+  - Verified: engine `cargo test` green (60 unit + counterweb incl. a new **air-first** regression —
+    a heli's first landed hit must be on air — + determinism + replay + winconditions); **goldens
+    unchanged** (the battery has no air-vs-air, so no re-bless); **native == wasm** re-proven
+    byte-identical across the 4-seed battery; the rebuilt wasm confirmed air-first locally (heli-mirror
+    → first heli hit lands on air) before deploy; **balancer's 4 invariants still pass** (the air-alpha
+    dominance flag is the same pre-existing archetype spread, unchanged by this — the sweep has air on
+    one side only).
+  - Also fixed a `winconditions` test that last session's stalemate guard had been failing (engine-ci
+    was red since that merge): an all-support "no offense" battle now resolves *immediately* via the
+    guard's Time tiebreak instead of idling to the 1000-tick cap — the test now asserts that.
+
 [Unreleased]: https://github.com/jonupchurch/warformcommander/commits/main
