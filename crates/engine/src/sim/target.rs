@@ -5,6 +5,10 @@
 //! ground row (collapsing forward); Middle → enemy Front+Middle (Rear only once both clear); Rear →
 //! nothing unless the unit fires indirectly (Artillery / Rocket-Artillery). Special weapon reach
 //! tags override: `AnyGround`/`Deep` reach any ground row from any row; `Air` reaches only air.
+//!
+//! An **air-capable** unit (heli, SAM rocket-artillery) additionally reaches enemy air whenever any is
+//! present; because `ZoneId::Air` sorts frontmost, the default Target Row engages air **before** ground
+//! (air-first — clear the skies, then bomb) — a non-AA weapon hitting air only at the plink rate.
 
 use crate::model::types::{ReachTag, TargetRow, TargetRule, ZoneId};
 
@@ -40,9 +44,13 @@ fn reach_zones(att: &Combatant, occupied: &Occupancy) -> (Vec<ZoneId>, bool) {
         // Indirect / long: any occupied ground row from any row.
         ReachTag::AnyGround | ReachTag::Deep => {
             let zones: Vec<ZoneId> = ground.into_iter().filter(|&z| occ(z)).collect();
-            // Air is a ground-FIRST fallback for a non-AA weapon: reachable only once no ground row
-            // is, so a heli bombs ground while any remains and only plinks air when ground is gone.
-            let air = can_air && zones.is_empty();
+            // Air-FIRST for an air-capable weapon: air is always a candidate when enemy air is present,
+            // and since `ZoneId::Air` sorts frontmost the default Target Row (FrontReachable) picks it
+            // ahead of any ground row — so the unit clears the skies first, then turns to ground. A
+            // non-AA weapon still hits air only at the "plink" rate (air_mods); a ground unit
+            // (`can_air == false`) never reaches air. With no enemy air present, air contributes
+            // nothing and the unit engages ground as before.
+            let air = can_air;
             (zones, air)
         }
         // Direct fire: the firing row governs.
@@ -72,9 +80,9 @@ fn reach_zones(att: &Combatant, occupied: &Occupancy) -> (Vec<ZoneId>, bool) {
                     }
                 }
             };
-            // Same ground-first fallback: a direct-fire unit only engages air when it can reach no
-            // ground row (see the AnyGround arm above).
-            let air = can_air && zones.is_empty();
+            // Same air-first rule as the AnyGround arm: air is always a candidate for an air-capable
+            // direct-fire unit, and (sorting frontmost) is engaged before ground.
+            let air = can_air;
             (zones, air)
         }
     }

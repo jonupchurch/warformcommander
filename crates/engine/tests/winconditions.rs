@@ -80,8 +80,9 @@ fn conquest_pays_full_reward() {
     assert_eq!(g0.reward_tier, RewardTier::Full);
 }
 
-/// T040: with no offense on either side, a game reaches the tick cap → Time win at Lesser reward,
-/// and an exact (0–0) damage tie is awarded to the defender (Side B).
+/// T040: with no offense on either side, the **stalemate guard** resolves the game via the Time
+/// tiebreak — a 0–0 damage tie to the defender (Side B) at Lesser reward. The guard ends it at once
+/// rather than idling to the 1000-tick cap (all-support = nobody can ever deal damage).
 #[test]
 fn time_limit_tie_goes_to_defender_at_lesser_reward() {
     let rs = seed_ruleset();
@@ -91,12 +92,13 @@ fn time_limit_tie_goes_to_defender_at_lesser_reward() {
     assert_eq!(
         g0.condition,
         WinCondition::Time,
-        "no kills → runs to the cap"
+        "no offense possible → Time tiebreak, not Conquest"
     );
     assert_eq!(g0.reward_tier, RewardTier::Lesser);
-    assert_eq!(g0.duration_ticks, 1000, "hit the hard tick cap");
     assert_eq!(g0.winner, Some(Side::B), "0–0 tie → defender");
     assert_eq!(out.result.winner, Side::B, "and the match");
+    // The stalemate guard fires immediately (tick 0) instead of running the full cap.
+    assert_eq!(g0.duration_ticks, 1, "stalemate guard resolves at once, no idling to the cap");
 }
 
 /// T041: a Bo3 is first-to-two — the match winner takes at least two games, in ≤3 games.
