@@ -187,6 +187,8 @@ impl CadenceTier {
 pub enum SupportRange {
     OwnZone,
     OwnPlusAdjacent,
+    /// Every zone — a backline medic can heal the front line where damage actually lands.
+    WholeArmy,
 }
 
 // ---------------------------------------------------------------------------

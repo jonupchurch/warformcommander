@@ -551,4 +551,26 @@ once it reaches a released version. Until then, everything lives under
   - Known pre-existing issue (not from this change): the shell e2e flags horizontal overflow on `/garage`
     at the 320px floor (Feature 4's e2e was deferred) — tracked separately.
 
+- **Engine: air-to-air, whole-army support heal, and a stalemate guard** (gameplay fixes from live
+  testing — regenerates the golden battery; native==wasm re-verified byte-identical; the balancer's 4
+  invariants still pass):
+  - **Air-to-air (plink):** Attack Helis (`air_capable_by_default`) can now engage enemy air — but
+    ground-first: air is a *fallback* target, reachable only once no ground row remains
+    (`sim/target.rs` `reach_zones`), and only at the non-AA plink rate (−acc, ½ dmg). So helis bomb
+    ground exactly as before and only trade with air when that's all that's left — resolving the
+    air-vs-air standoff that used to idle to the tick cap. Rocket Artillery stays the efficient AA counter.
+  - **Support heals the whole army:** new `SupportRange::WholeArmy` (the Medic default) — the medic
+    heals the most-wounded ally in *any* zone, so a backline support finally helps the front line
+    instead of topping off safe rear units. (Warden keeps its local `OwnZone`.)
+  - **Stalemate guard:** if both sides are alive but no unit can reach a target (e.g. only rear-locked
+    or mutually-unreachable units remain), the game resolves immediately via the tick-cap tiebreak
+    instead of idling silently to 999 ticks.
+  - **Confirmed *not* a bug:** Front/Middle units already fire every tick a target is reachable; a
+    non-Artillery unit in the **Rear** zone never fires — the positioning rule, kept by design.
+  - Verified: engine `cargo test` green (60 unit + 3 counter-web + 9 determinism), goldens re-blessed,
+    native==wasm byte-parity across the 4-seed battery, `clippy`/`fmt` clean; balancer invariants pass
+    and `support-ball` stays underpowered (the heal buff is not oppressive). Known separate issue
+    (pre-existing): `air-alpha`/`artillery-line` dominant vs `aa-rocket`/`support-ball` — a balance-spread
+    tuning pass, not this change.
+
 [Unreleased]: https://github.com/jonupchurch/warformcommander/commits/main

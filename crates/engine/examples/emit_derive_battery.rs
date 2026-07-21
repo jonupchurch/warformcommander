@@ -122,81 +122,159 @@ fn main() {
     derive_cases.push(derive_case(
         &rs,
         "grizzly:siege-laser(off-family)",
-        mk(MachineTypeId::HeavyTank, "Grizzly", "SiegeLaser", "StandardHullHeavy",
-            &["FireControl", "DriveServos", "Autoloader"], ZoneId::Front),
+        mk(
+            MachineTypeId::HeavyTank,
+            "Grizzly",
+            "SiegeLaser",
+            "StandardHullHeavy",
+            &["FireControl", "DriveServos", "Autoloader"],
+            ZoneId::Front,
+        ),
     ));
     derive_cases.push(derive_case(
         &rs,
         "grizzly:railgun(deep+pen+siege)",
-        mk(MachineTypeId::HeavyTank, "Grizzly", "Railgun", "StandardHullHeavy",
-            &["FireControl", "DriveServos", "Autoloader"], ZoneId::Front),
+        mk(
+            MachineTypeId::HeavyTank,
+            "Grizzly",
+            "Railgun",
+            "StandardHullHeavy",
+            &["FireControl", "DriveServos", "Autoloader"],
+            ZoneId::Front,
+        ),
     ));
     derive_cases.push(derive_case(
         &rs,
         "grizzly:composite+combatai(armor+move+cadence+planb)",
-        mk(MachineTypeId::HeavyTank, "Grizzly", "HeavyCannon", "CompositeArmor",
-            &["Autoloader", "DriveServos", "CombatAI"], ZoneId::Front),
+        mk(
+            MachineTypeId::HeavyTank,
+            "Grizzly",
+            "HeavyCannon",
+            "CompositeArmor",
+            &["Autoloader", "DriveServos", "CombatAI"],
+            ZoneId::Front,
+        ),
     ));
     derive_cases.push(derive_case(
         &rs,
         "grizzly:deflector-shield",
-        mk(MachineTypeId::HeavyTank, "Grizzly", "HeavyCannon", "DeflectorShield",
-            &["FireControl", "DriveServos", "Autoloader"], ZoneId::Front),
+        mk(
+            MachineTypeId::HeavyTank,
+            "Grizzly",
+            "HeavyCannon",
+            "DeflectorShield",
+            &["FireControl", "DriveServos", "Autoloader"],
+            ZoneId::Front,
+        ),
     ));
     derive_cases.push(derive_case(
         &rs,
         "grizzly:blast-plating(special-mitigation)",
-        mk(MachineTypeId::HeavyTank, "Grizzly", "HeavyCannon", "BlastPlating",
-            &["FireControl", "DriveServos", "Autoloader"], ZoneId::Front),
+        mk(
+            MachineTypeId::HeavyTank,
+            "Grizzly",
+            "HeavyCannon",
+            "BlastPlating",
+            &["FireControl", "DriveServos", "Autoloader"],
+            ZoneId::Front,
+        ),
     ));
     derive_cases.push(derive_case(
         &rs,
         "grizzly:rangefinder(reach-deepen)",
-        mk(MachineTypeId::HeavyTank, "Grizzly", "HeavyCannon", "StandardHullHeavy",
-            &["Rangefinder", "DriveServos", "Autoloader"], ZoneId::Front),
+        mk(
+            MachineTypeId::HeavyTank,
+            "Grizzly",
+            "HeavyCannon",
+            "StandardHullHeavy",
+            &["Rangefinder", "DriveServos", "Autoloader"],
+            ZoneId::Front,
+        ),
     ));
     derive_cases.push(derive_case(
         &rs,
         "grizzly:sensor-suite(target-air)",
-        mk(MachineTypeId::HeavyTank, "Grizzly", "HeavyCannon", "StandardHullHeavy",
-            &["SensorSuite", "DriveServos", "Autoloader"], ZoneId::Front),
+        mk(
+            MachineTypeId::HeavyTank,
+            "Grizzly",
+            "HeavyCannon",
+            "StandardHullHeavy",
+            &["SensorSuite", "DriveServos", "Autoloader"],
+            ZoneId::Front,
+        ),
     ));
     derive_cases.push(derive_case(
         &rs,
         "scout:fast-cycle-shield+ecm",
-        mk(MachineTypeId::LightTank, "Scout", "Autocannon", "FastCycleShield",
-            &["FireControl", "DriveServos", "ECMSuite"], ZoneId::Front),
+        mk(
+            MachineTypeId::LightTank,
+            "Scout",
+            "Autocannon",
+            "FastCycleShield",
+            &["FireControl", "DriveServos", "ECMSuite"],
+            ZoneId::Front,
+        ),
     ));
     derive_cases.push(derive_case(
         &rs,
         "gunship:sensor(air-locked-stays-none)",
-        mk(MachineTypeId::AttackHeli, "Gunship", "RocketPods", "StandardHullHeli",
-            &["SensorSuite", "FireControl", "DriveServos"], ZoneId::Air),
+        mk(
+            MachineTypeId::AttackHeli,
+            "Gunship",
+            "RocketPods",
+            "StandardHullHeli",
+            &["SensorSuite", "FireControl", "DriveServos"],
+            ZoneId::Air,
+        ),
     ));
     derive_cases.push(derive_case(
         &rs,
         "commandpost:four-utility(immobile+servos)",
-        mk(MachineTypeId::RearSupport, "CommandPost", "RepairBeam", "StandardHullSupport",
-            &["FireControl", "DriveServos", "Autoloader", "ECMSuite"], ZoneId::Rear),
+        mk(
+            MachineTypeId::RearSupport,
+            "CommandPost",
+            "RepairBeam",
+            "StandardHullSupport",
+            &["FireControl", "DriveServos", "Autoloader", "ECMSuite"],
+            ZoneId::Rear,
+        ),
     ));
     // Structural-error branches.
     derive_cases.push(derive_case(
         &rs,
         "err:unknown-equipment",
-        mk(MachineTypeId::HeavyTank, "Grizzly", "NoSuchGun", "StandardHullHeavy",
-            &["FireControl", "DriveServos", "Autoloader"], ZoneId::Front),
+        mk(
+            MachineTypeId::HeavyTank,
+            "Grizzly",
+            "NoSuchGun",
+            "StandardHullHeavy",
+            &["FireControl", "DriveServos", "Autoloader"],
+            ZoneId::Front,
+        ),
     ));
     derive_cases.push(derive_case(
         &rs,
         "err:wrong-slot-kind(defense-in-weapon)",
-        mk(MachineTypeId::HeavyTank, "Grizzly", "CompositeArmor", "StandardHullHeavy",
-            &["FireControl", "DriveServos", "Autoloader"], ZoneId::Front),
+        mk(
+            MachineTypeId::HeavyTank,
+            "Grizzly",
+            "CompositeArmor",
+            "StandardHullHeavy",
+            &["FireControl", "DriveServos", "Autoloader"],
+            ZoneId::Front,
+        ),
     ));
     derive_cases.push(derive_case(
         &rs,
         "err:unknown-variant",
-        mk(MachineTypeId::HeavyTank, "Ghost", "HeavyCannon", "StandardHullHeavy",
-            &["FireControl", "DriveServos", "Autoloader"], ZoneId::Front),
+        mk(
+            MachineTypeId::HeavyTank,
+            "Ghost",
+            "HeavyCannon",
+            "StandardHullHeavy",
+            &["FireControl", "DriveServos", "Autoloader"],
+            ZoneId::Front,
+        ),
     ));
 
     // --- Legality (validate) battery ---

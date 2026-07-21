@@ -39,7 +39,11 @@ fn reach_zones(att: &Combatant, occupied: &Occupancy) -> (Vec<ZoneId>, bool) {
         ReachTag::Air => (vec![], true),
         // Indirect / long: any occupied ground row from any row.
         ReachTag::AnyGround | ReachTag::Deep => {
-            (ground.into_iter().filter(|&z| occ(z)).collect(), can_air)
+            let zones: Vec<ZoneId> = ground.into_iter().filter(|&z| occ(z)).collect();
+            // Air is a ground-FIRST fallback for a non-AA weapon: reachable only once no ground row
+            // is, so a heli bombs ground while any remains and only plinks air when ground is gone.
+            let air = can_air && zones.is_empty();
+            (zones, air)
         }
         // Direct fire: the firing row governs.
         ReachTag::Nearest | ReachTag::FrontMid => {
@@ -68,7 +72,10 @@ fn reach_zones(att: &Combatant, occupied: &Occupancy) -> (Vec<ZoneId>, bool) {
                     }
                 }
             };
-            (zones, can_air)
+            // Same ground-first fallback: a direct-fire unit only engages air when it can reach no
+            // ground row (see the AnyGround arm above).
+            let air = can_air && zones.is_empty();
+            (zones, air)
         }
     }
 }

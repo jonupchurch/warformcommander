@@ -152,6 +152,17 @@ fn survivors(combatants: &[Combatant], side: Side) -> u8 {
         .count() as u8
 }
 
+/// Can any living non-support combatant still reach an enemy? `false` ⇒ no side can make progress
+/// (only rear-locked or mutually-unreachable units remain), so the game is a stalemate.
+fn any_offense_possible(combatants: &[Combatant]) -> bool {
+    (0..combatants.len()).any(|i| {
+        let c = &combatants[i];
+        c.alive
+            && c.stats.family != crate::model::types::DamageFamily::Support
+            && target::select_target(combatants, i).is_some()
+    })
+}
+
 /// Ground-zone adjacency for support range (`Front↔Middle↔Rear`; Air is not support-adjacent).
 fn support_zones(range: SupportRange, from: ZoneId) -> Vec<ZoneId> {
     match range {
@@ -162,6 +173,10 @@ fn support_zones(range: SupportRange, from: ZoneId) -> Vec<ZoneId> {
             ZoneId::Rear => vec![ZoneId::Middle, ZoneId::Rear],
             ZoneId::Air => vec![ZoneId::Air],
         },
+        // Reaches every zone — the medic heals the most-wounded ally anywhere, so a backline
+        // support finally helps the front line (where fire actually lands) instead of topping off
+        // safe rear units.
+        SupportRange::WholeArmy => vec![ZoneId::Front, ZoneId::Middle, ZoneId::Rear, ZoneId::Air],
     }
 }
 
@@ -256,6 +271,18 @@ pub(crate) fn run_game(
         let b_alive = survivors(combatants, Side::B);
         if a_alive == 0 || b_alive == 0 {
             game_over = Some(outcome::conquest_result(combatants, tick + 1));
+            break;
+        }
+
+        // Stalemate guard: both sides still alive but nobody can reach a target (only rear-locked or
+        // mutually-unreachable units remain) → no progress is possible. Resolve now via the tick-cap
+        // tiebreak instead of idling silently to the cap.
+        if !any_offense_possible(combatants) {
+            game_over = Some(outcome::time_result(
+                combatants,
+                tick + 1,
+                config.defender_side,
+            ));
             break;
         }
     }
