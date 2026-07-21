@@ -235,6 +235,41 @@ requirement), Next serves it as a **soft-404 (200)** rather than a hard 404 — 
 behavior; the guarantee that matters (drafts unreadable, and excluded from sitemap/index/feed) holds
 regardless, and the e2e asserts the not-found *content* (the repo's `profile.spec` convention). No WASM.
 
+**Feature 12 (Admin console + balance publishing) — BUILT on branch `012-admin-console`, all five user
+stories + the live-ruleset store.** The v1 set's **last** feature — Warform Commander's live-ops
+surface. Its load-bearing contribution is the **live-ruleset store** that fills the F7↔F8 coordination
+gap: two tables added to `db/schema.ts` — append-only **`rulesets`** (the Feature-1 `Ruleset` as typed
+`jsonb` + canonical `rulesetHash` + editor + self-referential audit chain) and a singleton
+**`current_ruleset`** pointer (text-PK `'current'` + `CHECK`, optimistic `version`). It **replaces
+Feature 8's `loadCurrentRuleset()` placeholder** with a real Postgres-backed `getCurrentRuleset()` read
+**authoritatively on every match** (no per-instance cache → zero stale window, SC-008), bootstrapping
+the engine default on first read so it is never empty (FR-009). **US1** an admin edits base stats and
+saves; the pointer flips + the hash recomputes and the **next** match resolves against the new ruleset,
+while already-recorded replays stay **byte-unchanged** (self-contained; this feature never writes
+`replays` — SC-003). **US2** the admin gate is **server-authoritative** — the `app/admin` layout
+redirects non-admins (reading the DB session, never a client flag) and **every** Server Action / route
+re-checks `requireAdmin()` / the webhook secret independently (P6, Principle II; the optional `proxy.ts`
+UX layer is omitted — Next 16's proxy loader rejects the NextAuth v5 `auth()` wrapper, and it's UX-only
+by contract). **US3** every changing save **auto-publishes exactly one** `type='balance'` post with a
+legible diff, atomically in the save transaction (no-op saves post nothing; a failed post rolls back the
+whole save — FR-013/015). **US4** a pushed `main` commit auto-publishes one `devlog`/`changelog` post
+via a **secret-gated, SHA-idempotent** webhook (`/api/admin/devlog` + a GitHub Action) — the durable
+"code push → news" rule made mechanical. **US5** a read-only panel surfaces Feature 2's latest committed
+`BalanceReport` (advisory; its absence never blocks editing). The **canonical hash** (FR-007) is a new
+`hash_ruleset` **wasm export** (BLAKE3 over the same serialization `resolve` stamps on replays; the
+committed wasm was rebuilt + re-verified), exposed as `hashRuleset()` — proven byte-equal to a replay's
+stamp, so `matches`/`replays.rulesetHash` join back to the exact revision. Concurrency is optimistic:
+two saves from the same `version` → one wins, the other `STALE_EDIT`, no lost update (SC-007). Edits pass
+a server-side `validateRuleset()` (structural + bounds — `splash ≤ 0.25`, probabilities in `[0,1]`,
+ordered `hitClamp`) **before** any write (SC-006). Verified: **42 Vitest** (hash parity + determinism;
+validate bounds; diff; the store — edit-changes-next-hash SC-002, replays-untouched SC-003, NOT_ADMIN /
+VALIDATION_FAILED gates, concurrent STALE_EDIT SC-007, atomic exactly-one balance post SC-004, silent
+no-op; the devlog webhook — secret gate SC-005, SHA-idempotency, changelog, non-main; the editor-form
+helpers; the report reader) **+ the admin signed-out-gate e2e**; F8's 25 arena/practice tests stay green
+through the sync→async `getCurrentRuleset` rename; `next build` + `tsc` + ESLint + no-raw-hex + engine
+clippy/tests clean. **The full suite is 356 tests green across 43 files.** `next.config.ts` traces
+engine-wasm into `/admin/balance` (its `hashRuleset` call). New env: `DEVLOG_WEBHOOK_SECRET`.
+
 **Approach — plan-the-whole-set-first, then build foundation-first (Principle VII):**
 the full set was planned before any implementation so shared models and cross-feature
 dependencies surfaced on paper. Feature 1 (the deterministic **sim core + data model**)
@@ -298,7 +333,7 @@ implementation sequence, not the spec numbering.
 | 9 | Ladder (seasons, metrics, tiers/MMR) | ✅ | ✅ | ✅ 38 | **✅ BUILT — US1–US4 on `009-ladder`; net-victory board + deterministic tiebreak + period rollups + both-orientation; read-only over F7; 24 Vitest + 8 e2e green** |
 | 10 | Profile (career stats, achievements) | ✅ | ✅ | ✅ 33 | **✅ BUILT — US1–US4 on `010-profile`; public career view (own + /commander/[handle]), career==standing, cosmetic derived badges; read-only, no new table; 20 Vitest + 7 e2e green** |
 | 11 | Marketing site (Home + News index + article template) | ✅ | ✅ | ✅ 59 | **✅ BUILT — US1–US5 + SEO on `011-marketing-news`; published-only read boundary (drafts/future never public), safe markdown (zero XSS), Home/News/article + sitemap/robots/RSS + F11↔F12 revalidate seam; read-only over F7 `posts`; 29 Vitest + 15 Playwright/axe e2e green** |
-| 12 | Admin console + balance publishing (live stat editing → auto news) | ✅ | ✅ | ✅ 48 | after #7 |
+| 12 | Admin console + balance publishing (live stat editing → auto news) | ✅ | ✅ | ✅ 48 | **✅ BUILT — US1–US5 on `012-admin-console`; the live-ruleset store (replaces F8's placeholder, authoritative `getCurrentRuleset`), server-authoritative admin gate, atomic auto-published balance post, SHA-idempotent code-push devlog webhook, read-only fairness-report panel; canonical `hash_ruleset` wasm export; 42 Vitest + admin e2e green** |
 
 ## Tech stack
 

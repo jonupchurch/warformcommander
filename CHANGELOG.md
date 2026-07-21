@@ -149,6 +149,52 @@ once it reaches a released version. Until then, everything lives under
     guard; browsable at `/gallery`. New `web-ci` GitHub workflow gates it. The repo keeps
     root-level `components/`/`lib/` (matching `sim/`/`db/`) rather than `src/`; the user's custom
     `app/favicon.ico` was left untouched. Removed the unused create-next-app scaffold SVGs.
+- **Feature 12 — admin console + balance publishing (2026-07-21).** Warform Commander's **live-ops
+  surface** and the **last** v1 feature, on branch `012-admin-console`. Server-side-admin-gated live
+  balance editing + two automatic news publishers; the only lever is the shared ruleset — no store, no
+  price, no per-account grant (P1).
+  - **The live-ruleset store** (the load-bearing contribution — fills the F7↔F8 gap). Two tables added
+    to `db/schema.ts`: append-only **`rulesets`** (the Feature-1 `Ruleset` as typed `jsonb` + canonical
+    `rulesetHash` + editor + self-referential audit chain) and a singleton **`current_ruleset`** pointer
+    (text-PK `'current'` + `CHECK`, optimistic `version`). `getCurrentRuleset()` reads it
+    **authoritatively from Postgres on every match** (no per-instance cache → zero stale window, SC-008),
+    seeding the engine default on first read (never empty, FR-009). **Replaces Feature 8's
+    `loadCurrentRuleset()` placeholder** — the 4 call sites now `await getCurrentRuleset()` (a tracked,
+    coordinated sync→async rename); F8's 25 tests stay green.
+  - **Live editing (US1) + auto-published balance news (US3).** An admin edits base stats and saves; the
+    pointer flips, the hash recomputes, and the **next** match resolves against the new ruleset while
+    already-recorded replays stay **byte-unchanged** (self-contained — this feature never writes
+    `replays`, SC-003). Every changing save auto-publishes **exactly one** `type='balance'` post with a
+    legible diff, **atomically** in the save transaction; a no-op save posts nothing; a failed post rolls
+    the whole save back (FR-013/015). Optimistic concurrency (`version`-guarded pointer swap) → one save
+    wins, the other `STALE_EDIT`, no lost update (SC-007). A server-side `validateRuleset()` (structural
+    + bounds: `splash ≤ 0.25`, probabilities in `[0,1]`, ordered `hitClamp`) gates every write **before**
+    persistence (SC-006).
+  - **Canonical hash (FR-007).** A new `hash_ruleset` **wasm export** (BLAKE3 over the exact
+    serialization `resolve` stamps on replays) — the committed wasm was rebuilt + re-verified — exposed
+    as `hashRuleset()`. Proven byte-equal to a replay's stamped hash, so `matches`/`replays.rulesetHash`
+    join back to the exact `rulesets` revision that produced them (provenance; never a bespoke hash).
+  - **Server-authoritative admin gate (US2, P6/Principle II).** The `app/admin` layout redirects
+    anonymous/non-admin requests (reading the DB session, never a client flag) and **every** admin Server
+    Action / route re-checks `requireAdmin()` / the webhook secret independently — a forged `admin` value
+    is structurally ignored. (The optional `proxy.ts` UX-redirect layer was omitted: Next 16's proxy
+    loader rejects the NextAuth v5 `auth()` wrapper, and the contract makes it UX-only.)
+  - **Code-push devlog (US4).** A pushed `main` commit auto-publishes one `devlog`/`changelog` post
+    (`authorId` null) via a **secret-gated** (constant-time Bearer), **SHA-idempotent** webhook
+    (`POST /api/admin/devlog`) + a post-deploy GitHub Action (injection-safe; commit fields via env). A
+    bad/absent secret is 401 with no write; a retried delivery is a silent no-op; a non-main deploy posts
+    nothing — the durable "code push → news" rule made mechanical.
+  - **Fairness-report panel (US5).** A read-only view of Feature 2's latest committed `BalanceReport`
+    (invariants, severity-sorted flags, matchups) so tuning is evidence-driven; advisory — its absence
+    never blocks editing.
+  - **Tests (42 Vitest + admin e2e).** Hash parity + determinism; validate bounds; diff; the store
+    (edit-changes-next-hash SC-002, replays-untouched SC-003, admin/validation gates, concurrent
+    STALE_EDIT SC-007, atomic one-balance-post SC-004, silent no-op); the devlog webhook (secret gate
+    SC-005, SHA-idempotency, changelog, non-main); the editor-form helpers; the report reader; the admin
+    signed-out-gate in a browser. `next build` + `tsc` + ESLint + no-raw-hex + engine clippy/tests clean;
+    the full suite is **356 tests across 43 files**. `next.config.ts` traces engine-wasm into
+    `/admin/balance`; new env `DEVLOG_WEBHOOK_SECRET`. **This feature makes the "code push → news"
+    convention mechanical — no further manual devlog posts are needed.**
 - **Feature 11 — marketing site: Home + News index + article template + SEO (2026-07-21).** The
   public, unauthenticated front door and the reader half of the unified `posts` system, on branch
   `011-marketing-news`. **Read-only over `posts`** — this feature never writes; Feature 12's admin +
