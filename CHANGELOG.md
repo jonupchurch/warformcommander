@@ -149,6 +149,31 @@ once it reaches a released version. Until then, everything lives under
     guard; browsable at `/gallery`. New `web-ci` GitHub workflow gates it. The repo keeps
     root-level `components/`/`lib/` (matching `sim/`/`db/`) rather than `src/`; the user's custom
     `app/favicon.ico` was left untouched. Removed the unused create-next-app scaffold SVGs.
+- **Feature 10 — Profile (career stats & achievements) (2026-07-20).** A public career view on branch
+  `010-profile`, assembled **read-only** from Feature 7 — **no new table, no write path** (P1/P6). Own
+  (`/profile`) + public (`/commander/[handle]`) routes render the same view-model.
+  - **Pure derivations** (the cheaply-testable contract) — `lib/profile-stats.ts`: `toCareerStats`
+    **equals `ladder_standings`** with `record`/`winRatePct`/`wins`/`losses` recomputed (SC-001);
+    `toMatchRow` reads result/side/Bo3-score from the **subject's perspective**, hides practice
+    opponents (FR-011), renders a null participant as `[deleted]` (FR-012), and links Summary (F6) +
+    Playback (F5) by `matchId`; `toWeekBuckets` buckets W/L by week. `lib/badges.ts`: a typed
+    `BADGE_CATALOG` + pure `deriveBadges` — **cosmetic, no store**, every `measure` reads only
+    `CareerStats`, a `BadgeView` exposes only display fields, so crossing a threshold flips a picture
+    and nothing else (SC-004/SC-005).
+  - **Assembly** (`server/profile.ts`) — `getOwnProfile` / `getProfileByHandle` select **only public
+    `users` columns** (never `email`/`role`, SC-007), render a **bot** subject with a seeded-AI marker
+    (P5), and add read-only projections with no schema change: signature squads (`matches`×`squads`),
+    most-fielded unit (squad-config frequency), and a display-only ladder position. An unknown handle
+    → `NOT_FOUND` → `notFound()` (FR-005).
+  - **Screen** — hero (avatar/handle/ENLISTED + headline win-rate/matches/best-streak/**net
+    victories**), career grid, recent matches (each ranked row → Summary + Replay), a CSS activity
+    chart (no chart lib), signature squads (win-rate bars), the most-fielded `UnitIcon` (omitted when
+    none), and the badge grid (earned / in-progress). Feature-3 token-only, both-orientation, no 360px
+    overflow. MMR/tiers/seasons stay forward-looking — omitted, never fabricated.
+  - **Verification** — 8 `profile-stats` + 8 `badges` pure (CI-gated) + 4 DB-integration assembly
+    (career==standing, public-only, recorded-match rows, practice-hidden, NOT_FOUND) + 7 Playwright/axe
+    e2e (sign-in gate, unknown-handle not-found, both-orientation no-overflow, zero-serious a11y), all
+    green with `next build` + `tsc` + ESLint + the token guard. **Full suite: 285 tests across 33 files.**
 - **Feature 9 — Ladder (net-victory leaderboard) (2026-07-20).** The competitive spine on branch
   `009-ladder`: every commander ranked by **net victories** (attack wins − defense losses), so a weak
   defense visibly bleeds rank (§13). **Read-only** — it composes Feature 7's standings/matches reads
