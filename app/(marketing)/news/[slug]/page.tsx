@@ -14,6 +14,13 @@ import { toPostView } from "@/lib/post-view";
  * Static-first: `generateStaticParams` prebuilds the known published slugs; `dynamicParams` renders a
  * slug published after the last build on first request, then ISR-caches it (SC-007). The slug reads
  * are resilient, so the build succeeds even when the DB is unreachable (prerenders no slugs).
+ *
+ * Not-found semantics: an unknown/draft/future slug renders this feature's not-found page (the SC-004
+ * user-facing dead-end — a draft is never *readable*, and drafts are excluded from the sitemap, index,
+ * and feed). Because the route is ISR-prerendered (the SC-007 requirement above), Next serves that
+ * not-found render with a soft-404 (200) rather than a hard 404; forcing a hard 404 would mean opting
+ * the route out of static generation, trading away the static-first model. We keep static-first: the
+ * guarantee that matters — drafts are unreachable and undiscoverable — holds either way.
  */
 export const revalidate = 300;
 export const dynamicParams = true;

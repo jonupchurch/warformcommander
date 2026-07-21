@@ -149,6 +149,43 @@ once it reaches a released version. Until then, everything lives under
     guard; browsable at `/gallery`. New `web-ci` GitHub workflow gates it. The repo keeps
     root-level `components/`/`lib/` (matching `sim/`/`db/`) rather than `src/`; the user's custom
     `app/favicon.ico` was left untouched. Removed the unused create-next-app scaffold SVGs.
+- **Feature 11 — marketing site: Home + News index + article template + SEO (2026-07-21).** The
+  public, unauthenticated front door and the reader half of the unified `posts` system, on branch
+  `011-marketing-news`. **Read-only over `posts`** — this feature never writes; Feature 12's admin +
+  auto-post triggers are the sole writers (P6). Composes Feature 3's tokens/primitives and reads
+  Feature 7's `posts` table.
+  - **The published-only trust boundary** — `server/news.ts` is the single path any marketing/SEO
+    surface reads `posts` through: **every** query is constrained *in the query* to `status='published'
+    AND publishedAt IS NOT NULL AND publishedAt <= now()`, newest-first (hits `posts_published_idx`), so
+    a draft or future-dated post is **never** public and an unknown vs. draft slug is indistinguishable
+    (SC-001/SC-004). Reads are **resilient** (a data-access failure returns empty, never throws) so the
+    static build + `generateStaticParams` succeed against the un-migrated prod DB and render graceful
+    empty states, filled by ISR once the DB is live (SC-007).
+  - **Home (US1) + shell (US2)** — the pitch, four pillars (incl. the explicit **non-P2W** promise
+    "Skill lives in the plan — never the wallet.", P1), roadmap snapshot, latest-news teaser, and CTAs,
+    complete with zero posts; wrapped in the shared marketing shell (Logo + Wordmark + nav + Wishlist +
+    footer), first-class in both orientations, News marked active via `usePathname`.
+  - **News index (US3) + article (US4)** — `/news` featured lead + grid (badge/date/excerpt),
+    pagination + type filter, graceful empty state; `/news/[slug]` renders a published post **safely**
+    from markdown (`react-markdown` + `remark-gfm`, raw HTML disabled → **zero XSS survivors**, one
+    shared pipeline for body/excerpt/feed), every kind through one template, unknown/draft/future →
+    one not-found dead-end.
+  - **Discoverability (US5)** — `sitemap.ts` / `robots.ts` / `feed.xml` (RSS 2.0) over published-only
+    posts + `metadataBase` for absolute OG/canonical URLs, and the F11↔F12 `revalidatePostsPublish(slug)`
+    seam (path-based) so a publish surfaces across index/article/sitemap/feed **without a redeploy**.
+  - **Tests (29 Vitest + 15 Playwright/axe e2e)** — 13 published-only DB-read boundary tests
+    (drafts/future never returned, `publishedAt`-DESC ordering, unknown==draft slug) + 16 view-model +
+    markdown-XSS; e2e covers Home pitch/promise/pillars/roadmap/CTAs, shell + active state, News frame,
+    not-found dead-end, sitemap/robots/feed, **both-orientation no-overflow at 320→2560px**, and
+    zero-serious a11y. `next build` + `tsc` + ESLint + the no-raw-hex guard clean; **the full suite is
+    314 tests green across 36 files.**
+  - Notable calls: the app's `type-display text-2xl` convention (a size override on the display face)
+    was missing on the new hero + article headings — bare `type-display` (72px) overflowed ≤360px,
+    fixed with responsive size steps; the footer's low-emphasis tokens (`text-dim`/`text-faint`) failed
+    AA on the near-black chrome surface → `text-muted` (0 axe contrast nodes). An unknown/draft slug
+    renders the not-found page but, because the article route is ISR-prerendered (the SC-007
+    requirement), Next serves a **soft-404 (200)** not a hard 404 — a documented Next SSG/ISR behavior;
+    the guarantee that matters (drafts unreadable + excluded from sitemap/index/feed) holds regardless.
 - **Feature 2 — auto-balancer: Monte-Carlo fairness verification (2026-07-20).** The offline native
   `crates/balancer` tool that makes P4 (*Fairness Is Verified, Not Hoped*) real, on branch
   `002-auto-balancer`. It reuses the **one** Feature 1 engine crate natively (never a second engine,

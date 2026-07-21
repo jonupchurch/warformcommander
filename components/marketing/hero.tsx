@@ -19,7 +19,7 @@ export function Hero() {
         <p className="type-eyebrow text-faction-friendly">
           Non-pay-to-win · deterministic · plan &gt; twitch
         </p>
-        <h1 className="type-display mt-6 max-w-4xl text-balance text-text-strong">
+        <h1 className="type-display mt-6 max-w-4xl text-balance text-4xl text-text-strong sm:text-6xl lg:text-7xl">
           Command warforms. Win on the plan.
         </h1>
         <p className="type-body-lg mt-6 max-w-prose text-text-muted">

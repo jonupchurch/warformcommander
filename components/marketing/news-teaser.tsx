@@ -14,8 +14,8 @@ import { PostCard } from "./post-card";
 export function NewsTeaser({ posts }: { posts: PostSummary[] }) {
   return (
     <section className="px-safe mx-auto max-w-shell py-16 sm:py-24">
-      <div className="flex items-center justify-between gap-4">
-        <SectionLabel index="03">Latest dispatches</SectionLabel>
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+        <SectionLabel index="03" className="min-w-0 flex-1">Latest dispatches</SectionLabel>
         <Button asChild variant="ghost" size="sm">
           <Link href="/news">All news →</Link>
         </Button>

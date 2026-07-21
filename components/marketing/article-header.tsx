@@ -9,7 +9,7 @@ export function ArticleHeader({ post }: { post: PostView }) {
       <div className="flex flex-wrap items-center gap-3">
         <PostBadge badge={post.badge} />
       </div>
-      <h1 className="type-display text-balance text-text-strong">{post.title}</h1>
+      <h1 className="type-display wrap-break-word text-balance text-4xl text-text-strong sm:text-5xl">{post.title}</h1>
       <div className="type-label flex flex-wrap items-center gap-x-3 gap-y-1 text-text-muted">
         <span>{post.byline}</span>
         <span aria-hidden className="text-text-faint">

@@ -59,7 +59,7 @@ export function MarketingFooter() {
 
         {COLUMNS.map((col) => (
           <nav key={col.heading} aria-label={col.heading} className="flex flex-col gap-3">
-            <h2 className="type-eyebrow text-text-dim">{col.heading}</h2>
+            <h2 className="type-eyebrow text-text-muted">{col.heading}</h2>
             {col.links.map((l) => (
               <Link
                 key={`${col.heading}-${l.label}`}
@@ -74,7 +74,7 @@ export function MarketingFooter() {
       </div>
 
       <div className="px-safe mx-auto max-w-shell border-t border-border-hairline py-6">
-        <p className="type-eyebrow text-text-faint">© Warform Commander. All systems nominal.</p>
+        <p className="type-eyebrow text-text-muted">© Warform Commander. All systems nominal.</p>
       </div>
     </footer>
   );
