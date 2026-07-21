@@ -149,6 +149,40 @@ once it reaches a released version. Until then, everything lives under
     guard; browsable at `/gallery`. New `web-ci` GitHub workflow gates it. The repo keeps
     root-level `components/`/`lib/` (matching `sim/`/`db/`) rather than `src/`; the user's custom
     `app/favicon.ico` was left untouched. Removed the unused create-next-app scaffold SVGs.
+- **Feature 2 — auto-balancer: Monte-Carlo fairness verification (2026-07-20).** The offline native
+  `crates/balancer` tool that makes P4 (*Fairness Is Verified, Not Hoped*) real, on branch
+  `002-auto-balancer`. It reuses the **one** Feature 1 engine crate natively (never a second engine,
+  P6/P4) and runs `resolve()` thousands of times to read win-probability distributions, flag
+  degenerate/dominant combos before players find them, and numerically verify the four load-bearing
+  balance claims. **Advisory only** — it reads the Ruleset read-only and emits reports; it never edits
+  balance (the live editor + auto-news pipeline is Feature 12).
+  - **Reproducible batches** — `seed` (SplitMix64 per-**match** seeding, never per-thread) + `batch`
+    (`run_batch`: `rayon` **across matches only**, integer-count reduction) → the aggregate is
+    **byte-identical regardless of thread count** (SC-001). `stats`: integer tally + **Wilson 95%**
+    confidence interval (research B1) + outcome breakdown (Conquest/Time, 2-0/2-1, mean duration).
+  - **Sweep + flagging (US2)** — `sweep` evaluates each archetype across a curated reference field in
+    **both roles** (canceling the engine's deterministic first-strike side bias); `flags` classifies
+    **interval-gated** (the Wilson interval, not the point, must clear the fair band — no noise flags,
+    FR-011) as Dominant/Underpowered, plus Degenerate for a clean-field-sweep or the structural §8.2
+    **free-turtle**; severity-sorted worst-first.
+  - **Invariant verification (US3)** — the four numeric checks with measured value + margin:
+    native-family-bonus band (measured as the uncapped **first-hit** damage lift, ~0.12), power-gap cap
+    and skill-beats-gear (measured as a **survivor margin** — a win rate saturates to 0/1 in the
+    deterministic engine), and no-dominant-unit (via the sweep's clean-sweep detection).
+  - **Reports (US4)** — provenance-stamped (`rulesetHash` + engine/replay-format versions, SC-007)
+    canonical **JSON** (the seam Feature 12 will consume) + human-readable **markdown**, from a
+    `matchup | sweep | verify` **clap** CLI. Reports land in `balance-reports/`.
+  - **Golden tests (39 Rust tests)** — the **planted-imbalance** (SC-003) and four
+    **invariant-violation** (SC-004) fixtures prove it catches what it must; plus reproducibility,
+    statistics/Wilson, flagging (incl. interval-gating), and report shape + non-mutation (SC-006). A
+    `#[ignore]` throughput smoke does **10,000 Bo3 in ~0.8s parallel** (12.3k Bo3/s, SC-005). Covered by
+    the existing `engine-ci` (`cargo test --workspace` on x86-64 + ARM64).
+  - Notable calls: a **mirror lands ~52%**, not 50% — the `(zone, side, instance)` acting order gives
+    the attacker a small, explainable first-strike premium (not a bug); the balancer honestly surfaces
+    the first-pass numbers' rough edges (air-alpha/artillery-line read Dominant); `clap` uses
+    `default-features = false` (drops the `windows-sys` color path needing MinGW `dlltool`); the rayon
+    pool is sized to a 32 MB worker stack (a Bo3 tick stream overflows the default worker guard page
+    under parallel-test load on Windows).
 - **Feature 10 — Profile (career stats & achievements) (2026-07-20).** A public career view on branch
   `010-profile`, assembled **read-only** from Feature 7 — **no new table, no write path** (P1/P6). Own
   (`/profile`) + public (`/commander/[handle]`) routes render the same view-model.

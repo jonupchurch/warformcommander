@@ -30,6 +30,32 @@ The only carried-forward item is the full **V1–V8 TypeScript validation mirror
 belongs to the Garage (Feature 4) where edit-time validation UX lives — the WASM engine
 remains the authoritative validator meanwhile.
 
+**Feature 2 (auto-balancer, Monte-Carlo) — COMPLETE on branch `002-auto-balancer`.** The offline
+native `crates/balancer` tool that makes P4 (*Fairness Is Verified, Not Hoped*) real — it reuses the
+**one** engine crate natively (never a second engine) and runs `resolve()` thousands of times to read
+win-probability distributions, flag dominant/degenerate/underpowered combos, and numerically verify
+the four load-bearing balance claims. Built US1–US4 + polish: **`seed`** (SplitMix64 per-**match**
+seeding, the reproducibility spine) → **`stats`** (integer win-count tally + **Wilson 95%** CI +
+outcome breakdown) → **`batch`** (`run_batch`: `rayon` **across matches only**, integer reduction →
+**thread-count-independent**, SC-001) → **`sweep`** (each archetype vs the reference field, both roles,
+canceling the deterministic first-strike bias) → **`flags`** (interval-gated dominant/degenerate/
+underpowered + the structural §8.2 free-turtle, severity-sorted) → **`invariants`** (family-bonus band
+0.12 · power-gap-cap + skill-beats-gear via a **survivor margin** — win rate saturates 0/1 in a
+deterministic engine — · no-dominant-unit via the sweep) → **`report`** (provenance-stamped JSON +
+markdown, `rulesetHash`+versions, SC-007) + a `matchup | sweep | verify` **clap** CLI. Verified: **39
+Rust tests green** (reproducibility, statistics/Wilson, the **planted-imbalance** SC-003 golden, the
+four **invariant-violation** SC-004 goldens, flagging incl. interval-gating, report shape +
+non-mutation SC-006) + a `#[ignore]` throughput smoke (**10,000 Bo3 in ~0.8s parallel / 12.3k Bo3/s**,
+SC-005), clippy `-D warnings` + rustfmt clean; covered by the existing `engine-ci` (`cargo test
+--workspace` on x86-64 + ARM64). Notable calls: **advisory-only** (reads the Ruleset read-only, never
+mutates — SC-006); a **mirror lands ~52%** not 50% because the engine's `(zone, side, instance)`
+acting order gives the attacker a small, explainable first-strike premium (not a bug); the report JSON
+is the clean seam **Feature 12** will consume; the balancer surfaces the first-pass numbers' real rough
+edges (air-alpha / artillery-line read Dominant, aa-rocket / support-ball Underpowered) — exactly its
+job. `clap` uses `default-features = false` (drops the ANSI-color `windows-sys` path that needs MinGW
+`dlltool`); the rayon global pool is sized to a 32 MB worker stack (a full Bo3 tick stream on the stack
+overflows the default worker guard page under parallel-test load on Windows).
+
 **Feature 3 (app shell + design system) — COMPLETE and MERGED to `main`.** The visual +
 structural foundation every screen composes: the full Brand Foundation
 **token system** in `app/globals.css` (primitive ramps → semantic faction/zone/family roles →
@@ -227,7 +253,7 @@ implementation sequence, not the spec numbering.
 | # | Feature | Spec | Plan | Tasks | Build order |
 |---|---|---|---|---|---|
 | 1 | Sim core + game data model | ✅ | ✅ | ✅ 54 | **✅ MERGED + LIVE — native engine (82 tests) + WASM + /api/resolve prod-verified; native==wasm proven byte-for-byte in production** |
-| 2 | Auto-balancer (Monte-Carlo, reuses sim core) | ✅ | ✅ | ✅ 32 | after #1 |
+| 2 | Auto-balancer (Monte-Carlo, reuses sim core) | ✅ | ✅ | ✅ 32 | **✅ BUILT — US1–US4 + polish on `002-auto-balancer`; native `crates/balancer` reuses the one engine; reproducible Wilson-CI batches, interval-gated flagging, 4 numeric invariants, JSON+MD reports; 39 Rust tests incl. planted-imbalance (SC-003) + 4 invariant-violation (SC-004) goldens; 10k Bo3 ~0.8s (SC-005)** |
 | 3 | App shell + design system (nav, brand tokens) | ✅ | ✅ | ✅ 55 | **✅ MERGED — tokens + responsive shell + primitives + brand; 18 Playwright/axe e2e green** |
 | 4 | Garage (squad builder + loadout/dial editor) | ✅ | ✅ | ✅ 40 | **✅ BUILT — US1–US5 on `004-garage`; engine-parity preview + V1–V8 TS validation mirror; 133 pure tests green; e2e/axe/DB deferred to a live env** |
 | 5 | Battle playback (tick stream → pixel-art replay) | ✅ | ✅ | ✅ 42 | **✅ BUILT — US1–US5 + polish on `005-battle-playback`; engine-free O(1) scrubber + markers + both-orientation; 33 Vitest + 14 Playwright/axe e2e green; demo-replay seam pending F7 `getReplay`** |
