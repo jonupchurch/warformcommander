@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { GridBackdrop } from "@/components/ui/grid-backdrop";
 import { SectionLabel } from "@/components/ui/section-label";
+import { PLAY_CTA, WISHLIST_CTA } from "@/lib/marketing-nav";
 
 /**
  * The Home community CTA section (T018, FR-002): Wishlist / How to Play / Join-the-community as
@@ -17,18 +18,19 @@ export function CommunityCta() {
           Ready to command? Plan your first squad.
         </h2>
         <p className="type-body-lg mt-6 max-w-prose text-text-muted">
-          Wishlist to get the launch dispatch, learn the counter-web, and join the commanders shaping
-          the meta — where the only edge is a better plan.
+          Build your first squad in the Garage, set its doctrine, and climb the ladder — where the only
+          edge is a better plan. Wishlist to get the launch dispatch and join the commanders shaping the
+          meta.
         </p>
         <div className="mt-10 flex flex-wrap gap-4">
           <Button asChild size="lg">
-            <Link href="/#community">Wishlist</Link>
+            <Link href={PLAY_CTA.href}>Play now</Link>
           </Button>
           <Button asChild variant="secondary" size="lg">
-            <Link href="/#overview">How to Play</Link>
+            <Link href={WISHLIST_CTA.href}>{WISHLIST_CTA.label}</Link>
           </Button>
           <Button asChild variant="ghost" size="lg">
-            <Link href="/news">Join the community</Link>
+            <Link href="/#overview">How to Play</Link>
           </Button>
         </div>
       </GridBackdrop>

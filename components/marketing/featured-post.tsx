@@ -15,7 +15,7 @@ export function FeaturedPost({ post }: { post: PostSummary }) {
       <div className="flex flex-wrap items-center gap-3">
         <PostBadge badge={post.badge} />
         <span className="type-eyebrow text-faction-friendly">Featured</span>
-        <time dateTime={post.publishedAt.toISOString()} className="type-eyebrow text-text-dim">
+        <time dateTime={post.publishedAt.toISOString()} className="type-eyebrow text-text-muted">
           {formatPostDate(post.publishedAt)}
         </time>
       </div>

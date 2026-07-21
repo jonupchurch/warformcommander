@@ -11,11 +11,21 @@ interface LinkColumn {
 
 const COLUMNS: LinkColumn[] = [
   {
+    heading: "Play",
+    links: [
+      { label: "Garage", href: "/garage" },
+      { label: "Arena", href: "/arena" },
+      { label: "Ladder", href: "/ladder" },
+      { label: "Practice", href: "/practice" },
+    ],
+  },
+  {
     heading: "Game",
     links: [
       { label: "Overview", href: "/#overview" },
       { label: "News", href: "/news" },
       { label: "Roadmap", href: "/#roadmap" },
+      { label: "Dispatches (RSS)", href: "/feed.xml" },
     ],
   },
   {
@@ -24,13 +34,6 @@ const COLUMNS: LinkColumn[] = [
       { label: "Discord", href: "/#community" },
       { label: "Reddit", href: "/#community" },
       { label: "Wishlist", href: "/#community" },
-    ],
-  },
-  {
-    heading: "More",
-    links: [
-      { label: "How to Play", href: "/#overview" },
-      { label: "Dispatches (RSS)", href: "/feed.xml" },
     ],
   },
 ];

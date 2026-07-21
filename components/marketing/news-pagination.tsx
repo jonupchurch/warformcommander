@@ -42,7 +42,7 @@ export function NewsPagination({
   return (
     <nav aria-label="Pagination" className="mt-12 flex items-center justify-between gap-4">
       {control("Newer", page - 1, page <= 1)}
-      <span className="type-eyebrow text-text-dim">
+      <span className="type-eyebrow text-text-muted">
         Page {page} / {totalPages}
       </span>
       {control("Older", page + 1, page >= totalPages)}
