@@ -1,129 +1,179 @@
-//! Warform Commander — Monte-Carlo auto-balancer (Feature 2).
+//! Warform Commander — Monte-Carlo auto-balancer CLI (Feature 2, T002/T012/T024/T029).
 //!
-//! Feature 1 reserves this crate and proves the **balancer hook** (FR-024, SC-006): the balancer
-//! needs *only* the public `engine::resolve` — it runs a matchup over many seeds and reads win rates
-//! from the returned `MatchResult`s, never a second engine (that would break P6/P4). The real
-//! optimizer is built out in `specs/002-auto-balancer/`.
+//! An **offline dev tool** (FR-022): `matchup | sweep | verify` over the **one** Feature 1 engine,
+//! natively. It reads a `Ruleset` **read-only** (never mutates it — advisory only, FR-018/SC-006)
+//! and emits a provenance-stamped [`BalanceReport`] as canonical JSON + human-readable markdown to
+//! `--out` (default `balance-reports/`). All the logic lives in the `balancer` library; this is the
+//! thin CLI shell.
 //!
-//! Run: `cargo run -p balancer --release -- [matches]` (default 2000). Release does the SC-006
-//! ≥10,000-Bo3 throughput target in well under a minute.
+//! Run: `cargo run -p balancer --release -- verify` (or `matchup` / `sweep`).
 
-use std::time::Instant;
+use std::path::PathBuf;
+use std::time::{SystemTime, UNIX_EPOCH};
 
-use engine::content::{seed_ruleset, stock_instance};
+use clap::{Parser, Subcommand};
+
+use balancer::archetypes::{default_field, energy_mechs, kinetic_tanks};
+use balancer::batch::{BatchConfig, MatchupSpec};
+use balancer::report::json::to_json;
+use balancer::report::markdown::to_markdown;
+use balancer::report::model::{BalanceReport, FairBand};
+use balancer::run::{matchup_report, sweep_report, verify_report};
+use balancer::sweep::SweepConfig;
+
+use engine::content::seed_ruleset;
 use engine::model::army::Army;
-use engine::model::types::{MachineTypeId, ZoneId};
-use engine::replay::{Adaptation, MatchConfig, Side};
-use engine::{resolve, BattleInput};
+use engine::model::ruleset::Ruleset;
 
-fn main() {
-    let matches: u64 = std::env::args()
-        .nth(1)
-        .and_then(|s| s.parse().ok())
-        .unwrap_or(2000);
+/// The Monte-Carlo auto-balancer — reproducible win-probability estimates, dominant/degenerate combo
+/// flagging, and numeric verification of the four balance invariants. Advisory reports only.
+#[derive(Parser, Debug)]
+#[command(name = "balancer", version, about)]
+struct Cli {
+    #[command(subcommand)]
+    command: Command,
 
-    println!(
-        "Warform Commander balancer — linked engine v{} — {matches} Bo3 matchups",
-        engine::engine_version()
-    );
+    /// Base seed the whole run is reproducible from (FR-002).
+    #[arg(long, global = true, default_value_t = 1)]
+    seed: u64,
 
-    let ruleset = seed_ruleset();
-    let (army_a, army_b) = sample_matchup(&ruleset);
-    let config = MatchConfig {
-        adaptation: Adaptation::Locked,
-        defender_side: Side::B,
-        best_of: 3,
-    };
+    /// Samples (Bo3 resolutions) per matchup — ~1500-2000 hits a ≤±2.5% Wilson half-width (research B1).
+    #[arg(long, global = true, default_value_t = 2000)]
+    samples: u32,
 
-    let start = Instant::now();
-    let mut a_wins: u64 = 0;
-    for seed in 0..matches {
-        let input = BattleInput {
-            armies: [army_a.clone(), army_b.clone()],
-            ruleset: ruleset.clone(),
-            seed,
-            match_config: config,
-        };
-        // The entire balancer surface: one call, read the winner. No balancing logic in the engine.
-        let out = resolve(&input).expect("stock armies are legal");
-        if out.result.winner == Side::A {
-            a_wins += 1;
-        }
-    }
-    let elapsed = start.elapsed();
+    /// rayon worker count; must not change results (SC-001). Omit for the global pool.
+    #[arg(long, global = true)]
+    threads: Option<u32>,
 
-    let rate = matches as f64 / elapsed.as_secs_f64();
-    println!(
-        "  A win rate : {a_wins}/{matches} = {:.1}%",
-        100.0 * a_wins as f64 / matches as f64
-    );
-    println!("  elapsed    : {:.2?}", elapsed);
-    println!("  throughput : {rate:.0} Bo3/sec");
-    let projected_10k = 10_000.0 / rate;
-    println!("  SC-006     : 10,000 Bo3 ≈ {projected_10k:.1}s (target: minutes)");
+    /// Path to a Ruleset JSON to evaluate (read-only). Omit to use the engine's canonical seed table.
+    #[arg(long, global = true)]
+    ruleset: Option<PathBuf>,
+
+    /// Output directory for the emitted JSON + markdown reports.
+    #[arg(long, global = true, default_value = "balance-reports")]
+    out: PathBuf,
+
+    /// Fair-band floor (a flag's interval must clear it).
+    #[arg(long, global = true, default_value_t = 0.40)]
+    floor: f64,
+
+    /// Fair-band ceiling.
+    #[arg(long, global = true, default_value_t = 0.60)]
+    ceiling: f64,
 }
 
-/// Two representative stock squads for the throughput smoke.
-fn sample_matchup(ruleset: &engine::model::ruleset::Ruleset) -> (Army, Army) {
-    let a = Army {
-        machines: vec![
-            stock_instance(
-                ruleset,
-                MachineTypeId::HeavyTank,
-                "Grizzly",
-                ZoneId::Front,
-                0,
-            ),
-            stock_instance(ruleset, MachineTypeId::LightTank, "Scout", ZoneId::Front, 1),
-            stock_instance(ruleset, MachineTypeId::Mech, "Vanguard", ZoneId::Middle, 2),
-            stock_instance(
-                ruleset,
-                MachineTypeId::RocketArtillery,
-                "Sentry",
-                ZoneId::Middle,
-                3,
-            ),
-            stock_instance(
-                ruleset,
-                MachineTypeId::Artillery,
-                "Longbow",
-                ZoneId::Rear,
-                4,
-            ),
-        ],
+#[derive(Subcommand, Debug)]
+enum Command {
+    /// Estimate one matchup's win probability (US1). Uses two army JSON files, or a built-in sample.
+    Matchup {
+        /// Side A (attacker) army JSON. Omit for a built-in sample matchup.
+        #[arg(long)]
+        army_a: Option<PathBuf>,
+        /// Side B (defender) army JSON.
+        #[arg(long)]
+        army_b: Option<PathBuf>,
+    },
+    /// Sweep the reference field and flag dominant/degenerate/underpowered combos (US2).
+    Sweep,
+    /// Verify the four balance invariants + sweep + flags (US2 + US3).
+    Verify,
+}
+
+fn main() {
+    let cli = Cli::parse();
+    let ruleset = load_ruleset(cli.ruleset.as_deref());
+    let fair_band = FairBand {
+        floor: cli.floor,
+        ceiling: cli.ceiling,
     };
-    let b = Army {
-        machines: vec![
-            stock_instance(
-                ruleset,
-                MachineTypeId::HeavyTank,
-                "Cavalier",
-                ZoneId::Front,
-                0,
-            ),
-            stock_instance(ruleset, MachineTypeId::Mech, "Striker", ZoneId::Front, 1),
-            stock_instance(
-                ruleset,
-                MachineTypeId::AttackHeli,
-                "Gunship",
-                ZoneId::Air,
-                2,
-            ),
-            stock_instance(
-                ruleset,
-                MachineTypeId::RearSupport,
-                "Medic",
-                ZoneId::Middle,
-                3,
-            ),
-            stock_instance(
-                ruleset,
-                MachineTypeId::Artillery,
-                "Marksman",
-                ZoneId::Rear,
-                4,
-            ),
-        ],
+
+    let mut report = match &cli.command {
+        Command::Matchup { army_a, army_b } => {
+            let (a, b) = load_matchup(army_a.as_deref(), army_b.as_deref(), &ruleset);
+            let cfg = BatchConfig {
+                base_seed: cli.seed,
+                samples: cli.samples,
+                threads: cli.threads,
+            };
+            let matchup = MatchupSpec::new(a, b, "matchup");
+            matchup_report(&matchup, &ruleset, &cfg, fair_band)
+        }
+        Command::Sweep => {
+            let cfg = sweep_cfg(&cli, fair_band);
+            sweep_report(&default_field(), &ruleset, &cfg)
+        }
+        Command::Verify => {
+            let cfg = sweep_cfg(&cli, fair_band);
+            verify_report(&default_field(), &ruleset, &cfg)
+        }
     };
-    (a, b)
+
+    // Stamp the wall-clock time (provenance for humans; excluded from the SC-001 reproducibility diff).
+    report.provenance.generated_at = Some(epoch_stamp());
+
+    emit(&report, &cli.out);
+}
+
+/// Load the ruleset **read-only** (FR-018): a `--ruleset` JSON, else the engine's seed table.
+fn load_ruleset(path: Option<&std::path::Path>) -> Ruleset {
+    match path {
+        Some(p) => {
+            let bytes = std::fs::read(p)
+                .unwrap_or_else(|e| panic!("cannot read ruleset {}: {e}", p.display()));
+            serde_json::from_slice(&bytes)
+                .unwrap_or_else(|e| panic!("invalid ruleset JSON {}: {e}", p.display()))
+        }
+        None => seed_ruleset(),
+    }
+}
+
+/// The two armies for `matchup` mode: JSON files if given, else a built-in kinetic-vs-energy sample.
+fn load_matchup(
+    a: Option<&std::path::Path>,
+    b: Option<&std::path::Path>,
+    rs: &Ruleset,
+) -> (Army, Army) {
+    let load = |p: &std::path::Path| -> Army {
+        let bytes =
+            std::fs::read(p).unwrap_or_else(|e| panic!("cannot read army {}: {e}", p.display()));
+        serde_json::from_slice(&bytes)
+            .unwrap_or_else(|e| panic!("invalid army JSON {}: {e}", p.display()))
+    };
+    let side_a = a.map(load).unwrap_or_else(|| kinetic_tanks(rs));
+    let side_b = b.map(load).unwrap_or_else(|| energy_mechs(rs));
+    (side_a, side_b)
+}
+
+fn sweep_cfg(cli: &Cli, fair_band: FairBand) -> SweepConfig {
+    SweepConfig {
+        base_seed: cli.seed,
+        samples_per_matchup: cli.samples,
+        threads: cli.threads,
+        fair_band,
+    }
+}
+
+/// Whole seconds since the Unix epoch, as a provenance string (no external date crate needed).
+fn epoch_stamp() -> String {
+    let secs = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+    format!("unix:{secs}")
+}
+
+/// Write the JSON + markdown artifacts to `out/`, and print the markdown to stdout.
+fn emit(report: &BalanceReport, out: &std::path::Path) {
+    std::fs::create_dir_all(out).unwrap_or_else(|e| panic!("cannot create {}: {e}", out.display()));
+    let json = to_json(report);
+    let md = to_markdown(report);
+    let json_path = out.join("balance-report.json");
+    let md_path = out.join("balance-report.md");
+    std::fs::write(&json_path, &json)
+        .unwrap_or_else(|e| panic!("cannot write {}: {e}", json_path.display()));
+    std::fs::write(&md_path, &md)
+        .unwrap_or_else(|e| panic!("cannot write {}: {e}", md_path.display()));
+
+    println!("{md}");
+    eprintln!("→ wrote {} and {}", json_path.display(), md_path.display());
 }

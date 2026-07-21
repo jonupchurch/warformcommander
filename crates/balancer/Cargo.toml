@@ -1,5 +1,8 @@
 # Feature 2 — the native Monte-Carlo auto-balancer. Reserved here by Feature 1
 # (stub); built out in specs/002-auto-balancer/. Native only, never WASM.
+#
+# A `lib` (the reusable batch/stats/sweep/invariant/report engine, linked by the
+# integration tests in `tests/`) + a thin `bin` (the `matchup | sweep | verify` CLI).
 [package]
 name = "balancer"
 edition.workspace = true
@@ -7,9 +10,26 @@ version.workspace = true
 license.workspace = true
 publish = false
 
+[lib]
+name = "balancer"
+path = "src/lib.rs"
+
 [[bin]]
 name = "balancer"
 path = "src/main.rs"
 
 [dependencies]
+# The ONE engine, reused as-is (rlib) — never a second engine (P6/P4, FR-001).
 engine = { path = "../engine" }
+# Across-match data parallelism only (never inside a resolve()); per-match seeding
+# + integer-count reduction keeps the aggregate thread-count-independent (research A1).
+rayon = "1"
+# Report (de)serialization — the canonical JSON artifact (FR-020) + fixtures.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# CLI arg parsing for the offline dev tool (FR-022). `default-features = false` drops the ANSI
+# color path (anstyle → windows-sys), which needs MinGW `dlltool` absent on the windows-gnu
+# toolchain; a dev tool's help/errors don't need color. `derive` + the parse essentials remain.
+clap = { version = "4", default-features = false, features = ["derive", "std", "help", "usage", "error-context"] }
+
+[dev-dependencies]
