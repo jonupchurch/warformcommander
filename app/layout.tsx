@@ -21,13 +21,22 @@ const spaceMono = Space_Mono({
   display: "swap",
 });
 
+// The canonical production origin — so relative OpenGraph/sitemap/feed image URLs resolve to
+// absolute (Feature 11 SC-006). Override via NEXT_PUBLIC_SITE_URL for preview deploys.
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://warformcommander.vercel.app";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Warform Commander",
     template: "%s · Warform Commander",
   },
   description:
     "A non-pay-to-win, planning-over-twitch sci-fi tactics auto-battler — configure your warforms, set their doctrine, and let deterministic battles decide the ladder.",
+  // Advertise the news RSS feed so readers/aggregators can subscribe (FR-018).
+  alternates: {
+    types: { "application/rss+xml": "/feed.xml" },
+  },
 };
 
 // Cover the notch/safe areas so the shell can pad with env(safe-area-inset-*) (FR-010).

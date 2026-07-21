@@ -2,7 +2,7 @@
 
 > Living snapshot of where the project is. Update it as phases and features
 > move. It complements `CHANGELOG.md` (what shipped) by capturing the
-> *current* state and what's next. Last updated: 2026-07-20.
+> *current* state and what's next. Last updated: 2026-07-21.
 
 ## Current phase
 
@@ -200,6 +200,41 @@ read-only projections, no schema change. **US4** derived **cosmetic** badges —
 pure (CI-gated) + 4 DB assembly + 7 Playwright/axe e2e**, `next build` + `tsc` + ESLint + token guard
 clean. No WASM (pure DB reads). **The full suite is 285 tests green across 33 files.**
 
+**Feature 11 (Marketing site — Home + News index + article template) — BUILT on branch
+`011-marketing-news`, all five user stories + SEO.** The public, unauthenticated front door and the
+reader half of the unified `posts` system — **read-only over `posts`** (this feature never writes; the
+admin + auto-post triggers of Feature 12 are the sole writers, P6). The load-bearing trust boundary is
+`server/news.ts`: **every** read is constrained *in the query* to `status='published' AND publishedAt
+IS NOT NULL AND publishedAt <= now()`, newest-first (hits Feature 7's `posts_published_idx`), so a
+draft or future-dated post is **never** public and an unknown vs. draft slug is indistinguishable
+(SC-001/SC-004). The reads are deliberately **resilient** (a data-access failure returns an empty
+result, never throws) so the static build + `generateStaticParams` succeed against the still-un-migrated
+prod DB and render graceful empty states, filled by ISR once the DB is live (SC-007). **US1** Home —
+the one-line pitch, the four pillars (incl. the explicit **non-P2W** promise "Skill lives in the plan —
+never the wallet.", P1), the roadmap snapshot, a latest-news teaser, and working CTAs, complete even
+with zero posts; **US2** the shared marketing shell (Logo + Wordmark + nav + Wishlist CTA + footer),
+first-class in both orientations with News marked active via `usePathname`; **US3** `/news` — a
+featured lead + grid, type badge, date, excerpt, pagination + type filter, graceful empty state;
+**US4** `/news/[slug]` — a published post rendered **safely** from markdown (`react-markdown` +
+`remark-gfm`, raw HTML disabled → **zero XSS survivors**, one shared pipeline for body/excerpt/feed),
+every kind through one template, an unknown/draft/future slug → the one not-found dead-end; **US5**
+discoverability — `sitemap.ts` / `robots.ts` / `feed.xml` (RSS 2.0) over published-only posts +
+`metadataBase` so OG/canonical URLs resolve absolute, and the F11↔F12 `revalidatePostsPublish(slug)`
+seam (path-based) so a publish surfaces across index/article/sitemap/feed **without a redeploy**.
+Verified: **29 pure Vitest** (13 published-only DB-read boundary — drafts/future never returned,
+`publishedAt`-DESC ordering, unknown==draft slug; 16 view-model + markdown-XSS) + **15 Playwright/axe
+e2e** (Home pitch/promise/pillars/roadmap/CTAs, shell + active state, News frame, not-found dead-end,
+sitemap/robots/feed, **both-orientation no-overflow at 320→2560px**, zero-serious a11y), `next build`
++ `tsc` + ESLint + the no-raw-hex guard clean; **the full suite is 314 tests green across 36 files.**
+Notable calls: the app's `type-display text-2xl` convention (a size override on the display face) was
+missing on the new hero + article headings — bare `type-display` (72px) overflowed ≤360px; fixed with
+responsive size steps. The footer's low-emphasis tokens (`text-dim`/`text-faint`) failed AA on the
+near-black chrome surface → bumped to `text-muted` (verified 0 axe contrast nodes). An unknown/draft
+slug renders the not-found page but, because the article route is ISR-prerendered (the SC-007
+requirement), Next serves it as a **soft-404 (200)** rather than a hard 404 — a documented Next SSG/ISR
+behavior; the guarantee that matters (drafts unreadable, and excluded from sitemap/index/feed) holds
+regardless, and the e2e asserts the not-found *content* (the repo's `profile.spec` convention). No WASM.
+
 **Approach — plan-the-whole-set-first, then build foundation-first (Principle VII):**
 the full set was planned before any implementation so shared models and cross-feature
 dependencies surfaced on paper. Feature 1 (the deterministic **sim core + data model**)
@@ -262,7 +297,7 @@ implementation sequence, not the spec numbering.
 | 8 | Arena (async matchmaking) + Practice sandbox | ✅ | ✅ | ✅ 51 | **✅ BUILT — US1–US5 + real round-trip on `008-arena-practice`; server-authoritative resolve/record, fogged blind+locked matchmaking, practice sandbox, strict-parse anti-forgery; 31 Vitest + arena/practice e2e green; F5/F6 read-path seam cashed in** |
 | 9 | Ladder (seasons, metrics, tiers/MMR) | ✅ | ✅ | ✅ 38 | **✅ BUILT — US1–US4 on `009-ladder`; net-victory board + deterministic tiebreak + period rollups + both-orientation; read-only over F7; 24 Vitest + 8 e2e green** |
 | 10 | Profile (career stats, achievements) | ✅ | ✅ | ✅ 33 | **✅ BUILT — US1–US4 on `010-profile`; public career view (own + /commander/[handle]), career==standing, cosmetic derived badges; read-only, no new table; 20 Vitest + 7 e2e green** |
-| 11 | Marketing site (Home + News index + article template) | ✅ | ✅ | ✅ 59 | after #3/#7 |
+| 11 | Marketing site (Home + News index + article template) | ✅ | ✅ | ✅ 59 | **✅ BUILT — US1–US5 + SEO on `011-marketing-news`; published-only read boundary (drafts/future never public), safe markdown (zero XSS), Home/News/article + sitemap/robots/RSS + F11↔F12 revalidate seam; read-only over F7 `posts`; 29 Vitest + 15 Playwright/axe e2e green** |
 | 12 | Admin console + balance publishing (live stat editing → auto news) | ✅ | ✅ | ✅ 48 | after #7 |
 
 ## Tech stack
