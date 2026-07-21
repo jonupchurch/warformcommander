@@ -32,6 +32,24 @@ const MARKUP: Record<MachineTypeKey, string> = {
     '<polygon points="19,12 45,12 54,25 45,37 19,37 10,25" fill="currentColor" fill-opacity=".14" stroke="currentColor" stroke-width="2.4"/><rect x="27" y="23.5" width="10" height="3" fill="currentColor"/><rect x="30.5" y="20" width="3" height="10" fill="currentColor"/>',
 };
 
+/**
+ * Which way each SVG's art points by default (barrel / rotor / launcher). Co-located with the markup
+ * so a redraw updates both here. Consumed by the battle sprite to flip units so they **face each
+ * other** across the contact line (friendly points right, enemy points left): the heli's nose points
+ * left (its tail rotor is on the right), every other machine points right; `support` is symmetric so
+ * the value is a no-op. NOT applied by `UnitIcon` itself — the default render stays as-drawn, and
+ * only the battle-playback leaf opts into mirroring.
+ */
+export const ICON_FACES_RIGHT: Record<MachineTypeKey, boolean> = {
+  heavytank: true,
+  lighttank: true,
+  mech: true,
+  heli: false,
+  rocketarty: true,
+  artillery: true,
+  support: true,
+};
+
 const FACTION = {
   friendly: "text-faction-friendly",
   enemy: "text-faction-enemy",

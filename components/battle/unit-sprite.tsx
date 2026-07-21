@@ -15,7 +15,7 @@
 import type { UnitView } from '@/sim/replay-view';
 import type { WireEvent } from '@/sim/replay-reader';
 import type { DamageType } from '@/sim/ruleset';
-import { UnitIcon, type MachineTypeKey } from '@/components/brand/unit-icon';
+import { ICON_FACES_RIGHT, UnitIcon, type MachineTypeKey } from '@/components/brand/unit-icon';
 import { cn } from '@/lib/utils';
 import { CombatVfx, pickCombatVfx } from './combat-vfx';
 
@@ -85,6 +85,13 @@ export function UnitSprite({ unit, events, damageTypes, className }: UnitSpriteP
   const impactSide = unit.faction === 'friendly' ? 'left' : 'right';
   const mirrored = unit.faction === 'enemy';
 
+  // Face the enemy: friendly points right, enemy points left. Flip the art only when its default
+  // facing disagrees with the side it's on — so the heli (drawn nose-left) flips for friendlies and
+  // every right-facing machine (tanks/mech/artillery/rockets) flips for enemies. Symmetric icons
+  // (support) flip to a no-op. The VFX layers key off `muzzleSide`/`impactSide`, not this.
+  const wantsRight = unit.faction === 'friendly';
+  const flipIcon = ICON_FACES_RIGHT[iconKey] !== wantsRight;
+
   return (
     <div
       data-slot="unit-sprite"
@@ -103,7 +110,7 @@ export function UnitSprite({ unit, events, damageTypes, className }: UnitSpriteP
           FRAME[unit.faction],
         )}
       >
-        <UnitIcon type={iconKey} title={label} className="h-full w-full" />
+        <UnitIcon type={iconKey} title={label} className={cn('h-full w-full', flipIcon && '-scale-x-100')} />
 
         {/* Death: a full-cover burst marking the kill (the DOWN + grayscale carry it without motion). */}
         {vfx.died && (
