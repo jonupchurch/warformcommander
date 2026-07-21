@@ -32,10 +32,11 @@ import {
   uniqueIndex,
   index,
   check,
+  type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccountType } from "next-auth/adapters";
 
-import type { SquadConfig, PresetConfig, Replay } from "./types";
+import type { SquadConfig, PresetConfig, Replay, Ruleset } from "./types";
 
 // ---------------------------------------------------------------------------
 // Enums (data-model Conventions)
@@ -284,6 +285,54 @@ export const presets = pgTable(
 );
 
 // ---------------------------------------------------------------------------
+// Tier B — the live-ruleset store (Feature 12, Admin Console)
+// ---------------------------------------------------------------------------
+
+/**
+ * Append-only ruleset revision history (Feature 12). Every saved balance table, forever — the
+ * Feature-1 Tier-2 `Ruleset` as typed `jsonb`, its Feature-1 canonical `rulesetHash`, the editing
+ * admin, and a self-referential parent chain for audit. **Insert-only** (like `defenseSnapshots`):
+ * a revision's `data` is never mutated. This is the audit + diff basis, NOT a replay dependency —
+ * recorded replays are self-contained (they carry their own `rulesetHash` + snapshots) and never
+ * re-derive from here. The engine reads only the *current* revision via the pointer below.
+ */
+export const rulesets = pgTable(
+  "rulesets",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    data: jsonb("data").$type<Ruleset>().notNull(), // Feature-1 Tier-2 Ruleset, verbatim
+    rulesetHash: text("ruleset_hash").notNull(), // Feature-1 canonical hash of `data`
+    editorId: text("editor_id").references(() => users.id, { onDelete: "set null" }), // NULL = system/seed
+    parentId: uuid("parent_id").references((): AnyPgColumn => rulesets.id, { onDelete: "set null" }), // audit chain
+    note: text("note"), // optional admin note on the change
+    createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("rulesets_hash_idx").on(t.rulesetHash), // provenance join: matches/replays.rulesetHash → here
+    index("rulesets_created_idx").on(t.createdAt), // audit history, newest-first
+  ],
+);
+
+/**
+ * The singleton current-ruleset pointer (Feature 12) — the single source of truth
+ * `getCurrentRuleset()` reads and `saveRuleset()` swaps. Exactly one row, enforced structurally: the
+ * `text` PK is always the literal `'current'` and the `CHECK` makes any other id impossible. `version`
+ * is the optimistic-concurrency guard the pointer swap checks in its `WHERE` (no lost updates).
+ */
+export const currentRuleset = pgTable(
+  "current_ruleset",
+  {
+    id: text("id").primaryKey().default("current"), // always the literal 'current'
+    rulesetId: uuid("ruleset_id")
+      .notNull()
+      .references(() => rulesets.id, { onDelete: "restrict" }), // the active revision — never deleted out from under
+    version: integer("version").notNull().default(1), // optimistic-concurrency guard
+    updatedAt: timestamp("updated_at", { mode: "date" }).notNull().defaultNow(),
+  },
+  (t) => [check("current_ruleset_singleton_chk", sql`${t.id} = 'current'`)], // structurally ≤1 row
+);
+
+// ---------------------------------------------------------------------------
 // Relations (typed joins)
 // ---------------------------------------------------------------------------
 
@@ -348,4 +397,13 @@ export const postsRelations = relations(posts, ({ one }) => ({
 
 export const presetsRelations = relations(presets, ({ one }) => ({
   user: one(users, { fields: [presets.userId], references: [users.id] }),
+}));
+
+export const rulesetsRelations = relations(rulesets, ({ one }) => ({
+  editor: one(users, { fields: [rulesets.editorId], references: [users.id] }),
+  parent: one(rulesets, { fields: [rulesets.parentId], references: [rulesets.id], relationName: "revisionParent" }),
+}));
+
+export const currentRulesetRelations = relations(currentRuleset, ({ one }) => ({
+  revision: one(rulesets, { fields: [currentRuleset.rulesetId], references: [rulesets.id] }),
 }));

@@ -1,0 +1,47 @@
+# Feature 12 (US4) — the durable "code push → news" rule, made mechanical. On every push to `main`
+# (Vercel then auto-deploys), POST the commit metadata to the secret-gated devlog endpoint, which
+# auto-publishes one devlog post. The endpoint is idempotent by commit SHA, so a re-run never
+# duplicates. Alternative trigger (not needed if this runs): a Vercel `deployment.succeeded` webhook
+# to the same endpoint, filtered to `target === 'production'` (research C3).
+#
+# Requires repo secret DEVLOG_WEBHOOK_SECRET (matching the app's env). Optional repo variable
+# DEVLOG_ENDPOINT overrides the production URL (e.g. for a preview target).
+name: Devlog auto-post
+
+on:
+  push:
+    branches: [main]
+
+# Only a real push to main runs this (US4-AS4 — preview/non-main deploys never post).
+jobs:
+  post-devlog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post the commit to the news devlog endpoint
+        continue-on-error: true # a failed post (e.g. prod DB not yet migrated) must not fail CI
+        env:
+          # Commit fields go through env — NEVER interpolated inline into `run` (shell-injection safe).
+          SECRET: ${{ secrets.DEVLOG_WEBHOOK_SECRET }}
+          ENDPOINT: ${{ vars.DEVLOG_ENDPOINT || 'https://warformcommander.vercel.app/api/admin/devlog' }}
+          SHA: ${{ github.sha }}
+          MESSAGE: ${{ github.event.head_commit.message }}
+          AUTHOR: ${{ github.event.head_commit.author.name }}
+          COMPARE_URL: ${{ github.event.compare }}
+        run: |
+          if [ -z "$SECRET" ]; then
+            echo "DEVLOG_WEBHOOK_SECRET is not configured; skipping devlog post."
+            exit 0
+          fi
+          payload=$(jq -n \
+            --arg sha "$SHA" \
+            --arg message "$MESSAGE" \
+            --arg author "$AUTHOR" \
+            --arg compareUrl "$COMPARE_URL" \
+            --arg branch "main" \
+            '{sha:$sha, message:$message, author:$author, compareUrl:$compareUrl, branch:$branch}')
+          echo "Posting devlog for ${SHA:0:7} to $ENDPOINT"
+          code=$(curl -sS -o /dev/stderr -w "%{http_code}" -X POST "$ENDPOINT" \
+            -H "Authorization: Bearer $SECRET" \
+            -H "Content-Type: application/json" \
+            -d "$payload")
+          echo "devlog endpoint responded: $code"

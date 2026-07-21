@@ -17,6 +17,8 @@ export interface WasmEngine {
   validate: (input: Uint8Array) => Uint8Array;
   /** The engine's canonical default balance table as JSON. */
   default_ruleset: () => Uint8Array;
+  /** The canonical hash of a JSON `Ruleset` — the exact hash the engine stamps on a replay (empty on parse error). */
+  hash_ruleset: (input: Uint8Array) => Uint8Array;
 }
 
 let engine: WasmEngine | null = null;

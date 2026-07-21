@@ -49,7 +49,7 @@ export default async function PracticePage() {
   let initial: PracticePreview | null = null;
   if (squads.length > 0) {
     const draw = await refreshPracticeOpponent(actor);
-    if (draw.ok) initial = toPracticePreview(draw.value);
+    if (draw.ok) initial = await toPracticePreview(draw.value);
   }
 
   return (

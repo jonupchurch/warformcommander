@@ -18,7 +18,7 @@ import type { SessionUser } from '@/server/authz';
 import type { PracticeDraw, PracticeMatchRequest } from './arena-types';
 import { drawPracticeOpponent } from './matchmaking';
 import { err, type Result } from './result';
-import { loadCurrentRuleset } from './ruleset';
+import { getCurrentRuleset } from './ruleset';
 import { serverSeed } from './seed';
 
 /** Re-draw a practice opponent (Server Action), avoiding the currently-shown squad. Records nothing. */
@@ -45,7 +45,7 @@ export async function startPracticeMatch(
   if (!opponent) return err('NO_PRACTICE_OPPONENT', 'the drawn opponent no longer exists');
   if (opponent.userId === ctx.id) return err('NO_PRACTICE_OPPONENT', 'cannot practice against your own squad');
 
-  const { ruleset } = loadCurrentRuleset();
+  const { ruleset } = await getCurrentRuleset();
   const seed = serverSeed();
 
   let replay;

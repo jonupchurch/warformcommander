@@ -321,6 +321,19 @@ pub fn default_ruleset_bytes() -> Vec<u8> {
     serde_json::to_vec(&crate::content::seed_ruleset()).unwrap_or_else(|_| b"{}".to_vec())
 }
 
+/// Byte boundary for a `Ruleset`'s **canonical hash** — the exact hash the engine stamps on a replay
+/// resolved against it (`Ruleset::hash()` = BLAKE3 over the canonical serialization). JSON `Ruleset`
+/// in → the hex digest as UTF-8 bytes out; an **empty** vec on a parse error (so the boundary never
+/// panics). Feature 12's live-ruleset store calls this so the hash it records for a saved revision
+/// equals the hash a match resolved against that revision stamps (provenance join; FR-007 — never a
+/// bespoke hash computed outside the engine).
+pub fn hash_ruleset_bytes(input: &[u8]) -> Vec<u8> {
+    match serde_json::from_slice::<Ruleset>(input) {
+        Ok(ruleset) => ruleset.hash().0.into_bytes(),
+        Err(_) => Vec::new(),
+    }
+}
+
 /// The wasm-bindgen exports (only compiled for the wasm32 target, so native/the balancer never pull
 /// in wasm-bindgen). Each delegates to the corresponding `*_bytes` boundary.
 #[cfg(target_arch = "wasm32")]
@@ -340,5 +353,10 @@ mod wasm_exports {
     #[wasm_bindgen]
     pub fn default_ruleset() -> Vec<u8> {
         super::default_ruleset_bytes()
+    }
+
+    #[wasm_bindgen]
+    pub fn hash_ruleset(input: &[u8]) -> Vec<u8> {
+        super::hash_ruleset_bytes(input)
     }
 }

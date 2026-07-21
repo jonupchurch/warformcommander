@@ -8,6 +8,13 @@
       "when": 1784516672387,
       "tag": "0000_right_bastion",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1784600835049,
+      "tag": "0001_magenta_colleen_wing",
+      "breakpoints": true
     }
   ]
 }

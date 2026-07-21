@@ -15,6 +15,20 @@ exports.default_ruleset = default_ruleset;
  * @param {Uint8Array} input
  * @returns {Uint8Array}
  */
+function hash_ruleset(input) {
+    const ptr0 = passArray8ToWasm0(input, wasm.__wbindgen_malloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ret = wasm.hash_ruleset(ptr0, len0);
+    var v2 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v2;
+}
+exports.hash_ruleset = hash_ruleset;
+
+/**
+ * @param {Uint8Array} input
+ * @returns {Uint8Array}
+ */
 function resolve(input) {
     const ptr0 = passArray8ToWasm0(input, wasm.__wbindgen_malloc);
     const len0 = WASM_VECTOR_LEN;

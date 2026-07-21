@@ -19,7 +19,7 @@ import type { SessionUser } from '@/server/authz';
 import { fogPreview, type MatchTicket, type RankedMatchRequest } from './arena-types';
 import { pickRankedOpponent } from './matchmaking';
 import { err, ok, type Result } from './result';
-import { loadCurrentRuleset } from './ruleset';
+import { getCurrentRuleset } from './ruleset';
 import { serverSeed } from './seed';
 
 /**
@@ -35,7 +35,7 @@ export async function previewRankedMatch(ctx: SessionUser): Promise<Result<Match
   const selection = await pickRankedOpponent(ctx);
   if (!selection.ok) return selection;
 
-  const { ruleset } = loadCurrentRuleset();
+  const { ruleset } = await getCurrentRuleset();
   const power = armyPowerRating(selection.value.servedConfig, ruleset);
   return ok({
     defenderSnapshotId: selection.value.defenderSnapshotId,
@@ -69,7 +69,7 @@ export async function startRankedMatch(
   if (!snapshot) return err('INVALID_TICKET', 'the served snapshot no longer exists');
   if (snapshot.userId === ctx.id) return err('INVALID_TICKET', 'cannot attack your own defense');
 
-  const { ruleset } = loadCurrentRuleset();
+  const { ruleset } = await getCurrentRuleset();
   const seed = serverSeed();
 
   let replay;
