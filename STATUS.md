@@ -4,6 +4,14 @@
 > move. It complements `CHANGELOG.md` (what shipped) by capturing the
 > *current* state and what's next. Last updated: 2026-07-21.
 
+> **Ops milestone (2026-07-21): both user-gated items are now DONE.** (1) The reviewed
+> `0000`+`0001` migrations are applied to the Neon **production** branch — `rulesets` +
+> `current_ruleset` now live alongside the other 11 tables (SC-008 dev-first gate was
+> satisfied on local dev Postgres). (2) `DEVLOG_WEBHOOK_SECRET` is set in **Vercel
+> Production** + as the **GitHub Actions** repo secret (same value), prod was redeployed to
+> bake it in, and the secret gate is verified live: bad/absent secret → 401, valid secret +
+> bad body → 400 (no write). The authed prod loop and the code-push→news pipeline are ARMED.
+
 ## Current phase
 
 **Feature 1 (sim core) — COMPLETE, MERGED to `main`, and LIVE in production
@@ -87,8 +95,9 @@ standings + reconciliation oracle; plus the unified `posts` table, the `presets`
 idempotent cold-start bot-defender seed (P5). The engine gained wasm `validate`/`default_ruleset`
 exports so the DB validates exactly as the engine does (rebuilt wasm re-verified byte-identical).
 Verified: **34 Vitest integration tests green** on a local dev Postgres + `tsc` + ESLint + a clean
-`next build`. Remaining: the user-gated **Neon dev-branch → prod** migration promote (SC-008;
-`db/README.md`). New env: `AUTH_SECRET`/`AUTH_GOOGLE_ID`/`AUTH_GOOGLE_SECRET`/`ADMIN_ALLOWLIST`.
+`next build`. **Prod promote DONE (2026-07-21):** the reviewed `0000`+`0001` migrations are applied
+to the Neon **production** branch (SC-008), so `rulesets`/`current_ruleset` and the full schema are
+live in prod. New env: `AUTH_SECRET`/`AUTH_GOOGLE_ID`/`AUTH_GOOGLE_SECRET`/`ADMIN_ALLOWLIST`.
 
 **Feature 4 (Garage — squad builder + loadout/dial editor) — BUILT on branch `004-garage`,
 all five user stories.** The player-facing configuration surface, and the home of the **V1–V8
@@ -268,7 +277,9 @@ no-op; the devlog webhook — secret gate SC-005, SHA-idempotency, changelog, no
 helpers; the report reader) **+ the admin signed-out-gate e2e**; F8's 25 arena/practice tests stay green
 through the sync→async `getCurrentRuleset` rename; `next build` + `tsc` + ESLint + no-raw-hex + engine
 clippy/tests clean. **The full suite is 356 tests green across 43 files.** `next.config.ts` traces
-engine-wasm into `/admin/balance` (its `hashRuleset` call). New env: `DEVLOG_WEBHOOK_SECRET`.
+engine-wasm into `/admin/balance` (its `hashRuleset` call). New env: `DEVLOG_WEBHOOK_SECRET` — **set
+in Vercel Production + as the GitHub Actions repo secret (2026-07-21); prod redeployed, gate verified
+live (401 on bad/absent, 400 on valid+bad-body → no write). The code-push→news pipeline is ARMED.**
 
 **Approach — plan-the-whole-set-first, then build foundation-first (Principle VII):**
 the full set was planned before any implementation so shared models and cross-feature
@@ -307,7 +318,7 @@ feature's `specs/00X-*/` directory is its detailed blueprint.
 1. ~~**Merge `001-battle-sim-core`**~~ ✅ **DONE (2026-07-20)** — merged to `main` (`--no-ff`, `2686b64`), deployed, and prod-verified (`POST /api/resolve` returns byte-for-byte-native replays live). Regenerate the wasm with `wasm-pack build crates/engine --target nodejs --out-dir ../../packages/engine-wasm --release` whenever the engine changes — and re-verify the prod route (see the wasm-on-Vercel notes below), since a wasm/host change can break module resolution in the function bundle without breaking local dev.
 2. ~~**Feature 3 (app shell + design system)**~~ ✅ **DONE + MERGED (2026-07-20)**.
 3. ~~**Feature 7 (accounts & persistence)**~~ ✅ **DONE (2026-07-20)** — built + verified (34 Vitest tests) on branch `007-accounts-persistence`, ready to merge. **Build the rest in dependency order:** Features 4/5/6 (garage/playback/summary — Feature 4 owns the **V1–V8 TS validation mirror**; a TS `sim/model.ts` type mirror + a wasm `validate`/`default_ruleset` export already landed in Feature 7) → 8/9/10 (arena/ladder/profile; Feature 8 wraps `/api/resolve` with auth + a server-loaded ruleset, and consumes the Feature-7 service API) → 2 (balancer) → 11 (marketing/news) → 12 (admin). Each on its own feature branch.
-4. **Neon prod promote (user-gated):** the schema is migrated + tested on **local dev Postgres**; before Features 8–12 write prod data, apply the reviewed migration to the Neon **production** branch (`npm run db:migrate` with the prod `DATABASE_URL`) and seed cold-start defenders — see `db/README.md` (SC-008). Extend the auth env (`AUTH_SECRET`/`AUTH_GOOGLE_*`/`ADMIN_ALLOWLIST`) to Vercel Production + Preview.
+4. ~~**Neon prod promote (user-gated)**~~ ✅ **DONE (2026-07-21)** — the reviewed `0000`+`0001` migrations are applied to the Neon **production** branch (`npm run db:migrate`; SC-008 dev-first gate satisfied on local dev Postgres). `rulesets`/`current_ruleset` + the full schema are live in prod. `DEVLOG_WEBHOOK_SECRET` set in Vercel Production + GitHub Actions; prod redeployed; gate verified live. Auth env (`AUTH_SECRET`/`AUTH_GOOGLE_*`/`ADMIN_ALLOWLIST`) already in Vercel Production. **Optional remaining:** `npm run db:seed` to seed cold-start bot defenders in prod (idempotent) so the ladder is never empty.
 4. Reconcile the three cross-feature items listed under **Current phase** as their features are built.
 5. **Balance rough edge for Feature 2** (surfaced by the counter-web tests): on placeholder numbers, air alpha beats every non-AA archetype (only AA counters it) — the counter-web *shape* is right; the *spread* wants tuning (affordable AA for more archetypes, or trim air's alpha).
 
@@ -328,7 +339,7 @@ implementation sequence, not the spec numbering.
 | 4 | Garage (squad builder + loadout/dial editor) | ✅ | ✅ | ✅ 40 | **✅ BUILT — US1–US5 on `004-garage`; engine-parity preview + V1–V8 TS validation mirror; 133 pure tests green; e2e/axe/DB deferred to a live env** |
 | 5 | Battle playback (tick stream → pixel-art replay) | ✅ | ✅ | ✅ 42 | **✅ BUILT — US1–US5 + polish on `005-battle-playback`; engine-free O(1) scrubber + markers + both-orientation; 33 Vitest + 14 Playwright/axe e2e green; demo-replay seam pending F7 `getReplay`** |
 | 6 | Battle summary (post-Bo3 results) | ✅ | ✅ | ✅ 32 | **✅ BUILT — US1–US4 + polish on `006-battle-summary`; pure `deriveSummaryViewModel` spine; 22 Vitest + 10 Playwright/axe e2e green; demo-result seam pending F7 read path** |
-| 7 | Accounts & persistence (backend/DB, defense snapshots) | ✅ | ✅ | ✅ 52 | **✅ BUILT — schema + auth + service layer; 34 Vitest tests green; prod migrate pending** |
+| 7 | Accounts & persistence (backend/DB, defense snapshots) | ✅ | ✅ | ✅ 52 | **✅ BUILT — schema + auth + service layer; 34 Vitest tests green; prod migrated (0000+0001 live on Neon prod, 2026-07-21)** |
 | 8 | Arena (async matchmaking) + Practice sandbox | ✅ | ✅ | ✅ 51 | **✅ BUILT — US1–US5 + real round-trip on `008-arena-practice`; server-authoritative resolve/record, fogged blind+locked matchmaking, practice sandbox, strict-parse anti-forgery; 31 Vitest + arena/practice e2e green; F5/F6 read-path seam cashed in** |
 | 9 | Ladder (seasons, metrics, tiers/MMR) | ✅ | ✅ | ✅ 38 | **✅ BUILT — US1–US4 on `009-ladder`; net-victory board + deterministic tiebreak + period rollups + both-orientation; read-only over F7; 24 Vitest + 8 e2e green** |
 | 10 | Profile (career stats, achievements) | ✅ | ✅ | ✅ 33 | **✅ BUILT — US1–US4 on `010-profile`; public career view (own + /commander/[handle]), career==standing, cosmetic derived badges; read-only, no new table; 20 Vitest + 7 e2e green** |

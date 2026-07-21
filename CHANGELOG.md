@@ -488,5 +488,19 @@ once it reaches a released version. Until then, everything lives under
     Deferred to a live env: the Playwright e2e + `@axe-core/playwright` pass + the save-gate DB test
     (need a running app + browser + local Postgres). The editor lives at root-level `lib/garage/` +
     `components/garage/` (no `src/`).
+- **Ops: production DB promoted + the code-push→news pipeline armed (2026-07-21).** Closed the two
+  user-gated items that stood between the built v1 and a fully live authed loop:
+  - **Neon prod migration.** Applied the reviewed `0000` + `0001` Drizzle migrations to the Neon
+    **production** branch (`npm run db:migrate`). The dev-first gate (SC-008) was already satisfied
+    on local dev Postgres; prod previously had only `0000`. `rulesets` + `current_ruleset` (Feature
+    12's live-ruleset store) now exist alongside the other 11 tables (13 total) — so real matches,
+    admin ruleset saves, and real news writes can run against prod.
+  - **`DEVLOG_WEBHOOK_SECRET`.** Generated one 32-byte secret and set the **same** value in **Vercel
+    Production** (env var) and as the **GitHub Actions** repo secret consumed by
+    `.github/workflows/devlog.yml`; mirrored it into the gitignored `.env.local` for local runs.
+    Redeployed production so the running functions carry it. Verified the secret gate live against
+    `warformcommander.vercel.app/api/admin/devlog`: absent/wrong secret → **401** (no write), valid
+    secret + intentionally-incomplete body → **400** (auth passed, still no write). Shared surfaces
+    (`/`, `/news`, `/arena`, `/practice`, `/ladder`) unregressed at 200; `/admin` still 307.
 
 [Unreleased]: https://github.com/jonupchurch/warformcommander/commits/main
