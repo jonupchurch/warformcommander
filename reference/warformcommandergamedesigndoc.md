@@ -62,10 +62,10 @@ Four zones, front to back: **Air · Front · Middle · Rear.**
 | **Heavy Tank** | Front | Nearest ground | plink only | Durable, high damage, slow firing — the wall |
 | **Light Tank** | Front / Middle | Nearest ground | plink only | Faster firing, less HP, evasive (harder to hit) |
 | **Mech** | Front / Middle | Nearest ground | plink only | Fast-acting, good damage, somewhat fragile — breakthrough |
-| **Attack Helicopter** | Air | Any ground zone | — | Fragile, high damage; only well-countered by AA |
+| **Attack Helicopter** | Air | Any ground zone | plink (fallback) | Fragile, high damage; ground-first, but **plinks enemy air** (at the −acc / ½-dmg rate) once no ground row is reachable, so air fights resolve; still best-countered by AA |
 | **Rocket Artillery** | Middle / Rear | **Air** + Front & Middle | anti-air specialist | The hard counter to helicopters |
 | **Artillery** | Rear | **Any** zone incl. Rear | no | High damage, slowest firing, weak when hit — snipes turtles/backline |
-| **Rear Support** | Rear | Heals / buffs allies | — | Force multiplier, minimal offense |
+| **Rear Support** | Rear | Heals allies (**whole army**) | — | Force multiplier, minimal offense; heals the most-wounded ally in **any** zone, so a backline medic reaches the front line |
 
 **Counter web (emergent):** helis beat ground → rocket artillery beats helis → artillery punishes backline turtles → artillery is fragile & slow, dies to anything that reaches it → tanks hold the front to shield your own artillery/support. No dominant unit.
 

@@ -144,7 +144,10 @@ fn seed_machine_types(m: &mut BTreeMap<MachineTypeId, MachineType>) {
             mount_class: MountClass::Heli,
             slot_layout: SlotLayout::STANDARD,
             can_fire_from_rear: false,
-            air_capable_by_default: false, // its guns hit ground; it merely *sits* in air
+            // Its guns are ground-first, but it CAN engage air — as a fallback, and only at the
+            // non-AA "plink" rate (see sim/target.rs reach_zones + sim/damage.rs). So helis bomb
+            // ground while any is reachable and only trade with air once ground is gone.
+            air_capable_by_default: true,
         },
     );
     insert(
@@ -531,8 +534,8 @@ fn seed_variants(
         move_speed: Some(3),
         evasion: 500,
         threat: q(5),
-        support_power: Some(q(5)), // ~5 hull/tick to the lowest ally in range
-        support_range: Some(SupportRange::OwnPlusAdjacent),
+        support_power: Some(q(5)), // ~5 hull/tick to the most-wounded ally in range
+        support_range: Some(SupportRange::WholeArmy), // heal the whole army, incl. the front line
     };
     add("Medic", MachineTypeId::RearSupport, medic, None, None);
     add(
