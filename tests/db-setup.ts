@@ -11,6 +11,8 @@ import type { SessionUser } from "@/server/authz";
 
 /** Every table, child-first, for a clean slate between tests. */
 const TABLES = [
+  "current_ruleset", // child-first: points at rulesets (FK RESTRICT)
+  "rulesets",
   "replays",
   "matches",
   "defense_snapshots",

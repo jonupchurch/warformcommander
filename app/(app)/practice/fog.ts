@@ -7,7 +7,7 @@
  */
 
 import { fogPreview, type MatchTicketPreview, type PracticeDraw } from '@/server/arena-types';
-import { loadCurrentRuleset } from '@/server/ruleset';
+import { getCurrentRuleset } from '@/server/ruleset';
 import { armyPowerRating } from '@/sim/derive';
 
 export interface PracticePreview {
@@ -16,8 +16,8 @@ export interface PracticePreview {
 }
 
 /** Project a raw {@link PracticeDraw} to the client-safe, identity-free fogged shape. */
-export function toPracticePreview(draw: PracticeDraw): PracticePreview {
-  const { ruleset } = loadCurrentRuleset();
+export async function toPracticePreview(draw: PracticeDraw): Promise<PracticePreview> {
+  const { ruleset } = await getCurrentRuleset();
   const power = armyPowerRating(draw.opponentConfig, ruleset);
   return { opponentSquadId: draw.opponentSquadId, preview: fogPreview(draw.opponentConfig, ruleset, power) };
 }

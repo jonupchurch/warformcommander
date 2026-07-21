@@ -21,6 +21,6 @@ export type RedrawResult =
 export async function redrawOpponent(currentSquadId?: string): Promise<RedrawResult> {
   const ctx = await requireSession();
   const result = await refreshPracticeOpponent(ctx, currentSquadId);
-  if (result.ok) return { ok: true, draw: toPracticePreview(result.value) };
+  if (result.ok) return { ok: true, draw: await toPracticePreview(result.value) };
   return { ok: false, error: result.error, reason: result.reason };
 }
