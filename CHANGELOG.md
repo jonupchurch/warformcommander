@@ -517,4 +517,21 @@ once it reaches a released version. Until then, everything lives under
     no published posts; the first real devlog post surfaced it. **15/15 marketing e2e green** (incl.
     both axe passes) + typecheck + ESLint + no-raw-hex clean.
 
+- **Fix: production sign-in, identity badge, and Sentry auth noise.** Three defects surfaced once the
+  authed prod loop went live:
+  - **Google sign-in was broken** — the auth env vars (`AUTH_SECRET`, `AUTH_GOOGLE_ID`,
+    `AUTH_GOOGLE_SECRET`, `ADMIN_ALLOWLIST`) were never set in Vercel Production, so Auth.js booted
+    with no secret/provider and every sign-in hit its `Configuration` error page. Set all four in
+    Vercel Production (from `.env.local`) and redeployed; verified the real CSRF POST now returns a
+    302 to Google's OAuth endpoint with the correct client ID + prod callback + PKCE.
+  - **The header showed a hardcoded identity to everyone** — `app/(app)/layout.tsx` passed a
+    Feature-3 placeholder (`CMDR_JUPCHURCH` / `GOLD III` / `1486 MMR`) to the shell regardless of
+    session, so signed-out visitors saw a fake name. It now derives identity from the server session
+    (`auth()`): a real name when signed in (no rank/MMR — the v1 ladder is net-victory based, so those
+    mock values are gone), and the shell's neutral "Guest" state when signed out.
+  - **Expected auth rejections were logged to Sentry as errors** — an `AuthError` (401/403 from
+    `server/authz.ts`, e.g. a logged-out hit to `/admin/*`) is control flow, not a fault. Added a
+    `beforeSend` filter (server + edge Sentry configs) that drops it, matching how Sentry already
+    filters `NEXT_REDIRECT`.
+
 [Unreleased]: https://github.com/jonupchurch/warformcommander/commits/main

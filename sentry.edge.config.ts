@@ -7,4 +7,9 @@ Sentry.init({
   tracesSampleRate: 1,
   enableLogs: true,
   debug: false,
+  // Expected auth-boundary rejections (AuthError 401/403) are control flow, not faults — drop them.
+  beforeSend(event, hint) {
+    if ((hint?.originalException as Error | undefined)?.name === "AuthError") return null;
+    return event;
+  },
 });
