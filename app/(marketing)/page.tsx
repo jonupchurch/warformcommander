@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { Hero } from "@/components/marketing/hero";
+import { GettingStarted } from "@/components/marketing/getting-started";
 import { Pillars } from "@/components/marketing/pillars";
 import { RoadmapSnapshot } from "@/components/marketing/roadmap-snapshot";
 import { NewsTeaser } from "@/components/marketing/news-teaser";
@@ -35,6 +36,7 @@ export default async function HomePage() {
   return (
     <>
       <Hero />
+      <GettingStarted />
       <Pillars />
       <RoadmapSnapshot />
       <NewsTeaser posts={teaser} />

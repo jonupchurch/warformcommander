@@ -616,4 +616,10 @@ once it reaches a released version. Until then, everything lives under
   (real handle + id-derived fallback). Also fixed a pre-existing ~50%-flaky practice-draw test (an
   extra eligible squad made the "exclude" draw a coin flip).
 
+- **Home: getting-started walkthrough video.** A new `01 // Getting started` section right under the
+  hero embeds `public/Tutorial.mp4` (native `<video controls>`, `preload="metadata"` so the ~27 MB
+  file isn't fetched until played — no autoplay), with a brief "learn the ropes" heading + blurb.
+  Server Component, token-only, both orientations. The rest of the home narrative renumbers 02–05
+  (Why it's different / Roadmap / Latest dispatches / Enlist).
+
 [Unreleased]: https://github.com/jonupchurch/warformcommander/commits/main
