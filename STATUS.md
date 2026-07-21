@@ -160,6 +160,20 @@ inline. Verified: **18 Vitest DB-integration + 6 pure view-model** (CI-gated) + 
 `next build` + `tsc` + ESLint + token guard clean; the **full suite is 269 tests green across 30 files**.
 No WASM (pure DB reads), so no new tracing entry. Seasons/MMR/tiers/trend deferred (spec FR-016).
 
+**Feature 10 (Profile — career stats & achievements) — BUILT on branch `010-profile`, all four user
+stories.** A public career view assembled **read-only** from Feature 7 — **no new table, no write path**
+(P1/P6). Own (`/profile`) + public (`/commander/[handle]`) routes render the same view-model. **US1**
+identity + career: `toCareerStats` **equals `ladder_standings`** with record/win-rate recomputed
+(SC-001); the hero headlines net victories, win rate, matches, best streak (MMR/tiers omitted, not
+faked); a bot renders with a seeded-AI marker (P5); assembly selects **only public user columns** (never
+email/role, SC-007). **US2** recent matches from the subject's perspective (practice hidden, deleted
+participant graceful) each linking Summary (F6) + Playback (F5) by matchId, plus a CSS activity chart.
+**US3** signature squads (matches×squads) + most-fielded `UnitIcon` (omitted when none) — additive
+read-only projections, no schema change. **US4** derived **cosmetic** badges — a typed catalog + pure
+`deriveBadges`, no store, only display fields (SC-004/SC-005). Verified: **8 profile-stats + 8 badges
+pure (CI-gated) + 4 DB assembly + 7 Playwright/axe e2e**, `next build` + `tsc` + ESLint + token guard
+clean. No WASM (pure DB reads). **The full suite is 285 tests green across 33 files.**
+
 **Approach — plan-the-whole-set-first, then build foundation-first (Principle VII):**
 the full set was planned before any implementation so shared models and cross-feature
 dependencies surfaced on paper. Feature 1 (the deterministic **sim core + data model**)
@@ -221,7 +235,7 @@ implementation sequence, not the spec numbering.
 | 7 | Accounts & persistence (backend/DB, defense snapshots) | ✅ | ✅ | ✅ 52 | **✅ BUILT — schema + auth + service layer; 34 Vitest tests green; prod migrate pending** |
 | 8 | Arena (async matchmaking) + Practice sandbox | ✅ | ✅ | ✅ 51 | **✅ BUILT — US1–US5 + real round-trip on `008-arena-practice`; server-authoritative resolve/record, fogged blind+locked matchmaking, practice sandbox, strict-parse anti-forgery; 31 Vitest + arena/practice e2e green; F5/F6 read-path seam cashed in** |
 | 9 | Ladder (seasons, metrics, tiers/MMR) | ✅ | ✅ | ✅ 38 | **✅ BUILT — US1–US4 on `009-ladder`; net-victory board + deterministic tiebreak + period rollups + both-orientation; read-only over F7; 24 Vitest + 8 e2e green** |
-| 10 | Profile (career stats, achievements) | ✅ | ✅ | ✅ 33 | after #7 |
+| 10 | Profile (career stats, achievements) | ✅ | ✅ | ✅ 33 | **✅ BUILT — US1–US4 on `010-profile`; public career view (own + /commander/[handle]), career==standing, cosmetic derived badges; read-only, no new table; 20 Vitest + 7 e2e green** |
 | 11 | Marketing site (Home + News index + article template) | ✅ | ✅ | ✅ 59 | after #3/#7 |
 | 12 | Admin console + balance publishing (live stat editing → auto news) | ✅ | ✅ | ✅ 48 | after #7 |
 
