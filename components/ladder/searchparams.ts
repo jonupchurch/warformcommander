@@ -38,3 +38,21 @@ export function parseLadderParams(sp: Raw): LadderParams {
 
   return { metric, range, page, includeBots };
 }
+
+/**
+ * Build a `/ladder` href from the current params with `overrides` applied. Only non-default params are
+ * serialized, so the canonical board is a clean `/ladder`. Changing the metric/range resets to page 1.
+ */
+export function buildLadderHref(base: LadderParams, overrides: Partial<LadderParams> = {}): string {
+  const next = { ...base, ...overrides };
+  // Any metric/range change implies a fresh first page unless a page was explicitly given.
+  if ((overrides.metric || overrides.range) && overrides.page === undefined) next.page = 1;
+
+  const sp = new URLSearchParams();
+  if (next.metric !== 'net') sp.set('metric', next.metric);
+  if (next.range !== 'season') sp.set('range', next.range);
+  if (!next.includeBots) sp.set('humans', '1');
+  if (next.page > 1) sp.set('page', String(next.page));
+  const q = sp.toString();
+  return q ? `/ladder?${q}` : '/ladder';
+}

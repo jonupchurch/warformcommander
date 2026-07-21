@@ -11,7 +11,7 @@
 import { and, asc, desc, eq, gt, or, sql, type SQL } from 'drizzle-orm';
 
 import { getDb } from '@/db';
-import { ladderStandings, matches, users } from '@/db/schema';
+import { ladderStandings, users } from '@/db/schema';
 
 import { ok, type Result } from '../result';
 
@@ -262,7 +262,13 @@ function strictlyAhead(
   )!;
 }
 
-// --- Period rollups (US3) — implemented in Phase 5 ------------------------------------------------
+// --- Period rollups (US3) — windowed GROUP BY over `matches` --------------------------------------
+//
+// Season reads the maintained `ladder_standings`; a period view instead rolls up **ranked** matches
+// whose `created_at` falls in the calendar week/month (app-server tz, via `date_trunc(..., now())`).
+// Each match contributes to two commanders — the attacker and the defender — so we UNION the two role
+// contributions and GROUP BY user. `practice` matches are structurally excluded (`mode='ranked'`).
+// Lifetime-only fields (streaks) are 0 in a period view (documented in the view-model note).
 
 interface PeriodOpts {
   metric: LadderMetric;
@@ -273,17 +279,126 @@ interface PeriodOpts {
   offset: number;
 }
 
+interface RolledRow {
+  user_id: string;
+  handle: string | null;
+  name: string | null;
+  is_bot: boolean;
+  attack_wins: number;
+  attack_losses: number;
+  defense_wins: number;
+  defense_losses: number;
+  net_victories: number;
+  total_damage: number;
+  matches_played: number;
+}
+
+/** The window lower bound for a range (calendar week/month start, server tz). */
+function windowStart(range: LadderRange): SQL {
+  return range === 'week' ? sql`date_trunc('week', now())` : sql`date_trunc('month', now())`;
+}
+
+/** The in-window per-commander rollup CTE (before ordering/paging), joined to `users`. */
+function rolledCte(range: LadderRange, includeBots: boolean): SQL {
+  const start = windowStart(range);
+  const botClause = includeBots ? sql`` : sql`where u."isBot" = false`;
+  return sql`
+    with contrib as (
+      select m.attacker_user_id as user_id,
+        case when m.winner_side = 'attacker' then 1 else 0 end as attack_win,
+        case when m.winner_side = 'defender' then 1 else 0 end as attack_loss,
+        0 as defense_win, 0 as defense_loss,
+        m.attacker_damage as damage
+      from matches m
+      where m.mode = 'ranked' and m.created_at >= ${start} and m.attacker_user_id is not null
+      union all
+      select m.defender_user_id as user_id,
+        0 as attack_win, 0 as attack_loss,
+        case when m.winner_side = 'defender' then 1 else 0 end as defense_win,
+        case when m.winner_side = 'attacker' then 1 else 0 end as defense_loss,
+        m.defender_damage as damage
+      from matches m
+      where m.mode = 'ranked' and m.created_at >= ${start} and m.defender_user_id is not null
+    ),
+    rolled as (
+      select c.user_id,
+        sum(c.attack_win)::int as attack_wins,
+        sum(c.attack_loss)::int as attack_losses,
+        sum(c.defense_win)::int as defense_wins,
+        sum(c.defense_loss)::int as defense_losses,
+        (sum(c.attack_win) - sum(c.defense_loss))::int as net_victories,
+        sum(c.damage)::bigint as total_damage,
+        count(*)::int as matches_played
+      from contrib c
+      group by c.user_id
+    )
+    select r.*, u.handle, u.name, u."isBot" as is_bot
+    from rolled r
+    join "user" u on u.id = r.user_id
+    ${botClause}
+  `;
+}
+
+/** ORDER BY fragment for the rollup's computed columns (mirrors the season tiebreak, contract §3). */
+function periodOrder(metric: LadderMetric): SQL {
+  if (metric === 'damage') return sql`order by total_damage desc, net_victories desc, user_id asc`;
+  if (metric === 'defenses') return sql`order by defense_wins desc, net_victories desc, user_id asc`;
+  return sql`order by net_victories desc, total_damage desc, user_id asc`;
+}
+
+function rolledToData(r: RolledRow, metric: LadderMetric, rank: number): LadderRowData {
+  const netVictories = Number(r.net_victories);
+  const totalDamage = Number(r.total_damage);
+  const defenseWins = Number(r.defense_wins);
+  return {
+    userId: r.user_id,
+    handle: r.handle ?? r.name,
+    isBot: r.is_bot,
+    rank,
+    netVictories,
+    attackWins: Number(r.attack_wins),
+    attackLosses: Number(r.attack_losses),
+    defenseWins,
+    defenseLosses: Number(r.defense_losses),
+    currentStreak: 0, // lifetime-only concept — 0 in a period view
+    bestStreak: 0,
+    totalDamage,
+    matchesPlayed: Number(r.matches_played),
+    metricValue: metricValueOf(metric, { netVictories, totalDamage, defenseWins }),
+  };
+}
+
 async function periodPage(opts: PeriodOpts): Promise<Result<LadderPage>> {
-  void opts;
-  void matches; // the windowed GROUP BY over `matches` is wired in US3 (T029)
-  return ok({ rows: [], totalRanked: 0, hasMore: false });
+  const { metric, range, includeBots, limit, offset } = opts;
+  const db = getDb();
+  const cte = rolledCte(range, includeBots);
+
+  const rows = (await db.execute(
+    sql`${cte} ${periodOrder(metric)} limit ${limit + 1} offset ${offset}`,
+  )) as unknown as RolledRow[];
+
+  const countRes = (await db.execute(
+    sql`select count(*)::int as n from (${cte}) sub`,
+  )) as unknown as { n: number }[];
+  const totalRanked = Number(countRes[0]?.n ?? 0);
+
+  const hasMore = rows.length > limit;
+  const pageRows = rows.slice(0, limit).map((r, i) => rolledToData(r, metric, offset + i + 1));
+  return ok({ rows: pageRows, totalRanked, hasMore });
 }
 
 async function viewerPeriodStanding(
   viewerId: string,
   opts: { metric: LadderMetric; range: LadderRange; includeBots: boolean },
 ): Promise<Result<ViewerStanding>> {
-  void viewerId;
-  void opts;
-  return ok({ state: 'unranked' });
+  const { metric, range, includeBots } = opts;
+  const db = getDb();
+  // The full ordered rollup, then find the viewer's position (v1 period pools are small).
+  const rows = (await db.execute(
+    sql`${rolledCte(range, includeBots)} ${periodOrder(metric)}`,
+  )) as unknown as RolledRow[];
+
+  const idx = rows.findIndex((r) => r.user_id === viewerId);
+  if (idx < 0) return ok({ state: 'unranked' });
+  return ok({ state: 'ranked', ...rolledToData(rows[idx], metric, idx + 1) });
 }

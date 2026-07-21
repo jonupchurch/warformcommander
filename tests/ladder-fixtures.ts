@@ -6,7 +6,7 @@
  */
 
 import { getDb } from '@/db';
-import { ladderStandings, users } from '@/db/schema';
+import { ladderStandings, matches, users } from '@/db/schema';
 
 export interface StandingSpec {
   handle?: string | null;
@@ -43,4 +43,46 @@ export async function seedStanding(spec: StandingSpec = {}): Promise<string> {
     matchesPlayed: spec.matchesPlayed ?? 0,
   });
   return id;
+}
+
+/** Create a bare user (no standing row) — for period-rollup tests that read `matches`, not standings. */
+export async function seedUser(opts: { isBot?: boolean; handle?: string | null } = {}): Promise<string> {
+  const id = crypto.randomUUID();
+  await getDb().insert(users).values({
+    id,
+    email: `${id}@example.com`,
+    handle: opts.handle ?? null,
+    isBot: opts.isBot ?? false,
+  });
+  return id;
+}
+
+/** Insert one recorded match (defaults to a ranked attacker win). `createdAt` places it in/out of a window. */
+export async function seedMatch(opts: {
+  attackerUserId?: string | null;
+  defenderUserId?: string | null;
+  winnerSide: 'attacker' | 'defender';
+  attackerDamage?: number;
+  defenderDamage?: number;
+  mode?: 'ranked' | 'practice';
+  createdAt?: Date;
+}): Promise<void> {
+  const mode = opts.mode ?? 'ranked';
+  await getDb()
+    .insert(matches)
+    .values({
+      mode,
+      attackerUserId: opts.attackerUserId ?? null,
+      defenderUserId: opts.defenderUserId ?? null,
+      adaptation: mode === 'practice' ? 'free' : 'locked',
+      winnerSide: opts.winnerSide,
+      attackerGamesWon: opts.winnerSide === 'attacker' ? 2 : 0,
+      defenderGamesWon: opts.winnerSide === 'defender' ? 2 : 0,
+      attackerDamage: opts.attackerDamage ?? 0,
+      defenderDamage: opts.defenderDamage ?? 0,
+      seed: '1',
+      rulesetHash: 'test',
+      formatVersion: 1,
+      ...(opts.createdAt ? { createdAt: opts.createdAt } : {}),
+    });
 }

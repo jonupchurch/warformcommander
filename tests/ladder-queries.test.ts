@@ -10,7 +10,7 @@ import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { getLadderPage, getViewerStanding, type LadderMetric } from '@/server/ladder/queries';
 
 import { truncateAll, closeDb } from './db-setup';
-import { seedStanding } from './ladder-fixtures';
+import { seedMatch, seedStanding, seedUser } from './ladder-fixtures';
 
 beforeEach(truncateAll);
 afterAll(closeDb);
@@ -117,6 +117,71 @@ describe('defense-loss-lowers-rank (T021, SC-002 — the design stake)', () => {
     const weakRow = res.value.rows.find((r) => r.userId === weakDefense)!;
     expect(strongRow.netVictories).toBeGreaterThan(weakRow.netVictories);
     expect(strongRow.rank).toBeLessThan(weakRow.rank);
+  });
+});
+
+describe('period rollups — week/month over matches (T027/T028, US3)', () => {
+  const DAYS_60_AGO = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
+
+  it("range='week' rolls up ONLY ranked matches in-window; older matches are excluded (SC-007)", async () => {
+    const a = await seedUser({ handle: 'A' });
+    const b = await seedUser({ handle: 'B' });
+    // in-window: A beats B (attack win for A, defense loss for B)
+    await seedMatch({ attackerUserId: a, defenderUserId: b, winnerSide: 'attacker', attackerDamage: 100, defenderDamage: 50 });
+    // out-of-window: a second A-beats-B, 60 days ago — must NOT count
+    await seedMatch({ attackerUserId: a, defenderUserId: b, winnerSide: 'attacker', createdAt: DAYS_60_AGO });
+
+    const res = await getLadderPage({ range: 'week', metric: 'net' });
+    expect(res.ok).toBe(true);
+    if (!res.ok) return;
+    const rowA = res.value.rows.find((r) => r.userId === a)!;
+    const rowB = res.value.rows.find((r) => r.userId === b)!;
+    expect(rowA.netVictories).toBe(1); // exactly one in-window attack win (old excluded)
+    expect(rowA.totalDamage).toBe(100);
+    expect(rowA.attackWins).toBe(1);
+    expect(rowB.netVictories).toBe(-1); // one in-window defense loss
+    expect(rowB.defenseLosses).toBe(1);
+    expect(res.value.totalRanked).toBe(2);
+  });
+
+  it("excludes practice matches from every rollup; an empty window is empty", async () => {
+    const a = await seedUser();
+    const b = await seedUser();
+    await seedMatch({ attackerUserId: a, defenderUserId: b, winnerSide: 'attacker', mode: 'practice' });
+
+    const week = await getLadderPage({ range: 'week' });
+    expect(week.ok).toBe(true);
+    if (!week.ok) return;
+    expect(week.value.rows).toHaveLength(0); // practice-only window → nothing ranked
+    expect(week.value.totalRanked).toBe(0);
+  });
+
+  it("range='season' reads ladder_standings, NOT a match rollup", async () => {
+    // a standing with no matches at all → present in season, absent in week
+    const x = await seedStanding({ handle: 'X', attackWins: 3, totalDamage: 10 }); // net 3
+
+    const season = await getLadderPage({ range: 'season' });
+    const week = await getLadderPage({ range: 'week' });
+    expect(season.ok && week.ok).toBe(true);
+    if (!season.ok || !week.ok) return;
+    expect(season.value.rows.map((r) => r.userId)).toContain(x);
+    expect(week.value.rows.map((r) => r.userId)).not.toContain(x); // no matches → not in the rollup
+  });
+
+  it("getViewerStanding is range-aware — in-window rank, or unranked when absent from the window", async () => {
+    const a = await seedUser();
+    const b = await seedUser();
+    await seedMatch({ attackerUserId: a, defenderUserId: b, winnerSide: 'attacker' });
+
+    const inWindow = await getViewerStanding(a, { range: 'week' });
+    expect(inWindow.ok).toBe(true);
+    if (!inWindow.ok) return;
+    expect(inWindow.value.state).toBe('ranked');
+    if (inWindow.value.state === 'ranked') expect(inWindow.value.rank).toBe(1); // A leads with net +1
+
+    const absent = await getViewerStanding(await seedUser(), { range: 'week' });
+    expect(absent.ok).toBe(true);
+    if (absent.ok) expect(absent.value.state).toBe('unranked');
   });
 });
 
