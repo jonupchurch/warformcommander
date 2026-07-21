@@ -5,19 +5,21 @@
  * written (the same gate a human squad passes) and its power rating derived from that call. Configs are
  * drawn from the canonical `seed-armies.json` and cycled across the three defense slots.
  *
- * Idempotent: a Bot{n} that already exists is reused, and a defense slot that is already filled is
- * left alone — re-running never duplicates.
+ * Idempotent + refresh-aware: a Bot{n} that already exists is reused, and each defense slot is
+ * filled on first run, **upgraded in place** when its seed army has improved (via
+ * `upsertActiveDefense`), and left untouched otherwise — re-running never duplicates.
  *
  * Run:  npx dotenv -e .env.local -- tsx db/seed-test-bots.ts        (prod)
  *       npx dotenv -e .env.dev.local -- tsx db/seed-test-bots.ts    (local dev)
  */
 
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 import { validateSquad } from "../sim/validate";
 import type { SquadConfig } from "./types";
 import { getDb } from "./index";
-import { users, defenseSnapshots } from "./schema";
+import { users } from "./schema";
+import { upsertActiveDefense } from "./seed-helpers";
 import seedArmies from "./seed-armies.json";
 
 interface SeedArmy {
@@ -57,29 +59,17 @@ async function seedTestBots(): Promise<{ bots: number; defenses: number }> {
     }
 
     for (const slot of SLOTS) {
-      const filled = await db
-        .select({ id: defenseSnapshots.id })
-        .from(defenseSnapshots)
-        .where(
-          and(
-            eq(defenseSnapshots.userId, userId),
-            eq(defenseSnapshots.defenseSlot, slot),
-            eq(defenseSnapshots.active, true),
-          ),
-        )
-        .limit(1);
-      if (filled.length > 0) continue; // slot already on defense — idempotent
-
-      const src = armies[(n + slot) % armies.length]; // vary which army lands in which slot
-      await db.insert(defenseSnapshots).values({
+      // Three distinct armies per bot (6 armies, offset by slot) — fill on first run, upgrade in place
+      // when a seed army improves, idempotent otherwise.
+      const src = armies[(n + slot) % armies.length];
+      const r = await upsertActiveDefense(db, {
         userId,
+        slot,
         name: `${handle} — ${src.name}`,
         config: src.config,
         powerRating: src.powerRating,
-        defenseSlot: slot,
-        active: true,
       });
-      defenses += 1;
+      if (r !== "kept") defenses += 1;
     }
   }
 
