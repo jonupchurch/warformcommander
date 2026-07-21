@@ -52,6 +52,15 @@ fn has_splash_hit(replay: &Replay) -> bool {
     })
 }
 
+/// Did `who` land at least one Hit anywhere in the replay?
+fn actor_landed_hit(replay: &Replay, who: UnitRef) -> bool {
+    replay.games.iter().flat_map(|g| &g.ticks).any(|t| {
+        t.events
+            .iter()
+            .any(|e| matches!(e, TickEvent::Hit { actor, .. } if *actor == who))
+    })
+}
+
 /// A squad of two air helicopters (i0, i1) + three ground fillers (i2–i4) in Front.
 fn air_squad(rs: &Ruleset) -> Army {
     Army {
@@ -113,6 +122,48 @@ fn aa_hard_counters_air_and_no_aa_cannot_touch_it() {
     assert!(
         !destroyed(fate_of(&out2, Side::B, 0)) && !destroyed(fate_of(&out2, Side::B, 1)),
         "without AA the helicopters must survive (nothing can hit them)"
+    );
+}
+
+/// A SAM (reach Air) must not idle when the skies are clear. Against an all-ground enemy — no aircraft
+/// to engage, ever — it depresses its launchers and bombards ground instead of doing nothing.
+#[test]
+fn sam_bombards_ground_when_no_air_present() {
+    let rs = seed_ruleset();
+    let sam = Army {
+        machines: vec![
+            stock_instance(
+                &rs,
+                MachineTypeId::RocketArtillery,
+                "Sentry",
+                ZoneId::Middle,
+                0,
+            ),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 1),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 2),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 3),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Rear, 4),
+        ],
+    };
+    let all_ground = Army {
+        machines: vec![
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 0),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 1),
+            stock_instance(&rs, MachineTypeId::Mech, "Vanguard", ZoneId::Middle, 2),
+            stock_instance(&rs, MachineTypeId::Artillery, "Longbow", ZoneId::Rear, 3),
+            stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
+        ],
+    };
+    let out = run(&rs, sam, all_ground, 0x5A44);
+    assert!(
+        actor_landed_hit(
+            &out.replay,
+            UnitRef {
+                side: Side::A,
+                instance_id: 0
+            }
+        ),
+        "a SAM must bombard ground (land ≥1 hit) when there is no enemy air to engage"
     );
 }
 
