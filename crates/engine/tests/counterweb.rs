@@ -205,12 +205,17 @@ fn air_capable_units_engage_air_first() {
 
     // The FIRST hit a helicopter lands (actor instance 0/1) must be on an air unit (target 0/1), not a
     // ground filler — proving air is prioritized over ground while both are reachable.
-    let first_heli_hit = out.replay.games.iter().flat_map(|g| &g.ticks).find_map(|t| {
-        t.events.iter().find_map(|e| match e {
-            TickEvent::Hit { actor, target, .. } if actor.instance_id <= 1 => Some(*target),
-            _ => None,
-        })
-    });
+    let first_heli_hit = out
+        .replay
+        .games
+        .iter()
+        .flat_map(|g| &g.ticks)
+        .find_map(|t| {
+            t.events.iter().find_map(|e| match e {
+                TickEvent::Hit { actor, target, .. } if actor.instance_id <= 1 => Some(*target),
+                _ => None,
+            })
+        });
     let target = first_heli_hit.expect("a helicopter must land a hit");
     assert!(
         target.instance_id <= 1,
