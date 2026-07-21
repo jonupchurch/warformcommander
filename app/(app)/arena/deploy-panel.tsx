@@ -16,7 +16,7 @@ import { PreviewBoard } from '@/components/arena/preview-board';
 import { Button } from '@/components/ui/button';
 import { Panel } from '@/components/ui/panel';
 import { cn } from '@/lib/utils';
-import type { MatchTicket } from '@/server/arena-types';
+import type { MatchTicket, MatchTicketPreview } from '@/server/arena-types';
 
 import { rerollOpponent, type RerollResult } from './actions';
 
@@ -24,6 +24,8 @@ export interface AttackChoice {
   id: string;
   name: string;
   powerRating: number;
+  /** The squad's own composition breakdown, for the pre-battle side-by-side. */
+  preview: MatchTicketPreview;
 }
 
 export interface DeployPanelProps {
@@ -54,6 +56,7 @@ export function DeployPanel({ attackable, initial }: DeployPanelProps) {
 
   const ticket: MatchTicket | null = state.ok ? state.ticket : null;
   const canDeploy = Boolean(ticket && squadId) && !isDeploying && !isRerolling;
+  const selected = attackable.find((s) => s.id === squadId) ?? attackable[0];
 
   function onSkip() {
     setDeployError(null);
@@ -101,12 +104,21 @@ export function DeployPanel({ attackable, initial }: DeployPanelProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <Panel inset="rail" eyebrow="ENEMY DEFENSE — SERVED BLIND" className="flex flex-col gap-4">
-        <PreviewBoard
-          preview={ticket.preview}
-          opponentHandle={ticket.defenderHandle}
-          className={cn(isRerolling && 'opacity-50 transition-opacity')}
-        />
+      <Panel inset="rail" eyebrow="SIZE UP THE MATCH" className="flex flex-col gap-4">
+        {/* Pre-battle side-by-side: your selected attack squad on the left, the blind-served enemy
+            defense on the right (half-width, units stacked). Portrait stacks them vertically. */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {selected && (
+            <PreviewBoard side="friendly" preview={selected.preview} label={selected.name} stacked />
+          )}
+          <PreviewBoard
+            side="enemy"
+            preview={ticket.preview}
+            label={ticket.defenderHandle}
+            stacked
+            className={cn(isRerolling && 'opacity-50 transition-opacity')}
+          />
+        </div>
         <Button
           type="button"
           variant="ghost"

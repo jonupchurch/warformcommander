@@ -11,7 +11,9 @@ import Link from 'next/link';
 import { DeployPanel, type AttackChoice } from './deploy-panel';
 import type { RerollResult } from './actions';
 import { previewRankedMatch } from '@/server/arena';
+import { fogPreview } from '@/server/arena-types';
 import { AuthError } from '@/server/authz';
+import { getCurrentRuleset } from '@/server/ruleset';
 import { requireSession } from '@/server/session';
 import { listAttackable } from '@/server/squads';
 import { Button } from '@/components/ui/button';
@@ -41,8 +43,18 @@ export default async function ArenaPage() {
   }
 
   const attackableResult = await listAttackable(actor);
-  const attackable: AttackChoice[] = attackableResult.ok
-    ? attackableResult.value.map((s) => ({ id: s.id, name: s.name, powerRating: s.powerRating }))
+  const attackRows = attackableResult.ok ? attackableResult.value : [];
+  // Each attackable squad's own breakdown (composition + power + damage-family tags) for the
+  // pre-battle side-by-side. It's the player's OWN army — no fog needed; `fogPreview` just yields the
+  // shared preview shape the board renders. Read the ruleset once (only when there's something to show).
+  const ruleset = attackRows.length > 0 ? (await getCurrentRuleset()).ruleset : null;
+  const attackable: AttackChoice[] = ruleset
+    ? attackRows.map((s) => ({
+        id: s.id,
+        name: s.name,
+        powerRating: s.powerRating,
+        preview: fogPreview(s.config, ruleset, s.powerRating),
+      }))
     : [];
 
   // The opening server-matched ticket (US1) — re-rolled client-side via the skip action (US2). We

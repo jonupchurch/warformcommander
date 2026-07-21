@@ -49,13 +49,34 @@ const FAMILY_TONE: Record<string, ChipProps['tone']> = {
   Support: 'support',
 };
 
-function EnemyMachine({ machine }: { machine: PreviewMachine }) {
+export type BoardSide = 'friendly' | 'enemy';
+
+/** Per-side presentation: the default eyebrow, the accent (power + icon tint), and the card skin. */
+const SIDE: Record<BoardSide, { eyebrow: string; accent: string; card: string; icon: 'friendly' | 'enemy'; tags: string }> = {
+  friendly: {
+    eyebrow: 'YOUR ATTACK',
+    accent: 'text-faction-friendly',
+    card: 'border-faction-friendly/25 bg-faction-friendly-soft',
+    icon: 'friendly',
+    tags: 'YOUR PROFILE',
+  },
+  enemy: {
+    eyebrow: 'ENEMY DEFENSE',
+    accent: 'text-faction-enemy',
+    card: 'border-faction-enemy/25 bg-faction-enemy-soft',
+    icon: 'enemy',
+    tags: 'THREAT PROFILE',
+  },
+};
+
+function Machine({ machine, side }: { machine: PreviewMachine; side: BoardSide }) {
+  const skin = SIDE[side];
   const key = ICON_KEY[machine.typeId] ?? 'heavytank';
   const label = MACHINE_LABEL[key];
   return (
-    <div className="flex items-center gap-2 rounded-md border border-faction-enemy/25 bg-faction-enemy-soft px-2 py-1.5">
-      <span className="flex size-7 shrink-0 items-center justify-center text-faction-enemy">
-        <UnitIcon type={key} faction="enemy" title={`${label} ${machine.variantId}`} className="h-full w-full" />
+    <div className={cn('flex items-center gap-2 rounded-md border px-2 py-1.5', skin.card)}>
+      <span className={cn('flex size-7 shrink-0 items-center justify-center', skin.accent)}>
+        <UnitIcon type={key} faction={skin.icon} title={`${label} ${machine.variantId}`} className="h-full w-full" />
       </span>
       <div className="flex min-w-0 flex-col">
         <span className="type-readout truncate text-xs text-text-strong">{machine.variantId}</span>
@@ -67,12 +88,20 @@ function EnemyMachine({ machine }: { machine: PreviewMachine }) {
 
 export interface PreviewBoardProps {
   preview: MatchTicketPreview;
-  /** The opponent commander's handle (Arena only). Practice omits it — draws stay anonymous (FR-014). */
-  opponentHandle?: string;
+  /** Whose board this is — drives the accent, card skin, and default eyebrow. Defaults to `enemy`. */
+  side?: BoardSide;
+  /** Override the default eyebrow (e.g. to fold "SERVED BLIND" into the enemy header). */
+  eyebrow?: string;
+  /** Sub-heading under the eyebrow — the opponent handle (enemy) or the squad name (friendly).
+   *  Omitted for anonymous Practice draws (FR-014). */
+  label?: string;
+  /** Stack machines in a single column (the compact side-by-side Arena layout); default two-up. */
+  stacked?: boolean;
   className?: string;
 }
 
-export function PreviewBoard({ preview, opponentHandle, className }: PreviewBoardProps) {
+export function PreviewBoard({ preview, side = 'enemy', eyebrow, label, stacked = false, className }: PreviewBoardProps) {
+  const skin = SIDE[side];
   const byZone = ZONE_ORDER.map((zone) => ({
     zone,
     machines: preview.composition.filter((m) => m.zone === zone),
@@ -82,14 +111,14 @@ export function PreviewBoard({ preview, opponentHandle, className }: PreviewBoar
     <div className={cn('flex flex-col gap-4', className)}>
       <div className="flex items-baseline justify-between gap-3">
         <div className="flex min-w-0 flex-col">
-          <span className="type-eyebrow text-text-muted">ENEMY DEFENSE</span>
-          {opponentHandle && (
-            <span className="type-h3 truncate text-text-strong" title={opponentHandle}>
-              {opponentHandle}
+          <span className="type-eyebrow text-text-muted">{eyebrow ?? skin.eyebrow}</span>
+          {label && (
+            <span className="type-h3 truncate text-text-strong" title={label}>
+              {label}
             </span>
           )}
         </div>
-        <span className="type-readout text-sm tabular-nums text-faction-enemy">
+        <span className={cn('type-readout text-sm tabular-nums', skin.accent)}>
           PWR {preview.power.toLocaleString()}
         </span>
       </div>
@@ -105,9 +134,9 @@ export function PreviewBoard({ preview, opponentHandle, className }: PreviewBoar
                 {machines.length} {machines.length === 1 ? 'MACHINE' : 'MACHINES'}
               </span>
             </div>
-            <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+            <div className={cn('grid gap-1.5', stacked ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2')}>
               {machines.map((m, i) => (
-                <EnemyMachine key={`${zone}-${m.variantId}-${i}`} machine={m} />
+                <Machine key={`${zone}-${m.variantId}-${i}`} machine={m} side={side} />
               ))}
             </div>
           </div>
@@ -116,7 +145,7 @@ export function PreviewBoard({ preview, opponentHandle, className }: PreviewBoar
 
       {preview.damageFamilyTags.length > 0 && (
         <div className="flex flex-col gap-1.5">
-          <span className="type-eyebrow text-[0.5rem] text-text-muted">THREAT PROFILE</span>
+          <span className="type-eyebrow text-[0.5rem] text-text-muted">{skin.tags}</span>
           <div className="flex flex-wrap gap-1.5">
             {preview.damageFamilyTags.map((family) => (
               <Chip key={family} tone={FAMILY_TONE[family] ?? 'neutral'}>
