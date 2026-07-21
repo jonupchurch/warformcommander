@@ -32,6 +32,10 @@ const nextConfig: NextConfig = {
     // NB: the key is a glob, so `[matchId]` would be read as a char-class — use `*` for the segment.
     "/battle/*": ["./packages/engine-wasm/**/*"],
     "/matches/*/summary": ["./packages/engine-wasm/**/*"],
+    // Feature 12: the balance editor page + its saveRulesetAction compute the canonical rulesetHash
+    // (hashRuleset → wasm) when reading/saving the live ruleset (getCurrentRuleset also bootstraps
+    // the default via wasm). The devlog webhook route touches only `posts`, so it needs no trace.
+    "/admin/balance": ["./packages/engine-wasm/**/*"],
   },
 };
 
