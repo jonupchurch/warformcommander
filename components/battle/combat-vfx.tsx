@@ -9,6 +9,10 @@
  * **inboard** edge (toward the contact line = its firing arc). Enemy VFX are **mirrored on X** so the
  * directional muzzle points the right way. Motion-safe: it pings under motion and sits static (still
  * visible — no information lost) under reduced motion, matching the snapshot-readable rule (FR-020).
+ *
+ * Support/heal has its own pair ({@link SupportVfx}): a directional **heal-emit** on the healer's
+ * inboard edge (mirrored on the defending side, like the muzzle) and **heal-receive** waves across the
+ * mended unit — so the medic is visibly working (the heal is real; only the VFX was missing).
  */
 
 import type { WireEvent } from '@/sim/replay-reader';
@@ -42,6 +46,15 @@ const FAMILY_COLOR: Record<DamageType, string> = {
   Explosive: 'text-family-explosive',
 };
 
+/** Support/heal VFX markup (`public/icons/heal-{emit,receive}.svg`, inlined for `currentColor`). */
+// Emitter (viewBox `0 0 48 48`): waves radiating rightward from a source — directional, so it mirrors
+// on X for the defending side (same rule as the muzzle) to point at the ally it's mending.
+const HEAL_EMIT_MARKUP =
+  '<circle cx="12" cy="24" r="3" fill="currentColor"/><path d="M20 15 A12 12 0 0 1 20 33" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M28 10 A19 19 0 0 1 28 38" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M36 6 A25 25 0 0 1 36 42" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>';
+// Receiver (viewBox `0 0 64 40`): three restorative waves across the mended unit — non-directional.
+const HEAL_RECEIVE_MARKUP =
+  '<path d="M6 12 q7 -7 14 0 t14 0 t14 0 t10 0" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M6 20 q7 -7 14 0 t14 0 t14 0 t10 0" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M6 28 q7 -7 14 0 t14 0 t14 0 t10 0" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>';
+
 export type VfxKind = 'muzzle' | 'impact';
 
 /** The VFX a single unit shows at one tick — a pure projection of the tick's events for that column. */
@@ -56,6 +69,10 @@ export interface CombatVfxState {
   impactType: DamageType | null;
   /** This unit was destroyed this tick. */
   died: boolean;
+  /** This unit emitted support this tick (it's a healer → a directional heal-emit on its inboard edge). */
+  healing: boolean;
+  /** This unit received support this tick (→ restorative waves across it). */
+  healed: boolean;
 }
 
 /**
@@ -78,6 +95,8 @@ export function pickCombatVfx(
   let fired = false;
   let impacted = false;
   let died = false;
+  let healing = false;
+  let healed = false;
   let impactType: DamageType | null = null;
 
   for (const e of events ?? []) {
@@ -91,10 +110,13 @@ export function pickCombatVfx(
       if (e.a === column) fired = true; // a whiff is still a shot taken → muzzle flash
     } else if (e.t === 'death') {
       if (e.u === column) died = true;
+    } else if (e.t === 'support') {
+      if (e.a === column) healing = true; // the healer emits
+      if (e.d === column) healed = true; // the mended unit receives
     }
   }
 
-  return { fired, muzzleType: fired ? typeAt(column) : null, impacted, impactType, died };
+  return { fired, muzzleType: fired ? typeAt(column) : null, impacted, impactType, died, healing, healed };
 }
 
 /** One VFX overlay (muzzle or impact) for a damage family, anchored to an edge and optionally mirrored. */
@@ -131,6 +153,57 @@ export function CombatVfx({
           fill="none"
           className={cn(size, mirrored && '-scale-x-100')}
           dangerouslySetInnerHTML={{ __html: markup }}
+        />
+      </span>
+    </span>
+  );
+}
+
+/**
+ * Support/heal overlay. `emit` is the healer's directional heal-wave on its inboard edge (mirrored on
+ * the defending side so it points at the ally, same rule as the muzzle); `receive` is the restorative
+ * waves across a mended unit. Faction-neutral support tint; motion-safe (a still, legible frame under
+ * reduced motion so the heal never depends on animation).
+ */
+export function SupportVfx({
+  kind,
+  side,
+  mirrored,
+}: {
+  kind: 'emit' | 'receive';
+  /** `emit` only — which edge to straddle (the healer's inboard edge). */
+  side?: 'left' | 'right';
+  /** `emit` only — flip on X on the defending side so the waves point at the ally. */
+  mirrored?: boolean;
+}) {
+  if (kind === 'receive') {
+    return (
+      <span aria-hidden className="pointer-events-none absolute inset-0 z-10 text-family-support">
+        <span className="block h-full w-full motion-safe:animate-ping">
+          <svg
+            viewBox="0 0 64 40"
+            fill="none"
+            className="h-full w-full"
+            dangerouslySetInnerHTML={{ __html: HEAL_RECEIVE_MARKUP }}
+          />
+        </span>
+      </span>
+    );
+  }
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        'pointer-events-none absolute top-1/2 z-10 -translate-y-1/2 text-family-support',
+        side === 'left' ? 'left-0 -translate-x-1/2' : 'right-0 translate-x-1/2',
+      )}
+    >
+      <span className="block motion-safe:animate-ping">
+        <svg
+          viewBox="0 0 48 48"
+          fill="none"
+          className={cn('h-5 w-5', mirrored && '-scale-x-100')}
+          dangerouslySetInnerHTML={{ __html: HEAL_EMIT_MARKUP }}
         />
       </span>
     </span>
