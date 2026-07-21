@@ -9,6 +9,7 @@
  */
 
 import type { WireEvent } from '@/sim/replay-reader';
+import type { DamageType } from '@/sim/ruleset';
 import type { UnitView } from '@/sim/replay-view';
 import { cn } from '@/lib/utils';
 import { UnitSprite } from './unit-sprite';
@@ -30,6 +31,8 @@ export interface ZoneColumnProps {
   isEmpty: boolean;
   /** the current tick's events → forwarded to each sprite for motion-safe VFX (T037). */
   events?: WireEvent[];
+  /** per-column damage type (aligned to `meta.unitOrder`) → forwarded to each sprite for VFX family. */
+  damageTypes?: (DamageType | null)[];
   className?: string;
 }
 
@@ -51,7 +54,7 @@ function ZoneLabel({ zone, className }: { zone: ZoneName; className?: string }) 
   );
 }
 
-export function ZoneColumn({ zone, units, side, isEmpty, events, className }: ZoneColumnProps) {
+export function ZoneColumn({ zone, units, side, isEmpty, events, damageTypes, className }: ZoneColumnProps) {
   if (zone === 'Air') {
     // Horizontal strip; the vertical AIR label sits outboard (left for the player, right for the enemy).
     const label = (
@@ -80,7 +83,7 @@ export function ZoneColumn({ zone, units, side, isEmpty, events, className }: Zo
           {isEmpty ? (
             <EmptyDash />
           ) : (
-            units.map((u) => <UnitSprite key={u.instanceId} unit={u} events={events} />)
+            units.map((u) => <UnitSprite key={u.instanceId} unit={u} events={events} damageTypes={damageTypes} />)
           )}
         </div>
         {side === 'enemy' && label}
@@ -101,7 +104,7 @@ export function ZoneColumn({ zone, units, side, isEmpty, events, className }: Zo
         {isEmpty ? (
           <EmptyDash />
         ) : (
-          units.map((u) => <UnitSprite key={u.instanceId} unit={u} events={events} />)
+          units.map((u) => <UnitSprite key={u.instanceId} unit={u} events={events} damageTypes={damageTypes} />)
         )}
       </div>
       <div className={cn('border-t bg-surface-rail/60 px-1.5 py-1.5 text-center', ZONE_ACCENT[zone].split(' ')[1])}>

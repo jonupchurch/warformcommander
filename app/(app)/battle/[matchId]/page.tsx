@@ -14,7 +14,9 @@ import { BattlePlayer } from '@/components/battle/battle-player';
 import { AuthError } from '@/server/authz';
 import { loadRealReplay } from '@/server/match-read';
 import { requireSession } from '@/server/session';
+import { deriveUnitDamageTypes } from '@/sim/replay-damage-types';
 import type { Side, WireReplay } from '@/sim/replay-reader';
+import { loadDefaultRuleset } from '@/sim/validate';
 // Imported (not fs-read) so Next traces it into the function bundle — prod-safe. The reader validates
 // the shape at runtime, so the JSON's inferred type is cast opaquely.
 import battery from '@/tests/fixtures/replay-battery.json';
@@ -37,8 +39,22 @@ export default async function BattlePage({ params }: { params: Promise<{ matchId
 
   const { replay, playerSide } = (await loadRealReplay(matchId, viewerId)) ?? demoReplay();
 
+  // Each unit's damage type (Kinetic/Energy/Explosive) for the combat VFX — derived once, server-side,
+  // from the replay's persisted armies (a weapon's family is fixed for the whole match), so the client
+  // player reads it as data and stays a pure seek-only renderer (P6).
+  const damageTypes = deriveUnitDamageTypes(
+    replay.meta.unitOrder,
+    replay.meta.armies,
+    loadDefaultRuleset(),
+  );
+
   // Skip-to-Outcome closes the loop to the Feature 6 summary for this match.
   return (
-    <BattlePlayer replay={replay} playerSide={playerSide} summaryHref={`/matches/${matchId}/summary`} />
+    <BattlePlayer
+      replay={replay}
+      playerSide={playerSide}
+      damageTypes={damageTypes}
+      summaryHref={`/matches/${matchId}/summary`}
+    />
   );
 }

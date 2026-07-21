@@ -583,4 +583,27 @@ once it reaches a released version. Until then, everything lives under
   one place (`lib/garage/roster.ts`). New reducer verb `duplicateSquad` with tests; typecheck +
   ESLint clean, all 9 garage Vitest files green.
 
+- **Battle Playback: damage-typed combat VFX (muzzle + explosions).** The playback now *shows* the
+  fight it was already simulating. Each unit shows a **muzzle flash** on the tick it fires and a
+  **damage-typed explosion** on the tick it's hit — both keyed to the attacker's family (Kinetic /
+  Energy / Explosive), using the purpose-built `public/icons/{muzzle,explosion}-*.svg` (shape **and**
+  colour read the type, so it survives colour-blindness). Placement per the brief: explosions on a
+  unit's **outboard** edge, muzzles on its **inboard** edge (its firing arc toward the contact line),
+  and enemy VFX **mirrored on X**. This finishes the T037 VFX stub (was a single generic ping) —
+  firing was previously invisible, which read as "units aren't shooting."
+  - The per-unit damage type is derived **once, server-side** from the replay's persisted
+    `meta.armies` + ruleset (a weapon's family is fixed for the whole match) and passed to the client
+    as a compact `damageTypes[]` — so the player stays a **pure seek-only renderer** (no per-frame
+    derivation, no engine import; P6). New `sim/replay-damage-types.ts` + `components/battle/combat-vfx.tsx`.
+  - Firing is keyed to being the attacker of a `hit`/`miss` (the wire stream carries no standalone
+    `shot` event); one splash shot → one muzzle, an impact on each struck unit. Motion-safe: the burst
+    animates under motion and sits static-but-visible under reduced motion (nothing lost, FR-020).
+  - Tests: `pickCombatVfx` selection (fire/hit/miss/splash/death) + `deriveUnitDamageTypes` (vs the
+    real battery, null-armies + unknown-instance guards); typecheck + ESLint + `next build` clean.
+  - **Air-to-air confirmed live.** Verified the deployed prod engine already resolves air-to-air (a
+    fresh all-heli matchup POSTed to `/api/resolve` landed 1,058 hits on air units) and added a Rust
+    regression test (`counterweb.rs`: helis engage air once ground is gone). A replay that shows air
+    idling untouched is a **stale, pre-fix battle** (replays are immutable snapshots) — fresh battles
+    show the trade.
+
 [Unreleased]: https://github.com/jonupchurch/warformcommander/commits/main
