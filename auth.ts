@@ -32,14 +32,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => ({
   trustHost: true, // localhost dev + tests; on Vercel the host is trusted anyway
   providers: [Google], // AUTH_GOOGLE_ID / AUTH_GOOGLE_SECRET auto-inferred
   callbacks: {
-    // Database-session callback receives the fresh DB user each request → role is always current.
+    // Database-session callback receives the fresh DB user each request → role/ban is always current.
     session({ session, user }) {
       if (session.user) {
         session.user.id = user.id;
         session.user.role = user.role;
         session.user.handle = user.handle ?? null; // null until chosen at onboarding
+        session.user.banned = user.banned ?? false; // fresh from the DB → an unban takes effect next request
       }
       return session;
+    },
+    // Refuse to establish a session for a banned account (server-authoritative; the DB user carries
+    // the flag). Existing sessions are separately rejected at `requireSession`, so a ban is immediate.
+    signIn({ user }) {
+      return !user.banned;
     },
   },
   events: {

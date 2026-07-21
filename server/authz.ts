@@ -19,6 +19,8 @@ export interface SessionUser {
   role: Role;
   /** Commander handle (public identity); `null`/absent until chosen at onboarding. */
   handle?: string | null;
+  /** Admin-set moderation flag (server-authoritative). A banned session is rejected at the boundary. */
+  banned?: boolean;
   name?: string | null;
   email?: string | null;
   image?: string | null;

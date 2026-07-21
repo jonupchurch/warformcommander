@@ -19,6 +19,9 @@ import { AuthError, assertAdmin, type SessionUser } from "./authz";
 export async function requireSession(): Promise<SessionUser> {
   const session = await auth();
   if (!session?.user?.id) throw new AuthError(401, "authentication required");
+  // A banned account is rejected at the authz boundary — every authed action/route bounces (403),
+  // and because the flag rides the DB session it takes effect on the next request (no re-login).
+  if (session.user.banned) throw new AuthError(403, "account suspended");
   return session.user;
 }
 

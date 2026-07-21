@@ -13,6 +13,8 @@ declare module "next-auth" {
       role: "player" | "admin";
       /** Commander handle (public identity); `null` until chosen at onboarding. */
       handle: string | null;
+      /** Admin-set moderation flag — a banned session is rejected at `requireSession` (A1). */
+      banned: boolean;
     } & DefaultSession["user"];
   }
 
@@ -20,6 +22,7 @@ declare module "next-auth" {
     role: "player" | "admin";
     /** Optional on the raw user — a fresh OAuth user has none until onboarding sets it. */
     handle?: string | null;
+    banned?: boolean;
   }
 }
 
@@ -27,5 +30,6 @@ declare module "next-auth/adapters" {
   interface AdapterUser {
     role: "player" | "admin";
     handle?: string | null;
+    banned?: boolean;
   }
 }

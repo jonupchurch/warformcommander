@@ -17,6 +17,9 @@ import { AppShell } from "@/components/shell/app-shell";
  */
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = (await auth())?.user;
+  // Banned commanders are bounced out of the app entirely (server actions also reject at
+  // `requireSession`); the notice lives outside this group so the redirect can't loop.
+  if (user?.id && user.banned) redirect("/banned");
   if (user?.id && !user.handle) redirect("/onboarding");
 
   const identity = user?.id

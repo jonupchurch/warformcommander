@@ -640,4 +640,24 @@ once it reaches a released version. Until then, everything lives under
     was red since that merge): an all-support "no offense" battle now resolves *immediately* via the
     guard's Time tiebreak instead of idling to the 1000-tick cap — the test now asserts that.
 
+- **Admin: user management + moderation (`/admin/users`).** A new console screen (from the dropped
+  wireframe) to search commanders, review their record, and **ban/unban** or **delete** accounts. Two
+  panes (searchable/filterable roster + a detail panel with real career stats — net victories,
+  win-rate, defenses, battles; the mock's MMR/rank is dropped since the v1 ladder is net-victory based)
+  plus a KPI strip and a confirm-gated delete.
+  - **Delete never touches anyone else's stats** (the explicit requirement) — and the schema already
+    guarantees it: a user's *own* rows cascade (accounts, sessions, squads, defenses, standings,
+    presets) while shared history is retained via `ON DELETE SET NULL` (`matches.attacker/defenderUserId`,
+    `posts.authorId`). A load-bearing test proves it: after deleting A, B's standing is byte-identical
+    and their shared match survives with only A's id nulled.
+  - **Ban** adds a `banned` column (additive migration `0002`, applied dev-first per SC-008) enforced
+    server-side: `requireSession` rejects a banned session (403 on every authed action, effective next
+    request via the DB session), the `signIn` callback refuses new sessions, and the `(app)` layout
+    bounces to a `/banned` notice. Actor guards on both actions — you can't ban/delete yourself or
+    another admin — enforced in the service and mirrored as disabled controls.
+  - Three authz layers (layout redirect → `requireAdmin()` on the page → `requireAdmin()` on each
+    Server Action). Tests (real DB): admin gate, ban/unban, both guards, list/filter/search + KPIs,
+    and the delete-preserves-others-stats invariant. typecheck + ESLint + no-raw-hex + `next build`
+    clean. **The prod migration is the one remaining step — gated on an explicit go-ahead.**
+
 [Unreleased]: https://github.com/jonupchurch/warformcommander/commits/main
