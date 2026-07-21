@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@500;600;700;800;900&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="icon" href="favicon.ico">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #06080b; color: #c4ccd6; font-family: 'Archivo', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #2ad4ff; text-decoration: none; }
+  a:hover { color: #7fe6ff; }
+  ::-webkit-scrollbar { width: 9px; height: 9px; }
+  ::-webkit-scrollbar-thumb { background: #1a2028; border-radius: 6px; }
+</style>
+</helmet>
+
+<header style="display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid rgba(120,140,160,.1);background:#070a0e;">
+  <div style="display:flex;align-items:center;gap:28px;">
+    <div style="display:flex;align-items:center;gap:11px;">
+      <svg width="32" height="20" viewBox="0 0 160 100" fill="none"><polygon points="8,18 8,82 46,50" fill="rgba(42,212,255,.2)" stroke="#2ad4ff" stroke-width="7"></polygon><polygon points="152,18 152,82 114,50" fill="rgba(255,47,176,.2)" stroke="#ff2fb0" stroke-width="7"></polygon><line x1="80" y1="16" x2="80" y2="84" stroke="#eef3f8" stroke-width="7"></line></svg>
+      <span style="font-family:'Archivo Expanded',sans-serif;font-weight:900;font-size:15px;letter-spacing:.02em;color:#eef3f8;">WARFORM</span>
+      <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.2em;color:#ff8c1a;border:1px solid rgba(255,140,26,.4);border-radius:5px;padding:3px 8px;margin-left:2px;">ADMIN</span>
+    </div>
+    <nav style="display:flex;gap:6px;">
+      <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;color:#06080b;background:#2ad4ff;padding:8px 14px;border-radius:7px;">USERS</span>
+      <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;color:#8b97a6;padding:8px 14px;">MATCHES</span>
+      <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;color:#8b97a6;padding:8px 14px;">REPORTS</span>
+      <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;color:#8b97a6;padding:8px 14px;">CONFIG</span>
+    </nav>
+  </div>
+  <div style="display:flex;align-items:center;gap:14px;">
+    <a href="Warform Commander Home.dc.html" style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;color:#8b97a6;">← SITE</a>
+    <div style="width:30px;height:30px;border-radius:8px;border:1px solid rgba(120,140,160,.25);background:#0d1218;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:11px;color:#8b97a6;">OP</div>
+  </div>
+</header>
+
+<div style="max-width:1300px;margin:0 auto;padding:32px 28px 60px;">
+  <!-- title + KPIs -->
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:24px;">
+    <div>
+      <span style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.28em;color:#5a6472;">MODERATION</span>
+      <h1 style="margin:8px 0 0;font-family:'Archivo Expanded',sans-serif;font-weight:900;font-size:34px;line-height:.95;letter-spacing:-.01em;color:#eef3f8;">User Management</h1>
+    </div>
+    <div style="display:flex;gap:12px;">
+      <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="3">
+        <div style="display:flex;flex-direction:column;gap:3px;padding:12px 18px;border:1px solid rgba(120,140,160,.14);border-radius:11px;background:#0b0f15;min-width:104px;">
+          <span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.12em;color:#5a6472;">{{ k.label }}</span>
+          <span style="font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:22px;color:{{ k.color }};">{{ k.value }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1.35fr;gap:18px;align-items:start;">
+    <!-- ===== LIST ===== -->
+    <div style="border:1px solid rgba(120,140,160,.14);border-radius:16px;background:#0b0f15;overflow:hidden;">
+      <!-- toolbar -->
+      <div style="display:flex;flex-direction:column;gap:12px;padding:16px 16px 14px;border-bottom:1px solid rgba(120,140,160,.1);">
+        <div style="display:flex;align-items:center;gap:9px;padding:9px 13px;border:1px solid rgba(120,140,160,.18);border-radius:9px;background:#080b10;">
+          <span style="color:#5a6472;font-size:13px;">⌕</span>
+          <input value="{{ query }}" onInput="{{ onSearch }}" placeholder="Search commanders…" style="flex:1;background:transparent;border:none;outline:none;color:#dbe2ea;font-family:'Space Mono',monospace;font-size:12px;" />
+        </div>
+        <div style="display:flex;gap:7px;">
+          <sc-for list="{{ filters }}" as="f" hint-placeholder-count="3">
+            <button onClick="{{ f.pick }}" style="cursor:pointer;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.08em;padding:6px 12px;border-radius:20px;border:1px solid {{ f.border }};background:{{ f.bg }};color:{{ f.text }};">{{ f.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <!-- rows -->
+      <div style="max-height:560px;overflow-y:auto;">
+        <sc-for list="{{ rows }}" as="u" hint-placeholder-count="6">
+          <div onClick="{{ u.select }}" style="display:flex;align-items:center;gap:12px;padding:13px 16px;cursor:pointer;border-left:3px solid {{ u.accent }};background:{{ u.bg }};border-bottom:1px solid rgba(120,140,160,.07);">
+            <div style="width:38px;height:38px;border-radius:9px;border:1px solid rgba(120,140,160,.22);background:#0d1218;display:flex;align-items:center;justify-content:center;flex:none;font-family:'Space Mono',monospace;font-size:12px;color:{{ u.initColor }};">{{ u.initials }}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-family:'Archivo Expanded',sans-serif;font-weight:700;font-size:14px;color:#eef3f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ u.name }}</div>
+              <div style="font-family:'Space Mono',monospace;font-size:10px;color:#5a6472;margin-top:2px;">{{ u.meta }}</div>
+            </div>
+            <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.08em;color:{{ u.statusColor }};border:1px solid {{ u.statusBorder }};background:{{ u.statusBg }};border-radius:5px;padding:3px 8px;white-space:nowrap;">{{ u.statusLabel }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid rgba(120,140,160,.1);font-family:'Space Mono',monospace;font-size:11px;color:#5a6472;">
+        <span>{{ countLabel }}</span>
+        <div style="display:flex;gap:6px;"><span style="border:1px solid rgba(120,140,160,.2);border-radius:5px;padding:3px 9px;">1</span><span style="padding:3px 9px;">2</span><span style="padding:3px 9px;">3</span><span style="padding:3px 9px;">›</span></div>
+      </div>
+    </div>
+
+    <!-- ===== DETAIL ===== -->
+    <div style="border:1px solid rgba(120,140,160,.16);border-radius:16px;background:#0b0f15;overflow:hidden;">
+      <!-- hero -->
+      <div style="position:relative;overflow:hidden;padding:26px 28px;background:radial-gradient(130% 180% at 0% 0%,{{ sel.tint }},transparent 55%);border-bottom:1px solid rgba(120,140,160,.12);">
+        <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.1) 0 1px,transparent 1px 3px);opacity:.4;pointer-events:none;"></div>
+        <div style="position:relative;display:flex;align-items:center;gap:20px;">
+          <div style="width:74px;height:74px;border-radius:15px;border:1px solid {{ sel.ring }};background:#080b10;display:flex;align-items:center;justify-content:center;flex:none;font-family:'Space Mono',monospace;font-size:22px;color:{{ sel.accent }};box-shadow:0 0 22px {{ sel.tint }};">{{ sel.initials }}</div>
+          <div style="flex:1;min-width:0;">
+            <h2 style="margin:0;font-family:'Archivo Expanded',sans-serif;font-weight:900;font-size:28px;line-height:.95;color:#eef3f8;">{{ sel.name }}</h2>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:9px;">
+              <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.08em;color:{{ sel.statusColor }};border:1px solid {{ sel.statusBorder }};background:{{ sel.statusBg }};border-radius:5px;padding:4px 9px;">{{ sel.statusLabel }}</span>
+              <span style="font-family:'Space Mono',monospace;font-size:12px;color:#8b97a6;">{{ sel.mmr }} MMR</span>
+              <span style="width:1px;height:12px;background:rgba(120,140,160,.3);"></span>
+              <span style="font-family:'Space Mono',monospace;font-size:12px;color:#8b97a6;">{{ sel.rankLabel }}</span>
+              <span style="width:1px;height:12px;background:rgba(120,140,160,.3);"></span>
+              <span style="font-family:'Space Mono',monospace;font-size:12px;color:#5a6472;">{{ sel.enlisted }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- stats -->
+      <div style="padding:22px 28px;">
+        <span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.2em;color:#5a6472;">CAREER STATS</span>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px;">
+          <sc-for list="{{ sel.stats }}" as="s" hint-placeholder-count="4">
+            <div style="display:flex;flex-direction:column;gap:5px;padding:14px 12px;border:1px solid rgba(120,140,160,.12);border-radius:11px;background:#080b10;">
+              <span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;color:#5a6472;">{{ s.label }}</span>
+              <span style="font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:21px;color:{{ s.color }};">{{ s.value }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <!-- activity -->
+        <div style="display:flex;flex-direction:column;gap:14px;padding:18px 20px;border:1px solid rgba(120,140,160,.12);border-radius:13px;background:#080b10;margin-top:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.2em;color:#5a6472;">ACTIVITY · LAST 8 WEEKS</span>
+            <span style="font-family:'Space Mono',monospace;font-size:10px;color:#8b97a6;"><span style="color:#2ad4ff;">■</span> WINS <span style="color:#3d4652;">■</span> LOSSES</span>
+          </div>
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:9px;height:96px;">
+            <sc-for list="{{ sel.weeks }}" as="w" hint-placeholder-count="8">
+              <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;border-radius:5px;overflow:hidden;background:#0d1218;">
+                <div style="width:100%;background:#3d4652;height:{{ w.loss }}%;"></div>
+                <div style="width:100%;background:#2ad4ff;height:{{ w.win }}%;"></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- moderation log -->
+        <div style="margin-top:14px;">
+          <span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.2em;color:#5a6472;">MODERATION LOG</span>
+          <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px;">
+            <sc-for list="{{ sel.log }}" as="l" hint-placeholder-count="2">
+              <div style="display:flex;align-items:center;gap:12px;padding:10px 13px;border:1px solid rgba(120,140,160,.1);border-radius:9px;background:#080b10;">
+                <span style="width:7px;height:7px;border-radius:50%;background:{{ l.dot }};flex:none;"></span>
+                <span style="font-family:'Space Mono',monospace;font-size:12px;color:#c4ccd6;flex:1;">{{ l.text }}</span>
+                <span style="font-family:'Space Mono',monospace;font-size:11px;color:#5a6472;">{{ l.date }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <!-- action bar -->
+      <div style="display:flex;align-items:center;gap:10px;padding:18px 28px;border-top:1px solid rgba(120,140,160,.12);background:#080b10;">
+        <a href="Warform Commander Profile.dc.html" style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.1em;color:#2ad4ff;border:1px solid rgba(42,212,255,.4);border-radius:8px;padding:10px 16px;background:rgba(42,212,255,.08);">VIEW FULL PROFILE →</a>
+        <div style="flex:1;"></div>
+        <button onClick="{{ sel.toggleBan }}" style="cursor:pointer;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.08em;padding:10px 16px;border-radius:8px;border:1px solid {{ sel.banBorder }};background:{{ sel.banBg }};color:{{ sel.banColor }};">{{ sel.banLabel }}</button>
+        <button onClick="{{ askDelete }}" style="cursor:pointer;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.08em;padding:10px 16px;border-radius:8px;border:1px solid rgba(255,59,78,.4);background:rgba(255,59,78,.08);color:#ff5b6b;">DELETE</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- confirm delete dialog -->
+<sc-if value="{{ confirming }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;z-index:50;background:rgba(4,6,9,.78);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:24px;">
+    <div style="width:100%;max-width:420px;border:1px solid rgba(255,59,78,.35);border-radius:16px;background:#0b0f15;overflow:hidden;box-shadow:0 30px 90px rgba(0,0,0,.6);">
+      <div style="padding:24px 26px;">
+        <span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.2em;color:#ff5b6b;">⚠ DESTRUCTIVE ACTION</span>
+        <h3 style="margin:12px 0 8px;font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:22px;color:#eef3f8;">Delete {{ sel.name }}?</h3>
+        <p style="margin:0;font-size:14px;line-height:1.55;color:#8b97a6;">This permanently removes the account, squad configs, and ladder history. This cannot be undone.</p>
+      </div>
+      <div style="display:flex;gap:10px;padding:16px 26px;border-top:1px solid rgba(120,140,160,.12);background:#080b10;">
+        <button onClick="{{ cancelDelete }}" style="cursor:pointer;flex:1;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.08em;padding:11px;border-radius:8px;border:1px solid rgba(120,140,160,.25);background:transparent;color:#c4ccd6;">CANCEL</button>
+        <button onClick="{{ confirmDelete }}" style="cursor:pointer;flex:1;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.08em;padding:11px;border-radius:8px;border:1px solid #ff3b4e;background:#ff3b4e;color:#0b0f15;font-weight:700;">DELETE PERMANENTLY</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1300,&quot;height&quot;:900}}">
+const SEED = [
+  { name: "IRONCLAD_47", status: "active", mmr: 1820, rank: "Gold III", enlisted: "ENLISTED JAN 2025", wins: 128, losses: 44, wr: 74, defenses: 61, enlistedNum: 172, log: [{ text: "Account created", date: "2025·01·12", dot: "#5a6472" }] },
+  { name: "V0LT_RUNNER", status: "banned", mmr: 1240, rank: "Silver I", enlisted: "ENLISTED MAR 2025", wins: 67, losses: 91, wr: 42, defenses: 30, enlistedNum: 158, log: [{ text: "Banned — smurfing / alt abuse", date: "2026·06·30", dot: "#ff3b4e" }, { text: "3 reports upheld", date: "2026·06·28", dot: "#ff8c1a" }] },
+  { name: "HELLFIRE_X", status: "active", mmr: 1990, rank: "Plat II", enlisted: "ENLISTED NOV 2024", wins: 203, losses: 88, wr: 70, defenses: 140, enlistedNum: 291, log: [{ text: "Warning — chat conduct", date: "2026·05·02", dot: "#ff8c1a" }] },
+  { name: "NULL_SECTOR", status: "active", mmr: 1105, rank: "Bronze II", enlisted: "ENLISTED JUL 2026", wins: 12, losses: 9, wr: 57, defenses: 4, enlistedNum: 21, log: [{ text: "Account created", date: "2026·07·01", dot: "#5a6472" }] },
+  { name: "GHOST_PROTOCOL", status: "active", mmr: 1655, rank: "Gold I", enlisted: "ENLISTED FEB 2025", wins: 98, losses: 61, wr: 62, defenses: 44, enlistedNum: 159, log: [{ text: "Account created", date: "2025·02·18", dot: "#5a6472" }] },
+  { name: "REBAR_QUEEN", status: "banned", mmr: 890, rank: "Bronze I", enlisted: "ENLISTED APR 2026", wins: 20, losses: 55, wr: 27, defenses: 8, enlistedNum: 75, log: [{ text: "Banned — exploit abuse", date: "2026·07·10", dot: "#ff3b4e" }] },
+  { name: "APEX_DRIVER", status: "active", mmr: 2140, rank: "Diamond", enlisted: "ENLISTED SEP 2024", wins: 312, losses: 120, wr: 72, defenses: 210, enlistedNum: 432, log: [{ text: "Account created", date: "2024·09·03", dot: "#5a6472" }] },
+];
+
+const STATUS = {
+  active: { label: "ACTIVE", color: "#4ade80", border: "rgba(74,222,128,.35)", bg: "rgba(74,222,128,.08)" },
+  banned: { label: "BANNED", color: "#ff5b6b", border: "rgba(255,59,78,.4)", bg: "rgba(255,59,78,.1)" },
+};
+
+function initials(name) {
+  const parts = name.split(/[_\s]+/).filter(Boolean);
+  return ((parts[0]?.[0] || "") + (parts[1]?.[0] || parts[0]?.[1] || "")).toUpperCase();
+}
+
+function weeksFor(u) {
+  const base = [0.5, 0.7, 0.55, 0.9, 0.6, 1, 0.45, 0.75];
+  return base.map((b, i) => {
+    const total = Math.round(4 + b * 8);
+    const wr = u.wr / 100;
+    const wins = Math.round(total * wr * (0.8 + (i % 3) * 0.12));
+    const losses = total - wins;
+    const max = 14;
+    return { win: Math.min(100, (wins / max) * 100), loss: Math.min(100, (losses / max) * 100) };
+  });
+}
+
+class Component extends DCLogic {
+  state = { users: SEED, selected: 0, query: "", filter: "all", confirming: false };
+
+  visible() {
+    const q = this.state.query.trim().toLowerCase();
+    return this.state.users
+      .map((u, i) => ({ u, i }))
+      .filter(({ u }) => this.state.filter === "all" || u.status === this.state.filter)
+      .filter(({ u }) => !q || u.name.toLowerCase().includes(q));
+  }
+
+  renderVals() {
+    const { users, selected, filter, confirming } = this.state;
+    const sel = users[selected];
+    const total = users.length;
+    const banned = users.filter(u => u.status === "banned").length;
+
+    const filters = [
+      ["all", "ALL"], ["active", "ACTIVE"], ["banned", "BANNED"],
+    ].map(([key, label]) => {
+      const on = filter === key;
+      return {
+        label, pick: () => this.setState({ filter: key }),
+        border: on ? "#2ad4ff" : "rgba(120,140,160,.25)",
+        bg: on ? "rgba(42,212,255,.1)" : "transparent",
+        text: on ? "#2ad4ff" : "#8b97a6",
+      };
+    });
+
+    const vis = this.visible();
+    const rows = vis.map(({ u, i }) => {
+      const st = STATUS[u.status];
+      const isSel = i === selected;
+      return {
+        name: u.name, initials: initials(u.name),
+        initColor: u.status === "banned" ? "#ff5b6b" : "#2ad4ff",
+        meta: u.mmr + " MMR · " + u.wins + "W " + u.losses + "L",
+        accent: isSel ? (u.status === "banned" ? "#ff3b4e" : "#2ad4ff") : "transparent",
+        bg: isSel ? "rgba(42,212,255,.06)" : "transparent",
+        statusLabel: st.label, statusColor: st.color, statusBorder: st.border, statusBg: st.bg,
+        select: () => this.setState({ selected: i }),
+      };
+    });
+
+    const st = STATUS[sel.status];
+    const isBanned = sel.status === "banned";
+    const accent = isBanned ? "#ff3b4e" : "#2ad4ff";
+
+    return {
+      query: this.state.query,
+      onSearch: (e) => this.setState({ query: e.target.value }),
+      confirming,
+      kpis: [
+        { label: "TOTAL USERS", value: "12,483", color: "#eef3f8" },
+        { label: "ACTIVE NOW", value: "1,204", color: "#4ade80" },
+        { label: "BANNED", value: banned + " / " + total, color: "#ff5b6b" },
+      ],
+      filters, rows,
+      countLabel: vis.length + " of " + total + " shown",
+      askDelete: () => this.setState({ confirming: true }),
+      cancelDelete: () => this.setState({ confirming: false }),
+      confirmDelete: () => this.setState(s => {
+        const users = s.users.filter((_, i) => i !== s.selected);
+        return { users, selected: 0, confirming: false };
+      }),
+      sel: {
+        name: sel.name, initials: initials(sel.name),
+        mmr: sel.mmr, rankLabel: sel.rank, enlisted: sel.enlisted,
+        accent, ring: isBanned ? "rgba(255,59,78,.4)" : "rgba(42,212,255,.4)",
+        tint: isBanned ? "rgba(255,59,78,.12)" : "rgba(42,212,255,.12)",
+        statusLabel: st.label, statusColor: st.color, statusBorder: st.border, statusBg: st.bg,
+        stats: [
+          { label: "VICTORIES", value: sel.wins, color: "#eef3f8" },
+          { label: "WIN RATE", value: sel.wr + "%", color: accent },
+          { label: "DEFENSES", value: sel.defenses, color: "#eef3f8" },
+          { label: "BATTLES", value: sel.enlistedNum, color: "#eef3f8" },
+        ],
+        weeks: weeksFor(sel),
+        log: sel.log,
+        banLabel: isBanned ? "UNBAN" : "BAN",
+        banColor: isBanned ? "#4ade80" : "#ffb020",
+        banBorder: isBanned ? "rgba(74,222,128,.4)" : "rgba(255,140,26,.4)",
+        banBg: isBanned ? "rgba(74,222,128,.08)" : "rgba(255,140,26,.08)",
+        toggleBan: () => this.setState(s => {
+          const users = s.users.slice();
+          const u = { ...users[s.selected] };
+          const nowBanned = u.status !== "banned";
+          u.status = nowBanned ? "banned" : "active";
+          u.log = [{ text: nowBanned ? "Banned by operator" : "Unbanned by operator", date: "2026·07·21", dot: nowBanned ? "#ff3b4e" : "#4ade80" }, ...u.log];
+          users[s.selected] = u;
+          return { users };
+        }),
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>
