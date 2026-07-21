@@ -12,6 +12,8 @@ import { Panel } from '@/components/ui/panel';
 import { Stat } from '@/components/ui/stat';
 import type { CareerStats, ProfileIdentity } from '@/lib/profile-types';
 
+import { HandleEditor } from './handle-editor';
+
 export interface ProfileHeroProps {
   identity: ProfileIdentity;
   career: CareerStats;
@@ -46,6 +48,11 @@ export function ProfileHero({ identity, career, ladderRank }: ProfileHeroProps) 
               <span className="type-eyebrow text-faction-friendly">LADDER #{ladderRank}</span>
             )}
           </div>
+          {identity.isOwn && (
+            <div className="mt-1">
+              <HandleEditor currentHandle={identity.handle} />
+            </div>
+          )}
         </div>
       </div>
 

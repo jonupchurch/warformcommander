@@ -11,16 +11,21 @@ declare module "next-auth" {
     user: {
       id: string;
       role: "player" | "admin";
+      /** Commander handle (public identity); `null` until chosen at onboarding. */
+      handle: string | null;
     } & DefaultSession["user"];
   }
 
   interface User {
     role: "player" | "admin";
+    /** Optional on the raw user — a fresh OAuth user has none until onboarding sets it. */
+    handle?: string | null;
   }
 }
 
 declare module "next-auth/adapters" {
   interface AdapterUser {
     role: "player" | "admin";
+    handle?: string | null;
   }
 }

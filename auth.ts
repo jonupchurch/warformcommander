@@ -37,6 +37,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => ({
       if (session.user) {
         session.user.id = user.id;
         session.user.role = user.role;
+        session.user.handle = user.handle ?? null; // null until chosen at onboarding
       }
       return session;
     },

@@ -17,6 +17,8 @@ export type Role = "player" | "admin";
 export interface SessionUser {
   id: string;
   role: Role;
+  /** Commander handle (public identity); `null`/absent until chosen at onboarding. */
+  handle?: string | null;
   name?: string | null;
   email?: string | null;
   image?: string | null;
