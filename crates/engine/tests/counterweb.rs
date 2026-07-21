@@ -181,6 +181,41 @@ fn artillery_never_hits_air_but_splashes_a_stacked_row() {
     );
 }
 
+/// Air-to-air fallback (live-testing fix): with **no AA** on either side, once the ground has traded
+/// off, the surviving helicopters plink *each other* — some Hit event lands on an air unit, instead of
+/// the battle idling to the tick cap / stalemate guard with both air wings untouched (the bug the user
+/// reported: 2 friendly + 1 enemy heli all alive at full hull when the game ended).
+#[test]
+fn air_trades_with_air_once_ground_is_gone() {
+    let rs = seed_ruleset();
+
+    // Symmetric heli + light-tank squads. Neither side has any air-capable weapon, so the ONLY way an
+    // air unit can be hit is a helicopter engaging air after its ground targets are gone.
+    let heli_ground = |rs: &Ruleset| Army {
+        machines: vec![
+            stock_instance(rs, MachineTypeId::AttackHeli, "Gunship", ZoneId::Air, 0),
+            stock_instance(rs, MachineTypeId::AttackHeli, "Gunship", ZoneId::Air, 1),
+            stock_instance(rs, MachineTypeId::LightTank, "Scout", ZoneId::Front, 2),
+            stock_instance(rs, MachineTypeId::LightTank, "Scout", ZoneId::Front, 3),
+            stock_instance(rs, MachineTypeId::LightTank, "Scout", ZoneId::Front, 4),
+        ],
+    };
+
+    let out = run(&rs, heli_ground(&rs), heli_ground(&rs), 0xA1A2);
+
+    // Instances 0 and 1 are the Air helis on both sides; a Hit on either is an air-to-air engagement.
+    let hit_air = out.replay.games.iter().flat_map(|g| &g.ticks).any(|t| {
+        t.events.iter().any(|e| match e {
+            TickEvent::Hit { target, .. } => target.instance_id <= 1,
+            _ => false,
+        })
+    });
+    assert!(
+        hit_air,
+        "with no AA, helis must engage enemy air once ground is gone (air-to-air fallback)"
+    );
+}
+
 /// T038 (SC-003): across a round-robin of diverse archetypes, no single squad sweeps every matchup.
 #[test]
 fn no_single_archetype_wins_every_matchup() {

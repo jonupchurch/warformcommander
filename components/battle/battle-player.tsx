@@ -16,6 +16,7 @@ import { useMemo } from 'react';
 
 import { Panel } from '@/components/ui/panel';
 import type { Side, WireReplay } from '@/sim/replay-reader';
+import type { DamageType } from '@/sim/ruleset';
 import { createReplayView, type ReplayView } from '@/sim/replay-view';
 
 import { BattleStage } from './battle-stage';
@@ -30,6 +31,8 @@ export interface BattlePlayerProps {
   replay: WireReplay;
   /** which side is "friendly" for this viewer. */
   playerSide: Side;
+  /** per-column damage type (aligned to `meta.unitOrder`) for the combat VFX; derived server-side. */
+  damageTypes?: (DamageType | null)[];
   initialGame?: number;
   /** "Skip to Outcome" target (Feature 6) when present. */
   summaryHref?: string;
@@ -48,7 +51,7 @@ function BattleReject() {
   );
 }
 
-export function BattlePlayer({ replay, playerSide, initialGame = 0, summaryHref }: BattlePlayerProps) {
+export function BattlePlayer({ replay, playerSide, damageTypes, initialGame = 0, summaryHref }: BattlePlayerProps) {
   // Construct the pure view once; a rejected formatVersion surfaces as the graceful reject (no throw
   // into render). Kept in the outer component so the inner one calls its hooks unconditionally.
   const built = useMemo(() => {
@@ -62,16 +65,25 @@ export function BattlePlayer({ replay, playerSide, initialGame = 0, summaryHref 
   if (!built.view) return <BattleReject />;
 
   const game = Math.min(Math.max(0, initialGame), built.view.gamesCount - 1);
-  return <BattlePlayerInner view={built.view} initialGame={game} summaryHref={summaryHref} />;
+  return (
+    <BattlePlayerInner
+      view={built.view}
+      initialGame={game}
+      damageTypes={damageTypes}
+      summaryHref={summaryHref}
+    />
+  );
 }
 
 function BattlePlayerInner({
   view,
   initialGame,
+  damageTypes,
   summaryHref,
 }: {
   view: ReplayView;
   initialGame: number;
+  damageTypes?: (DamageType | null)[];
   summaryHref?: string;
 }) {
   const player = usePlayback(view, { initialGame });
@@ -115,7 +127,7 @@ function BattlePlayerInner({
         gameLabel={gameLabel}
       />
 
-      <BattleStage view={vm} progress={vm.progress} events={events} />
+      <BattleStage view={vm} progress={vm.progress} events={events} damageTypes={damageTypes} />
 
       {/* Transport panel: the full control cluster over the O(1) media-seek scrubber (US4 overlays
           event markers on the track). */}

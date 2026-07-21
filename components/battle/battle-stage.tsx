@@ -14,6 +14,7 @@
  */
 
 import type { WireEvent } from '@/sim/replay-reader';
+import type { DamageType } from '@/sim/ruleset';
 import type { BattleViewModel, SideView } from '@/sim/replay-view';
 import { cn } from '@/lib/utils';
 import { ContactLine } from './contact-line';
@@ -25,6 +26,8 @@ export interface BattleStageProps {
   progress: number;
   /** the current tick's events → per-unit motion-safe VFX (T037). */
   events?: WireEvent[];
+  /** per-column damage type (aligned to `meta.unitOrder`) → the muzzle/impact VFX family. */
+  damageTypes?: (DamageType | null)[];
   className?: string;
 }
 
@@ -32,24 +35,26 @@ function SideColumn({
   side,
   view,
   events,
+  damageTypes,
 }: {
   side: 'friendly' | 'enemy';
   view: SideView;
   events?: WireEvent[];
+  damageTypes?: (DamageType | null)[];
 }) {
   return (
     <div className="flex min-w-0 flex-col gap-2 p-2 sm:p-3">
-      <ZoneColumn zone="Air" side={side} units={view.air} isEmpty={view.airEmpty} events={events} />
+      <ZoneColumn zone="Air" side={side} units={view.air} isEmpty={view.airEmpty} events={events} damageTypes={damageTypes} />
       <div className="grid min-h-0 flex-1 grid-cols-3 gap-2">
         {view.ground.map((z) => (
-          <ZoneColumn key={z.zone} zone={z.zone} side={side} units={z.units} isEmpty={z.isEmpty} events={events} />
+          <ZoneColumn key={z.zone} zone={z.zone} side={side} units={z.units} isEmpty={z.isEmpty} events={events} damageTypes={damageTypes} />
         ))}
       </div>
     </div>
   );
 }
 
-export function BattleStage({ view, progress, events, className }: BattleStageProps) {
+export function BattleStage({ view, progress, events, damageTypes, className }: BattleStageProps) {
   return (
     <div
       data-slot="battle-stage"
@@ -59,9 +64,9 @@ export function BattleStage({ view, progress, events, className }: BattleStagePr
         className,
       )}
     >
-      <SideColumn side="friendly" view={view.player} events={events} />
+      <SideColumn side="friendly" view={view.player} events={events} damageTypes={damageTypes} />
       <ContactLine progress={progress} />
-      <SideColumn side="enemy" view={view.enemy} events={events} />
+      <SideColumn side="enemy" view={view.enemy} events={events} damageTypes={damageTypes} />
     </div>
   );
 }

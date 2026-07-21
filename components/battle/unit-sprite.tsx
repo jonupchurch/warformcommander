@@ -6,14 +6,18 @@
  *
  * This is the **render leaf that owns the `typeId → UnitIcon` mapping** (the layering note in
  * `sim/replay-view.ts`): `sim/` stays UI-free and carries the raw `typeId`; the icon key lives here.
- * Event-driven VFX (fire/hit/death) are stubbed for US5 (T037) — the state is always readable from
- * the snapshot alone (FR-006/FR-020), so reduced-motion loses nothing.
+ * Event-driven VFX (T037): a **muzzle flash** on the tick this unit fires (its inboard edge, toward
+ * the contact line) and a **damage-typed explosion** on the tick it's hit (its outboard edge, keyed
+ * to the attacker's family) — plus the death burst. All motion-safe; the state is always readable
+ * from the snapshot alone (FR-006/FR-020), so reduced-motion loses nothing.
  */
 
 import type { UnitView } from '@/sim/replay-view';
 import type { WireEvent } from '@/sim/replay-reader';
+import type { DamageType } from '@/sim/ruleset';
 import { UnitIcon, type MachineTypeKey } from '@/components/brand/unit-icon';
 import { cn } from '@/lib/utils';
+import { CombatVfx, pickCombatVfx } from './combat-vfx';
 
 /** The seven engine `MachineTypeId`s → the Feature 3 `UnitIcon` keys (the only UI-facing map). */
 const ICON_KEY: Record<string, MachineTypeKey> = {
@@ -39,12 +43,12 @@ const HULL_FILL = {
 
 export interface UnitSpriteProps {
   unit: UnitView;
-  /** this unit's events at the current tick → motion-safe VFX (wired in US5/T037; unread for now). */
+  /** this unit's tick events → motion-safe fire/hit/death VFX (T037). */
   events?: WireEvent[];
+  /** per-column damage type (aligned to `meta.unitOrder`) → the muzzle/impact VFX family. */
+  damageTypes?: (DamageType | null)[];
   className?: string;
 }
-
-// `events` stays in the props contract (US5/T037 VFX) but is intentionally unread in US1.
 
 function Bar({ pct, fill }: { pct: number; fill: string }) {
   return (
@@ -54,16 +58,32 @@ function Bar({ pct, fill }: { pct: number; fill: string }) {
   );
 }
 
-export function UnitSprite({ unit, events, className }: UnitSpriteProps) {
+/** An untyped fallback burst on one edge (used only when a unit's damage type can't be resolved). */
+function EdgeFlash({ side, tone }: { side: 'left' | 'right'; tone: string }) {
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        'pointer-events-none absolute top-1/2 z-10 h-4 w-4 -translate-y-1/2 rounded-full motion-reduce:hidden motion-safe:animate-ping',
+        side === 'left' ? 'left-0 -translate-x-1/2' : 'right-0 translate-x-1/2',
+        tone,
+      )}
+    />
+  );
+}
+
+export function UnitSprite({ unit, events, damageTypes, className }: UnitSpriteProps) {
   const iconKey = ICON_KEY[unit.typeId] ?? 'heavytank';
   const label = `${unit.typeId} ${unit.variantId}`;
 
-  // Event-driven VFX (T037): a flash on the tick this unit is hit or destroyed. Gated behind
-  // `motion-safe:` and hidden under reduced motion — the unit's state is always readable from the
-  // snapshot alone (hull bars + "DOWN"), so nothing is lost when the flash is suppressed (FR-020).
-  const died = events?.some((e) => e.t === 'death' && e.u === unit.column) ?? false;
-  const hit = events?.some((e) => e.t === 'hit' && e.d === unit.column) ?? false;
-  const flash = died ? 'bg-faction-enemy/40' : hit ? 'bg-faction-friendly/30' : null;
+  // Event-driven VFX (T037): muzzle on fire, explosion on hit, a burst on death. All gated behind
+  // `motion-safe:` — the unit's state is always readable from the snapshot alone (hull bars + "DOWN"),
+  // so nothing is lost under reduced motion (FR-020). Friendly units face right (fire toward the
+  // contact line on their right, take hits on their left/outboard); enemy units are the mirror.
+  const vfx = pickCombatVfx(events, unit.column, damageTypes);
+  const muzzleSide = unit.faction === 'friendly' ? 'right' : 'left';
+  const impactSide = unit.faction === 'friendly' ? 'left' : 'right';
+  const mirrored = unit.faction === 'enemy';
 
   return (
     <div
@@ -84,12 +104,30 @@ export function UnitSprite({ unit, events, className }: UnitSpriteProps) {
         )}
       >
         <UnitIcon type={iconKey} title={label} className="h-full w-full" />
-        {flash && (
+
+        {/* Death: a full-cover burst marking the kill (the DOWN + grayscale carry it without motion). */}
+        {vfx.died && (
           <span
             aria-hidden
-            className={cn('pointer-events-none absolute inset-0 rounded-md motion-reduce:hidden motion-safe:animate-ping', flash)}
+            className="pointer-events-none absolute inset-0 rounded-md bg-faction-enemy/40 motion-reduce:hidden motion-safe:animate-ping"
           />
         )}
+
+        {/* Impact: the attacker's damage-typed explosion on this unit's outboard edge. */}
+        {vfx.impacted &&
+          (vfx.impactType ? (
+            <CombatVfx kind="impact" type={vfx.impactType} side={impactSide} mirrored={mirrored} />
+          ) : (
+            <EdgeFlash side={impactSide} tone="bg-text-strong/25" />
+          ))}
+
+        {/* Muzzle: this unit's damage-typed flash on its inboard edge (its firing arc). */}
+        {vfx.fired &&
+          (vfx.muzzleType ? (
+            <CombatVfx kind="muzzle" type={vfx.muzzleType} side={muzzleSide} mirrored={mirrored} />
+          ) : (
+            <EdgeFlash side={muzzleSide} tone="bg-text-strong/25" />
+          ))}
       </div>
 
       <Bar pct={unit.hullPct} fill={HULL_FILL[unit.faction]} />
