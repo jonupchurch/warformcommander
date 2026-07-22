@@ -280,8 +280,11 @@ stance options offered are constrained by machine role.
   so that rebalancing the system is one coordinated edit.
 - **FR-010**: Chassis base statistics MUST be rebased such that aggregate survivability across the
   field does not increase relative to the current baseline.
-- **FR-011**: Helicopter, Artillery, and Rocket-Artillery chassis MUST end below their current
-  durability even when holding their most favourable defensive option.
+- **FR-011**: Artillery and Rocket-Artillery chassis MUST end below their current durability even when
+  holding their most favourable defensive option. The Helicopter MUST end **level with** its current
+  durability, not below it — measurement showed it already dies at tick 48 with a 0% survival rate
+  when any counter is present, so it has no headroom to lose. Its defensive slot must change *what*
+  kills it, not *how fast*.
 
 **Stance**
 
@@ -372,7 +375,8 @@ stance options offered are constrained by machine role.
 - **SC-007**: Two armies identical except for stance assignment produce different casualty orders in
   at least 80% of sampled matchups.
 - **SC-008**: Helicopter, Artillery, and Rocket-Artillery chassis survive focused fire no longer than
-  they do today, even on their best defensive option.
+  they do today, even on their best defensive option — measured against the baseline mean death ticks
+  of **48.2 / 237.0 / 201.0** respectively.
 - **SC-009**: Dedicated anti-air is no longer the field's lowest-ranked archetype.
 - **SC-010**: Aircraft remain within the viability band after every individual anti-air change, not
   merely at the end.

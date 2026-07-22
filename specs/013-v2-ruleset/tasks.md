@@ -33,9 +33,9 @@ validation at `server/`, UI at `components/garage/` and `lib/garage/`.
 
 **Purpose**: Establish a clean, attributable starting point.
 
-- [ ] T001 Confirm the pre-change cascade is green on `main` — run `cargo test`, `cargo clippy --all-targets -- -D warnings`, `npx tsc --noEmit`, and `npm test`, recording results in `specs/013-v2-ruleset/baseline/pre-change-cascade.md` so any later failure is attributable to this feature
-- [ ] T002 [P] Record the live ruleset identity (currently v11 `0062f62e`) and its provenance in `specs/013-v2-ruleset/baseline/live-ruleset.md`, including the exact re-seed command needed to publish a successor
-- [ ] T003 [P] Export the current seed ruleset to `specs/013-v2-ruleset/baseline/ruleset-v11.json` via `scripts/export-current-ruleset.ts` so post-change diffs are reviewable as data
+- [X] T001 Confirm the pre-change cascade is green on `main` — run `cargo test`, `cargo clippy --all-targets -- -D warnings`, `npx tsc --noEmit`, and `npm test`, recording results in `specs/013-v2-ruleset/baseline/pre-change-cascade.md` so any later failure is attributable to this feature
+- [X] T002 [P] Record the live ruleset identity (currently v11 `0062f62e`) and its provenance in `specs/013-v2-ruleset/baseline/live-ruleset.md`, including the exact re-seed command needed to publish a successor
+- [X] T003 [P] Export the current seed ruleset to `specs/013-v2-ruleset/baseline/ruleset-v11.json` via `scripts/export-current-ruleset.ts` so post-change diffs are reviewable as data
 
 ---
 
@@ -47,9 +47,9 @@ catalog changes.
 
 **⚠️ CRITICAL**: No user story work can begin until T004–T006 are complete.
 
-- [ ] T004 Capture the v11 balancer baseline to `specs/013-v2-ruleset/baseline/` via `cargo run -q -p balancer --release -- verify --field all --out specs/013-v2-ruleset/baseline`
-- [ ] T005 Extract the specific comparison points from the baseline report into `specs/013-v2-ruleset/baseline/comparison-points.md` — per-archetype win rates, median battle duration (SC-005), contested-matchup count (SC-001), and shielded share of effective HP (SC-003)
-- [ ] T006 Measure and record focused-fire survival ticks for Heli, Artillery, and RocketArtillery chassis in `specs/013-v2-ruleset/baseline/squishy-survival.md` — the SC-008 comparison point, which the aggregate report does not break out
+- [X] T004 Capture the v11 balancer baseline to `specs/013-v2-ruleset/baseline/` via `cargo run -q -p balancer --release -- verify --field all --out specs/013-v2-ruleset/baseline`
+- [X] T005 Extract the specific comparison points from the baseline report into `specs/013-v2-ruleset/baseline/comparison-points.md` — per-archetype win rates, median battle duration (SC-005), contested-matchup count (SC-001), and shielded share of effective HP (SC-003)
+- [X] T006 Measure and record focused-fire survival ticks for Heli, Artillery, and RocketArtillery chassis in `specs/013-v2-ruleset/baseline/squishy-survival.md` — the SC-008 comparison point, which the aggregate report does not break out
 
 **Checkpoint**: Baseline locked. User stories may begin.
 
@@ -88,7 +88,7 @@ within 10% of baseline; Heli/Arty/RktArty die no slower than on v11.
 - [ ] T018 [US1] Generate the 28 defense modules (4 families × 7 mount classes) via a scale-table loop in `crates/engine/src/content.rs`, mirroring the existing base-hull loop (depends on T012)
 - [ ] T019 [US1] Give each family its distinct drawback in `crates/engine/src/content.rs` — Armor costs movement, Shield is penetration-vulnerable, Ablative never regenerates, Balanced has none (FR-008)
 - [ ] T020 [US1] Delete the seven `StandardHull*` entries and repoint `base_defense_id` at the Balanced module per mount class in `crates/engine/src/content.rs` (R10 — this updates every stock loadout, archetype, and fixture at once)
-- [ ] T021 [US1] Rebase the ~21 chassis base stats in `crates/engine/src/content.rs` so aggregate survivability does not rise (FR-010), with Heli/Artillery/RktArty landing below their v11 durability (FR-011)
+- [ ] T021 [US1] Rebase the ~21 chassis base stats in `crates/engine/src/content.rs` so aggregate survivability does not rise (FR-010). Artillery and RktArty land below their v11 durability; the **Helicopter lands level, not below** — it already dies at tick 48 with 0% survival and has no headroom (FR-011, see `baseline/squishy-survival.md`)
 - [ ] T022 [P] [US1] Mirror `ablativeDelta`, `ablativeMods`, and `mountScale` in `sim/ruleset.ts` with exported defaults, following the `DEFAULT_ENERGY_MODES` pattern
 - [ ] T023 [P] [US1] Add trust-boundary validation for the new fields in `server/ruleset-validate.ts` per the contract's validation column — reject out-of-range values, never coerce
 - [ ] T024 [US1] Explain all four defensive families from live ruleset values in `lib/garage/explain.ts`, including ablative's pool, save chance, and non-regeneration (FR-033)
