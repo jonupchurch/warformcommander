@@ -18,9 +18,12 @@
 
 import type { BehaviorDials } from '@/sim/model';
 import type { MachineTypeId } from '@/sim/model';
+import { DEFAULT_ENERGY_MODES } from '@/sim/ruleset';
 import type {
   Capability,
   DamageFamily,
+  EnergyModes,
+  EnergyProfile,
   ReachTag,
   Ruleset,
   StatDeltas,
@@ -291,19 +294,12 @@ export function explainUtility(utility: UtilityModule, ruleset: Ruleset): Explan
 
 // --- dials -----------------------------------------------------------------
 
-/**
- * Outgoing-damage multipliers for the energy dial. These mirror `energy_damage_mult` in
- * `crates/engine/src/sim/behavior.rs` — they are engine constants, not ruleset data, so unlike
- * everything else on this page they cannot be read from the ruleset.
- */
-const ENERGY_MULT: Record<string, number> = {
-  Overdrive: 12000,
-  Offense: 11000,
-  Balanced: 10000,
-  Adaptive: 10000,
-  Defense: 9000,
-  Fortify: 8500,
-};
+/** The energy dial's table for a ruleset, falling back to the engine default when omitted. */
+function energyProfile(value: string, ruleset: Ruleset): EnergyProfile | null {
+  const table = ruleset.energyModes ?? DEFAULT_ENERGY_MODES;
+  const key = value.toLowerCase() as keyof EnergyModes;
+  return table[key] ?? null;
+}
 
 const DIAL_BLURB: Record<string, string> = {
   // Target row
@@ -338,16 +334,28 @@ const DIAL_CAVEAT: Record<string, string> = {
   Kite: 'No effect yet — this machine will hold position.',
   Reposition: 'No effect yet — this machine will hold position.',
   Escort: 'No effect yet — this machine will hold position.',
-  Defense: 'Costs damage but grants no defensive benefit yet.',
-  Fortify: 'Costs damage but grants no defensive benefit yet.',
   Adaptive: 'Currently identical to Balanced.',
+};
+
+/** Energy-mode prose. Each mode is a two-sided trade; the numbers come from the ruleset. */
+const ENERGY_BLURB: Record<string, string> = {
+  Overdrive: 'All-out attack. Hits hardest in the game, and takes the most in return.',
+  Offense: 'Leans into the attack, accepting a little more incoming damage.',
+  Balanced: 'No trade either way — the neutral posture.',
+  Adaptive: 'Intended to shift posture as the battle turns.',
+  Defense: 'An even trade: gives up damage for the same measure of protection.',
+  Fortify: 'The dug-in posture — gives up the most damage, and gains the most protection.',
 };
 
 /** The stance dial is stored and validated, but no engine code path reads it. */
 const STANCE_CAVEAT = 'No effect yet — nothing in the engine reads the stance dial.';
 
 /** Explain one selected dial value. */
-export function explainDial(dial: keyof BehaviorDials, value: string): Explanation {
+export function explainDial(
+  dial: keyof BehaviorDials,
+  value: string,
+  ruleset: Ruleset,
+): Explanation {
   const title = humanize(value);
 
   if (dial === 'stance') {
@@ -355,23 +363,30 @@ export function explainDial(dial: keyof BehaviorDials, value: string): Explanati
   }
 
   const effects: EffectLine[] = [];
+  let blurb = DIAL_BLURB[value] ?? '';
+
   if (dial === 'energy') {
-    const bp = ENERGY_MULT[value];
-    if (bp !== undefined) {
+    blurb = ENERGY_BLURB[value] ?? blurb;
+    const p = energyProfile(value, ruleset);
+    if (p) {
+      // Both halves, always — the point of the dial is that it is a trade, so showing only the
+      // side that favours the player would misrepresent the choice.
+      const tone = (bp: number, higherIsBetter: boolean): EffectLine['tone'] =>
+        bp === 10000 ? 'none' : bp > 10000 === higherIsBetter ? 'gain' : 'cost';
       effects.push({
-        label: 'Outgoing damage',
-        value: mult(bp),
-        tone: bp > 10000 ? 'gain' : bp < 10000 ? 'cost' : 'none',
+        label: 'Damage dealt',
+        value: mult(p.damageDealt),
+        tone: tone(p.damageDealt, true),
+      });
+      effects.push({
+        label: 'Damage taken',
+        value: mult(p.damageTaken),
+        tone: tone(p.damageTaken, false),
       });
     }
   }
 
-  return {
-    title,
-    blurb: DIAL_BLURB[value] ?? '',
-    effects,
-    caveat: DIAL_CAVEAT[value],
-  };
+  return { title, blurb, effects, caveat: DIAL_CAVEAT[value] };
 }
 
 /** The five dials in display order, with the labels the Behavior tab uses. */

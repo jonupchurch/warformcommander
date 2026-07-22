@@ -15,7 +15,8 @@ use std::collections::BTreeMap;
 use crate::fixed::Fixed;
 use crate::model::army::MachineInstance;
 use crate::model::ruleset::{
-    AirModifiers, CadenceTicks, DamageMatrix, GlobalConstants, LayerMultipliers, Ruleset,
+    AirModifiers, CadenceTicks, DamageMatrix, EnergyModes, GlobalConstants, LayerMultipliers,
+    Ruleset,
 };
 use crate::model::types::{
     AuraEffect, AuraKind, AuraScope, BaseStats, CadenceTier, Capability, ChassisVariant,
@@ -90,6 +91,7 @@ pub fn seed_ruleset() -> Ruleset {
             hit_clamp_max: 9_500,    // 95%
         },
         role_damage_bonuses: BTreeMap::new(),
+        energy_modes: EnergyModes::default(),
     }
 }
 
