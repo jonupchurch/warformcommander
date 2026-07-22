@@ -13,6 +13,12 @@ import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { SectionLabel } from '@/components/ui/section-label';
 import { familyTone } from '@/lib/garage/display';
 import {
+  explainDefense,
+  explainUtility,
+  explainWeapon,
+  type Explanation,
+} from '@/lib/garage/explain';
+import {
   defenseOptions,
   isNativeWeapon,
   utilityOptions,
@@ -22,6 +28,7 @@ import type { SlotIndex } from '@/lib/garage/types';
 import { useGarageEditor } from '@/lib/garage/use-garage-editor';
 import { cn } from '@/lib/utils';
 
+import { EffectBreakdown } from './effect-breakdown';
 import { FieldSelect } from './field-select';
 
 function WeaponRow({ slot }: { slot: SlotIndex }) {
@@ -142,6 +149,32 @@ function UtilityRows({ slot }: { slot: SlotIndex }) {
   );
 }
 
+/** What the currently equipped weapon / defense / utilities actually do. */
+function LoadoutBreakdown({ slot }: { slot: SlotIndex }) {
+  const { session, ruleset } = useGarageEditor();
+  const machine = session.draft.machines[slot];
+  if (machine === null) return null;
+
+  const items: { slotLabel: string; ex: Explanation }[] = [];
+
+  const weapon = ruleset.equipment[machine.loadout.weapon];
+  if (weapon?.kind === 'Weapon') {
+    items.push({ slotLabel: 'WEAPON', ex: explainWeapon(weapon, machine.typeId, ruleset) });
+  }
+  const defense = ruleset.equipment[machine.loadout.defense];
+  if (defense?.kind === 'Defense') {
+    items.push({ slotLabel: 'DEFENSE', ex: explainDefense(defense, ruleset) });
+  }
+  machine.loadout.utilities.forEach((id, index) => {
+    const util = ruleset.equipment[id];
+    if (util?.kind === 'Utility') {
+      items.push({ slotLabel: `SLOT ${index + 1}`, ex: explainUtility(util, ruleset) });
+    }
+  });
+
+  return <EffectBreakdown index="04" title="What this build does" items={items} />;
+}
+
 export function LoadoutEditor() {
   const { session } = useGarageEditor();
   const slot = session.selection.selectedSlot;
@@ -158,6 +191,7 @@ export function LoadoutEditor() {
       <WeaponRow slot={slot} />
       <DefenseRow slot={slot} />
       <UtilityRows slot={slot} />
+      <LoadoutBreakdown slot={slot} />
     </div>
   );
 }

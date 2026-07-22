@@ -19,12 +19,14 @@ import {
   dialOptionLocked,
 } from '@/lib/garage/dials';
 import { humanize } from '@/lib/garage/display';
+import { DIAL_SECTIONS, explainDial } from '@/lib/garage/explain';
 import type { SlotIndex } from '@/lib/garage/types';
 import { useGarageEditor } from '@/lib/garage/use-garage-editor';
 import { unlockedCapabilities } from '@/sim/derive';
 import type { BehaviorDials } from '@/sim/model';
 import { cn } from '@/lib/utils';
 
+import { EffectBreakdown } from './effect-breakdown';
 import { FieldSelect } from './field-select';
 
 function DialSelect({
@@ -107,5 +109,27 @@ export function DialEditor() {
         <DialSelect slot={slot} dial="stance" options={STANCE_OPTIONS} />
       </div>
     </div>
+  );
+}
+
+/**
+ * What the selected dials actually do. Rendered at the foot of the Behavior tab (after Plan-B) so
+ * the explanations sit below every control they describe.
+ */
+export function DialBreakdown() {
+  const { session } = useGarageEditor();
+  const slot = session.selection.selectedSlot;
+  const machine = slot === null ? null : session.draft.machines[slot];
+  if (machine === null) return null;
+
+  return (
+    <EffectBreakdown
+      index="06"
+      title="What these orders do"
+      items={DIAL_SECTIONS.map(({ dial, label }) => ({
+        slotLabel: label.toUpperCase(),
+        ex: explainDial(dial, machine.dials[dial]),
+      }))}
+    />
   );
 }

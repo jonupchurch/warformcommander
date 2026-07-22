@@ -21,7 +21,7 @@ import type { EditorPane } from '@/lib/garage/types';
 import { useGarageEditor } from '@/lib/garage/use-garage-editor';
 import { cn } from '@/lib/utils';
 
-import { DialEditor } from './dial-editor';
+import { DialBreakdown, DialEditor } from './dial-editor';
 import { LoadoutEditor } from './loadout-editor';
 import { PlanBEditor } from './planb-editor';
 import { PresetPicker } from './preset-picker';
@@ -98,6 +98,7 @@ export function CustomizeSurface() {
             <div className="flex flex-col gap-6">
               <DialEditor />
               <PlanBEditor />
+              <DialBreakdown />
             </div>
           ) : pane === 'Presets' ? (
             <PresetPicker />

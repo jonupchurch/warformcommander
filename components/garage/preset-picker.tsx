@@ -14,9 +14,12 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Chip } from '@/components/ui/chip';
 import { SectionLabel } from '@/components/ui/section-label';
+import { summarizeBuild } from '@/lib/garage/explain';
 import { buildStockCatalog } from '@/lib/garage/preset-catalog';
 import { presetsForType } from '@/lib/garage/presets';
 import { useGarageEditor } from '@/lib/garage/use-garage-editor';
+
+import { EffectBreakdown } from './effect-breakdown';
 
 export function PresetPicker() {
   const { session, ruleset, presets, applyStock, applyCustom, saveCurrentAsPreset } =
@@ -133,6 +136,21 @@ export function PresetPicker() {
           </p>
         )}
       </div>
+
+      <EffectBreakdown
+        index="04"
+        title="Current build"
+        items={[
+          {
+            slotLabel: activeId ? 'FROM PRESET' : 'UNSAVED',
+            ex: {
+              title: machine.variantId,
+              blurb: 'What applying or saving a preset would replace.',
+              effects: summarizeBuild(machine.loadout, machine.dials, ruleset),
+            },
+          },
+        ]}
+      />
     </div>
   );
 }
