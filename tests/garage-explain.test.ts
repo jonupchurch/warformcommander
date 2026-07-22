@@ -99,11 +99,33 @@ describe('defenses', () => {
     expect(move?.tone).toBe('cost');
   });
 
-  it('says plainly when a defense grants nothing', () => {
+  it('shows the Balanced default granting real armor and a shield (no longer a no-op)', () => {
+    // v2: the old "Standard Hull" no-op default is now Balanced — a modest mix, no drawback. The id
+    // StandardHullMech is retained from v1, but the module is the Balanced family.
     const ex = explainDefense(defense('StandardHullMech'), rs);
-    expect(ex.effects).toEqual([
-      { label: 'Effect', value: 'None — this slot grants nothing', tone: 'none' },
-    ]);
+    expect(values(ex, 'Armor')).toHaveLength(1);
+    expect(values(ex, 'Shield')).toHaveLength(1);
+    expect(ex.effects.every((e) => e.value !== 'None — this slot grants nothing')).toBe(true);
+  });
+
+  it('describes an ablative pool with its save chance and non-regen caveat', () => {
+    const ex = explainDefense(defense('MechAblative'), rs);
+    // Mech mount scale is ×1.0, so the pool shows its full base of 600 and the 20% default save.
+    expect(values(ex, 'Ablative')[0]).toBe('+600 one-time pool · 20% chance per hit not to deplete');
+    expect(ex.caveat).toMatch(/never regenerates/);
+  });
+
+  it('scales the displayed defensive numbers by mount class', () => {
+    // The heli mount carries a ×0.6 scale, so the SAME ablative module shows a smaller pool than the
+    // Mech's — the Garage displays what the unit actually receives, not the module's unscaled base.
+    const heli = explainDefense(defense('HeliAblative'), rs);
+    expect(values(heli, 'Ablative')[0]).toBe('+360 one-time pool · 20% chance per hit not to deplete');
+  });
+
+  it('reads the ablative save chance live from the ruleset', () => {
+    const tuned: Ruleset = { ...rs, ablativeMods: { saveChance: 3500 } };
+    const ex = explainDefense(defense('MechAblative'), tuned);
+    expect(values(ex, 'Ablative')[0]).toContain('35% chance');
   });
 });
 

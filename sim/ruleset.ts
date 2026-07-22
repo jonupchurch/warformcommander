@@ -36,8 +36,8 @@ export type ReachTag = 'Nearest' | 'FrontMid' | 'AnyGround' | 'Air' | 'Deep';
 /** Fire-cadence tier (`CadenceTier`) — ticks between shots. */
 export type CadenceTier = 'Fast' | 'Medium' | 'Slow' | 'Siege';
 
-/** A support unit's reach for heals/auras (`SupportRange`). */
-export type SupportRange = 'OwnZone' | 'OwnPlusAdjacent';
+/** A support unit's reach for heals/auras (`SupportRange`). `WholeArmy` reaches every zone. */
+export type SupportRange = 'OwnZone' | 'OwnPlusAdjacent' | 'WholeArmy';
 
 /**
  * A capability an equipped utility unlocks (`Capability`) — gates advanced dials / Plan-B / reach /
@@ -161,11 +161,17 @@ export interface WeaponSpec {
   statDeltas: StatDeltas;
 }
 
+/** An ablative pool a defense grants (`AblativeDelta`) — one-time, non-regenerating absorption (v2). */
+export interface AblativeDelta {
+  cap: number; // milli
+}
+
 /** A defense module's spec fields (`DefenseSpec`). */
 export interface DefenseSpec {
   mountClass: MountClass;
   armorPctDelta: number; // bp
   shieldDelta?: ShieldDelta;
+  ablativeDelta?: AblativeDelta;
   specialMitigation?: MitigationMod;
   tradeoff: StatDeltas;
 }
@@ -266,6 +272,60 @@ export const DEFAULT_ENERGY_MODES: EnergyModes = {
   fortify: { damageDealt: 8500, damageTaken: 8000 },
 };
 
+/** Ablative-defense tuning (`AblativeMods`, v2). Only the save chance is a knob; sizing is per-module. */
+export interface AblativeMods {
+  saveChance: number; // bp — chance a hit does NOT deplete the pool
+}
+
+/** The engine's `AblativeMods::default()`, mirrored for when a stored ruleset omits the field. */
+export const DEFAULT_ABLATIVE_MODS: AblativeMods = { saveChance: 2000 };
+
+/**
+ * Per-mount-class defensive magnitude scaling (`MountScale`, v2) — the single knob that redistributes
+ * how much survivability each mount gets from the same defense module. Applied at derive time to
+ * armor %, shield pool, and ablative pool alike.
+ */
+export interface MountScale {
+  heavy: number; // bp
+  light: number;
+  mech: number;
+  heli: number;
+  rktArty: number;
+  artillery: number;
+  support: number;
+}
+
+/** The engine's `MountScale::default()`, mirrored for when a stored ruleset omits the field. */
+export const DEFAULT_MOUNT_SCALE: MountScale = {
+  heavy: 10000,
+  light: 8000,
+  mech: 10000,
+  heli: 6000,
+  rktArty: 7000,
+  artillery: 7000,
+  support: 9000,
+};
+
+/** The mount-scale factor (bp) for a mount class, from a ruleset's table or the default. */
+export function mountScaleFor(scale: MountScale, mount: MountClass): number {
+  switch (mount) {
+    case 'Heavy':
+      return scale.heavy;
+    case 'Light':
+      return scale.light;
+    case 'Mech':
+      return scale.mech;
+    case 'Heli':
+      return scale.heli;
+    case 'RktArty':
+      return scale.rktArty;
+    case 'Artillery':
+      return scale.artillery;
+    case 'Support':
+      return scale.support;
+  }
+}
+
 /** Global combat coefficients + tick budget (`GlobalConstants`). The derivation reads `splashCap`. */
 export interface GlobalConstants {
   tickRate: number;
@@ -298,6 +358,10 @@ export interface Ruleset {
   roleDamageBonuses?: Record<string, RoleDamageBonus>;
   /** The energy dial's dealt/taken table; omitted at the default ({@link DEFAULT_ENERGY_MODES}). */
   energyModes?: EnergyModes;
+  /** Ablative save chance; omitted at the default ({@link DEFAULT_ABLATIVE_MODS}). */
+  ablativeMods?: AblativeMods;
+  /** Per-mount defensive scaling; omitted at the default ({@link DEFAULT_MOUNT_SCALE}). */
+  mountScale?: MountScale;
 }
 
 // --- Derived output --------------------------------------------------------
@@ -313,6 +377,7 @@ export interface EffectiveStats {
   shieldCap: number; // milli
   shieldRegen: number; // milli
   shieldDelay: number; // ticks
+  ablativeCap: number; // milli — v2 one-time non-regenerating pool (0 when no ablative defense)
   damage: number; // milli
   damageType: DamageType;
   family: DamageFamily;

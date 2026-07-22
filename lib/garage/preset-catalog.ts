@@ -55,15 +55,30 @@ function defaultWeapon(
   return pick.id;
 }
 
-/** The default defense for a mount: prefer the zero-cost identity hull, else the first mount-legal one. */
+/**
+ * The engine's canonical default-defense id per mount (`base_defense_id` in
+ * crates/engine/src/content.rs) — the Balanced module. The `StandardHull*` ids are retained from v1
+ * for save/fixture stability, but the modules are now the Balanced family (armor + shield, no cost).
+ */
+const BASE_DEFENSE_ID: Record<MountClass, string> = {
+  Heavy: 'StandardHullHeavy',
+  Light: 'StandardHullLight',
+  Mech: 'StandardHullMech',
+  Heli: 'StandardHullHeli',
+  RktArty: 'StandardHullRktArty',
+  Artillery: 'StandardHullArtillery',
+  Support: 'StandardHullSupport',
+};
+
+/** The default defense for a mount: the Balanced module, else the first mount-legal one. */
 function defaultDefense(mount: MountClass, ruleset: Ruleset): EquipmentId {
   const defenses = equipmentList(ruleset).filter(
     (m) => m.kind === 'Defense' && m.mountClass === mount,
   );
-  const identity = defenses.find(
-    (d) => d.kind === 'Defense' && d.armorPctDelta === 0 && !d.shieldDelta && !d.specialMitigation,
-  );
-  const pick = identity ?? defenses[0];
+  // Prefer the engine's canonical default (Balanced). Fall back to the first legal defense only if a
+  // custom ruleset dropped it — never silently pick a specialist (e.g. Ablative) as the default.
+  const balanced = defenses.find((d) => d.id === BASE_DEFENSE_ID[mount]);
+  const pick = balanced ?? defenses[0];
   if (!pick) throw new Error(`no ${mount}-mount defense in the ruleset`);
   return pick.id;
 }

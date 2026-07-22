@@ -18,7 +18,12 @@
 
 import type { BehaviorDials } from '@/sim/model';
 import type { MachineTypeId } from '@/sim/model';
-import { DEFAULT_ENERGY_MODES } from '@/sim/ruleset';
+import {
+  DEFAULT_ABLATIVE_MODS,
+  DEFAULT_ENERGY_MODES,
+  DEFAULT_MOUNT_SCALE,
+  mountScaleFor,
+} from '@/sim/ruleset';
 import type {
   Capability,
   DamageFamily,
@@ -67,6 +72,12 @@ function signedPct(bp: number): string {
 /** `Bp` → a ×multiplier. */
 function mult(bp: number): string {
   return `×${(bp / 10000).toFixed(2)}`;
+}
+
+/** `Bp` → an unsigned percent (e.g. a probability). */
+function pct(bp: number): string {
+  const v = bp / 100;
+  return `${Number.isInteger(v) ? v : v.toFixed(1)}%`;
 }
 
 /** Shots per second for a cadence tier, from the ruleset's tick table. */
@@ -234,14 +245,26 @@ export function explainWeapon(
 /** Explain the equipped defense — its layer, any special mitigation, and its tradeoff. */
 export function explainDefense(defense: DefenseModule, ruleset: Ruleset): Explanation {
   const effects: EffectLine[] = [];
+  // Defensive magnitudes scale by mount class (v2), so show what THIS mount actually receives, not
+  // the module's unscaled base — the fragile back-rank mounts get proportionally less (FR-033).
+  const scale = mountScaleFor(ruleset.mountScale ?? DEFAULT_MOUNT_SCALE, defense.mountClass);
+  const byScale = (v: number): number => Math.trunc((v * scale) / 10_000);
   if (defense.armorPctDelta !== 0) {
-    effects.push({ label: 'Armor', value: signedPct(defense.armorPctDelta), tone: 'gain' });
+    effects.push({ label: 'Armor', value: signedPct(byScale(defense.armorPctDelta)), tone: 'gain' });
   }
   if (defense.shieldDelta) {
     const s = defense.shieldDelta;
     effects.push({
       label: 'Shield',
-      value: `${signedUnits(s.cap)} pool · ${signedUnits(s.regen)} regen/tick · ${s.delay} tick delay`,
+      value: `${signedUnits(byScale(s.cap))} pool · ${signedUnits(s.regen)} regen/tick · ${s.delay} tick delay`,
+      tone: 'gain',
+    });
+  }
+  if (defense.ablativeDelta) {
+    const save = (ruleset.ablativeMods ?? DEFAULT_ABLATIVE_MODS).saveChance;
+    effects.push({
+      label: 'Ablative',
+      value: `${signedUnits(byScale(defense.ablativeDelta.cap))} one-time pool · ${pct(save)} chance per hit not to deplete`,
       tone: 'gain',
     });
   }
@@ -257,11 +280,15 @@ export function explainDefense(defense: DefenseModule, ruleset: Ruleset): Explan
   if (effects.length === 0) {
     effects.push({ label: 'Effect', value: 'None — this slot grants nothing', tone: 'none' });
   }
+  // The ablative pool's defining drawback is inherent, not a stat line: it never comes back.
+  const caveat =
+    EQUIPMENT_CAVEAT[defense.id] ??
+    (defense.ablativeDelta ? 'The ablative pool never regenerates — once spent, it is gone.' : undefined);
   return {
     title: defense.name,
     blurb: EQUIPMENT_BLURB[defense.id] ?? '',
     effects,
-    caveat: EQUIPMENT_CAVEAT[defense.id],
+    caveat,
   };
 }
 

@@ -142,6 +142,29 @@ export function validateRuleset(data: unknown): RulesetValidation {
     }
   }
 
+  // ablativeMods is optional (omitted at the default). The save chance is a probability in bp — a
+  // value outside [0,1] would make the pool never deplete or deplete negatively.
+  const abl = (rs as unknown as Record<string, unknown>).ablativeMods;
+  if (abl !== undefined) {
+    if (typeof abl !== "object" || abl === null) return fail("ablativeMods must be an object");
+    const sc = (abl as Record<string, unknown>).saveChance;
+    if (!inRange(sc, 0, BP_MAX)) return fail("ablativeMods.saveChance must be in 0..10000 bp");
+  }
+
+  // mountScale is optional (omitted at the default). Every mount factor must be present, finite, and
+  // positive — a non-positive scale would zero out or invert a mount's entire defensive layer.
+  const ms = (rs as unknown as Record<string, unknown>).mountScale;
+  if (ms !== undefined) {
+    if (typeof ms !== "object" || ms === null) return fail("mountScale must be an object");
+    const scale = ms as Record<string, unknown>;
+    for (const mount of ["heavy", "light", "mech", "heli", "rktArty", "artillery", "support"]) {
+      const v = scale[mount];
+      if (typeof v !== "number" || !Number.isFinite(v) || v <= 0) {
+        return fail(`mountScale.${mount} must be a positive number`);
+      }
+    }
+  }
+
   // 6) Per-variant base stats — the bp fields are fractions/probabilities in [0,1] (0..10000 bp),
   //    hull positive, damage non-negative. Catches an out-of-[0,1] probability or a bad splash.
   const BP_FIELDS = ["armorPct", "accuracy", "critChance", "splash", "penetration", "evasion"] as const;

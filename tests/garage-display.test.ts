@@ -43,8 +43,10 @@ describe('statBars', () => {
       'EVASION',
     ]);
     const byLabel = Object.fromEntries(bars.map((b) => [b.label, b]));
-    expect(byLabel.HULL.display).toBe('1700'); // 1_700_000 milli → 1700 units
-    expect(byLabel.ARMOR.display).toBe('30%'); // 3000 bp → 30%
+    // Derived with the default Balanced defense (v2): the Grizzly's base hull was rebased to 1479
+    // and the Balanced default adds +5% armor (30% → 35%) plus a small shield pool.
+    expect(byLabel.HULL.display).toBe('1479'); // 1_479_000 milli → 1479 units
+    expect(byLabel.ARMOR.display).toBe('35%'); // 3000 bp base + 500 bp Balanced → 35%
     expect(byLabel.DAMAGE.display).toBe('35'); // HeavyCannon identity → 35
   });
 

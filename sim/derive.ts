@@ -20,6 +20,8 @@ import type { Army, Loadout, MachineInstance } from './model';
 export type DerivableMachine = Pick<MachineInstance, 'typeId' | 'variantId' | 'loadout'>;
 import {
   CAPABILITY_ORDER,
+  DEFAULT_MOUNT_SCALE,
+  mountScaleFor,
   type CadenceTier,
   type Capability,
   type DamageFamily,
@@ -189,15 +191,21 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
   applyDeltas(acc, weapon.spec.statDeltas);
   const family = weapon.spec.family;
 
-  // --- Defense (armor/shield layer + its tradeoff cost) ---
+  // --- Defense (armor/shield/ablative layer + its tradeoff cost) ---
+  // Defensive magnitudes scale by mount class (v2): armor %, shield pool, and ablative pool alike, so
+  // one mount-scale table redistributes how much each mount gets from the same module. Mirrors
+  // `derive_effective_stats` in crates/engine/src/model/army.rs.
   const defense = lookupDefense(ruleset, machine.loadout.defense);
   if (!defense.ok) return defense;
-  acc.armorPct += defense.spec.armorPctDelta;
+  const scale = mountScaleFor(ruleset.mountScale ?? DEFAULT_MOUNT_SCALE, defense.spec.mountClass);
+  const scaleBp = (v: number): number => Math.trunc((v * scale) / BP_ONE);
+  acc.armorPct += scaleBp(defense.spec.armorPctDelta);
   applyDeltas(acc, defense.spec.tradeoff);
   const s = defense.spec.shieldDelta;
-  const shieldCap = s ? base.shieldCap + s.cap : base.shieldCap;
+  const shieldCap = s ? base.shieldCap + scaleBp(s.cap) : base.shieldCap;
   const shieldRegen = s ? base.shieldRegen + s.regen : base.shieldRegen;
   const shieldDelay = s ? clamp(base.shieldDelay + s.delay, 0, U16_MAX) : base.shieldDelay;
+  const ablativeCap = defense.spec.ablativeDelta ? scaleBp(defense.spec.ablativeDelta.cap) : 0;
   const specialMitigation = defense.spec.specialMitigation ?? null;
 
   // --- Utilities (additive deltas + capability unlocks + cadence shifts) ---
@@ -238,6 +246,7 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
       shieldCap,
       shieldRegen,
       shieldDelay,
+      ablativeCap,
       damage: Math.max(acc.damage, 0),
       damageType,
       family,

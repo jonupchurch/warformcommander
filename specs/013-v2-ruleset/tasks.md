@@ -71,36 +71,36 @@ within 10% of baseline; Heli/Arty/RktArty die no slower than on v11.
 
 > Write these first and confirm they fail before implementing.
 
-- [ ] T007 [P] [US1] Create `crates/engine/tests/defenses.rs` asserting each mount class offers four distinct, non-empty defensive options
-- [ ] T008 [P] [US1] Add ablative depletion tests to `crates/engine/tests/defenses.rs` — pool absorbs `min(incoming, remaining)`, overflow carries to hull, pool never regenerates, and depletion is terminal
-- [ ] T009 [P] [US1] Add ablative save tests to `crates/engine/tests/defenses.rs` — a save preserves capacity without increasing absorption, and a save on a pool-emptying hit leaves the pool intact and non-negative
-- [ ] T010 [P] [US1] Extend `crates/engine/tests/counterweb.rs` to assert the three layers fail to different threats: penetration defeats shields but not ablative, Energy punishes armour, attrition defeats ablative
+- [X] T007 [P] [US1] Create `crates/engine/tests/defenses.rs` asserting each mount class offers four distinct, non-empty defensive options
+- [X] T008 [P] [US1] Add ablative depletion tests to `crates/engine/tests/defenses.rs` — pool absorbs `min(incoming, remaining)`, overflow carries to hull, pool never regenerates, and depletion is terminal
+- [X] T009 [P] [US1] Add ablative save tests to `crates/engine/tests/defenses.rs` — a save preserves capacity without increasing absorption, and a save on a pool-emptying hit leaves the pool intact and non-negative
+- [X] T010 [P] [US1] Extend `crates/engine/tests/counterweb.rs` to assert the three layers fail to different threats: penetration defeats shields but not ablative, Energy punishes armour, attrition defeats ablative
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Add `AblativeDelta { cap }` and the optional `ablative_delta` field on `DefenseSpec` in `crates/engine/src/model/types.rs`, following the existing `Option` + `skip_serializing_if` convention
-- [ ] T012 [P] [US1] Add `AblativeMods { save_chance }` and `MountScale` tables to `crates/engine/src/model/ruleset.rs`, both `#[serde(default, skip_serializing_if = "…is_default")]` per [contracts/ruleset-additions.md](./contracts/ruleset-additions.md)
-- [ ] T013 [US1] Add `DamageLayer::Ablative` to `crates/engine/src/replay/mod.rs` and the additive `ablative: Fixed` field on `MachineSnapshot`
-- [ ] T014 [US1] Add `ablative_cap` to `EffectiveStats` and derive it in `derive_effective_stats` in `crates/engine/src/model/army.rs` (depends on T011)
-- [ ] T015 [US1] Add the `ablative: Fixed` field to `Combatant` in `crates/engine/src/sim/mod.rs`, initialised from `stats.ablative_cap` at battle setup (depends on T014)
-- [ ] T016 [US1] Insert the ablative layer between shields and hull in `mitigate` in `crates/engine/src/sim/damage.rs`, taking a pre-rolled `save: bool` parameter so the function stays pure (R3); penetration must NOT bypass it (R2)
-- [ ] T017 [US1] Roll the ablative save in `apply_damage` in `crates/engine/src/sim/damage.rs`, drawing only when the target has a non-empty pool, and emit `DamageLayer::Ablative` hits (depends on T016)
-- [ ] T018 [US1] Generate the 28 defense modules (4 families × 7 mount classes) via a scale-table loop in `crates/engine/src/content.rs`, mirroring the existing base-hull loop (depends on T012)
-- [ ] T019 [US1] Give each family its distinct drawback in `crates/engine/src/content.rs` — Armor costs movement, Shield is penetration-vulnerable, Ablative never regenerates, Balanced has none (FR-008)
-- [ ] T020 [US1] Delete the seven `StandardHull*` entries and repoint `base_defense_id` at the Balanced module per mount class in `crates/engine/src/content.rs` (R10 — this updates every stock loadout, archetype, and fixture at once)
-- [ ] T021 [US1] Rebase the ~21 chassis base stats in `crates/engine/src/content.rs` so aggregate survivability does not rise (FR-010). Artillery and RktArty land below their v11 durability; the **Helicopter lands level, not below** — it already dies at tick 48 with 0% survival and has no headroom (FR-011, see `baseline/squishy-survival.md`)
-- [ ] T022 [P] [US1] Mirror `ablativeDelta`, `ablativeMods`, and `mountScale` in `sim/ruleset.ts` with exported defaults, following the `DEFAULT_ENERGY_MODES` pattern
-- [ ] T023 [P] [US1] Add trust-boundary validation for the new fields in `server/ruleset-validate.ts` per the contract's validation column — reject out-of-range values, never coerce
-- [ ] T024 [US1] Explain all four defensive families from live ruleset values in `lib/garage/explain.ts`, including ablative's pool, save chance, and non-regeneration (FR-033)
-- [ ] T025 [US1] Add coverage for the new defensive copy to `tests/garage-explain.test.ts`, asserting numbers follow a mutated ruleset rather than authored text
+- [X] T011 [P] [US1] Add `AblativeDelta { cap }` and the optional `ablative_delta` field on `DefenseSpec` in `crates/engine/src/model/types.rs`, following the existing `Option` + `skip_serializing_if` convention
+- [X] T012 [P] [US1] Add `AblativeMods { save_chance }` and `MountScale` tables to `crates/engine/src/model/ruleset.rs`, both `#[serde(default, skip_serializing_if = "…is_default")]` per [contracts/ruleset-additions.md](./contracts/ruleset-additions.md)
+- [X] T013 [US1] Add `DamageLayer::Ablative` to `crates/engine/src/replay/mod.rs` and the additive `ablative: Fixed` field on `MachineSnapshot`
+- [X] T014 [US1] Add `ablative_cap` to `EffectiveStats` and derive it in `derive_effective_stats` in `crates/engine/src/model/army.rs` (depends on T011)
+- [X] T015 [US1] Add the `ablative: Fixed` field to `Combatant` in `crates/engine/src/sim/mod.rs`, initialised from `stats.ablative_cap` at battle setup (depends on T014)
+- [X] T016 [US1] Insert the ablative layer between shields and hull in `mitigate` in `crates/engine/src/sim/damage.rs`, taking a pre-rolled `save: bool` parameter so the function stays pure (R3); penetration must NOT bypass it (R2)
+- [X] T017 [US1] Roll the ablative save in `apply_damage` in `crates/engine/src/sim/damage.rs`, drawing only when the target has a non-empty pool, and emit `DamageLayer::Ablative` hits (depends on T016)
+- [X] T018 [US1] Generate the 28 defense modules (4 families × 7 mount classes) via a scale-table loop in `crates/engine/src/content.rs`, mirroring the existing base-hull loop (depends on T012)
+- [X] T019 [US1] Give each family its distinct drawback in `crates/engine/src/content.rs` — Armor costs movement, Shield is penetration-vulnerable, Ablative never regenerates, Balanced has none (FR-008)
+- [X] T020 [US1] Delete the seven `StandardHull*` entries and repoint `base_defense_id` at the Balanced module per mount class in `crates/engine/src/content.rs` (R10 — this updates every stock loadout, archetype, and fixture at once)
+- [X] T021 [US1] Rebase the ~21 chassis base stats in `crates/engine/src/content.rs` so aggregate survivability does not rise (FR-010). Artillery and RktArty land below their v11 durability; the **Helicopter lands level, not below** — it already dies at tick 48 with 0% survival and has no headroom (FR-011, see `baseline/squishy-survival.md`)
+- [X] T022 [P] [US1] Mirror `ablativeDelta`, `ablativeMods`, and `mountScale` in `sim/ruleset.ts` with exported defaults, following the `DEFAULT_ENERGY_MODES` pattern
+- [X] T023 [P] [US1] Add trust-boundary validation for the new fields in `server/ruleset-validate.ts` per the contract's validation column — reject out-of-range values, never coerce
+- [X] T024 [US1] Explain all four defensive families from live ruleset values in `lib/garage/explain.ts`, including ablative's pool, save chance, and non-regeneration (FR-033)
+- [X] T025 [US1] Add coverage for the new defensive copy to `tests/garage-explain.test.ts`, asserting numbers follow a mutated ruleset rather than authored text
 
 ### Verification for User Story 1
 
-- [ ] T026 [US1] Run `cargo test`, `cargo clippy --all-targets -- -D warnings`, and `cargo fmt`; re-bless the goldens and review the diff as a genuine balance change, not a rubber stamp (R10)
-- [ ] T027 [US1] Rebuild wasm and restore generated files — `wasm-pack build crates/engine --target nodejs --out-dir ../../packages/engine-wasm --release` then `git checkout -- packages/engine-wasm/.gitignore packages/engine-wasm/package.json`
-- [ ] T028 [US1] Verify native/wasm byte-identity on all four seeds via `cargo run -q -p engine --example emit_battery` and `node scripts/wasm-parity.mjs` (P6, non-negotiable)
-- [ ] T029 [US1] Run `npx tsc --noEmit`, `npm test`, and `npm run build`
-- [ ] T030 [US1] Run the balancer and compare against `specs/013-v2-ruleset/baseline/comparison-points.md`, recording results — SC-003 (≥25% shielded/ablative EHP), SC-004 (zero single-option mount classes), SC-005 (duration within 10%), SC-008 (squishy chassis no tankier)
+- [X] T026 [US1] Run `cargo test`, `cargo clippy --all-targets -- -D warnings`, and `cargo fmt`; re-bless the goldens and review the diff as a genuine balance change, not a rubber stamp (R10)
+- [X] T027 [US1] Rebuild wasm and restore generated files — `wasm-pack build crates/engine --target nodejs --out-dir ../../packages/engine-wasm --release` then `git checkout -- packages/engine-wasm/.gitignore packages/engine-wasm/package.json`
+- [X] T028 [US1] Verify native/wasm byte-identity on all four seeds via `cargo run -q -p engine --example emit_battery` and `node scripts/wasm-parity.mjs` (P6, non-negotiable)
+- [X] T029 [US1] Run `npx tsc --noEmit`, `npm test`, and `npm run build`
+- [X] T030 [US1] Run the balancer and compare against `specs/013-v2-ruleset/baseline/comparison-points.md`, recording results — SC-003 (≥25% shielded/ablative EHP), SC-004 (zero single-option mount classes), SC-005 (duration within 10%), SC-008 (squishy chassis no tankier)
 
 **Checkpoint**: US1 fully functional. Ship as v12 — **engine deploys before re-seed**.
 

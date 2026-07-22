@@ -89,11 +89,14 @@ describe('computeStatPreview', () => {
   });
 
   it('summaryTags report AA readiness from the squad composition', () => {
-    // No air-capable machine → NO AA.
-    expect(computeStatPreview(legalDraft(), 0, rs).summaryTags).toContain('NO AA');
+    // A ground-only squad has no way to engage air → NO AA. (legalDraft carries a Gunship, which IS
+    // air-capable by default in current content, so we replace it with a ground unit here.)
+    const noAir = legalDraft();
+    noAir.machines[3] = machineFor('Hunter', 'Middle');
+    expect(computeStatPreview(noAir, 0, rs).summaryTags).toContain('NO AA');
     // Swap in a Rocket-Artillery (air-capable by default) → AA READY.
     const withAA = legalDraft();
-    withAA.machines[4] = machineFor('Sentry', 'Rear');
+    withAA.machines[3] = machineFor('Sentry', 'Middle');
     expect(computeStatPreview(withAA, 0, rs).summaryTags).toContain('AA READY');
   });
 });
