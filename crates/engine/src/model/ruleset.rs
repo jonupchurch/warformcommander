@@ -140,8 +140,22 @@ pub struct AirModifiers {
     pub aa_dmg_mult: Bp,
     /// Direct-fire "plink" vs air: additive accuracy penalty, bp (`-2_500` = −0.25).
     pub plink_acc_penalty: Bp,
-    /// Direct-fire "plink" vs air: damage multiplier, bp (`5_000` = ×0.5).
+    /// A non-AA weapon plinking **air** (a heli dogfighting, a direct-fire unit shooting up): damage
+    /// multiplier, bp (`5_000` = ×0.5). Tunes air-to-air lethality independently of ground suppression.
     pub plink_dmg_mult: Bp,
+    /// A SAM (Air-reach) suppressing **ground** once the skies are clear: its own damage multiplier,
+    /// bp. Split from `plink_dmg_mult` so anti-air lethality and ground suppression tune separately
+    /// (make dogfights deadlier without buffing SAM bombardment, or soften bombardment without
+    /// weakening dogfights). Defaults to the historical shared plink value, so a ruleset row saved
+    /// before this field existed deserializes with identical SAM-vs-ground behavior.
+    #[serde(default = "default_sam_ground_dmg_mult")]
+    pub sam_ground_dmg_mult: Bp,
+}
+
+/// Back-compat default for [`AirModifiers::sam_ground_dmg_mult`]: the historical `plink_dmg_mult`
+/// content value, so a pre-split ruleset row deserializes with unchanged SAM-vs-ground behavior.
+fn default_sam_ground_dmg_mult() -> Bp {
+    5_000
 }
 
 /// Global combat coefficients + the tick budget (stat block §1). All bp unless a count.
@@ -312,6 +326,7 @@ mod tests {
                 aa_dmg_mult: 15_000,
                 plink_acc_penalty: -2_500,
                 plink_dmg_mult: 5_000,
+                sam_ground_dmg_mult: 5_000,
             },
             globals: GlobalConstants {
                 tick_rate: 10,

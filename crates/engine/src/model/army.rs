@@ -561,6 +561,7 @@ mod tests {
                 aa_dmg_mult: 15_000,
                 plink_acc_penalty: -2_500,
                 plink_dmg_mult: 5_000,
+                sam_ground_dmg_mult: 5_000,
             },
             globals: GlobalConstants {
                 tick_rate: 10,

@@ -212,7 +212,10 @@ export interface AirModifiers {
   aaAccBonus: number;
   aaDmgMult: number;
   plinkAccPenalty: number;
+  /** Non-AA weapon plinking air (dogfights) — air-to-air damage multiplier. */
   plinkDmgMult: number;
+  /** SAM (Air-reach) suppressing ground — damage multiplier, split from `plinkDmgMult`. */
+  samGroundDmgMult: number;
 }
 
 /** Global combat coefficients + tick budget (`GlobalConstants`). The derivation reads `splashCap`. */

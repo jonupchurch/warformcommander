@@ -46,8 +46,9 @@ pub(crate) fn resolve_attack(
 
     // --- Hit chance: accuracy − evasion, with off-domain modifiers, clamped. ---
     // `domain_mult` scales damage for a weapon firing outside its element: AA vs air gets the bonus;
-    // a ground weapon plinking air, OR a SAM bombarding ground once the skies are clear, takes the
-    // matching "plink" penalty (symmetric off-role fire). Same-domain fire is BP_ONE (no change).
+    // a non-AA weapon plinking air takes the `plink` penalty; a SAM bombarding ground once the skies
+    // are clear takes the plink *accuracy* penalty but its own `sam_ground` damage multiplier — so
+    // air-to-air lethality and ground suppression tune independently. Same-domain fire is BP_ONE.
     let mut acc = prof.accuracy;
     let mut domain_mult = BP_ONE;
     if target_air {
@@ -55,13 +56,13 @@ pub(crate) fn resolve_attack(
             acc += ruleset.air_mods.aa_acc_bonus; // AA bonus
             domain_mult = ruleset.air_mods.aa_dmg_mult;
         } else {
-            acc += ruleset.air_mods.plink_acc_penalty; // direct-fire "plink"
+            acc += ruleset.air_mods.plink_acc_penalty; // direct-fire "plink" (incl. dogfights)
             domain_mult = ruleset.air_mods.plink_dmg_mult;
         }
     } else if prof.reach == ReachTag::Air {
-        // SAM suppressing ground: same plink penalty a ground weapon takes against air.
+        // SAM suppressing ground: keep the plink accuracy penalty, but its own damage multiplier.
         acc += ruleset.air_mods.plink_acc_penalty;
-        domain_mult = ruleset.air_mods.plink_dmg_mult;
+        domain_mult = ruleset.air_mods.sam_ground_dmg_mult;
     }
     let hit_chance =
         (acc - combatants[target_idx].stats.evasion).clamp(g.hit_clamp_min, g.hit_clamp_max);

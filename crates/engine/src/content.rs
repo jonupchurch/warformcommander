@@ -69,10 +69,11 @@ pub fn seed_ruleset() -> Ruleset {
             siege: 10,
         },
         air_mods: AirModifiers {
-            aa_acc_bonus: 1_000,       // +0.10
-            aa_dmg_mult: 15_000,       // ×1.5
-            plink_acc_penalty: -2_500, // −0.25
-            plink_dmg_mult: 5_000,     // ×0.5
+            aa_acc_bonus: 1_000,        // +0.10
+            aa_dmg_mult: 15_000,        // ×1.5
+            plink_acc_penalty: -2_500,  // −0.25
+            plink_dmg_mult: 5_000,      // ×0.5  (non-AA vs air — dogfights)
+            sam_ground_dmg_mult: 5_000, // ×0.5  (SAM vs ground — split from plink)
         },
         globals: GlobalConstants {
             tick_rate: 10,

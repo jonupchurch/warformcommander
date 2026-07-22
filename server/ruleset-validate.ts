@@ -108,7 +108,7 @@ export function validateRuleset(data: unknown): RulesetValidation {
   // airMods are signed modifiers (e.g. `plinkAccPenalty` is a negative accuracy penalty) — require
   // present + finite, not a sign.
   const am = rs.airMods;
-  for (const k of ["aaAccBonus", "aaDmgMult", "plinkAccPenalty", "plinkDmgMult"] as const) {
+  for (const k of ["aaAccBonus", "aaDmgMult", "plinkAccPenalty", "plinkDmgMult", "samGroundDmgMult"] as const) {
     if (typeof am[k] !== "number" || !Number.isFinite(am[k])) return fail(`airMods.${k} must be a finite number`);
   }
 
