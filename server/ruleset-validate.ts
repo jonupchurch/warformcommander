@@ -165,6 +165,41 @@ export function validateRuleset(data: unknown): RulesetValidation {
     }
   }
 
+  // stanceAggro is optional (omitted at the default). Every offset is a small signed integer tier;
+  // an out-of-range value would let a stance monopolise or vanish from targeting entirely.
+  const sa = (rs as unknown as Record<string, unknown>).stanceAggro;
+  if (sa !== undefined) {
+    if (typeof sa !== "object" || sa === null) return fail("stanceAggro must be an object");
+    const aggro = sa as Record<string, unknown>;
+    for (const stance of [
+      "aggressive",
+      "neutral",
+      "defensive",
+      "protector",
+      "opportunist",
+      "triage",
+      "sustain",
+      "empower",
+    ]) {
+      const v = aggro[stance];
+      if (typeof v !== "number" || !Number.isInteger(v) || v < -8 || v > 8) {
+        return fail(`stanceAggro.${stance} must be an integer in -8..8`);
+      }
+    }
+  }
+
+  // executeMods is optional (omitted at the default). Threshold is a hull fraction in bp; bonus is a
+  // non-negative additive multiplier (0 disables the mechanic).
+  const exm = (rs as unknown as Record<string, unknown>).executeMods;
+  if (exm !== undefined) {
+    if (typeof exm !== "object" || exm === null) return fail("executeMods must be an object");
+    const em2 = exm as Record<string, unknown>;
+    if (!inRange(em2.threshold, 0, BP_MAX)) return fail("executeMods.threshold must be in 0..10000 bp");
+    if (typeof em2.bonus !== "number" || !Number.isFinite(em2.bonus) || em2.bonus < 0) {
+      return fail("executeMods.bonus must be a non-negative number");
+    }
+  }
+
   // 6) Per-variant base stats — the bp fields are fractions/probabilities in [0,1] (0..10000 bp),
   //    hull positive, damage non-negative. Catches an out-of-[0,1] probability or a bad splash.
   const BP_FIELDS = ["armorPct", "accuracy", "critChance", "splash", "penetration", "evasion"] as const;

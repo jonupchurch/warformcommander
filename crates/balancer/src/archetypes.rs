@@ -7,7 +7,7 @@
 use engine::content::stock_instance;
 use engine::model::army::{Army, MachineInstance};
 use engine::model::ruleset::Ruleset;
-use engine::model::types::{EquipmentId, MachineTypeId, TargetRow, ZoneId};
+use engine::model::types::{EquipmentId, MachineTypeId, Stance, TargetRow, ZoneId};
 
 /// A labeled army builder — a candidate combo / field opponent (data-model MatchupSpec source).
 #[derive(Clone, Copy)]
@@ -382,12 +382,68 @@ pub fn combined_arms_field() -> Vec<Archetype> {
     ]
 }
 
+/// Assign a **role-based stance** to a placed machine (v2 stance diagnostic): front-zone units become
+/// Protectors that soak for the line, the fragile Rear backline goes Defensive to hide, and the middle
+/// holds Neutral. This is the deliberate, sensible use of the dial the balancer needs to *see* stance
+/// at all — every archetype otherwise carries stock `Neutral`, and a uniform-stance army is by design
+/// identical to all-Neutral (research R8), so without this the dial reads as inert no matter how well
+/// it works.
+fn stance_by_role(mut m: MachineInstance) -> MachineInstance {
+    m.dials.stance = match m.zone {
+        ZoneId::Front => Stance::Protector,
+        ZoneId::Rear => Stance::Defensive,
+        ZoneId::Middle | ZoneId::Air => Stance::Neutral,
+    };
+    m
+}
+
+/// A combined-arms archetype with the role-based stance layer applied — same composition, stanced.
+fn stanced(build: fn(&Ruleset) -> Army) -> impl Fn(&Ruleset) -> Army {
+    move |rs: &Ruleset| Army {
+        machines: build(rs).machines.into_iter().map(stance_by_role).collect(),
+    }
+}
+
+/// The stance-diagnostic field: the combined-arms archetypes, each with the role-based stance layer.
+/// Swept against the plain `combined` field, a difference in standings is the measurable proof that
+/// stance changes outcomes (SC-006), which no uniform-stance field can show.
+pub fn stance_field() -> Vec<Archetype> {
+    // The `build` fn pointers must be 'static, so we route through named wrappers per archetype.
+    vec![
+        Archetype {
+            label: "ca-line-stanced",
+            build: |rs| stanced(ca_line)(rs),
+        },
+        Archetype {
+            label: "ca-mobile-stanced",
+            build: |rs| stanced(ca_mobile)(rs),
+        },
+        Archetype {
+            label: "ca-air-stanced",
+            build: |rs| stanced(ca_air)(rs),
+        },
+        Archetype {
+            label: "ca-siege-stanced",
+            build: |rs| stanced(ca_siege)(rs),
+        },
+        Archetype {
+            label: "ca-aa-stanced",
+            build: |rs| stanced(ca_aa)(rs),
+        },
+        Archetype {
+            label: "ca-attrition-stanced",
+            build: |rs| stanced(ca_attrition)(rs),
+        },
+    ]
+}
+
 /// Resolve a `--field` selector to a field. `mono` is the canonical reference field (the default);
 /// `combined` is the combined-arms diagnostic; `all` sweeps both together (12 archetypes, 132
-/// matchups) to see how the two pools fare against each other.
+/// matchups); `stance` is the role-stanced combined-arms field (the v2 stance measurement).
 pub fn field_by_name(name: &str) -> Vec<Archetype> {
     match name {
         "combined" => combined_arms_field(),
+        "stance" => stance_field(),
         "all" => default_field()
             .into_iter()
             .chain(combined_arms_field())

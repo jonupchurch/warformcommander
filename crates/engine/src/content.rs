@@ -15,8 +15,8 @@ use std::collections::BTreeMap;
 use crate::fixed::Fixed;
 use crate::model::army::MachineInstance;
 use crate::model::ruleset::{
-    AblativeMods, AirModifiers, CadenceTicks, DamageMatrix, EnergyModes, GlobalConstants,
-    LayerMultipliers, MountScale, Ruleset,
+    AblativeMods, AirModifiers, CadenceTicks, DamageMatrix, EnergyModes, ExecuteMods,
+    GlobalConstants, LayerMultipliers, MountScale, Ruleset, StanceAggro,
 };
 use crate::model::types::{
     AblativeDelta, AuraEffect, AuraKind, AuraScope, BaseStats, CadenceTier, Capability,
@@ -94,6 +94,8 @@ pub fn seed_ruleset() -> Ruleset {
         energy_modes: EnergyModes::default(),
         ablative_mods: AblativeMods::default(),
         mount_scale: MountScale::default(),
+        stance_aggro: StanceAggro::default(),
+        execute_mods: ExecuteMods::default(),
     }
 }
 

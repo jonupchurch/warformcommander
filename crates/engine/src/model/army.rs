@@ -598,6 +598,8 @@ mod tests {
             energy_modes: EnergyModes::default(),
             ablative_mods: crate::model::ruleset::AblativeMods::default(),
             mount_scale: crate::model::ruleset::MountScale::default(),
+            stance_aggro: crate::model::ruleset::StanceAggro::default(),
+            execute_mods: crate::model::ruleset::ExecuteMods::default(),
         }
     }
 

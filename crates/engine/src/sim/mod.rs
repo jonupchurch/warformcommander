@@ -210,13 +210,15 @@ fn survivors(combatants: &[Combatant], side: Side) -> u8 {
 }
 
 /// Can any living non-support combatant still reach an enemy? `false` ⇒ no side can make progress
-/// (only rear-locked or mutually-unreachable units remain), so the game is a stalemate.
-fn any_offense_possible(combatants: &[Combatant]) -> bool {
+/// (only rear-locked or mutually-unreachable units remain), so the game is a stalemate. Stance
+/// narrowing never empties a non-empty row, so it does not change this reachability answer — the
+/// ruleset is threaded only for signature consistency.
+fn any_offense_possible(combatants: &[Combatant], ruleset: &Ruleset) -> bool {
     (0..combatants.len()).any(|i| {
         let c = &combatants[i];
         c.alive
             && c.stats.family != crate::model::types::DamageFamily::Support
-            && target::select_target(combatants, i, None).is_some()
+            && target::select_target(combatants, i, ruleset, None).is_some()
     })
 }
 
@@ -313,7 +315,9 @@ pub(crate) fn run_game(
             if combatants[i].stats.family == crate::model::types::DamageFamily::Support {
                 continue;
             }
-            if let Some(target_idx) = target::select_target(combatants, i, Some(&mut air_focus)) {
+            if let Some(target_idx) =
+                target::select_target(combatants, i, ruleset, Some(&mut air_focus))
+            {
                 damage::resolve_attack(combatants, i, target_idx, tick, ruleset, rng, &mut events);
                 combatants[i].cooldown = cooldown_ticks(&combatants[i].stats, ruleset);
             }
@@ -337,7 +341,7 @@ pub(crate) fn run_game(
         // Stalemate guard: both sides still alive but nobody can reach a target (only rear-locked or
         // mutually-unreachable units remain) → no progress is possible. Resolve now via the tick-cap
         // tiebreak instead of idling silently to the cap.
-        if !any_offense_possible(combatants) {
+        if !any_offense_possible(combatants, ruleset) {
             game_over = Some(outcome::time_result(
                 combatants,
                 tick + 1,

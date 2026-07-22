@@ -70,6 +70,14 @@ pub struct Ruleset {
     /// out of the same slot. Omitted from serialization at the default (hash-stable).
     #[serde(default, skip_serializing_if = "MountScale::is_default")]
     pub mount_scale: MountScale,
+    /// Stance fire-priority offsets (v2) — the aggro tiers that narrow the candidate row before the
+    /// Target Rule picks. An allocation axis, not a magnitude one. Omitted at the default (hash-stable).
+    #[serde(default, skip_serializing_if = "StanceAggro::is_default")]
+    pub stance_aggro: StanceAggro,
+    /// The Opportunist execute bonus (v2) — extra damage against targets below a hull threshold.
+    /// Omitted from serialization at the default (hash-stable).
+    #[serde(default, skip_serializing_if = "ExecuteMods::is_default")]
+    pub execute_mods: ExecuteMods,
 }
 
 impl Ruleset {
@@ -304,6 +312,91 @@ impl MountScale {
     /// Serialization skip at the default (hash stability).
     pub fn is_default(&self) -> bool {
         *self == MountScale::default()
+    }
+}
+
+/// Stance fire-priority offsets (v2). **Lower is targeted first.** These are *relative* within a row:
+/// a uniform set of offsets is a no-op (FR-017), so the dial expresses a ranking of one's own units,
+/// not an acquired bonus. Combat stances (Aggressive/Defensive/Protector) carry real offsets; the
+/// support and gated stances sit at 0 (their behaviour lives elsewhere).
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StanceAggro {
+    pub aggressive: i8,
+    pub neutral: i8,
+    pub defensive: i8,
+    pub protector: i8,
+    pub opportunist: i8,
+    pub triage: i8,
+    pub sustain: i8,
+    pub empower: i8,
+}
+
+impl Default for StanceAggro {
+    /// Aggressive/Protector draw fire (−1), Defensive sheds it (+1), everything else is tier-neutral.
+    /// Protector shares Aggressive's tier; its distinction is cross-zone reach, not a deeper tier.
+    fn default() -> Self {
+        StanceAggro {
+            aggressive: -1,
+            neutral: 0,
+            defensive: 1,
+            protector: -1,
+            opportunist: 0,
+            triage: 0,
+            sustain: 0,
+            empower: 0,
+        }
+    }
+}
+
+impl StanceAggro {
+    /// The fire-priority offset for a stance (lower is targeted first).
+    pub fn offset(&self, stance: crate::model::types::Stance) -> i8 {
+        use crate::model::types::Stance;
+        match stance {
+            Stance::Aggressive => self.aggressive,
+            Stance::Neutral => self.neutral,
+            Stance::Defensive => self.defensive,
+            Stance::Protector => self.protector,
+            Stance::Opportunist => self.opportunist,
+            Stance::Triage => self.triage,
+            Stance::Sustain => self.sustain,
+            Stance::Empower => self.empower,
+        }
+    }
+
+    /// Serialization skip at the default (hash stability).
+    pub fn is_default(&self) -> bool {
+        *self == StanceAggro::default()
+    }
+}
+
+/// The Opportunist execute bonus (v2). Extra damage against a target below `threshold` hull — the one
+/// stance that is a self-trade on the otherwise team-trade stance dial, which is why it is the gated,
+/// premium pick. Setting `bonus` to `0` disables the mechanic without a code change (individually
+/// reversible, like every v2 balance lever).
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ExecuteMods {
+    /// Hull fraction (bp) at or below which the bonus applies. `4_000` = 40%.
+    pub threshold: Bp,
+    /// Additive damage multiplier above `BP_ONE` against a target under the threshold. `3_000` = +30%.
+    pub bonus: Bp,
+}
+
+impl Default for ExecuteMods {
+    fn default() -> Self {
+        ExecuteMods {
+            threshold: 4_000,
+            bonus: 3_000,
+        }
+    }
+}
+
+impl ExecuteMods {
+    /// Serialization skip at the default (hash stability).
+    pub fn is_default(&self) -> bool {
+        *self == ExecuteMods::default()
     }
 }
 
@@ -570,6 +663,8 @@ mod tests {
             energy_modes: EnergyModes::default(),
             ablative_mods: AblativeMods::default(),
             mount_scale: MountScale::default(),
+            stance_aggro: StanceAggro::default(),
+            execute_mods: ExecuteMods::default(),
         }
     }
 }

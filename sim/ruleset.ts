@@ -295,6 +295,39 @@ export interface MountScale {
   support: number;
 }
 
+/** Stance fire-priority offsets (`StanceAggro`, v2). Lower is targeted first; relative within a row. */
+export interface StanceAggro {
+  aggressive: number;
+  neutral: number;
+  defensive: number;
+  protector: number;
+  opportunist: number;
+  triage: number;
+  sustain: number;
+  empower: number;
+}
+
+/** The engine's `StanceAggro::default()`, mirrored for when a stored ruleset omits the field. */
+export const DEFAULT_STANCE_AGGRO: StanceAggro = {
+  aggressive: -1,
+  neutral: 0,
+  defensive: 1,
+  protector: -1,
+  opportunist: 0,
+  triage: 0,
+  sustain: 0,
+  empower: 0,
+};
+
+/** The Opportunist execute bonus (`ExecuteMods`, v2) — extra damage below a hull threshold. */
+export interface ExecuteMods {
+  threshold: number; // bp — hull fraction at/below which the bonus applies
+  bonus: number; // bp — additive damage multiplier above 1.0
+}
+
+/** The engine's `ExecuteMods::default()`, mirrored for when a stored ruleset omits the field. */
+export const DEFAULT_EXECUTE_MODS: ExecuteMods = { threshold: 4000, bonus: 3000 };
+
 /** The engine's `MountScale::default()`, mirrored for when a stored ruleset omits the field. */
 export const DEFAULT_MOUNT_SCALE: MountScale = {
   heavy: 10000,
@@ -362,6 +395,10 @@ export interface Ruleset {
   ablativeMods?: AblativeMods;
   /** Per-mount defensive scaling; omitted at the default ({@link DEFAULT_MOUNT_SCALE}). */
   mountScale?: MountScale;
+  /** Stance fire-priority offsets; omitted at the default ({@link DEFAULT_STANCE_AGGRO}). */
+  stanceAggro?: StanceAggro;
+  /** The Opportunist execute bonus; omitted at the default ({@link DEFAULT_EXECUTE_MODS}). */
+  executeMods?: ExecuteMods;
 }
 
 // --- Derived output --------------------------------------------------------

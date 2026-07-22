@@ -6,7 +6,9 @@
 
 use crate::fixed::{Bp, Fixed, BP_ONE};
 use crate::model::ruleset::Ruleset;
-use crate::model::types::{Capability, DamageFamily, DamageType, MachineTypeId, ReachTag, ZoneId};
+use crate::model::types::{
+    Capability, DamageFamily, DamageType, MachineTypeId, ReachTag, Stance, ZoneId,
+};
 use crate::replay::{DamageLayer, TickEvent, UnitRef};
 use crate::rng::Rng;
 
@@ -27,6 +29,17 @@ fn profile(att: &Combatant, ruleset: &Ruleset) -> AttackProfile {
         reach: att.stats.reach,
         anti_air: att.stats.capabilities.contains(&Capability::AntiAir),
         energy_mult: behavior::energy_damage_mult(att.dials.energy, ruleset),
+    }
+}
+
+/// The Opportunist execute multiplier: bonus damage against a target at/below the hull threshold, and
+/// only for an attacker holding the Opportunist stance (v2). `BP_ONE` otherwise. Computed per victim so
+/// a splash into a healthy unit is not executed while the primary (a wounded one) is.
+fn execute_mult(att_stance: Stance, target: &Combatant, ruleset: &Ruleset) -> Bp {
+    if att_stance == Stance::Opportunist && target.hull_pct() <= ruleset.execute_mods.threshold {
+        BP_ONE + ruleset.execute_mods.bonus
+    } else {
+        BP_ONE
     }
 }
 
@@ -117,10 +130,13 @@ pub(crate) fn resolve_attack(
     let target_posture =
         behavior::energy_damage_taken_mult(combatants[target_idx].dials.energy, ruleset);
     let save = roll_ablative_save(&combatants[target_idx], ruleset, rng);
+    let att_stance = combatants[att_idx].dials.stance;
+    let execute = execute_mult(att_stance, &combatants[target_idx], ruleset);
     let (sh, ab, hu, died) = apply_damage(
         &mut combatants[target_idx],
         d0.mul_bp(role_mult(ruleset, att_type, target_type))
-            .mul_bp(target_posture),
+            .mul_bp(target_posture)
+            .mul_bp(execute),
         prof.damage_type,
         prof.penetration,
         save,
@@ -157,7 +173,8 @@ pub(crate) fn resolve_attack(
                 .mul_bp(behavior::energy_damage_taken_mult(
                     combatants[j].dials.energy,
                     ruleset,
-                ));
+                ))
+                .mul_bp(execute_mult(att_stance, &combatants[j], ruleset));
             if let Some(m) = combatants[j].stats.special_mitigation {
                 if m.against == prof.damage_type {
                     sd0 = sd0.mul_bp(m.splash_taken_mult);

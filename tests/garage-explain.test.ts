@@ -224,10 +224,25 @@ describe('dials', () => {
     }
   });
 
-  it('warns that stance is not wired, for every option', () => {
-    for (const stance of ['Aggressive', 'Neutral', 'Opportunist', 'Triage']) {
-      expect(explainDial('stance', stance, rs).caveat).toMatch(/No effect yet/);
+  it('explains stance as a fire-allocation dial (v2 — no longer inert)', () => {
+    // Every combat stance now has a blurb and no "not wired" caveat.
+    for (const stance of ['Aggressive', 'Neutral', 'Defensive', 'Protector', 'Opportunist']) {
+      const ex = explainDial('stance', stance, rs);
+      expect(ex.blurb, `${stance} blurb`).not.toBe('');
+      expect(ex.caveat).toBeUndefined();
     }
+    // Aggressive draws fire (a cost); Defensive sheds it (a gain).
+    expect(explainDial('stance', 'Aggressive', rs).effects.find((e) => e.label === 'Draws fire')?.tone).toBe('cost');
+    expect(explainDial('stance', 'Defensive', rs).effects.find((e) => e.label === 'Sheds fire')?.tone).toBe('gain');
+  });
+
+  it('shows the Opportunist execute bonus from the ruleset', () => {
+    const ex = explainDial('stance', 'Opportunist', rs);
+    expect(ex.effects.find((e) => e.label === 'Execute')?.value).toBe('+30% damage vs targets under 40% hull');
+    const tuned: Ruleset = { ...rs, executeMods: { threshold: 5000, bonus: 5000 } };
+    expect(explainDial('stance', 'Opportunist', tuned).effects.find((e) => e.label === 'Execute')?.value).toBe(
+      '+50% damage vs targets under 50% hull',
+    );
   });
 
   it('warns that the unimplemented movement modes do not move', () => {

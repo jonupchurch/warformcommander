@@ -21,7 +21,9 @@ import type { MachineTypeId } from '@/sim/model';
 import {
   DEFAULT_ABLATIVE_MODS,
   DEFAULT_ENERGY_MODES,
+  DEFAULT_EXECUTE_MODS,
   DEFAULT_MOUNT_SCALE,
+  DEFAULT_STANCE_AGGRO,
   mountScaleFor,
 } from '@/sim/ruleset';
 import type {
@@ -374,8 +376,29 @@ const ENERGY_BLURB: Record<string, string> = {
   Fortify: 'The dug-in posture — gives up the most damage, and gains the most protection.',
 };
 
-/** The stance dial is stored and validated, but no engine code path reads it. */
-const STANCE_CAVEAT = 'No effect yet — nothing in the engine reads the stance dial.';
+/** Per-stance prose (v2). Stance is a fire-allocation axis: it decides which of your units gets shot. */
+const STANCE_BLURB: Record<string, string> = {
+  Aggressive: 'Draws enemy fire ahead of your other units in the same row — and its own targeting cannot be baited by an enemy taunt or hidden from by an enemy Defensive stance.',
+  Neutral: 'No fire-priority change. The baseline every other stance is measured against.',
+  Defensive: 'Targeted only when no other option remains in its row — hide a fragile, high-value unit behind its rowmates.',
+  Protector: 'Draws fire ahead of your other units, and extends that cover to allies in the adjacent ground zones an attacker can already reach — a bodyguard for the line.',
+  Opportunist: 'Deals bonus damage to any enemy already below the execute threshold — finishes off the wounded.',
+  Triage: 'Support: commits its repair to whichever ally is closest to dying.',
+  Sustain: 'Support: keeps still-effective allies topped up rather than chasing losses.',
+  Empower: 'Support: forgoes repair to strengthen nearby allies instead.',
+};
+
+/** The stance keys that carry a fire-priority tier, with the sign of their effect. */
+const STANCE_AGGRO_KEY: Record<string, keyof import('@/sim/ruleset').StanceAggro> = {
+  Aggressive: 'aggressive',
+  Neutral: 'neutral',
+  Defensive: 'defensive',
+  Protector: 'protector',
+  Opportunist: 'opportunist',
+  Triage: 'triage',
+  Sustain: 'sustain',
+  Empower: 'empower',
+};
 
 /** Explain one selected dial value. */
 export function explainDial(
@@ -386,7 +409,21 @@ export function explainDial(
   const title = humanize(value);
 
   if (dial === 'stance') {
-    return { title, blurb: '', effects: [], caveat: STANCE_CAVEAT };
+    const effects: EffectLine[] = [];
+    const aggro = ruleset.stanceAggro ?? DEFAULT_STANCE_AGGRO;
+    const key = STANCE_AGGRO_KEY[value];
+    if (key) {
+      const offset = aggro[key];
+      // Lower offset = drawn first. Negative pulls fire in (a cost you take on), positive sheds it.
+      const label = offset < 0 ? 'Draws fire' : offset > 0 ? 'Sheds fire' : 'Fire priority';
+      const tone: EffectLine['tone'] = offset < 0 ? 'cost' : offset > 0 ? 'gain' : 'none';
+      effects.push({ label, value: offset === 0 ? 'Neutral' : `tier ${offset > 0 ? '+' : ''}${offset}`, tone });
+    }
+    if (value === 'Opportunist') {
+      const ex = ruleset.executeMods ?? DEFAULT_EXECUTE_MODS;
+      effects.push({ label: 'Execute', value: `+${(ex.bonus / 100).toFixed(0)}% damage vs targets under ${(ex.threshold / 100).toFixed(0)}% hull`, tone: 'gain' });
+    }
+    return { title, blurb: STANCE_BLURB[value] ?? '', effects };
   }
 
   const effects: EffectLine[] = [];
