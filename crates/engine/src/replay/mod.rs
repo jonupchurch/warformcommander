@@ -88,6 +88,10 @@ pub struct MachineSnapshot {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub enum DamageLayer {
     Shield,
+    /// The v2 ablative pool — one-time, non-regenerating absorption between shields and hull. A new
+    /// variant, so a variant-aware engine must deploy *before* any ruleset re-seed that can produce it
+    /// (serde errors on an unknown enum variant; research R7).
+    Ablative,
     Hull,
 }
 

@@ -94,6 +94,9 @@ pub struct EffectiveStats {
     pub shield_cap: Fixed,
     pub shield_regen: Fixed,
     pub shield_delay: u16,
+    /// v2 ablative pool — one-time, non-regenerating absorption between shields and hull. `ZERO` when
+    /// no ablative defense is mounted (the overwhelmingly common case).
+    pub ablative_cap: Fixed,
     // Offense
     pub damage: Fixed,
     pub damage_type: DamageType,
@@ -232,14 +235,22 @@ pub fn derive_effective_stats(
     let defense = lookup_defense(ruleset, &machine.loadout.defense)?;
     acc.armor_pct += defense.armor_pct_delta;
     acc.apply(&defense.tradeoff);
+    // Defensive magnitudes scale by mount class (v2): the fragile back-rank mounts get less out of
+    // the same slot, so lighting up their dead defense slot redistributes survivability rather than
+    // inflating it. The scale is applied once, here, to shield and ablative capacity alike.
+    let scale = ruleset.mount_scale.for_mount(defense.mount_class);
     let (shield_cap, shield_regen, shield_delay) = match &defense.shield_delta {
         Some(s) => (
-            base.shield_cap.saturating_add(s.cap),
+            base.shield_cap.saturating_add(s.cap.mul_bp(scale)),
             base.shield_regen.saturating_add(s.regen),
             (base.shield_delay as i32 + s.delay as i32).clamp(0, u16::MAX as i32) as u16,
         ),
         None => (base.shield_cap, base.shield_regen, base.shield_delay),
     };
+    let ablative_cap = defense
+        .ablative_delta
+        .map(|a| a.cap.mul_bp(scale))
+        .unwrap_or(Fixed::ZERO);
     let special_mitigation = defense.special_mitigation;
 
     // --- Utilities (additive deltas + capability unlocks + cadence shifts) ---
@@ -291,6 +302,7 @@ pub fn derive_effective_stats(
         shield_cap,
         shield_regen,
         shield_delay,
+        ablative_cap,
         damage: acc.damage.max_zero(),
         damage_type,
         family,
@@ -458,6 +470,7 @@ mod tests {
                     mount_class: MountClass::Heavy,
                     armor_pct_delta: 1_200,
                     shield_delta: None,
+                    ablative_delta: None,
                     special_mitigation: None,
                     tradeoff: StatDeltas {
                         move_speed: -1,
@@ -480,6 +493,7 @@ mod tests {
                         regen: Fixed::from_int(6),
                         delay: 25,
                     }),
+                    ablative_delta: None,
                     special_mitigation: None,
                     tradeoff: StatDeltas::default(),
                 }),
@@ -580,6 +594,8 @@ mod tests {
             },
             role_damage_bonuses: BTreeMap::new(),
             energy_modes: EnergyModes::default(),
+            ablative_mods: crate::model::ruleset::AblativeMods::default(),
+            mount_scale: crate::model::ruleset::MountScale::default(),
         }
     }
 

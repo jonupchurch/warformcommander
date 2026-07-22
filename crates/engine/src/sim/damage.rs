@@ -116,16 +116,18 @@ pub(crate) fn resolve_attack(
     // and the *target's* energy posture scaling what it takes). ---
     let target_posture =
         behavior::energy_damage_taken_mult(combatants[target_idx].dials.energy, ruleset);
-    let (sh, hu, died) = apply_damage(
+    let save = roll_ablative_save(&combatants[target_idx], ruleset, rng);
+    let (sh, ab, hu, died) = apply_damage(
         &mut combatants[target_idx],
         d0.mul_bp(role_mult(ruleset, att_type, target_type))
             .mul_bp(target_posture),
         prof.damage_type,
         prof.penetration,
+        save,
         ruleset,
     );
-    emit_hit(events, prof.actor, target_ref, sh, hu, crit, false);
-    let mut dealt = sh.saturating_add(hu);
+    emit_hit(events, prof.actor, target_ref, sh, ab, hu, crit, false);
+    let mut dealt = sh.saturating_add(ab).saturating_add(hu);
     if died {
         kill(&mut combatants[target_idx], tick);
         events.push(TickEvent::Death {
@@ -162,15 +164,20 @@ pub(crate) fn resolve_attack(
                 }
             }
             let sunit = combatants[j].unit;
-            let (s2, h2, died2) = apply_damage(
+            let save = roll_ablative_save(&combatants[j], ruleset, rng);
+            let (s2, a2, h2, died2) = apply_damage(
                 &mut combatants[j],
                 sd0,
                 prof.damage_type,
                 prof.penetration,
+                save,
                 ruleset,
             );
-            emit_hit(events, prof.actor, sunit, s2, h2, false, true);
-            dealt = dealt.saturating_add(s2).saturating_add(h2);
+            emit_hit(events, prof.actor, sunit, s2, a2, h2, false, true);
+            dealt = dealt
+                .saturating_add(s2)
+                .saturating_add(a2)
+                .saturating_add(h2);
             if died2 {
                 kill(&mut combatants[j], tick);
                 events.push(TickEvent::Death {
@@ -184,45 +191,70 @@ pub(crate) fn resolve_attack(
     combatants[att_idx].damage_dealt = combatants[att_idx].damage_dealt.saturating_add(dealt);
 }
 
-/// Apply an incoming `d0` (already fully modified) through shields then hull, mutating the target.
-/// Returns `(shield_damage, hull_damage, died)`.
+/// Roll whether an incoming hit spares the target's ablative pool (a "save" — the pool absorbs the
+/// damage but is not consumed). **Drawn only when a pool exists**, so battles with no ablative machine
+/// consume the RNG stream byte-identically to before v2 (research R3). One draw per absorbing victim.
+fn roll_ablative_save(target: &Combatant, ruleset: &Ruleset, rng: &mut Rng) -> bool {
+    target.ablative.milli() > 0 && rng.roll_bp() < ruleset.ablative_mods.save_chance
+}
+
+/// Apply an incoming `d0` (already fully modified) through shields → ablative → hull, mutating the
+/// target. `ablative_save` (a pre-rolled outcome, so this stays a pure function of state + one bool)
+/// decides only whether the ablative *pool* is consumed by what it absorbs — the absorbed amount and
+/// the hull leak-through are identical either way (research R4). Returns
+/// `(shield_damage, ablative_damage, hull_damage, died)`.
+// The arguments are the mitigation pipeline itself (target, damage, type, penetration, save,
+// ruleset); a wrapper struct would hide the layering these tests exercise directly.
+#[allow(clippy::too_many_arguments)]
 fn apply_damage(
     target: &mut Combatant,
     d0: Fixed,
     dtype: DamageType,
     penetration: Bp,
+    ablative_save: bool,
     ruleset: &Ruleset,
-) -> (Fixed, Fixed, bool) {
-    let (shield_dealt, hull_dealt) = mitigate(
+) -> (Fixed, Fixed, Fixed, bool) {
+    let (shield_dealt, ablative_dealt, hull_dealt) = mitigate(
         d0,
         dtype,
         penetration,
         target.shield,
+        target.ablative,
         target.hull,
         target.stats.armor_pct,
         ruleset,
     );
     target.shield = target.shield.saturating_sub(shield_dealt).max_zero();
+    // The pool absorbs `ablative_dealt` regardless, but is only *consumed* on a non-save — a save
+    // blocks the damage without spending capacity. The pool never regenerates, so once spent it is
+    // gone for the rest of the battle.
+    if !ablative_save {
+        target.ablative = target.ablative.saturating_sub(ablative_dealt).max_zero();
+    }
     target.hull = target.hull.saturating_sub(hull_dealt).max_zero();
     target.ticks_since_hit = 0;
     let died = target.alive && target.hull.is_zero_or_less();
-    (shield_dealt, hull_dealt, died)
+    (shield_dealt, ablative_dealt, hull_dealt, died)
 }
 
 /// **Pure** mitigation math (stat block §9.2) — the counter-web's core. Given an incoming `d0` and
-/// the target's current `shield`/`hull`/`armor_pct`, returns the damage actually applied to each
-/// layer (each capped at what's available). Penetration bypasses shields straight to hull; the rest
-/// hits shields first (`× shieldMult`), overflow converts back through the multiplier; hull then
-/// takes `× armorMult × (1 − armorPct)` with the min-damage floor.
+/// the target's current `shield`/`ablative`/`hull`/`armor_pct`, returns the damage actually applied to
+/// each layer (each capped at what's available). Penetration bypasses **shields** straight past them;
+/// the rest hits shields first (`× shieldMult`), overflow converts back through the multiplier. The
+/// **ablative** pool then absorbs raw, flat (no matrix multiplier — the layer indifferent to *what* is
+/// shooting it), and penetration does **not** bypass it (research R2). Hull finally takes
+/// `× armorMult × (1 − armorPct)` with the min-damage floor.
+#[allow(clippy::too_many_arguments)]
 pub(crate) fn mitigate(
     d0: Fixed,
     dtype: DamageType,
     penetration: Bp,
     shield: Fixed,
+    ablative: Fixed,
     hull: Fixed,
     armor_pct: Bp,
     ruleset: &Ruleset,
-) -> (Fixed, Fixed) {
+) -> (Fixed, Fixed, Fixed) {
     let mult = ruleset.damage_matrix.for_type(dtype);
 
     let pen_part = d0.mul_bp(penetration);
@@ -243,6 +275,16 @@ pub(crate) fn mitigate(
         hull_in = hull_in.saturating_add(shield_part);
     }
 
+    // Ablative pool: absorbs raw damage flat, between shields and hull. `hull_in` already carries the
+    // penetrating fraction (penetration does not bypass ablative), so the pool sees everything still
+    // heading for hull. Absorption is capped at the remaining pool, so a saved hit can never block
+    // more than the pool holds (R4).
+    let mut ablative_dealt = Fixed::ZERO;
+    if ablative.milli() > 0 && hull_in.milli() > 0 {
+        ablative_dealt = hull_in.min(ablative);
+        hull_in = hull_in.saturating_sub(ablative_dealt);
+    }
+
     let mut hull_dealt = Fixed::ZERO;
     if hull_in.milli() > 0 {
         let mitigated = hull_in.mul_bp(mult.vs_armor).mul_bp(BP_ONE - armor_pct);
@@ -250,7 +292,7 @@ pub(crate) fn mitigate(
         hull_dealt = mitigated.max(floor).min(hull); // cap at remaining hull
     }
 
-    (shield_dealt, hull_dealt)
+    (shield_dealt, ablative_dealt, hull_dealt)
 }
 
 fn kill(c: &mut Combatant, tick: u16) {
@@ -261,12 +303,15 @@ fn kill(c: &mut Combatant, tick: u16) {
     }
 }
 
-/// Emit a `Shot` implied hit as `Hit` events per non-zero layer (shield/hull).
+/// Emit a `Shot` implied hit as `Hit` events per non-zero layer (shield/ablative/hull).
+// One argument per layer plus the hit's flags; splitting it would not simplify the call site.
+#[allow(clippy::too_many_arguments)]
 fn emit_hit(
     events: &mut Vec<TickEvent>,
     actor: UnitRef,
     target: UnitRef,
     shield: Fixed,
+    ablative: Fixed,
     hull: Fixed,
     crit: bool,
     splash: bool,
@@ -277,6 +322,16 @@ fn emit_hit(
             target,
             dmg: shield,
             layer: DamageLayer::Shield,
+            crit,
+            splash,
+        });
+    }
+    if ablative.milli() > 0 {
+        events.push(TickEvent::Hit {
+            actor,
+            target,
+            dmg: ablative,
+            layer: DamageLayer::Ablative,
             crit,
             splash,
         });
@@ -351,7 +406,7 @@ mod counterweb_tests {
         let mut shield = shield0;
         let mut n = 0;
         while shield.milli() > 0 && n < 100_000 {
-            let (s, _) = mitigate(d0, dtype, 0, shield, BIG_HULL, 0, rs);
+            let (s, _, _) = mitigate(d0, dtype, 0, shield, Fixed::ZERO, BIG_HULL, 0, rs);
             shield = shield.saturating_sub(s);
             n += 1;
         }
@@ -369,7 +424,7 @@ mod counterweb_tests {
         let mut hull = hull0;
         let mut n = 0;
         while hull.milli() > 0 && n < 100_000 {
-            let (_, h) = mitigate(d0, dtype, 0, Fixed::ZERO, hull, armor_pct, rs);
+            let (_, _, h) = mitigate(d0, dtype, 0, Fixed::ZERO, Fixed::ZERO, hull, armor_pct, rs);
             hull = hull.saturating_sub(h);
             n += 1;
         }
@@ -428,11 +483,12 @@ mod counterweb_tests {
     #[test]
     fn penetration_leaks_past_shields() {
         let rs = seed_ruleset();
-        let (shield_dmg, hull_dmg) = mitigate(
+        let (shield_dmg, _ablative_dmg, hull_dmg) = mitigate(
             Fixed::from_int(60),
             DamageType::Kinetic,
             5_000, // 50% penetration
             Fixed::from_int(250),
+            Fixed::ZERO,
             Fixed::from_int(1000),
             0,
             &rs,
@@ -442,5 +498,52 @@ mod counterweb_tests {
             hull_dmg.milli() > 0,
             "penetration leaks to hull despite a full shield"
         );
+    }
+
+    /// v2 ablative: penetration does NOT bypass the pool (research R2). A fully-penetrating hit is
+    /// absorbed by ablative and never reaches hull while the pool holds.
+    #[test]
+    fn penetration_does_not_bypass_ablative() {
+        let rs = seed_ruleset();
+        let (shield_dmg, ablative_dmg, hull_dmg) = mitigate(
+            Fixed::from_int(60),
+            DamageType::Kinetic,
+            10_000, // 100% penetration — bypasses shields entirely
+            Fixed::from_int(250),
+            Fixed::from_int(500), // ablative pool
+            Fixed::from_int(1000),
+            0,
+            &rs,
+        );
+        assert_eq!(shield_dmg.milli(), 0, "full penetration skips the shield");
+        assert!(ablative_dmg.milli() > 0, "but ablative still absorbs it");
+        assert_eq!(
+            hull_dmg.milli(),
+            0,
+            "and the hull is untouched while the pool holds"
+        );
+    }
+
+    /// v2 ablative: absorbs raw and flat, capped at the pool. A hit larger than the pool spills the
+    /// remainder to hull (overflow), and the pool never absorbs more than it holds (R4).
+    #[test]
+    fn ablative_absorbs_up_to_the_pool_then_overflows_to_hull() {
+        let rs = seed_ruleset();
+        let (_s, ablative_dmg, hull_dmg) = mitigate(
+            Fixed::from_int(300),
+            DamageType::Kinetic,
+            0,
+            Fixed::ZERO,
+            Fixed::from_int(100), // small pool
+            Fixed::from_int(1000),
+            0,
+            &rs,
+        );
+        assert_eq!(
+            ablative_dmg,
+            Fixed::from_int(100),
+            "absorbs exactly the pool"
+        );
+        assert!(hull_dmg.milli() > 0, "the excess spills to hull");
     }
 }

@@ -260,6 +260,16 @@ pub struct ShieldDelta {
     pub delay: i16,
 }
 
+/// An ablative-pool grant (v2). A one-time absorption capacity that does **not** regenerate — the
+/// front-loaded, streaky defensive layer. Sits between shields and hull, absorbs flat (no matrix
+/// multiplier), and gives each hit a chance not to deplete it (`AblativeMods::save_chance`).
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AblativeDelta {
+    /// The pool's starting (and maximum) capacity. Never regenerates once spent.
+    pub cap: Fixed,
+}
+
 /// A targeted mitigation special (e.g. Blast Plating: −40% Explosive **splash** taken).
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -446,6 +456,10 @@ pub struct DefenseSpec {
     pub armor_pct_delta: Bp,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub shield_delta: Option<ShieldDelta>,
+    /// An ablative pool (v2) — one-time, non-regenerating absorption. Omitted at the ×1.0 default so a
+    /// pre-v2 ruleset hashes identically.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub ablative_delta: Option<AblativeDelta>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub special_mitigation: Option<MitigationMod>,
     /// The cost of the defense (e.g. −1 Move).

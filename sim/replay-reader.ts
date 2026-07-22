@@ -35,7 +35,7 @@ export type SnapshotRow = [number, number, number, number];
 
 export type WireEvent =
   | { t: 'shot'; a: number; d: number }
-  | { t: 'hit'; a: number; d: number; dmg: number; layer: 'Shield' | 'Hull'; crit: boolean; splash: boolean }
+  | { t: 'hit'; a: number; d: number; dmg: number; layer: 'Shield' | 'Ablative' | 'Hull'; crit: boolean; splash: boolean }
   | { t: 'miss'; a: number; d: number }
   | { t: 'death'; u: number; k: number | null }
   | { t: 'move'; u: number; from: number; to: number }

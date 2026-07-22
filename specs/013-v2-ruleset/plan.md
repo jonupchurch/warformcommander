@@ -158,7 +158,16 @@ narrow mechanics, and inventing new modules for it would misrepresent its shape 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
 | A third damage layer (ablative) inside `mitigate`, the engine's most carefully-tested pure function | The spec requires three defensive identities that fail to different threats. Two layers cannot express "does not regenerate, resists penetration, streaky" without collapsing into shields. | Flat splash mitigation (what Blast Plating does today) was rejected: it is a modifier on an existing layer, so it produces no distinct survival profile and leaves the matrix with only one layer to discriminate against — the exact problem this feature exists to fix. |
-| An additive `ablative` field on `MachineSnapshot`, brushing the "replay format unchanged" boundary | Without it the battle UI cannot show a defensive layer that players chose and that visibly decides fights. | Deriving the pool from events was rejected: the client would have to re-run mitigation math, duplicating engine logic in TypeScript and violating P6's single-simulation-core rule. The field is additive, so existing replays still parse. |
+| A new `DamageLayer::Ablative` variant on the wire `Hit` event | Damage reconciliation (Feature 1 SC-002) groups every hit by the layer it struck; an absorbed chunk with no layer tag would break the invariant. Attribution is a correctness need, not cosmetic. | Folding ablative absorption under `Shield` was rejected — it conflates two distinct layers in the log and the UI. Additive union member in TS; new enum variant, so R7's deploy-before-re-seed applies (already true for this slice). |
+
+**Scope decision made during implementation** (revises the plan): the `ablative` field on
+`MachineSnapshot` is **deferred**, not built. Inspecting the code showed the snapshot's wire form is a
+positional `[hull, shield, zoneIdx, alive]` row read by `sim/replay-reader.ts`, so adding the field
+means widening the replay wire row — which this feature explicitly lists **out of scope**. The field
+is needed only so the battle UI can *display* the remaining pool; the mechanic itself works entirely
+through combatant battle state and the damage pipeline. Deferring it keeps the replay format untouched
+(honouring the boundary) at the cost of the battle playback not showing a separate ablative bar this
+slice. Named as future work rather than silently folded in (constitution IV).
 
 ## Phase 0 & 1 Artifacts
 

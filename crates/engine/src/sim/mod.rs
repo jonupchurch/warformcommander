@@ -47,6 +47,9 @@ pub(crate) struct Combatant {
     pub hull: Fixed,
     pub max_hull: Fixed,
     pub shield: Fixed,
+    /// v2 ablative pool — depletes as it absorbs, never regenerates (unlike `shield`). Initialised
+    /// from `stats.ablative_cap`; `ZERO` for the machines with no ablative defense.
+    pub ablative: Fixed,
     pub ticks_since_hit: u16,
     pub cooldown: u16,
     pub move_cooldown: u16,
@@ -121,6 +124,7 @@ pub(crate) fn build_combatants(
                 hull: stats.hull,
                 max_hull: stats.hull,
                 shield: stats.shield_cap,
+                ablative: stats.ablative_cap,
                 ticks_since_hit: 0,
                 cooldown: 0,
                 move_cooldown: 0,

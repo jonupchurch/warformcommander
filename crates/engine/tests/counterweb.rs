@@ -507,7 +507,7 @@ fn helis_are_never_a_heal_target() {
     );
     // …but a heal never lands on the heli.
     assert!(
-        !heals.iter().any(|t| *t == heli),
+        !heals.contains(&heli),
         "a heli must never be the target of a heal"
     );
 }

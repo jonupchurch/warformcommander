@@ -60,6 +60,16 @@ pub struct Ruleset {
     /// other balance number. Omitted from serialization at the default (hash-stable).
     #[serde(default, skip_serializing_if = "EnergyModes::is_default")]
     pub energy_modes: EnergyModes,
+    /// Ablative-layer tuning (v2). The save chance is the only knob; sizing lives on each module.
+    /// Omitted from serialization at the default (hash-stable).
+    #[serde(default, skip_serializing_if = "AblativeMods::is_default")]
+    pub ablative_mods: AblativeMods,
+    /// Per-mount-class defensive magnitude scaling (v2) — **the single point of adjustment for
+    /// rebalancing the entire defense system**. Every generated defense module multiplies its
+    /// magnitude by its mount's factor, so the fragile back-rank chassis get proportionally less
+    /// out of the same slot. Omitted from serialization at the default (hash-stable).
+    #[serde(default, skip_serializing_if = "MountScale::is_default")]
+    pub mount_scale: MountScale,
 }
 
 impl Ruleset {
@@ -216,6 +226,84 @@ impl EnergyModes {
     /// hashes identically to one carrying the defaults).
     pub fn is_default(&self) -> bool {
         *self == EnergyModes::default()
+    }
+}
+
+/// Ablative-defense tuning (v2). The ablative pool absorbs flat (no damage-matrix multiplier — it is
+/// the layer indifferent to *what* is shooting it, only *how long*), does not regenerate, and gives
+/// each incoming hit a fixed chance not to deplete it. The save is bounded texture, not a decider:
+/// absorption is always capped at the remaining pool first, so a save preserves capacity but never
+/// grants free absorption beyond it.
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AblativeMods {
+    /// Probability (bp) that a hit against the pool does **not** deplete it. `2_000` = 20%.
+    pub save_chance: Bp,
+}
+
+impl Default for AblativeMods {
+    fn default() -> Self {
+        AblativeMods { save_chance: 2_000 }
+    }
+}
+
+impl AblativeMods {
+    /// Serialization skip at the default (hash stability).
+    pub fn is_default(&self) -> bool {
+        *self == AblativeMods::default()
+    }
+}
+
+/// Per-mount-class defensive magnitude scaling (v2). A single multiplier per mount class applied to
+/// every defense family's magnitude, so rebalancing the whole system is one edit here rather than 28
+/// module edits. The fragile back-rank mounts (Heli/RktArty/Artillery) carry the lowest factors so
+/// their best defensive option still lands at or below their current durability (spec FR-011/SC-008).
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MountScale {
+    pub heavy: Bp,
+    pub light: Bp,
+    pub mech: Bp,
+    pub heli: Bp,
+    pub rkt_arty: Bp,
+    pub artillery: Bp,
+    pub support: Bp,
+}
+
+impl Default for MountScale {
+    /// `10_000` = ×1.0. The line mounts (Heavy/Mech) get full value; the fragile mounts get less, so
+    /// lighting up their dead defense slot does not make them tankier than they are today.
+    fn default() -> Self {
+        MountScale {
+            heavy: 10_000,
+            light: 8_000,
+            mech: 10_000,
+            heli: 6_000,
+            rkt_arty: 7_000,
+            artillery: 7_000,
+            support: 9_000,
+        }
+    }
+}
+
+impl MountScale {
+    /// The factor for a mount class (bp).
+    pub fn for_mount(&self, mount: crate::model::types::MountClass) -> Bp {
+        use crate::model::types::MountClass;
+        match mount {
+            MountClass::Heavy => self.heavy,
+            MountClass::Light => self.light,
+            MountClass::Mech => self.mech,
+            MountClass::Heli => self.heli,
+            MountClass::RktArty => self.rkt_arty,
+            MountClass::Artillery => self.artillery,
+            MountClass::Support => self.support,
+        }
+    }
+
+    /// Serialization skip at the default (hash stability).
+    pub fn is_default(&self) -> bool {
+        *self == MountScale::default()
     }
 }
 
@@ -480,6 +568,8 @@ mod tests {
             },
             role_damage_bonuses: BTreeMap::new(),
             energy_modes: EnergyModes::default(),
+            ablative_mods: AblativeMods::default(),
+            mount_scale: MountScale::default(),
         }
     }
 }
