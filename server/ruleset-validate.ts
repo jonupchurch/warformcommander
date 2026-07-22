@@ -200,6 +200,15 @@ export function validateRuleset(data: unknown): RulesetValidation {
     }
   }
 
+  // empowerMods is optional (omitted at the default). The overshield ceiling is a hull fraction in bp —
+  // a value outside [0,1] would let the Empower stance grant unbounded shield.
+  const emp = (rs as unknown as Record<string, unknown>).empowerMods;
+  if (emp !== undefined) {
+    if (typeof emp !== "object" || emp === null) return fail("empowerMods must be an object");
+    const shieldCap = (emp as Record<string, unknown>).shieldCapBp;
+    if (!inRange(shieldCap, 0, BP_MAX)) return fail("empowerMods.shieldCapBp must be in 0..10000 bp");
+  }
+
   // 6) Per-variant base stats — the bp fields are fractions/probabilities in [0,1] (0..10000 bp),
   //    hull positive, damage non-negative. Catches an out-of-[0,1] probability or a bad splash.
   const BP_FIELDS = ["armorPct", "accuracy", "critChance", "splash", "penetration", "evasion"] as const;

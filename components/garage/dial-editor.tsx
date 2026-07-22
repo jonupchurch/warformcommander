@@ -13,16 +13,16 @@ import { SectionLabel } from '@/components/ui/section-label';
 import {
   ENERGY_OPTIONS,
   MOVEMENT_OPTIONS,
-  STANCE_OPTIONS,
   TARGET_ROW_OPTIONS,
   TARGET_RULE_OPTIONS,
   dialOptionLocked,
+  stanceOptionsForRole,
 } from '@/lib/garage/dials';
 import { humanize } from '@/lib/garage/display';
 import { DIAL_SECTIONS, explainDial } from '@/lib/garage/explain';
 import type { SlotIndex } from '@/lib/garage/types';
 import { useGarageEditor } from '@/lib/garage/use-garage-editor';
-import { unlockedCapabilities } from '@/sim/derive';
+import { deriveEffectiveStats, unlockedCapabilities } from '@/sim/derive';
 import type { BehaviorDials } from '@/sim/model';
 import { cn } from '@/lib/utils';
 
@@ -68,13 +68,20 @@ function DialSelect({
 }
 
 export function DialEditor() {
-  const { session } = useGarageEditor();
+  const { session, ruleset } = useGarageEditor();
   const slot = session.selection.selectedSlot;
   const machine = slot === null ? null : session.draft.machines[slot];
 
   if (machine === null || slot === null) {
     return <p className="type-body-sm text-text-muted">Select a machine to set its dials.</p>;
   }
+
+  // Stance is role-split (FR-019): offer support flavors to a machine with support power, combat
+  // stances to everything else. Neutral is in both sets. A broken build derives no stats — fall back
+  // to the combat set (the machine can't be a support unit if it won't derive).
+  const derived = deriveEffectiveStats(machine, ruleset);
+  const isSupport = derived.ok && derived.stats.supportPower !== null && derived.stats.supportPower > 0;
+  const stanceOptions = stanceOptionsForRole(isSupport);
 
   return (
     <div className="flex flex-col gap-4">
@@ -106,7 +113,7 @@ export function DialEditor() {
         <SectionLabel index="04" rule={false}>
           Stance
         </SectionLabel>
-        <DialSelect slot={slot} dial="stance" options={STANCE_OPTIONS} />
+        <DialSelect slot={slot} dial="stance" options={stanceOptions} />
       </div>
     </div>
   );

@@ -571,6 +571,36 @@ pub enum Stance {
     Empower,
 }
 
+impl Stance {
+    /// The three support flavors — the stances a support machine may hold (v2 role split, FR-019).
+    /// `Neutral` is deliberately *not* here: it is the universal fallback both roles share.
+    pub const SUPPORT: [Stance; 3] = [Stance::Triage, Stance::Sustain, Stance::Empower];
+
+    /// The combat flavors — the stances a combat machine may hold. `Neutral` is the shared fallback.
+    pub const COMBAT: [Stance; 4] = [
+        Stance::Aggressive,
+        Stance::Defensive,
+        Stance::Protector,
+        Stance::Opportunist,
+    ];
+
+    /// A support-role stance (Triage/Sustain/Empower) — its behaviour lives in `resolve_support`.
+    pub fn is_support(self) -> bool {
+        matches!(self, Stance::Triage | Stance::Sustain | Stance::Empower)
+    }
+
+    /// Whether this stance is in-role for a machine of the given role. `Neutral` fits both roles; a
+    /// support stance fits only support machines and a combat stance only combat machines. An
+    /// out-of-role stance is not *rejected* (FR-022) — it degrades to neutral behaviour at runtime.
+    pub fn fits_role(self, is_support_machine: bool) -> bool {
+        match self {
+            Stance::Neutral => true,
+            _ if self.is_support() => is_support_machine,
+            _ => !is_support_machine,
+        }
+    }
+}
+
 /// Which dial a Plan-B trigger flips.
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Serialize, Deserialize)]
 pub enum DialKey {

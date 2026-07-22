@@ -15,7 +15,7 @@ use std::collections::BTreeMap;
 use crate::fixed::Fixed;
 use crate::model::army::MachineInstance;
 use crate::model::ruleset::{
-    AblativeMods, AirModifiers, CadenceTicks, DamageMatrix, EnergyModes, ExecuteMods,
+    AblativeMods, AirModifiers, CadenceTicks, DamageMatrix, EmpowerMods, EnergyModes, ExecuteMods,
     GlobalConstants, LayerMultipliers, MountScale, Ruleset, StanceAggro,
 };
 use crate::model::types::{
@@ -96,6 +96,7 @@ pub fn seed_ruleset() -> Ruleset {
         mount_scale: MountScale::default(),
         stance_aggro: StanceAggro::default(),
         execute_mods: ExecuteMods::default(),
+        empower_mods: EmpowerMods::default(),
     }
 }
 

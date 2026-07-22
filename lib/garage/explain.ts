@@ -20,6 +20,7 @@ import type { BehaviorDials } from '@/sim/model';
 import type { MachineTypeId } from '@/sim/model';
 import {
   DEFAULT_ABLATIVE_MODS,
+  DEFAULT_EMPOWER_MODS,
   DEFAULT_ENERGY_MODES,
   DEFAULT_EXECUTE_MODS,
   DEFAULT_MOUNT_SCALE,
@@ -388,6 +389,9 @@ const STANCE_BLURB: Record<string, string> = {
   Empower: 'Support: forgoes repair to strengthen nearby allies instead.',
 };
 
+/** The support-role stances — a repair-priority axis, explained by what they repair, not a tier. */
+const SUPPORT_STANCE_KEYS = ['Triage', 'Sustain', 'Empower'];
+
 /** The stance keys that carry a fire-priority tier, with the sign of their effect. */
 const STANCE_AGGRO_KEY: Record<string, keyof import('@/sim/ruleset').StanceAggro> = {
   Aggressive: 'aggressive',
@@ -410,6 +414,21 @@ export function explainDial(
 
   if (dial === 'stance') {
     const effects: EffectLine[] = [];
+    // Support stances (Triage/Sustain/Empower) are a repair-priority axis, not a fire-priority one —
+    // their aggro tier is always neutral, so show what they actually do instead of a blank tier.
+    if (SUPPORT_STANCE_KEYS.includes(value)) {
+      if (value === 'Empower') {
+        const emp = ruleset.empowerMods ?? DEFAULT_EMPOWER_MODS;
+        effects.push({ label: 'Overshield', value: `up to +${(emp.shieldCapBp / 100).toFixed(0)}% max hull as shield`, tone: 'gain' });
+      } else {
+        effects.push({
+          label: 'Repair priority',
+          value: value === 'Triage' ? 'Most-damaged ally' : 'Most-effective ally',
+          tone: 'none',
+        });
+      }
+      return { title, blurb: STANCE_BLURB[value] ?? '', effects };
+    }
     const aggro = ruleset.stanceAggro ?? DEFAULT_STANCE_AGGRO;
     const key = STANCE_AGGRO_KEY[value];
     if (key) {

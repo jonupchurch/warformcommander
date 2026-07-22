@@ -328,6 +328,14 @@ export interface ExecuteMods {
 /** The engine's `ExecuteMods::default()`, mirrored for when a stored ruleset omits the field. */
 export const DEFAULT_EXECUTE_MODS: ExecuteMods = { threshold: 4000, bonus: 3000 };
 
+/** The Empower support stance (`EmpowerMods`, v2) — the overshield ceiling it raises allies to. */
+export interface EmpowerMods {
+  shieldCapBp: number; // bp — overshield ceiling as a fraction of the ally's max hull
+}
+
+/** The engine's `EmpowerMods::default()`, mirrored for when a stored ruleset omits the field. */
+export const DEFAULT_EMPOWER_MODS: EmpowerMods = { shieldCapBp: 3000 };
+
 /** The engine's `MountScale::default()`, mirrored for when a stored ruleset omits the field. */
 export const DEFAULT_MOUNT_SCALE: MountScale = {
   heavy: 10000,
@@ -399,6 +407,8 @@ export interface Ruleset {
   stanceAggro?: StanceAggro;
   /** The Opportunist execute bonus; omitted at the default ({@link DEFAULT_EXECUTE_MODS}). */
   executeMods?: ExecuteMods;
+  /** The Empower overshield ceiling; omitted at the default ({@link DEFAULT_EMPOWER_MODS}). */
+  empowerMods?: EmpowerMods;
 }
 
 // --- Derived output --------------------------------------------------------

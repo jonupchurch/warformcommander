@@ -600,6 +600,7 @@ mod tests {
             mount_scale: crate::model::ruleset::MountScale::default(),
             stance_aggro: crate::model::ruleset::StanceAggro::default(),
             execute_mods: crate::model::ruleset::ExecuteMods::default(),
+            empower_mods: crate::model::ruleset::EmpowerMods::default(),
         }
     }
 

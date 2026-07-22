@@ -124,33 +124,33 @@ something was made hash-visible by mistake (R6).
 > archetype uses `stock_dials()` (stance `Neutral`), and a uniform-stance army is by design identical
 > to all-Neutral. This is the P4 gate condition (R8).
 
-- [ ] T031 [US2] Add stance-varying archetype fixtures to `crates/balancer/src/archetypes.rs` — variants of the existing archetypes that assign Protector/Aggressive/Defensive by role rather than leaving every machine Neutral
-- [ ] T032 [US2] Extend `field_by_name` in `crates/balancer/src/archetypes.rs` with a stance-diagnostic field selector, and cover the new fixtures in the existing legality test
+- [X] T031 [US2] Add stance-varying archetype fixtures to `crates/balancer/src/archetypes.rs` — variants of the existing archetypes that assign Protector/Aggressive/Defensive by role rather than leaving every machine Neutral
+- [X] T032 [US2] Extend `field_by_name` in `crates/balancer/src/archetypes.rs` with a stance-diagnostic field selector, and cover the new fixtures in the existing legality test
 
 ### Tests for User Story 2
 
-- [ ] T033 [P] [US2] Create `crates/engine/tests/stance.rs` asserting tier narrowing — an Aggressive rowmate is targeted ahead of a Neutral one, and a Defensive one only when nothing else is eligible
-- [ ] T034 [P] [US2] Add the zero-sum guarantee test to `crates/engine/tests/stance.rs` — a uniform-stance army produces a byte-identical replay to the same army all-Neutral (FR-017)
-- [ ] T035 [P] [US2] Add a lone-unit test to `crates/engine/tests/stance.rs` — a solitary Defensive machine in a row is targeted normally, since shedding requires an absorber
-- [ ] T036 [P] [US2] Add an Aggressive-bypass test to `crates/engine/tests/stance.rs` — an Aggressive attacker selects its preferred target despite an enemy Protector (FR-014)
-- [ ] T037 [P] [US2] Add a Protector cross-zone test to `crates/engine/tests/stance.rs` — a Protector draws fire aimed at an adjacent-zone ally the attacker can already reach (FR-016)
-- [ ] T038 [P] [US2] Add execute-threshold tests to `crates/engine/tests/stance.rs` — Opportunist deals bonus damage below the threshold and none above it, and a zero bonus disables the mechanic (FR-018)
-- [ ] T039 [P] [US2] Add rule-agnosticism coverage to `crates/engine/tests/stance.rs` — narrowing applies under all eight target rules (FR-013)
+- [X] T033 [P] [US2] Create `crates/engine/tests/stance.rs` asserting tier narrowing — an Aggressive rowmate is targeted ahead of a Neutral one, and a Defensive one only when nothing else is eligible
+- [X] T034 [P] [US2] Add the zero-sum guarantee test to `crates/engine/tests/stance.rs` — a uniform-stance army produces a byte-identical replay to the same army all-Neutral (FR-017)
+- [X] T035 [P] [US2] Add a lone-unit test to `crates/engine/tests/stance.rs` — a solitary Defensive machine in a row is targeted normally, since shedding requires an absorber
+- [X] T036 [P] [US2] Add an Aggressive-bypass test to `crates/engine/tests/stance.rs` — an Aggressive attacker selects its preferred target despite an enemy Protector (FR-014)
+- [X] T037 [P] [US2] Add a Protector cross-zone test to `crates/engine/tests/stance.rs` — a Protector draws fire aimed at an adjacent-zone ally the attacker can already reach (FR-016)
+- [X] T038 [P] [US2] Add execute-threshold tests to `crates/engine/tests/stance.rs` — Opportunist deals bonus damage below the threshold and none above it, and a zero bonus disables the mechanic (FR-018)
+- [X] T039 [P] [US2] Add rule-agnosticism coverage to `crates/engine/tests/stance.rs` — narrowing applies under all eight target rules (FR-013)
 
 ### Implementation for User Story 2
 
-- [ ] T040 [US2] Add the `StanceAggro` and `ExecuteMods` tables to `crates/engine/src/model/ruleset.rs`, skip-serialized at their defaults per the contract
-- [ ] T041 [US2] Thread `&Ruleset` into `select_target` in `crates/engine/src/sim/target.rs` and update both call sites in `crates/engine/src/sim/mod.rs` — the stalemate probe and the main attack loop (R5)
-- [ ] T042 [US2] Implement tier narrowing between `pick_row` and `pick_unit` in `crates/engine/src/sim/target.rs`, keeping only minimum-tier candidates, with the Aggressive bypass and the Protector cross-zone join (depends on T040, T041)
-- [ ] T043 [US2] Apply the Opportunist execute bonus in `crates/engine/src/sim/damage.rs`, reading threshold and bonus from `ExecuteMods` (depends on T040)
-- [ ] T044 [P] [US2] Mirror `stanceAggro` and `executeMods` in `sim/ruleset.ts` with exported defaults, and add role-partition types to `sim/model.ts`
-- [ ] T045 [P] [US2] Validate the new tables in `server/ruleset-validate.ts` — all-present-or-all-absent, integer tiers in range, threshold in basis points
-- [ ] T046 [US2] Replace the "no effect yet" stance caveat in `lib/garage/explain.ts` with live per-stance explanations, and update the now-failing stance assertions in `tests/garage-explain.test.ts`
+- [X] T040 [US2] Add the `StanceAggro` and `ExecuteMods` tables to `crates/engine/src/model/ruleset.rs`, skip-serialized at their defaults per the contract
+- [X] T041 [US2] Thread `&Ruleset` into `select_target` in `crates/engine/src/sim/target.rs` and update both call sites in `crates/engine/src/sim/mod.rs` — the stalemate probe and the main attack loop (R5)
+- [X] T042 [US2] Implement tier narrowing between `pick_row` and `pick_unit` in `crates/engine/src/sim/target.rs`, keeping only minimum-tier candidates, with the Aggressive bypass and the Protector cross-zone join (depends on T040, T041)
+- [X] T043 [US2] Apply the Opportunist execute bonus in `crates/engine/src/sim/damage.rs`, reading threshold and bonus from `ExecuteMods` (depends on T040)
+- [X] T044 [P] [US2] Mirror `stanceAggro` and `executeMods` in `sim/ruleset.ts` with exported defaults, and add role-partition types to `sim/model.ts`
+- [X] T045 [P] [US2] Validate the new tables in `server/ruleset-validate.ts` — all-present-or-all-absent, integer tiers in range, threshold in basis points
+- [X] T046 [US2] Replace the "no effect yet" stance caveat in `lib/garage/explain.ts` with live per-stance explanations, and update the now-failing stance assertions in `tests/garage-explain.test.ts`
 
 ### Verification for User Story 2
 
-- [ ] T047 [US2] Run the full cascade per [quickstart.md](./quickstart.md) and confirm the goldens did **not** re-bless; investigate rather than re-blessing if they did
-- [ ] T048 [US2] Run the balancer against the stance-diagnostic field and record SC-006 (every stance changes an outcome) and SC-007 (≥80% of matchups show a different casualty order)
+- [X] T047 [US2] Run the full cascade per [quickstart.md](./quickstart.md) and confirm the goldens did **not** re-bless; investigate rather than re-blessing if they did
+- [X] T048 [US2] Run the balancer against the stance-diagnostic field and record SC-006 (every stance changes an outcome) and SC-007 (≥80% of matchups show a different casualty order)
 
 **Checkpoint**: US2 functional and measurable. Ship as v13.
 
@@ -242,24 +242,24 @@ state; Empower strengthens instead of repairing; role filtering hides out-of-rol
 
 ### Tests for User Story 5
 
-- [ ] T074 [P] [US5] Create support-stance tests in `crates/engine/tests/stance.rs` — Triage and Sustain select different targets from identical battle state
-- [ ] T075 [P] [US5] Add an Empower test to `crates/engine/tests/stance.rs` — allies in range are strengthened and no repair occurs
-- [ ] T076 [P] [US5] Add a role-partition test to `crates/engine/tests/stance.rs` — combat machines reject support stances and vice versa (FR-019)
-- [ ] T077 [P] [US5] Add a backward-compatibility test to `crates/engine/tests/stance.rs` — an army holding an out-of-role stance still loads and degrades to neutral behaviour (FR-022)
-- [ ] T078 [P] [US5] Add an empty-range test to `crates/engine/tests/stance.rs` — Empower with no allies in range is well-defined and does not error
+- [X] T074 [P] [US5] Create support-stance tests in `crates/engine/tests/stance.rs` — Triage and Sustain select different targets from identical battle state
+- [X] T075 [P] [US5] Add an Empower test to `crates/engine/tests/stance.rs` — allies in range are strengthened and no repair occurs
+- [X] T076 [P] [US5] Add a role-partition test to `crates/engine/tests/stance.rs` — combat machines reject support stances and vice versa (FR-019)
+- [X] T077 [P] [US5] Add a backward-compatibility test to `crates/engine/tests/stance.rs` — an army holding an out-of-role stance still loads and degrades to neutral behaviour (FR-022)
+- [X] T078 [P] [US5] Add an empty-range test to `crates/engine/tests/stance.rs` — Empower with no allies in range is well-defined and does not error
 
 ### Implementation for User Story 5
 
-- [ ] T079 [US5] Re-rank the support-target selector in `resolve_support` in `crates/engine/src/sim/mod.rs` by active stance — Triage by most-damaged, Sustain by effectiveness retention
-- [ ] T080 [US5] Implement the Empower strengthening mechanic in `crates/engine/src/sim/mod.rs`, emitting `SupportKind::Aura` (depends on T079)
-- [ ] T081 [US5] Enforce the stance role partition in `crates/engine/src/model/army.rs` validation, degrading rather than rejecting out-of-role values (FR-022)
-- [ ] T082 [P] [US5] Mirror the role partition in `sim/legality.ts` and filter stance options by role in `components/garage/dial-editor.tsx`
-- [ ] T083 [US5] Explain the three support stances from live values in `lib/garage/explain.ts`, with coverage in `tests/garage-explain.test.ts`
+- [X] T079 [US5] Re-rank the support-target selector in `resolve_support` in `crates/engine/src/sim/mod.rs` by active stance — Triage by most-damaged, Sustain by effectiveness retention
+- [X] T080 [US5] Implement the Empower strengthening mechanic in `crates/engine/src/sim/mod.rs`, emitting `SupportKind::Aura` (depends on T079)
+- [X] T081 [US5] Enforce the stance role partition in `crates/engine/src/model/army.rs` validation, degrading rather than rejecting out-of-role values (FR-022)
+- [X] T082 [P] [US5] Mirror the role partition in `sim/legality.ts` and filter stance options by role in `components/garage/dial-editor.tsx`
+- [X] T083 [US5] Explain the three support stances from live values in `lib/garage/explain.ts`, with coverage in `tests/garage-explain.test.ts`
 
 ### Verification for User Story 5
 
-- [ ] T084 [US5] Run the full cascade per [quickstart.md](./quickstart.md) and confirm no unexpected golden re-bless
-- [ ] T085 [US5] Verify saved armies from before the role split still load correctly against the deployed engine
+- [X] T084 [US5] Run the full cascade per [quickstart.md](./quickstart.md) and confirm no unexpected golden re-bless
+- [X] T085 [US5] Verify saved armies from before the role split still load correctly against the deployed engine
 
 **Checkpoint**: All five stories functional.
 

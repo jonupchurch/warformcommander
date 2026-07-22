@@ -305,12 +305,29 @@ fn narrow_by_stance(
         return row.to_vec();
     }
     let aggro = &ruleset.stance_aggro;
+    // Aggro tiers belong to combat machines. A support machine contributes a neutral offset and never
+    // intercepts as a Protector, so an out-of-role combat stance on a support unit degrades to neutral
+    // targeting rather than letting it bait fire (v2 role split, FR-019).
+    let is_support = |j: usize| {
+        combatants[j]
+            .stats
+            .support_power
+            .is_some_and(|p| p.milli() > 0)
+    };
+    let off = |j: usize| {
+        if is_support(j) {
+            0
+        } else {
+            aggro.offset(combatants[j].dials.stance)
+        }
+    };
 
     // Candidate set: the chosen row, plus any reachable Protector guarding an adjacent ground zone.
     let chosen_zone = combatants[row[0]].zone;
     let mut candidates = row.to_vec();
     for &j in reachable {
         if combatants[j].dials.stance == Stance::Protector
+            && !is_support(j)
             && ground_adjacent(combatants[j].zone, chosen_zone)
             && !candidates.contains(&j)
         {
@@ -319,14 +336,10 @@ fn narrow_by_stance(
     }
 
     // Keep only the minimum-offset (drawn-first) candidates.
-    let min_off = candidates
-        .iter()
-        .map(|&j| aggro.offset(combatants[j].dials.stance))
-        .min()
-        .unwrap();
+    let min_off = candidates.iter().map(|&j| off(j)).min().unwrap();
     candidates
         .into_iter()
-        .filter(|&j| aggro.offset(combatants[j].dials.stance) == min_off)
+        .filter(|&j| off(j) == min_off)
         .collect()
 }
 

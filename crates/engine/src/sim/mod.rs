@@ -301,7 +301,7 @@ pub(crate) fn run_game(
         behavior::apply_behavior(combatants, tick, &mut events);
 
         // 3. Support heals (no RNG; before offense so a heal can save a unit this tick).
-        resolve_support(combatants, &mut events);
+        resolve_support(combatants, ruleset, &mut events);
 
         // 4. Offense: each ready combatant fires once, in acting order, using current state.
         // `air_focus` budgets anti-air engagements for this tick so one aircraft cannot soak an
@@ -357,11 +357,16 @@ pub(crate) fn run_game(
     GameReplay { ticks, game_result }
 }
 
-/// Each living support machine heals the most-wounded ally in range by its support power.
-fn resolve_support(combatants: &mut [Combatant], events: &mut Vec<TickEvent>) {
+/// Each living support machine services its allies in range according to its **support stance** (v2):
+/// **Triage** repairs the most-damaged, **Sustain** repairs the most combat-effective, **Empower**
+/// forgoes repair to overshield the whole line. Every other stance — Neutral, or a combat stance held
+/// out-of-role — degrades to Triage, so the stock all-Neutral field behaves exactly as before this
+/// split (no golden re-bless).
+fn resolve_support(combatants: &mut [Combatant], ruleset: &Ruleset, events: &mut Vec<TickEvent>) {
+    use crate::model::types::Stance;
     let n = combatants.len();
     for i in 0..n {
-        let (power, range, side, zone, actor) = {
+        let (power, range, side, zone, actor, stance) = {
             let c = &combatants[i];
             match (c.alive, c.stats.support_power) {
                 (true, Some(p)) if p.milli() > 0 => (
@@ -370,40 +375,57 @@ fn resolve_support(combatants: &mut [Combatant], events: &mut Vec<TickEvent>) {
                     c.unit.side,
                     c.zone,
                     c.unit,
+                    c.dials.stance,
                 ),
                 _ => continue,
             }
         };
         let zones = support_zones(range, zone);
 
-        // Pick the most-wounded living ally in range (tie: zone, instance_id).
+        if stance == Stance::Empower {
+            // Empower: no repair. Raise every serviceable ally toward the overshield ceiling by the
+            // support's own power. Bounded by the ceiling, so it can never run away (FR-021).
+            for j in 0..n {
+                if !serviceable(combatants, i, j, side, &zones) {
+                    continue;
+                }
+                let ceiling = ruleset.empower_mods.ceiling(combatants[j].max_hull);
+                let before = combatants[j].shield;
+                if before >= ceiling {
+                    continue;
+                }
+                let boosted = before.saturating_add(power).min(ceiling);
+                let gain = boosted.saturating_sub(before);
+                if gain.milli() <= 0 {
+                    continue;
+                }
+                combatants[j].shield = boosted;
+                let target = combatants[j].unit;
+                events.push(TickEvent::Support {
+                    actor,
+                    target,
+                    amount: gain,
+                    kind: SupportKind::Aura,
+                });
+            }
+            continue;
+        }
+
+        // Triage (the default) picks the most-damaged; Sustain the most combat-effective. Both only
+        // ever service a *wounded* ally — a full-hull ally is not a repair target.
+        let by_sustain = stance == Stance::Sustain;
         let mut best: Option<usize> = None;
         for j in 0..n {
-            let a = &combatants[j];
-            if !a.alive || a.unit.side != side || j == i {
+            if !serviceable(combatants, i, j, side, &zones) {
                 continue;
             }
-            if a.hull >= a.max_hull || !zones.contains(&a.zone) {
-                continue;
-            }
-            // Helis are never a heal target — a ground medic can't service an airframe mid-sortie.
-            // Air units fight and fall on their own; support exists to hold the ground line.
-            if a.type_id == MachineTypeId::AttackHeli {
+            if combatants[j].hull >= combatants[j].max_hull {
                 continue;
             }
             best = match best {
                 None => Some(j),
-                Some(b) => {
-                    let cur = &combatants[b];
-                    let better = a.hull_pct() < cur.hull_pct()
-                        || (a.hull_pct() == cur.hull_pct()
-                            && (a.zone, a.unit.instance_id) < (cur.zone, cur.unit.instance_id));
-                    if better {
-                        Some(j)
-                    } else {
-                        Some(b)
-                    }
-                }
+                Some(b) if support_prefers(&combatants[j], &combatants[b], by_sustain) => Some(j),
+                Some(b) => Some(b),
             };
         }
 
@@ -419,5 +441,43 @@ fn resolve_support(combatants: &mut [Combatant], events: &mut Vec<TickEvent>) {
                 kind: SupportKind::Heal,
             });
         }
+    }
+}
+
+/// Whether ally `j` can be serviced by support `i`: a living same-side machine other than the support
+/// itself, sitting in one of the support's reachable zones, and not an airframe. Helis are never
+/// serviceable — a ground medic can't dock an aircraft mid-sortie; air units fight and fall on their
+/// own while support holds the ground line.
+fn serviceable(combatants: &[Combatant], i: usize, j: usize, side: Side, zones: &[ZoneId]) -> bool {
+    if i == j {
+        return false;
+    }
+    let a = &combatants[j];
+    a.alive
+        && a.unit.side == side
+        && zones.contains(&a.zone)
+        && a.type_id != MachineTypeId::AttackHeli
+}
+
+/// Whether repair candidate `cand` outranks the incumbent `cur` under the active support stance.
+/// Triage ranks by most-damaged (lowest hull fraction); Sustain by combat effectiveness (highest
+/// damage) so the strongest fighters stay in the fight. Both fall through to the same fully-ordered
+/// tie-break — hull fraction, then zone, then instance id — so selection is deterministic (FR-020).
+fn support_prefers(cand: &Combatant, cur: &Combatant, by_sustain: bool) -> bool {
+    if by_sustain {
+        // Higher damage first; then most-wounded; then the stable zone/instance tie-break.
+        let key = |c: &Combatant| {
+            (
+                core::cmp::Reverse(c.stats.damage.milli()),
+                c.hull_pct(),
+                c.zone,
+                c.unit.instance_id,
+            )
+        };
+        key(cand) < key(cur)
+    } else {
+        // Triage: most-wounded first; then the stable zone/instance tie-break (the pre-v2 order).
+        let key = |c: &Combatant| (c.hull_pct(), c.zone, c.unit.instance_id);
+        key(cand) < key(cur)
     }
 }

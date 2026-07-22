@@ -78,6 +78,10 @@ pub struct Ruleset {
     /// Omitted from serialization at the default (hash-stable).
     #[serde(default, skip_serializing_if = "ExecuteMods::is_default")]
     pub execute_mods: ExecuteMods,
+    /// The Empower support stance (v2) — the overshield ceiling a support machine can raise an ally to
+    /// instead of repairing it. Omitted from serialization at the default (hash-stable).
+    #[serde(default, skip_serializing_if = "EmpowerMods::is_default")]
+    pub empower_mods: EmpowerMods,
 }
 
 impl Ruleset {
@@ -400,6 +404,39 @@ impl ExecuteMods {
     }
 }
 
+/// The Empower support stance (v2). Instead of repairing hull, an Empower support raises each ally's
+/// shield toward a ceiling — a net effective-HP gain above the natural shield cap, refreshed each tick
+/// while the support lives and the ally stays in range. The rate is the support's own `support_power`
+/// (the amount it would otherwise have healed); this table only sets the ceiling. Setting the ceiling
+/// below every ally's natural shield cap disables the mechanic without a code change.
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EmpowerMods {
+    /// Overshield ceiling as a fraction of the ally's max hull (bp). `3_000` = up to +30% max-hull
+    /// worth of shield. The pool is bounded here, so Empower can never run away.
+    pub shield_cap_bp: Bp,
+}
+
+impl Default for EmpowerMods {
+    fn default() -> Self {
+        EmpowerMods {
+            shield_cap_bp: 3_000,
+        }
+    }
+}
+
+impl EmpowerMods {
+    /// The overshield ceiling (Fixed) for a machine with `max_hull`.
+    pub fn ceiling(&self, max_hull: crate::fixed::Fixed) -> crate::fixed::Fixed {
+        max_hull.mul_bp(self.shield_cap_bp)
+    }
+
+    /// Serialization skip at the default (hash stability).
+    pub fn is_default(&self) -> bool {
+        *self == EmpowerMods::default()
+    }
+}
+
 /// Air-combat modifiers (stat block §1). Indirect Artillery "never targets air" is a *structural*
 /// rule enforced in targeting, not a number, so it has no field here.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
@@ -665,6 +702,7 @@ mod tests {
             mount_scale: MountScale::default(),
             stance_aggro: StanceAggro::default(),
             execute_mods: ExecuteMods::default(),
+            empower_mods: EmpowerMods::default(),
         }
     }
 }

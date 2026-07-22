@@ -65,6 +65,26 @@ export const STANCE_OPTIONS: Stance[] = [
 ];
 
 /**
+ * Stance is **role-split** (v2, FR-019): combat machines hold combat stances, support machines the
+ * support flavors, and `Neutral` is the universal fallback both share. These mirror the engine's
+ * `Stance::COMBAT` / `Stance::SUPPORT` (plus Neutral), and are what the editor offers per machine —
+ * an out-of-role stance on a *saved* army still loads and degrades to neutral behaviour (FR-022).
+ */
+export const COMBAT_STANCES: Stance[] = [
+  'Aggressive',
+  'Neutral',
+  'Defensive',
+  'Protector',
+  'Opportunist',
+];
+export const SUPPORT_STANCES: Stance[] = ['Neutral', 'Triage', 'Sustain', 'Empower'];
+
+/** The stance options a machine of the given role may hold (`isSupportMachine` = has support power). */
+export function stanceOptionsForRole(isSupportMachine: boolean): Stance[] {
+  return isSupportMachine ? SUPPORT_STANCES : COMBAT_STANCES;
+}
+
+/**
  * The dial options the engine gates behind a capability — **mirrors `validate.rs::check_dial_gating`
  * exactly**. Only these three are gated; any other option is legal (so the editor must not disable it,
  * or it would diverge from the engine, P8).

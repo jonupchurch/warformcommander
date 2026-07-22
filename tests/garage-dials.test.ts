@@ -7,7 +7,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { dialOptionLocked } from '@/lib/garage/dials';
+import { dialOptionLocked, stanceOptionsForRole } from '@/lib/garage/dials';
 import { garageReducer, freshSession, type EditorAction } from '@/lib/garage/editor-reducer';
 import { defaultFor } from '@/lib/garage/preset-catalog';
 import { toSquadConfig } from '@/lib/garage/to-squad-config';
@@ -94,6 +94,40 @@ describe('gated dial choices agree with the engine V7', () => {
 
     const unlocked = armyWith(heavy(WITH_AI, { dials: { ...defaultFor('Grizzly', rs).dials, energy: 'Adaptive' } }));
     expect(validateArmy(toSquadConfig(unlocked), rs).some((e) => e.code === 'DialGating')).toBe(false);
+  });
+});
+
+describe('stance is role-split (v2, FR-019/FR-022)', () => {
+  it('offers support flavors to support machines and combat stances to everything else', () => {
+    const combat = stanceOptionsForRole(false);
+    const support = stanceOptionsForRole(true);
+    expect(combat).toContain('Aggressive');
+    expect(combat).not.toContain('Triage');
+    expect(support).toEqual(expect.arrayContaining(['Triage', 'Sustain', 'Empower']));
+    expect(support).not.toContain('Aggressive');
+    // Neutral is the universal fallback both roles share.
+    expect(combat).toContain('Neutral');
+    expect(support).toContain('Neutral');
+  });
+
+  it('does not reject a saved out-of-role stance (it degrades, FR-022)', () => {
+    // A combat machine holding a support stance and a support machine holding a (non-gated) combat
+    // stance both still validate — the engine degrades them at runtime rather than rejecting.
+    const combatWithSupportStance = armyWith(
+      heavy(NO_AI, { dials: { ...defaultFor('Grizzly', rs).dials, stance: 'Triage' } }),
+    );
+    expect(validateArmy(toSquadConfig(combatWithSupportStance), rs).some((e) => e.code === 'DialGating')).toBe(false);
+
+    const medicSeed = defaultFor('Medic', rs);
+    const supportWithCombatStance = armyWith({
+      typeId: 'RearSupport',
+      variantId: 'Medic',
+      loadout: medicSeed.loadout,
+      dials: { ...medicSeed.dials, stance: 'Aggressive' },
+      planB: medicSeed.planB,
+      zone: 'Rear',
+    });
+    expect(validateArmy(toSquadConfig(supportWithCombatStance), rs).some((e) => e.code === 'DialGating')).toBe(false);
   });
 });
 

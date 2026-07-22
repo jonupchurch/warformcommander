@@ -245,6 +245,33 @@ describe('dials', () => {
     );
   });
 
+  it('explains the three support stances by repair priority (v2 role split)', () => {
+    for (const stance of ['Triage', 'Sustain', 'Empower']) {
+      const ex = explainDial('stance', stance, rs);
+      expect(ex.blurb, `${stance} blurb`).not.toBe('');
+      expect(ex.caveat).toBeUndefined();
+      // A support stance is a repair-priority axis, so it must NOT show a fire-priority tier line.
+      expect(ex.effects.find((e) => e.label === 'Draws fire' || e.label === 'Sheds fire')).toBeUndefined();
+    }
+    // Triage and Sustain repair different allies.
+    expect(explainDial('stance', 'Triage', rs).effects.find((e) => e.label === 'Repair priority')?.value).toBe(
+      'Most-damaged ally',
+    );
+    expect(explainDial('stance', 'Sustain', rs).effects.find((e) => e.label === 'Repair priority')?.value).toBe(
+      'Most-effective ally',
+    );
+  });
+
+  it('shows the Empower overshield ceiling from the ruleset', () => {
+    expect(explainDial('stance', 'Empower', rs).effects.find((e) => e.label === 'Overshield')?.value).toBe(
+      'up to +30% max hull as shield',
+    );
+    const tuned: Ruleset = { ...rs, empowerMods: { shieldCapBp: 5000 } };
+    expect(explainDial('stance', 'Empower', tuned).effects.find((e) => e.label === 'Overshield')?.value).toBe(
+      'up to +50% max hull as shield',
+    );
+  });
+
   it('warns that the unimplemented movement modes do not move', () => {
     for (const mode of ['Kite', 'Reposition', 'Escort']) {
       expect(explainDial('movement', mode, rs).caveat).toMatch(/No effect yet/);
