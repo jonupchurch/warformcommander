@@ -356,14 +356,18 @@ stance options offered are constrained by machine role.
 ### Measurable Outcomes
 
 - **SC-001**: Contested matchups — those where neither side wins more than 95% of the time — increase
-  from 6 of 30 to at least 12 of 30.
-- **SC-002**: No archetype's win rate sits below 30% or above 70%, from a current range of 20% to 64%.
+  from a measured **8 of 132** to at least **26 of 132** (a tripling, and the first time more than one
+  matchup in five is genuinely in doubt).
+- **SC-002**: The spread between the strongest and weakest archetype narrows from a measured **87
+  points** (3.8% to 90.9%) to **at most 50 points**, with no archetype below 20% or above 80%. The
+  longer-term goal remains a 30–70% band, but a single content pass closing 87 points to 40 is not a
+  credible target and a criterion nobody expects to meet is not a criterion.
 - **SC-003**: Shielded and ablative capacity rises from roughly 3% of the field's effective hit
   points to at least 25%.
 - **SC-004**: The number of mount classes whose defense slot offers only one option falls from five
   to zero.
-- **SC-005**: Median battle duration across the archetype field stays within 10% of the pre-change
-  baseline, confirming redistribution rather than inflation.
+- **SC-005**: Median battle duration across the archetype field stays within 10% of the measured
+  baseline of **484.8 ticks** (i.e. 436–533), confirming redistribution rather than inflation.
 - **SC-006**: Every stance option produces a measurable change in outcome, up from zero of eight.
 - **SC-007**: Two armies identical except for stance assignment produce different casualty orders in
   at least 80% of sampled matchups.

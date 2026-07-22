@@ -1,0 +1,4177 @@
+{
+  "reportVersion": 1,
+  "provenance": {
+    "rulesetHash": "5171948baaf531cc9d4eea07a0d810baa2469474dd3c7ccff40a422e83aaa4a0",
+    "engineVersion": "0.1.0",
+    "replayFormatVersion": 1,
+    "generatedAt": "unix:1784747692"
+  },
+  "runConfig": {
+    "baseSeed": "1",
+    "samplesPerMatchup": 2000,
+    "fairBand": {
+      "floor": 0.4,
+      "ceiling": 0.6
+    }
+  },
+  "matchups": [
+    {
+      "label": "kinetic-tanks vs energy-mechs",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 249.4
+      }
+    },
+    {
+      "label": "kinetic-tanks vs aa-rocket",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 606.0
+      }
+    },
+    {
+      "label": "kinetic-tanks vs air-alpha",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 380.5
+      }
+    },
+    {
+      "label": "kinetic-tanks vs artillery-line",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 322.4
+      }
+    },
+    {
+      "label": "kinetic-tanks vs support-ball",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 981.8
+      }
+    },
+    {
+      "label": "kinetic-tanks vs ca-line",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 481.4
+      }
+    },
+    {
+      "label": "kinetic-tanks vs ca-mobile",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 499.1
+      }
+    },
+    {
+      "label": "kinetic-tanks vs ca-air",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 411.1
+      }
+    },
+    {
+      "label": "kinetic-tanks vs ca-siege",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 432.1
+      }
+    },
+    {
+      "label": "kinetic-tanks vs ca-aa",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 601.6
+      }
+    },
+    {
+      "label": "kinetic-tanks vs ca-attrition",
+      "samples": 2000,
+      "winsA": 1246,
+      "winsB": 754,
+      "winRateA": 0.623,
+      "ci95": {
+        "low": 0.6015,
+        "high": 0.644
+      },
+      "outcome": {
+        "conquestA": 2881,
+        "conquestB": 2083,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 1036,
+          "twoOne": 964
+        },
+        "avgDurationTicks": 1413.2
+      }
+    },
+    {
+      "label": "energy-mechs vs kinetic-tanks",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 247.4
+      }
+    },
+    {
+      "label": "energy-mechs vs aa-rocket",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 205.4
+      }
+    },
+    {
+      "label": "energy-mechs vs air-alpha",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 283.4
+      }
+    },
+    {
+      "label": "energy-mechs vs artillery-line",
+      "samples": 2000,
+      "winsA": 2,
+      "winsB": 1998,
+      "winRateA": 0.001,
+      "ci95": {
+        "low": 0.0003,
+        "high": 0.0036
+      },
+      "outcome": {
+        "conquestA": 24,
+        "conquestB": 3997,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 1979,
+          "twoOne": 21
+        },
+        "avgDurationTicks": 249.6
+      }
+    },
+    {
+      "label": "energy-mechs vs support-ball",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 299.9
+      }
+    },
+    {
+      "label": "energy-mechs vs ca-line",
+      "samples": 2000,
+      "winsA": 1978,
+      "winsB": 22,
+      "winRateA": 0.989,
+      "ci95": {
+        "low": 0.9834,
+        "high": 0.9927
+      },
+      "outcome": {
+        "conquestA": 3971,
+        "conquestB": 275,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 1754,
+          "twoOne": 246
+        },
+        "avgDurationTicks": 415.2
+      }
+    },
+    {
+      "label": "energy-mechs vs ca-mobile",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 258.4
+      }
+    },
+    {
+      "label": "energy-mechs vs ca-air",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 346.7
+      }
+    },
+    {
+      "label": "energy-mechs vs ca-siege",
+      "samples": 2000,
+      "winsA": 1143,
+      "winsB": 857,
+      "winRateA": 0.5715,
+      "ci95": {
+        "low": 0.5497,
+        "high": 0.593
+      },
+      "outcome": {
+        "conquestA": 2734,
+        "conquestB": 2246,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 1020,
+          "twoOne": 980
+        },
+        "avgDurationTicks": 423.3
+      }
+    },
+    {
+      "label": "energy-mechs vs ca-aa",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 569.7
+      }
+    },
+    {
+      "label": "energy-mechs vs ca-attrition",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 286.6
+      }
+    },
+    {
+      "label": "aa-rocket vs kinetic-tanks",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 2,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 1998,
+          "twoOne": 2
+        },
+        "avgDurationTicks": 615.6
+      }
+    },
+    {
+      "label": "aa-rocket vs energy-mechs",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 206.8
+      }
+    },
+    {
+      "label": "aa-rocket vs air-alpha",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 205.9
+      }
+    },
+    {
+      "label": "aa-rocket vs artillery-line",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 287.5
+      }
+    },
+    {
+      "label": "aa-rocket vs support-ball",
+      "samples": 2000,
+      "winsA": 1407,
+      "winsB": 593,
+      "winRateA": 0.7035,
+      "ci95": {
+        "low": 0.6831,
+        "high": 0.7231
+      },
+      "outcome": {
+        "conquestA": 2841,
+        "conquestB": 1773,
+        "timeTiebreakA": 305,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 1081,
+          "twoOne": 919
+        },
+        "avgDurationTicks": 1627.7
+      }
+    },
+    {
+      "label": "aa-rocket vs ca-line",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 423.9
+      }
+    },
+    {
+      "label": "aa-rocket vs ca-mobile",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 407.4
+      }
+    },
+    {
+      "label": "aa-rocket vs ca-air",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 662.1
+      }
+    },
+    {
+      "label": "aa-rocket vs ca-siege",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 390.1
+      }
+    },
+    {
+      "label": "aa-rocket vs ca-aa",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 488.9
+      }
+    },
+    {
+      "label": "aa-rocket vs ca-attrition",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 942.4
+      }
+    },
+    {
+      "label": "air-alpha vs kinetic-tanks",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 380.4
+      }
+    },
+    {
+      "label": "air-alpha vs energy-mechs",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 282.9
+      }
+    },
+    {
+      "label": "air-alpha vs aa-rocket",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 206.5
+      }
+    },
+    {
+      "label": "air-alpha vs artillery-line",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 395.8
+      }
+    },
+    {
+      "label": "air-alpha vs support-ball",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 510.9
+      }
+    },
+    {
+      "label": "air-alpha vs ca-line",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 491.8
+      }
+    },
+    {
+      "label": "air-alpha vs ca-mobile",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 374.4
+      }
+    },
+    {
+      "label": "air-alpha vs ca-air",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 651.5
+      }
+    },
+    {
+      "label": "air-alpha vs ca-siege",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 398.3
+      }
+    },
+    {
+      "label": "air-alpha vs ca-aa",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 208.1
+      }
+    },
+    {
+      "label": "air-alpha vs ca-attrition",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 531.4
+      }
+    },
+    {
+      "label": "artillery-line vs kinetic-tanks",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 321.6
+      }
+    },
+    {
+      "label": "artillery-line vs energy-mechs",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 19,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 1981,
+          "twoOne": 19
+        },
+        "avgDurationTicks": 248.8
+      }
+    },
+    {
+      "label": "artillery-line vs aa-rocket",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 286.8
+      }
+    },
+    {
+      "label": "artillery-line vs air-alpha",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 396.1
+      }
+    },
+    {
+      "label": "artillery-line vs support-ball",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 395.3
+      }
+    },
+    {
+      "label": "artillery-line vs ca-line",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 403.3
+      }
+    },
+    {
+      "label": "artillery-line vs ca-mobile",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 314.7
+      }
+    },
+    {
+      "label": "artillery-line vs ca-air",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 545.8
+      }
+    },
+    {
+      "label": "artillery-line vs ca-siege",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 333.0
+      }
+    },
+    {
+      "label": "artillery-line vs ca-aa",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 774.9
+      }
+    },
+    {
+      "label": "artillery-line vs ca-attrition",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 421.4
+      }
+    },
+    {
+      "label": "support-ball vs kinetic-tanks",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 1018.7
+      }
+    },
+    {
+      "label": "support-ball vs energy-mechs",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 300.6
+      }
+    },
+    {
+      "label": "support-ball vs aa-rocket",
+      "samples": 2000,
+      "winsA": 845,
+      "winsB": 1155,
+      "winRateA": 0.4225,
+      "ci95": {
+        "low": 0.401,
+        "high": 0.4443
+      },
+      "outcome": {
+        "conquestA": 2235,
+        "conquestB": 2472,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 296,
+        "matchSplit": {
+          "twoZero": 997,
+          "twoOne": 1003
+        },
+        "avgDurationTicks": 1666.0
+      }
+    },
+    {
+      "label": "support-ball vs air-alpha",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 512.1
+      }
+    },
+    {
+      "label": "support-ball vs artillery-line",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 398.0
+      }
+    },
+    {
+      "label": "support-ball vs ca-line",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 562.9
+      }
+    },
+    {
+      "label": "support-ball vs ca-mobile",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 624.0
+      }
+    },
+    {
+      "label": "support-ball vs ca-air",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 490.8
+      }
+    },
+    {
+      "label": "support-ball vs ca-siege",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 605.5
+      }
+    },
+    {
+      "label": "support-ball vs ca-aa",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 730.2
+      }
+    },
+    {
+      "label": "support-ball vs ca-attrition",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 1727.5
+      }
+    },
+    {
+      "label": "ca-line vs kinetic-tanks",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 479.9
+      }
+    },
+    {
+      "label": "ca-line vs energy-mechs",
+      "samples": 2000,
+      "winsA": 36,
+      "winsB": 1964,
+      "winRateA": 0.018,
+      "ci95": {
+        "low": 0.013,
+        "high": 0.0248
+      },
+      "outcome": {
+        "conquestA": 356,
+        "conquestB": 3950,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 1694,
+          "twoOne": 306
+        },
+        "avgDurationTicks": 429.4
+      }
+    },
+    {
+      "label": "ca-line vs aa-rocket",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 422.9
+      }
+    },
+    {
+      "label": "ca-line vs air-alpha",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 491.9
+      }
+    },
+    {
+      "label": "ca-line vs artillery-line",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 1,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 1999,
+          "twoOne": 1
+        },
+        "avgDurationTicks": 404.3
+      }
+    },
+    {
+      "label": "ca-line vs support-ball",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 563.2
+      }
+    },
+    {
+      "label": "ca-line vs ca-mobile",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 484.8
+      }
+    },
+    {
+      "label": "ca-line vs ca-air",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 528.9
+      }
+    },
+    {
+      "label": "ca-line vs ca-siege",
+      "samples": 2000,
+      "winsA": 1845,
+      "winsB": 155,
+      "winRateA": 0.9225,
+      "ci95": {
+        "low": 0.91,
+        "high": 0.9334
+      },
+      "outcome": {
+        "conquestA": 3781,
+        "conquestB": 805,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 1414,
+          "twoOne": 586
+        },
+        "avgDurationTicks": 620.5
+      }
+    },
+    {
+      "label": "ca-line vs ca-aa",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 1178.3
+      }
+    },
+    {
+      "label": "ca-line vs ca-attrition",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 603.4
+      }
+    },
+    {
+      "label": "ca-mobile vs kinetic-tanks",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 494.6
+      }
+    },
+    {
+      "label": "ca-mobile vs energy-mechs",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 259.9
+      }
+    },
+    {
+      "label": "ca-mobile vs aa-rocket",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 404.1
+      }
+    },
+    {
+      "label": "ca-mobile vs air-alpha",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 374.4
+      }
+    },
+    {
+      "label": "ca-mobile vs artillery-line",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 315.1
+      }
+    },
+    {
+      "label": "ca-mobile vs support-ball",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 621.2
+      }
+    },
+    {
+      "label": "ca-mobile vs ca-line",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 2,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 1998,
+          "twoOne": 2
+        },
+        "avgDurationTicks": 486.4
+      }
+    },
+    {
+      "label": "ca-mobile vs ca-air",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 403.6
+      }
+    },
+    {
+      "label": "ca-mobile vs ca-siege",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 8,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 1992,
+          "twoOne": 8
+        },
+        "avgDurationTicks": 457.2
+      }
+    },
+    {
+      "label": "ca-mobile vs ca-aa",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 758.2
+      }
+    },
+    {
+      "label": "ca-mobile vs ca-attrition",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 605.5
+      }
+    },
+    {
+      "label": "ca-air vs kinetic-tanks",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 409.7
+      }
+    },
+    {
+      "label": "ca-air vs energy-mechs",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 344.1
+      }
+    },
+    {
+      "label": "ca-air vs aa-rocket",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 660.3
+      }
+    },
+    {
+      "label": "ca-air vs air-alpha",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 651.8
+      }
+    },
+    {
+      "label": "ca-air vs artillery-line",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 542.7
+      }
+    },
+    {
+      "label": "ca-air vs support-ball",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 490.9
+      }
+    },
+    {
+      "label": "ca-air vs ca-line",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 527.0
+      }
+    },
+    {
+      "label": "ca-air vs ca-mobile",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 402.5
+      }
+    },
+    {
+      "label": "ca-air vs ca-siege",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 418.9
+      }
+    },
+    {
+      "label": "ca-air vs ca-aa",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 905.2
+      }
+    },
+    {
+      "label": "ca-air vs ca-attrition",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 480.5
+      }
+    },
+    {
+      "label": "ca-siege vs kinetic-tanks",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 429.7
+      }
+    },
+    {
+      "label": "ca-siege vs energy-mechs",
+      "samples": 2000,
+      "winsA": 883,
+      "winsB": 1117,
+      "winRateA": 0.4415,
+      "ci95": {
+        "low": 0.4199,
+        "high": 0.4634
+      },
+      "outcome": {
+        "conquestA": 2315,
+        "conquestB": 2691,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 994,
+          "twoOne": 1006
+        },
+        "avgDurationTicks": 426.1
+      }
+    },
+    {
+      "label": "ca-siege vs aa-rocket",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 389.2
+      }
+    },
+    {
+      "label": "ca-siege vs air-alpha",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 398.6
+      }
+    },
+    {
+      "label": "ca-siege vs artillery-line",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 334.4
+      }
+    },
+    {
+      "label": "ca-siege vs support-ball",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 602.7
+      }
+    },
+    {
+      "label": "ca-siege vs ca-line",
+      "samples": 2000,
+      "winsA": 243,
+      "winsB": 1757,
+      "winRateA": 0.1215,
+      "ci95": {
+        "low": 0.1079,
+        "high": 0.1365
+      },
+      "outcome": {
+        "conquestA": 1014,
+        "conquestB": 3658,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 1328,
+          "twoOne": 672
+        },
+        "avgDurationTicks": 637.5
+      }
+    },
+    {
+      "label": "ca-siege vs ca-mobile",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 15,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 1985,
+          "twoOne": 15
+        },
+        "avgDurationTicks": 455.9
+      }
+    },
+    {
+      "label": "ca-siege vs ca-air",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 419.4
+      }
+    },
+    {
+      "label": "ca-siege vs ca-aa",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 729.6
+      }
+    },
+    {
+      "label": "ca-siege vs ca-attrition",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 606.6
+      }
+    },
+    {
+      "label": "ca-aa vs kinetic-tanks",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 592.9
+      }
+    },
+    {
+      "label": "ca-aa vs energy-mechs",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 567.7
+      }
+    },
+    {
+      "label": "ca-aa vs aa-rocket",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 492.9
+      }
+    },
+    {
+      "label": "ca-aa vs air-alpha",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 208.1
+      }
+    },
+    {
+      "label": "ca-aa vs artillery-line",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 774.1
+      }
+    },
+    {
+      "label": "ca-aa vs support-ball",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 729.8
+      }
+    },
+    {
+      "label": "ca-aa vs ca-line",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 1174.0
+      }
+    },
+    {
+      "label": "ca-aa vs ca-mobile",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 755.0
+      }
+    },
+    {
+      "label": "ca-aa vs ca-air",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 897.7
+      }
+    },
+    {
+      "label": "ca-aa vs ca-siege",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 728.8
+      }
+    },
+    {
+      "label": "ca-aa vs ca-attrition",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 726.4
+      }
+    },
+    {
+      "label": "ca-attrition vs kinetic-tanks",
+      "samples": 2000,
+      "winsA": 1140,
+      "winsB": 860,
+      "winRateA": 0.57,
+      "ci95": {
+        "low": 0.5482,
+        "high": 0.5915
+      },
+      "outcome": {
+        "conquestA": 2739,
+        "conquestB": 2254,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 1007,
+          "twoOne": 993
+        },
+        "avgDurationTicks": 1455.8
+      }
+    },
+    {
+      "label": "ca-attrition vs energy-mechs",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 287.1
+      }
+    },
+    {
+      "label": "ca-attrition vs aa-rocket",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 929.8
+      }
+    },
+    {
+      "label": "ca-attrition vs air-alpha",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 532.1
+      }
+    },
+    {
+      "label": "ca-attrition vs artillery-line",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 422.9
+      }
+    },
+    {
+      "label": "ca-attrition vs support-ball",
+      "samples": 2000,
+      "winsA": 2000,
+      "winsB": 0,
+      "winRateA": 1.0,
+      "ci95": {
+        "low": 0.9981,
+        "high": 1.0
+      },
+      "outcome": {
+        "conquestA": 4000,
+        "conquestB": 0,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 1717.4
+      }
+    },
+    {
+      "label": "ca-attrition vs ca-line",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 609.5
+      }
+    },
+    {
+      "label": "ca-attrition vs ca-mobile",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 610.6
+      }
+    },
+    {
+      "label": "ca-attrition vs ca-air",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 480.8
+      }
+    },
+    {
+      "label": "ca-attrition vs ca-siege",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 609.0
+      }
+    },
+    {
+      "label": "ca-attrition vs ca-aa",
+      "samples": 2000,
+      "winsA": 0,
+      "winsB": 2000,
+      "winRateA": 0.0,
+      "ci95": {
+        "low": 0.0,
+        "high": 0.0019
+      },
+      "outcome": {
+        "conquestA": 0,
+        "conquestB": 4000,
+        "timeTiebreakA": 0,
+        "timeTiebreakB": 0,
+        "matchSplit": {
+          "twoZero": 2000,
+          "twoOne": 0
+        },
+        "avgDurationTicks": 727.3
+      }
+    }
+  ],
+  "flagged": [
+    {
+      "combo": {
+        "label": "support-ball",
+        "army": {
+          "machines": [
+            {
+              "instanceId": 0,
+              "typeId": "RearSupport",
+              "variantId": "Medic",
+              "loadout": {
+                "weapon": "RepairBeam",
+                "defense": "StandardHullSupport",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Rear"
+            },
+            {
+              "instanceId": 1,
+              "typeId": "RearSupport",
+              "variantId": "Warden",
+              "loadout": {
+                "weapon": "RepairBeam",
+                "defense": "StandardHullSupport",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Middle"
+            },
+            {
+              "instanceId": 2,
+              "typeId": "HeavyTank",
+              "variantId": "Bulwark",
+              "loadout": {
+                "weapon": "HeavyCannon",
+                "defense": "StandardHullHeavy",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Front"
+            },
+            {
+              "instanceId": 3,
+              "typeId": "HeavyTank",
+              "variantId": "Grizzly",
+              "loadout": {
+                "weapon": "HeavyCannon",
+                "defense": "StandardHullHeavy",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Front"
+            },
+            {
+              "instanceId": 4,
+              "typeId": "HeavyTank",
+              "variantId": "Cavalier",
+              "loadout": {
+                "weapon": "HeavyCannon",
+                "defense": "StandardHullHeavy",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Front"
+            }
+          ]
+        }
+      },
+      "acrossFieldWinRate": 0.0327,
+      "ci95": {
+        "low": 0.0311,
+        "high": 0.0344
+      },
+      "kind": "Underpowered",
+      "reason": "Wilson interval [0.031,0.034] lies entirely below floor 0.40",
+      "severity": 0.3656
+    },
+    {
+      "combo": {
+        "label": "ca-aa",
+        "army": {
+          "machines": [
+            {
+              "instanceId": 0,
+              "typeId": "AttackHeli",
+              "variantId": "Gunship",
+              "loadout": {
+                "weapon": "RocketPods",
+                "defense": "StandardHullHeli",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Air"
+            },
+            {
+              "instanceId": 1,
+              "typeId": "HeavyTank",
+              "variantId": "Grizzly",
+              "loadout": {
+                "weapon": "HeavyCannon",
+                "defense": "StandardHullHeavy",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Front"
+            },
+            {
+              "instanceId": 2,
+              "typeId": "Mech",
+              "variantId": "Vanguard",
+              "loadout": {
+                "weapon": "AssaultCannon",
+                "defense": "StandardHullMech",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Front"
+            },
+            {
+              "instanceId": 3,
+              "typeId": "RocketArtillery",
+              "variantId": "Sentry",
+              "loadout": {
+                "weapon": "SAMBattery",
+                "defense": "StandardHullRktArty",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Middle"
+            },
+            {
+              "instanceId": 4,
+              "typeId": "RearSupport",
+              "variantId": "Medic",
+              "loadout": {
+                "weapon": "RepairBeam",
+                "defense": "StandardHullSupport",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Rear"
+            }
+          ]
+        }
+      },
+      "acrossFieldWinRate": 0.9091,
+      "ci95": {
+        "low": 0.9064,
+        "high": 0.9117
+      },
+      "kind": "Dominant",
+      "reason": "Wilson interval [0.906,0.912] lies entirely above ceiling 0.60",
+      "severity": 0.3064
+    },
+    {
+      "combo": {
+        "label": "air-alpha",
+        "army": {
+          "machines": [
+            {
+              "instanceId": 0,
+              "typeId": "AttackHeli",
+              "variantId": "Gunship",
+              "loadout": {
+                "weapon": "RocketPods",
+                "defense": "StandardHullHeli",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Air"
+            },
+            {
+              "instanceId": 1,
+              "typeId": "AttackHeli",
+              "variantId": "Warhog",
+              "loadout": {
+                "weapon": "RocketPods",
+                "defense": "StandardHullHeli",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Air"
+            },
+            {
+              "instanceId": 2,
+              "typeId": "LightTank",
+              "variantId": "Scout",
+              "loadout": {
+                "weapon": "Autocannon",
+                "defense": "StandardHullLight",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Front"
+            },
+            {
+              "instanceId": 3,
+              "typeId": "LightTank",
+              "variantId": "Scout",
+              "loadout": {
+                "weapon": "Autocannon",
+                "defense": "StandardHullLight",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Front"
+            },
+            {
+              "instanceId": 4,
+              "typeId": "LightTank",
+              "variantId": "Hunter",
+              "loadout": {
+                "weapon": "Autocannon",
+                "defense": "StandardHullLight",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Front"
+            }
+          ]
+        }
+      },
+      "acrossFieldWinRate": 0.8182,
+      "ci95": {
+        "low": 0.8146,
+        "high": 0.8218
+      },
+      "kind": "Dominant",
+      "reason": "Wilson interval [0.815,0.822] lies entirely above ceiling 0.60",
+      "severity": 0.2146
+    },
+    {
+      "combo": {
+        "label": "ca-air",
+        "army": {
+          "machines": [
+            {
+              "instanceId": 0,
+              "typeId": "AttackHeli",
+              "variantId": "Gunship",
+              "loadout": {
+                "weapon": "RocketPods",
+                "defense": "StandardHullHeli",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Air"
+            },
+            {
+              "instanceId": 1,
+              "typeId": "HeavyTank",
+              "variantId": "Grizzly",
+              "loadout": {
+                "weapon": "HeavyCannon",
+                "defense": "StandardHullHeavy",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Front"
+            },
+            {
+              "instanceId": 2,
+              "typeId": "HeavyTank",
+              "variantId": "Bulwark",
+              "loadout": {
+                "weapon": "HeavyCannon",
+                "defense": "StandardHullHeavy",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Front"
+            },
+            {
+              "instanceId": 3,
+              "typeId": "Mech",
+              "variantId": "Vanguard",
+              "loadout": {
+                "weapon": "AssaultCannon",
+                "defense": "StandardHullMech",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Middle"
+            },
+            {
+              "instanceId": 4,
+              "typeId": "RearSupport",
+              "variantId": "Medic",
+              "loadout": {
+                "weapon": "RepairBeam",
+                "defense": "StandardHullSupport",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Rear"
+            }
+          ]
+        }
+      },
+      "acrossFieldWinRate": 0.8182,
+      "ci95": {
+        "low": 0.8146,
+        "high": 0.8218
+      },
+      "kind": "Dominant",
+      "reason": "Wilson interval [0.815,0.822] lies entirely above ceiling 0.60",
+      "severity": 0.2146
+    },
+    {
+      "combo": {
+        "label": "ca-attrition",
+        "army": {
+          "machines": [
+            {
+              "instanceId": 0,
+              "typeId": "HeavyTank",
+              "variantId": "Bulwark",
+              "loadout": {
+                "weapon": "HeavyCannon",
+                "defense": "StandardHullHeavy",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Front"
+            },
+            {
+              "instanceId": 1,
+              "typeId": "HeavyTank",
+              "variantId": "Grizzly",
+              "loadout": {
+                "weapon": "HeavyCannon",
+                "defense": "StandardHullHeavy",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Front"
+            },
+            {
+              "instanceId": 2,
+              "typeId": "RearSupport",
+              "variantId": "Warden",
+              "loadout": {
+                "weapon": "RepairBeam",
+                "defense": "StandardHullSupport",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Middle"
+            },
+            {
+              "instanceId": 3,
+              "typeId": "Mech",
+              "variantId": "Sentinel",
+              "loadout": {
+                "weapon": "AssaultCannon",
+                "defense": "StandardHullMech",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader",
+                  "ECMSuite"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Middle"
+            },
+            {
+              "instanceId": 4,
+              "typeId": "RearSupport",
+              "variantId": "Medic",
+              "loadout": {
+                "weapon": "RepairBeam",
+                "defense": "StandardHullSupport",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Rear"
+            }
+          ]
+        }
+      },
+      "acrossFieldWinRate": 0.2249,
+      "ci95": {
+        "low": 0.221,
+        "high": 0.2288
+      },
+      "kind": "Underpowered",
+      "reason": "Wilson interval [0.221,0.229] lies entirely below floor 0.40",
+      "severity": 0.1712
+    },
+    {
+      "combo": {
+        "label": "kinetic-tanks",
+        "army": {
+          "machines": [
+            {
+              "instanceId": 0,
+              "typeId": "HeavyTank",
+              "variantId": "Grizzly",
+              "loadout": {
+                "weapon": "HeavyCannon",
+                "defense": "StandardHullHeavy",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Front"
+            },
+            {
+              "instanceId": 1,
+              "typeId": "HeavyTank",
+              "variantId": "Cavalier",
+              "loadout": {
+                "weapon": "HeavyCannon",
+                "defense": "StandardHullHeavy",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Front"
+            },
+            {
+              "instanceId": 2,
+              "typeId": "HeavyTank",
+              "variantId": "Grizzly",
+              "loadout": {
+                "weapon": "HeavyCannon",
+                "defense": "StandardHullHeavy",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Front"
+            },
+            {
+              "instanceId": 3,
+              "typeId": "LightTank",
+              "variantId": "Scout",
+              "loadout": {
+                "weapon": "Autocannon",
+                "defense": "StandardHullLight",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Middle"
+            },
+            {
+              "instanceId": 4,
+              "typeId": "LightTank",
+              "variantId": "Hunter",
+              "loadout": {
+                "weapon": "Autocannon",
+                "defense": "StandardHullLight",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Middle"
+            }
+          ]
+        }
+      },
+      "acrossFieldWinRate": 0.2297,
+      "ci95": {
+        "low": 0.2258,
+        "high": 0.2336
+      },
+      "kind": "Underpowered",
+      "reason": "Wilson interval [0.226,0.234] lies entirely below floor 0.40",
+      "severity": 0.1664
+    },
+    {
+      "combo": {
+        "label": "aa-rocket",
+        "army": {
+          "machines": [
+            {
+              "instanceId": 0,
+              "typeId": "RocketArtillery",
+              "variantId": "Sentry",
+              "loadout": {
+                "weapon": "SAMBattery",
+                "defense": "StandardHullRktArty",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Middle"
+            },
+            {
+              "instanceId": 1,
+              "typeId": "RocketArtillery",
+              "variantId": "Aegis",
+              "loadout": {
+                "weapon": "SAMBattery",
+                "defense": "StandardHullRktArty",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Middle"
+            },
+            {
+              "instanceId": 2,
+              "typeId": "HeavyTank",
+              "variantId": "Grizzly",
+              "loadout": {
+                "weapon": "HeavyCannon",
+                "defense": "StandardHullHeavy",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Front"
+            },
+            {
+              "instanceId": 3,
+              "typeId": "HeavyTank",
+              "variantId": "Grizzly",
+              "loadout": {
+                "weapon": "HeavyCannon",
+                "defense": "StandardHullHeavy",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Front"
+            },
+            {
+              "instanceId": 4,
+              "typeId": "Mech",
+              "variantId": "Vanguard",
+              "loadout": {
+                "weapon": "AssaultCannon",
+                "defense": "StandardHullMech",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Front"
+            }
+          ]
+        }
+      },
+      "acrossFieldWinRate": 0.24,
+      "ci95": {
+        "low": 0.2361,
+        "high": 0.2441
+      },
+      "kind": "Underpowered",
+      "reason": "Wilson interval [0.236,0.244] lies entirely below floor 0.40",
+      "severity": 0.1559
+    },
+    {
+      "combo": {
+        "label": "artillery-line",
+        "army": {
+          "machines": [
+            {
+              "instanceId": 0,
+              "typeId": "Artillery",
+              "variantId": "Longbow",
+              "loadout": {
+                "weapon": "Howitzer",
+                "defense": "StandardHullArtillery",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Rear"
+            },
+            {
+              "instanceId": 1,
+              "typeId": "Artillery",
+              "variantId": "Siege",
+              "loadout": {
+                "weapon": "Howitzer",
+                "defense": "StandardHullArtillery",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Rear"
+            },
+            {
+              "instanceId": 2,
+              "typeId": "HeavyTank",
+              "variantId": "Bulwark",
+              "loadout": {
+                "weapon": "HeavyCannon",
+                "defense": "StandardHullHeavy",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Front"
+            },
+            {
+              "instanceId": 3,
+              "typeId": "HeavyTank",
+              "variantId": "Grizzly",
+              "loadout": {
+                "weapon": "HeavyCannon",
+                "defense": "StandardHullHeavy",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Front"
+            },
+            {
+              "instanceId": 4,
+              "typeId": "Mech",
+              "variantId": "Vanguard",
+              "loadout": {
+                "weapon": "AssaultCannon",
+                "defense": "StandardHullMech",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Middle"
+            }
+          ]
+        }
+      },
+      "acrossFieldWinRate": 0.7272,
+      "ci95": {
+        "low": 0.723,
+        "high": 0.7314
+      },
+      "kind": "Dominant",
+      "reason": "Wilson interval [0.723,0.731] lies entirely above ceiling 0.60",
+      "severity": 0.123
+    },
+    {
+      "combo": {
+        "label": "ca-mobile",
+        "army": {
+          "machines": [
+            {
+              "instanceId": 0,
+              "typeId": "HeavyTank",
+              "variantId": "Cavalier",
+              "loadout": {
+                "weapon": "HeavyCannon",
+                "defense": "StandardHullHeavy",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Front"
+            },
+            {
+              "instanceId": 1,
+              "typeId": "HeavyTank",
+              "variantId": "Grizzly",
+              "loadout": {
+                "weapon": "HeavyCannon",
+                "defense": "StandardHullHeavy",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Front"
+            },
+            {
+              "instanceId": 2,
+              "typeId": "LightTank",
+              "variantId": "Scout",
+              "loadout": {
+                "weapon": "Autocannon",
+                "defense": "StandardHullLight",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Middle"
+            },
+            {
+              "instanceId": 3,
+              "typeId": "Mech",
+              "variantId": "Striker",
+              "loadout": {
+                "weapon": "PulseLaser",
+                "defense": "StandardHullMech",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Middle"
+            },
+            {
+              "instanceId": 4,
+              "typeId": "RearSupport",
+              "variantId": "Warden",
+              "loadout": {
+                "weapon": "RepairBeam",
+                "defense": "StandardHullSupport",
+                "utilities": [
+                  "FireControl",
+                  "DriveServos",
+                  "Autoloader"
+                ]
+              },
+              "dials": {
+                "targetRow": "FrontReachable",
+                "targetRule": "FocusFire",
+                "energy": "Balanced",
+                "movement": "Hold",
+                "stance": "Neutral"
+              },
+              "planB": [],
+              "zone": "Middle"
+            }
+          ]
+        }
+      },
+      "acrossFieldWinRate": 0.3636,
+      "ci95": {
+        "low": 0.3592,
+        "high": 0.3681
+      },
+      "kind": "Underpowered",
+      "reason": "Wilson interval [0.359,0.368] lies entirely below floor 0.40",
+      "severity": 0.0319
+    }
+  ],
+  "invariants": [
+    {
+      "name": "FamilyBonusBand",
+      "band": {
+        "low": 0.1,
+        "high": 0.15
+      },
+      "measured": 0.12,
+      "margin": 0.02,
+      "pass": true,
+      "evidence": [
+        "all-native heavies vs durable reference (bonus on)",
+        "identical army with native_bonus zeroed"
+      ]
+    },
+    {
+      "name": "PowerGapCap",
+      "band": {
+        "low": 0.0,
+        "high": 0.5
+      },
+      "measured": 0.4282,
+      "margin": 0.0718,
+      "pass": true,
+      "evidence": [
+        "max-gear vs equal-composition base-gear survivor margin (both roles)"
+      ]
+    },
+    {
+      "name": "NoDominantUnit",
+      "band": {
+        "low": 0.0,
+        "high": 0.0
+      },
+      "measured": 0.0,
+      "margin": 0.0,
+      "pass": true,
+      "evidence": [
+        "no archetype swept a clean win across all its field matchups"
+      ]
+    },
+    {
+      "name": "SkillBeatsGear",
+      "band": {
+        "low": 0.0,
+        "high": 1.0
+      },
+      "measured": 0.3873,
+      "margin": 0.3873,
+      "pass": true,
+      "evidence": [
+        "well-composed base-gear vs sloppy max-gear survivor margin (both roles)"
+      ]
+    }
+  ],
+  "coverage": {
+    "candidatesEvaluated": 12,
+    "candidateSpaceEstimated": 12,
+    "fieldSize": 12,
+    "samplesPerMatchup": 2000,
+    "totalResolutions": 264000,
+    "skippedInvalid": 0
+  }
+}
