@@ -75,6 +75,7 @@ pub fn seed_ruleset() -> Ruleset {
             plink_dmg_mult: 5_000,      // ×0.5  (non-AA vs air — dogfights)
             sam_ground_dmg_mult: 5_000, // ×0.5  (SAM vs ground — split from plink)
             flak_dmg_mult: 10_000,      // ×1.0  (flak vs air — full damage, no plink; default)
+            aa_focus_per_air: 2, // AA attackers per enemy aircraft (fire discipline; default)
         },
         globals: GlobalConstants {
             tick_rate: 10,

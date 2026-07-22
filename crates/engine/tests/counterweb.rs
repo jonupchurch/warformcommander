@@ -173,6 +173,139 @@ fn flak_lets_ground_units_shoot_down_aircraft() {
     );
 }
 
+/// Anti-air **fire discipline**: one cheap aircraft must not be able to soak an entire army's air
+/// defence. Air-first targeting is right, but uncapped it made a SAM wall *anti-synergistic* — every
+/// launcher locked onto a single Gunship (`ReachTag::Air` engages air exclusively) while the enemy
+/// ground line went unopposed, so bringing more AA made you weaker against a one-aircraft splash.
+///
+/// Five launchers face one Gunship: at most `air_mods.aa_focus_per_air` (2) may engage it in any one
+/// tick, and the surplus launchers bombard ground rather than idling on a target already covered.
+#[test]
+fn one_aircraft_cannot_monopolise_the_air_defence_network() {
+    let rs = seed_ruleset();
+    let heli = UnitRef {
+        side: Side::A,
+        instance_id: 0,
+    };
+
+    // Side A: a single Gunship over a conventional ground line (the "air splash").
+    let air_splash = Army {
+        machines: vec![
+            stock_instance(&rs, MachineTypeId::AttackHeli, "Gunship", ZoneId::Air, 0),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 1),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 2),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Bulwark", ZoneId::Front, 3),
+            stock_instance(&rs, MachineTypeId::Mech, "Vanguard", ZoneId::Middle, 4),
+        ],
+    };
+    // Side B: five SAM launchers — every single one of them air-capable.
+    let sam_wall = Army {
+        machines: vec![
+            stock_instance(
+                &rs,
+                MachineTypeId::RocketArtillery,
+                "Sentry",
+                ZoneId::Middle,
+                0,
+            ),
+            stock_instance(
+                &rs,
+                MachineTypeId::RocketArtillery,
+                "Sentry",
+                ZoneId::Middle,
+                1,
+            ),
+            stock_instance(
+                &rs,
+                MachineTypeId::RocketArtillery,
+                "Sentry",
+                ZoneId::Middle,
+                2,
+            ),
+            stock_instance(
+                &rs,
+                MachineTypeId::RocketArtillery,
+                "Sentry",
+                ZoneId::Rear,
+                3,
+            ),
+            stock_instance(
+                &rs,
+                MachineTypeId::RocketArtillery,
+                "Sentry",
+                ZoneId::Rear,
+                4,
+            ),
+        ],
+    };
+
+    // (peak launchers engaging the heli in one tick, any launcher bombarded ground while it flew)
+    let measure = |cap: u32| -> (usize, bool) {
+        let mut rs = rs.clone();
+        rs.air_mods.aa_focus_per_air = cap;
+        let out = run(&rs, air_splash.clone(), sam_wall.clone(), 0x5A55);
+        let (mut peak, mut bombarded) = (0usize, false);
+        for game in &out.replay.games {
+            let mut heli_alive = true;
+            for tick in &game.ticks {
+                let mut on_air = std::collections::BTreeSet::new();
+                // `resolve_attack` emits Hit/Miss (never Shot) — those are the "engaged" signal.
+                // Death is handled inline, in event order: launchers that fire *after* the heli
+                // falls in the same tick are shooting ground legitimately, not dodging the budget.
+                for e in &tick.events {
+                    let (actor, target) = match e {
+                        TickEvent::Hit { actor, target, .. }
+                        | TickEvent::Miss { actor, target } => (actor, target),
+                        TickEvent::Death { unit, .. } if *unit == heli => {
+                            heli_alive = false;
+                            continue;
+                        }
+                        _ => continue,
+                    };
+                    if actor.side != Side::B {
+                        continue;
+                    }
+                    if *target == heli {
+                        on_air.insert(actor.instance_id);
+                    } else if heli_alive {
+                        bombarded = true;
+                    }
+                }
+                peak = peak.max(on_air.len());
+            }
+        }
+        (peak, bombarded)
+    };
+
+    let (capped_peak, capped_bombarded) = measure(2);
+    let (uncapped_peak, uncapped_bombarded) = measure(u32::MAX);
+
+    // Uncapped is the old behavior, and the reason the one-aircraft splash was unanswerable: every
+    // launcher piles onto the lone Gunship and the enemy ground line is never engaged at all.
+    assert!(
+        uncapped_peak > 2,
+        "uncapped, more than 2 launchers should pile onto one aircraft (saw {uncapped_peak}) — \
+         otherwise this test is not exercising the budget"
+    );
+    assert!(
+        !uncapped_bombarded,
+        "uncapped, the whole SAM wall locks onto the aircraft and never touches ground"
+    );
+
+    assert!(
+        capped_peak > 0,
+        "the air-defence network must still engage the aircraft"
+    );
+    assert!(
+        capped_peak <= 2,
+        "at most 2 launchers may engage one aircraft per tick, saw {capped_peak}"
+    );
+    assert!(
+        capped_bombarded,
+        "launchers beyond the air budget must bombard ground, not idle on a covered target"
+    );
+}
+
 /// A SAM (reach Air) must not idle when the skies are clear. Against an all-ground enemy — no aircraft
 /// to engage, ever — it depresses its launchers and bombards ground instead of doing nothing.
 #[test]

@@ -212,7 +212,7 @@ fn any_offense_possible(combatants: &[Combatant]) -> bool {
         let c = &combatants[i];
         c.alive
             && c.stats.family != crate::model::types::DamageFamily::Support
-            && target::select_target(combatants, i).is_some()
+            && target::select_target(combatants, i, None).is_some()
     })
 }
 
@@ -298,6 +298,9 @@ pub(crate) fn run_game(
         resolve_support(combatants, &mut events);
 
         // 4. Offense: each ready combatant fires once, in acting order, using current state.
+        // `air_focus` budgets anti-air engagements for this tick so one aircraft cannot soak an
+        // entire army's AA output (see `target::AirFocus`); it resets every tick.
+        let mut air_focus = target::AirFocus::new(ruleset.air_mods.aa_focus_per_air);
         for i in acting_order(combatants) {
             if !combatants[i].alive || combatants[i].cooldown > 0 {
                 continue;
@@ -306,7 +309,7 @@ pub(crate) fn run_game(
             if combatants[i].stats.family == crate::model::types::DamageFamily::Support {
                 continue;
             }
-            if let Some(target_idx) = target::select_target(combatants, i) {
+            if let Some(target_idx) = target::select_target(combatants, i, Some(&mut air_focus)) {
                 damage::resolve_attack(combatants, i, target_idx, tick, ruleset, rng, &mut events);
                 combatants[i].cooldown = cooldown_ticks(&combatants[i].stats, ruleset);
             }

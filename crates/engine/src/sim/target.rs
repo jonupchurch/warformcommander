@@ -12,16 +12,72 @@
 //! (air-first — clear the skies, then bomb) — a non-AA weapon hitting air only at the plink rate.
 
 use crate::model::types::{ReachTag, TargetRow, TargetRule, ZoneId};
+use crate::replay::Side;
 
 use super::Combatant;
 
-/// Pick the target index for combatant `att_idx`, or `None` if nothing is reachable.
-pub(crate) fn select_target(combatants: &[Combatant], att_idx: usize) -> Option<usize> {
-    let att = &combatants[att_idx];
-    let enemy_side = att.unit.side.other();
+/// Per-tick **anti-air fire discipline**. Air-first targeting is right when the skies hold a real
+/// threat, but without a cap a *single* cheap aircraft monopolises an entire air-defence network:
+/// every SAM is locked onto it ([`ReachTag::Air`] engages air exclusively) and every flak platform is
+/// pulled off the ground fight, so bringing more AA made an army *weaker* against a one-aircraft
+/// splash. This budgets air engagements at `aa_focus_per_air` attackers per living enemy aircraft;
+/// attackers past the budget treat air as unreachable and fight on the ground as usual.
+pub(crate) struct AirFocus {
+    per_air: u32,
+    /// Attackers already committed to an air target this tick, indexed by attacking side.
+    committed: [u32; 2],
+}
 
-    // 1. Reachable living enemies (by reach rules).
-    let reachable = reachable_enemies(combatants, att_idx, enemy_side);
+impl AirFocus {
+    pub(crate) fn new(per_air: u32) -> Self {
+        AirFocus {
+            per_air,
+            committed: [0, 0],
+        }
+    }
+
+    fn slot(side: Side) -> usize {
+        match side {
+            Side::A => 0,
+            Side::B => 1,
+        }
+    }
+
+    /// Is there budget left for `side` to engage the air above `enemy_side`? Budget tracks the
+    /// *living* enemy air count, so it shrinks as aircraft are shot down within the tick.
+    fn has_budget(&self, combatants: &[Combatant], side: Side, enemy_side: Side) -> bool {
+        let enemy_air = combatants
+            .iter()
+            .filter(|c| c.alive && c.unit.side == enemy_side && c.zone == ZoneId::Air)
+            .count() as u32;
+        self.committed[Self::slot(side)] < enemy_air.saturating_mul(self.per_air)
+    }
+
+    fn commit(&mut self, side: Side) {
+        self.committed[Self::slot(side)] += 1;
+    }
+}
+
+/// Pick the target index for combatant `att_idx`, or `None` if nothing is reachable.
+///
+/// `focus` applies the per-tick anti-air engagement budget and records this attacker's commitment;
+/// pass `None` for a read-only probe (e.g. the stalemate check), which neither caps nor consumes.
+pub(crate) fn select_target(
+    combatants: &[Combatant],
+    att_idx: usize,
+    focus: Option<&mut AirFocus>,
+) -> Option<usize> {
+    let att = &combatants[att_idx];
+    let side = att.unit.side;
+    let enemy_side = side.other();
+
+    let air_allowed = match &focus {
+        Some(f) => f.has_budget(combatants, side, enemy_side),
+        None => true,
+    };
+
+    // 1. Reachable living enemies (by reach rules, and the air budget).
+    let reachable = reachable_enemies(combatants, att_idx, enemy_side, air_allowed);
     if reachable.is_empty() {
         return None;
     }
@@ -30,21 +86,32 @@ pub(crate) fn select_target(combatants: &[Combatant], att_idx: usize) -> Option<
     let row = pick_row(combatants, &reachable, att.dials.target_row);
 
     // 3. Target Rule (b): pick the unit within that row.
-    Some(pick_unit(combatants, &row, att))
+    let chosen = pick_unit(combatants, &row, att);
+
+    // 4. Spend a slot of the air budget if this attacker actually engaged the skies.
+    if combatants[chosen].zone == ZoneId::Air {
+        if let Some(f) = focus {
+            f.commit(side);
+        }
+    }
+    Some(chosen)
 }
 
 /// Which enemy ground zones (and whether air) this attacker can reach from its current row.
-fn reach_zones(att: &Combatant, occupied: &Occupancy) -> (Vec<ZoneId>, bool) {
-    let can_air = att.stats.can_target_air;
+fn reach_zones(att: &Combatant, occupied: &Occupancy, air_allowed: bool) -> (Vec<ZoneId>, bool) {
+    // `air_allowed` folds in the per-tick anti-air budget (see [`AirFocus`]): once the skies are
+    // already covered by enough friendly fire, this attacker treats air as out of reach and fights on
+    // the ground, rather than piling onto an aircraft that is already being handled.
+    let can_air = att.stats.can_target_air && air_allowed;
     let ground = [ZoneId::Front, ZoneId::Middle, ZoneId::Rear];
     let occ = |z: ZoneId| occupied.has(z);
 
     match att.stats.reach {
         // AA weapon (SAM rocket-artillery): engages enemy air *exclusively* while any is present — true
-        // air-first, independent of the Target Row dial. Once the skies are clear it depresses its
-        // launchers and bombards ground (explosive, no air multiplier) rather than sitting idle.
+        // air-first, independent of the Target Row dial. Once the skies are clear (or its share of the
+        // air budget is spent) it depresses its launchers and bombards ground rather than sitting idle.
         ReachTag::Air => {
-            if occ(ZoneId::Air) {
+            if occ(ZoneId::Air) && can_air {
                 (vec![], true)
             } else {
                 (ground.into_iter().filter(|&z| occ(z)).collect(), false)
@@ -127,6 +194,7 @@ fn reachable_enemies(
     combatants: &[Combatant],
     att_idx: usize,
     enemy_side: crate::replay::Side,
+    air_allowed: bool,
 ) -> Vec<usize> {
     let enemies: Vec<usize> = (0..combatants.len())
         .filter(|&j| combatants[j].alive && combatants[j].unit.side == enemy_side)
@@ -141,7 +209,7 @@ fn reachable_enemies(
         rear: enemies.iter().any(|&j| combatants[j].zone == ZoneId::Rear),
     };
 
-    let (ground_zones, can_air) = reach_zones(&combatants[att_idx], &occ);
+    let (ground_zones, can_air) = reach_zones(&combatants[att_idx], &occ, air_allowed);
     enemies
         .into_iter()
         .filter(|&j| {

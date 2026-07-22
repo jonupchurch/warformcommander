@@ -165,6 +165,19 @@ pub struct AirModifiers {
         skip_serializing_if = "is_default_flak_dmg_mult"
     )]
     pub flak_dmg_mult: Bp,
+    /// **Anti-air fire discipline**: how many attackers may engage each living enemy air unit per
+    /// tick. Without a cap, air-first targeting lets a *single* cheap aircraft monopolise an entire
+    /// air-defence network — every SAM is locked onto it (`ReachTag::Air` engages air exclusively)
+    /// and every flak platform is diverted from the ground fight — so bringing more AA made an army
+    /// *weaker* against a one-aircraft splash. Attackers beyond the cap treat air as unreachable and
+    /// engage ground normally, so committing AA scales with the air threat instead of against it.
+    /// Omitted from serialization at the default, so a ruleset saved before this existed hashes
+    /// identically (no golden churn) and picks the behavior up on deploy.
+    #[serde(
+        default = "default_aa_focus_per_air",
+        skip_serializing_if = "is_default_aa_focus_per_air"
+    )]
+    pub aa_focus_per_air: u32,
 }
 
 /// Back-compat default for [`AirModifiers::sam_ground_dmg_mult`]: the historical `plink_dmg_mult`
@@ -177,6 +190,18 @@ fn default_sam_ground_dmg_mult() -> Bp {
 /// without the field (or at the default) deserializes/serializes identically to one before flak.
 fn default_flak_dmg_mult() -> Bp {
     10_000
+}
+
+/// Default for [`AirModifiers::aa_focus_per_air`]: two attackers per living enemy aircraft — enough
+/// that a committed air wing is genuinely threatened, few enough that one aircraft cannot soak an
+/// entire army's anti-air output.
+fn default_aa_focus_per_air() -> u32 {
+    2
+}
+
+/// Serialization skip for [`AirModifiers::aa_focus_per_air`] at its default (hash stability).
+fn is_default_aa_focus_per_air(v: &u32) -> bool {
+    *v == default_aa_focus_per_air()
 }
 
 /// Whether `flak_dmg_mult` is at its default (so it can be omitted from serialization → hash-stable).
@@ -354,6 +379,7 @@ mod tests {
                 plink_dmg_mult: 5_000,
                 sam_ground_dmg_mult: 5_000,
                 flak_dmg_mult: 10_000,
+                aa_focus_per_air: 2,
             },
             globals: GlobalConstants {
                 tick_rate: 10,
