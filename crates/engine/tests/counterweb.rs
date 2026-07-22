@@ -7,7 +7,9 @@
 use engine::content::{seed_ruleset, stock_instance};
 use engine::model::army::Army;
 use engine::model::ruleset::Ruleset;
-use engine::model::types::{EquipmentId, MachineTypeId, ZoneId};
+use engine::model::types::{
+    AuraEffect, AuraKind, AuraScope, EquipmentId, MachineTypeId, VariantId, ZoneId,
+};
 use engine::replay::{
     Adaptation, Fate, MatchConfig, Replay, Side, SupportKind, TickEvent, UnitRef,
 };
@@ -247,6 +249,66 @@ fn helis_are_never_a_heal_target() {
     assert!(
         !heals.iter().any(|t| *t == heli),
         "a heli must never be the target of a heal"
+    );
+}
+
+/// A rear-support unit carrying a `StartShield` aura confers a match-start shield — a fraction of each
+/// ally's hull — to the whole squad, so a shieldless heavy tank begins the battle with a barrier.
+/// Without the aura it starts bare. (The engine mechanism; the live values ride on the ruleset row.)
+#[test]
+fn support_grants_a_start_shield_to_the_squad() {
+    let mut rs = seed_ruleset();
+    let army_a = Army {
+        machines: vec![
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 0),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 1),
+            stock_instance(&rs, MachineTypeId::Mech, "Vanguard", ZoneId::Middle, 2),
+            stock_instance(&rs, MachineTypeId::Artillery, "Longbow", ZoneId::Rear, 3),
+            stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
+        ],
+    };
+    let ally = UnitRef {
+        side: Side::A,
+        instance_id: 0,
+    }; // a Grizzly — no native shield
+
+    // tick-0 shield (milli) of a unit in the first game.
+    let start_shield = |out: &BattleOutput, u: UnitRef| -> i64 {
+        out.replay.games[0].ticks[0]
+            .snapshot
+            .iter()
+            .find(|s| s.unit == u)
+            .expect("unit in snapshot")
+            .shield
+            .milli()
+    };
+
+    // Control: no aura on the Medic → the tank starts with no shield.
+    let base = run(&rs, army_a.clone(), air_squad(&rs), 0x5A77);
+    assert_eq!(start_shield(&base, ally), 0, "no aura ⇒ no start shield");
+
+    // Grant the Medic a whole-army start-shield aura at 20% of each ally's hull.
+    rs.chassis
+        .get_mut(&VariantId::new("Medic"))
+        .unwrap()
+        .passive_aura = Some(AuraEffect {
+        kind: AuraKind::StartShield,
+        magnitude: 2_000, // 20% of hull, bp
+        scope: AuraScope::AllAllies,
+    });
+    let out = run(&rs, army_a, air_squad(&rs), 0x5A77);
+    let hull = rs
+        .base_stats(&VariantId::new("Grizzly"))
+        .unwrap()
+        .hull
+        .milli();
+    let got = start_shield(&out, ally);
+    // The first snapshot is taken after tick 0's combat, so the ~20%-of-hull barrier has already
+    // soaked some fire — assert it opened with a substantial shield (between an eighth and the full
+    // 20% grant), where the control had none.
+    assert!(
+        got >= hull / 8 && got <= hull * 20 / 100,
+        "tank should open with a substantial shield from the aura: got {got}, hull {hull}"
     );
 }
 

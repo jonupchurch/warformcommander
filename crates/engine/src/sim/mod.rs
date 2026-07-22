@@ -19,8 +19,8 @@ use crate::fixed::{Bp, Fixed};
 use crate::model::army::{derive_effective_stats, Army, DerivationError, EffectiveStats};
 use crate::model::ruleset::Ruleset;
 use crate::model::types::{
-    BehaviorDials, DamageType, MachineTypeId, PlanBSlot, PlanBTrigger, ReachTag, SupportRange,
-    VariantId, ZoneId,
+    AuraKind, AuraScope, BehaviorDials, DamageType, MachineTypeId, PlanBSlot, PlanBTrigger,
+    ReachTag, SupportRange, VariantId, ZoneId,
 };
 use crate::replay::{
     GameReplay, GameResult, MachineSnapshot, MatchConfig, Side, SupportKind, Tick, TickEvent,
@@ -35,7 +35,7 @@ pub(crate) struct Combatant {
     /// The machine class — read to exclude helis from heal targeting (`resolve_support`) and carried
     /// for the replay's `unitOrder` dictionary (populated in US5/T048).
     pub type_id: MachineTypeId,
-    #[allow(dead_code)]
+    /// The chassis variant — read at setup to apply its passive aura (`grant_start_shields`).
     pub variant_id: VariantId,
     pub stats: EffectiveStats,
     /// Active dials (mutated by Plan-B latches); recomputed from `base_dials` + `fired` each tick.
@@ -129,7 +129,57 @@ pub(crate) fn build_combatants(
             });
         }
     }
+    grant_start_shields(&mut out, ruleset);
     Ok(out)
+}
+
+/// Rear-support **start-of-match shield** (a role feature): each support unit whose chassis carries a
+/// [`AuraKind::StartShield`] aura confers a one-time shield to every ally in scope, sized as a fraction
+/// (bp) of the recipient's max hull. Stacks across multiple support sources. The barrier is added on
+/// top of the recipient's own shield — because it sits *above* the shield cap, the per-tick upkeep
+/// (which only regenerates while `shield < shield_cap`) never tops it back up: it depletes once.
+fn grant_start_shields(combatants: &mut [Combatant], ruleset: &Ruleset) {
+    struct Source {
+        side: Side,
+        zone: ZoneId,
+        mag: Bp,
+        scope: AuraScope,
+    }
+    let sources: Vec<Source> = combatants
+        .iter()
+        .filter_map(|c| {
+            ruleset
+                .chassis
+                .get(&c.variant_id)?
+                .passive_aura
+                .filter(|a| a.kind == AuraKind::StartShield && a.magnitude > 0)
+                .map(|a| Source {
+                    side: c.unit.side,
+                    zone: c.zone,
+                    mag: a.magnitude,
+                    scope: a.scope,
+                })
+        })
+        .collect();
+    if sources.is_empty() {
+        return;
+    }
+    for c in combatants.iter_mut() {
+        let bp: Bp = sources
+            .iter()
+            .filter(|s| {
+                s.side == c.unit.side
+                    && match s.scope {
+                        AuraScope::AllAllies => true,
+                        AuraScope::ZoneAllies => s.zone == c.zone,
+                    }
+            })
+            .map(|s| s.mag)
+            .sum();
+        if bp > 0 {
+            c.shield = c.shield.saturating_add(c.max_hull.mul_bp(bp));
+        }
+    }
 }
 
 /// Indices of every living combatant, in deterministic acting order: `(zone, side, instance_id)`.
