@@ -13,7 +13,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use clap::{Parser, Subcommand};
 
-use balancer::archetypes::{default_field, energy_mechs, kinetic_tanks};
+use balancer::archetypes::{energy_mechs, field_by_name, kinetic_tanks};
 use balancer::batch::{BatchConfig, MatchupSpec};
 use balancer::report::json::to_json;
 use balancer::report::markdown::to_markdown;
@@ -60,6 +60,12 @@ struct Cli {
     /// Fair-band ceiling.
     #[arg(long, global = true, default_value_t = 0.60)]
     ceiling: f64,
+
+    /// Which field to sweep: `mono` (the canonical six mono builds), `combined` (six combined-arms
+    /// builds), or `all` (both, 12 archetypes). The mono field spans the counter-web but models a
+    /// real army poorly; `combined` is the diagnostic second opinion.
+    #[arg(long, global = true, default_value = "mono")]
+    field: String,
 }
 
 #[derive(Subcommand, Debug)]
@@ -100,11 +106,11 @@ fn main() {
         }
         Command::Sweep => {
             let cfg = sweep_cfg(&cli, fair_band);
-            sweep_report(&default_field(), &ruleset, &cfg)
+            sweep_report(&field_by_name(&cli.field), &ruleset, &cfg)
         }
         Command::Verify => {
             let cfg = sweep_cfg(&cli, fair_band);
-            verify_report(&default_field(), &ruleset, &cfg)
+            verify_report(&field_by_name(&cli.field), &ruleset, &cfg)
         }
     };
 
