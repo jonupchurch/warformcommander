@@ -216,6 +216,187 @@ pub fn default_field() -> Vec<Archetype> {
 }
 
 // ---------------------------------------------------------------------------
+// The combined-arms field (a diagnostic second opinion on the reference field)
+// ---------------------------------------------------------------------------
+//
+// The reference field above is six **mono** builds — five near-identical machines, one idea each —
+// deliberately extreme so they span the counter-web. That makes them a poor model of a real player
+// army, and it matters here because most matchups are decided by **binary engagement rules** (a unit
+// can target the Air zone or it cannot; it can reach the rear row or it cannot) rather than by
+// damage. A mono build that loses the engagement rule loses every game, which is why the reference
+// sweep resolves ~24/30 matchups at 0% or 100%.
+//
+// These six are plausible **combined-arms** builds: each fields a front screen, a damage source, and
+// an answer to air. Running the same sweep over them measures whether the field's decisiveness is a
+// property of the *game* or an artifact of the mono fixtures — the question that decides whether
+// balance numbers are meaningful at all.
+
+/// A light tank kitted as a backline raider when the ruleset carries the raider weapon (see
+/// [`kinetic_tanks`]); a stock light tank otherwise, so these stay legal against `seed_ruleset()`.
+fn raider(rs: &Ruleset, v: &str, z: ZoneId, i: u8) -> MachineInstance {
+    let m = place(rs, MachineTypeId::LightTank, v, z, i);
+    if rs
+        .equipment
+        .contains_key(&EquipmentId::new("SkirmishCannon"))
+    {
+        with_target_row(with_weapon(m, "SkirmishCannon"), TargetRow::LastReachable)
+    } else {
+        m
+    }
+}
+
+/// Combined line — armor screen, mech damage, indirect fire, a medic, and flak for air.
+pub fn ca_line(rs: &Ruleset) -> Army {
+    Army {
+        machines: vec![
+            with_flak(
+                place(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 0),
+                rs,
+            ),
+            place(rs, MachineTypeId::HeavyTank, "Bulwark", ZoneId::Front, 1),
+            place(rs, MachineTypeId::Mech, "Vanguard", ZoneId::Middle, 2),
+            place(rs, MachineTypeId::Artillery, "Longbow", ZoneId::Rear, 3),
+            place(rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
+        ],
+    }
+}
+
+/// Mobile strike — a thin screen, raiders working the enemy backline, mech damage, forward support.
+pub fn ca_mobile(rs: &Ruleset) -> Army {
+    Army {
+        machines: vec![
+            with_flak(
+                place(rs, MachineTypeId::HeavyTank, "Cavalier", ZoneId::Front, 0),
+                rs,
+            ),
+            place(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 1),
+            raider(rs, "Scout", ZoneId::Middle, 2),
+            with_weapon(
+                place(rs, MachineTypeId::Mech, "Striker", ZoneId::Middle, 3),
+                "PulseLaser",
+            ),
+            place(rs, MachineTypeId::RearSupport, "Warden", ZoneId::Middle, 4),
+        ],
+    }
+}
+
+/// Air-supported line — one gunship over a conventional screen, plus flak so the mirror is winnable.
+pub fn ca_air(rs: &Ruleset) -> Army {
+    Army {
+        machines: vec![
+            place(rs, MachineTypeId::AttackHeli, "Gunship", ZoneId::Air, 0),
+            with_flak(
+                place(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 1),
+                rs,
+            ),
+            place(rs, MachineTypeId::HeavyTank, "Bulwark", ZoneId::Front, 2),
+            place(rs, MachineTypeId::Mech, "Vanguard", ZoneId::Middle, 3),
+            place(rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
+        ],
+    }
+}
+
+/// Siege — two tubes behind a flak-equipped armor screen, with sustain to hold the line.
+pub fn ca_siege(rs: &Ruleset) -> Army {
+    Army {
+        machines: vec![
+            with_flak(
+                place(rs, MachineTypeId::HeavyTank, "Bulwark", ZoneId::Front, 0),
+                rs,
+            ),
+            place(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 1),
+            place(rs, MachineTypeId::RearSupport, "Warden", ZoneId::Middle, 2),
+            place(rs, MachineTypeId::Artillery, "Siege", ZoneId::Rear, 3),
+            place(rs, MachineTypeId::Artillery, "Marksman", ZoneId::Rear, 4),
+        ],
+    }
+}
+
+/// Air-denial — SAM rocket artillery *and* flak *and* a gunship of its own; the anti-air specialist
+/// rebuilt as a combined-arms list rather than a one-trick counter.
+pub fn ca_aa(rs: &Ruleset) -> Army {
+    Army {
+        machines: vec![
+            place(rs, MachineTypeId::AttackHeli, "Gunship", ZoneId::Air, 0),
+            with_flak(
+                place(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 1),
+                rs,
+            ),
+            place(rs, MachineTypeId::Mech, "Vanguard", ZoneId::Front, 2),
+            place(
+                rs,
+                MachineTypeId::RocketArtillery,
+                "Sentry",
+                ZoneId::Middle,
+                3,
+            ),
+            place(rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
+        ],
+    }
+}
+
+/// Attrition — double support behind an armor screen, trading burst for staying power.
+pub fn ca_attrition(rs: &Ruleset) -> Army {
+    Army {
+        machines: vec![
+            with_flak(
+                place(rs, MachineTypeId::HeavyTank, "Bulwark", ZoneId::Front, 0),
+                rs,
+            ),
+            place(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 1),
+            place(rs, MachineTypeId::RearSupport, "Warden", ZoneId::Middle, 2),
+            place(rs, MachineTypeId::Mech, "Sentinel", ZoneId::Middle, 3),
+            place(rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
+        ],
+    }
+}
+
+/// The combined-arms diagnostic field — six mixed builds, each with a screen, damage, and an answer
+/// to air (contrast [`default_field`], which is six mono builds).
+pub fn combined_arms_field() -> Vec<Archetype> {
+    vec![
+        Archetype {
+            label: "ca-line",
+            build: ca_line,
+        },
+        Archetype {
+            label: "ca-mobile",
+            build: ca_mobile,
+        },
+        Archetype {
+            label: "ca-air",
+            build: ca_air,
+        },
+        Archetype {
+            label: "ca-siege",
+            build: ca_siege,
+        },
+        Archetype {
+            label: "ca-aa",
+            build: ca_aa,
+        },
+        Archetype {
+            label: "ca-attrition",
+            build: ca_attrition,
+        },
+    ]
+}
+
+/// Resolve a `--field` selector to a field. `mono` is the canonical reference field (the default);
+/// `combined` is the combined-arms diagnostic; `all` sweeps both together (12 archetypes, 132
+/// matchups) to see how the two pools fare against each other.
+pub fn field_by_name(name: &str) -> Vec<Archetype> {
+    match name {
+        "combined" => combined_arms_field(),
+        "all" => default_field()
+            .into_iter()
+            .chain(combined_arms_field())
+            .collect(),
+        _ => default_field(),
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Invariant fixtures (native/off-family · gear tiers · skilled/sloppy)
 // ---------------------------------------------------------------------------
 
@@ -327,7 +508,7 @@ mod tests {
     #[test]
     fn all_builders_are_legal() {
         let rs = seed_ruleset();
-        let mut builds: Vec<(&str, Army)> = default_field()
+        let mut builds: Vec<(&str, Army)> = field_by_name("all")
             .into_iter()
             .map(|a| (a.label, (a.build)(&rs)))
             .collect();
