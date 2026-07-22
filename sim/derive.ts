@@ -207,6 +207,7 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
   const shieldDelay = s ? clamp(base.shieldDelay + s.delay, 0, U16_MAX) : base.shieldDelay;
   const ablativeCap = defense.spec.ablativeDelta ? scaleBp(defense.spec.ablativeDelta.cap) : 0;
   const specialMitigation = defense.spec.specialMitigation ?? null;
+  const reactive = defense.spec.reactive ?? false;
 
   // --- Utilities (additive deltas + capability unlocks + cadence shifts) ---
   for (const uid of machine.loadout.utilities) {
@@ -216,6 +217,10 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
     for (const cap of util.spec.unlocks) caps.add(cap);
     cadenceShift += util.spec.cadenceShift;
   }
+
+  // Native behavioural flexibility (v2, FR-025): the Mech — the sole generalist (no native family) —
+  // natively carries the extra Plan-B slot other chassis buy with Combat AI. Mirrors the engine.
+  if (mtype.nativeFamily === undefined) caps.add('ExtraPlanBSlot');
 
   // Resolve cadence shifts (positive = faster, saturating at the tier ends).
   let cadence = acc.cadence;
@@ -247,6 +252,7 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
       shieldRegen,
       shieldDelay,
       ablativeCap,
+      reactive,
       damage: Math.max(acc.damage, 0),
       damageType,
       family,

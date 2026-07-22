@@ -209,6 +209,18 @@ export function validateRuleset(data: unknown): RulesetValidation {
     if (!inRange(shieldCap, 0, BP_MAX)) return fail("empowerMods.shieldCapBp must be in 0..10000 bp");
   }
 
+  // reactiveMods is optional (omitted at the default). The reactive rate is a damage multiplier in bp;
+  // it must be non-negative and finite (a rate above 1.0 would make the "defence" amplify damage, which
+  // is legal-but-odd, so only the lower bound is enforced here — the mechanic is a mitigation bias).
+  const react = (rs as unknown as Record<string, unknown>).reactiveMods;
+  if (react !== undefined) {
+    if (typeof react !== "object" || react === null) return fail("reactiveMods must be an object");
+    const rate = (react as Record<string, unknown>).rate;
+    if (typeof rate !== "number" || !Number.isFinite(rate) || rate < 0) {
+      return fail("reactiveMods.rate must be a non-negative number");
+    }
+  }
+
   // 6) Per-variant base stats — the bp fields are fractions/probabilities in [0,1] (0..10000 bp),
   //    hull positive, damage non-negative. Catches an out-of-[0,1] probability or a bad splash.
   const BP_FIELDS = ["armorPct", "accuracy", "critChance", "splash", "penetration", "evasion"] as const;

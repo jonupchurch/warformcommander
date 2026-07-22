@@ -462,8 +462,18 @@ pub struct DefenseSpec {
     pub ablative_delta: Option<AblativeDelta>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub special_mitigation: Option<MitigationMod>,
+    /// **Reactive plating** (v2, Mech-exclusive) — mitigation adapts toward the damage family that has
+    /// hit hardest. `false` for every ordinary defense, so it is omitted from serialization there and a
+    /// pre-v2 ruleset hashes identically; only the reactive-plating module carries `true`.
+    #[serde(skip_serializing_if = "is_false", default)]
+    pub reactive: bool,
     /// The cost of the defense (e.g. −1 Move).
     pub tradeoff: StatDeltas,
+}
+
+/// serde skip predicate — a plain `bool` field omitted when `false` (hash-stable additive default).
+fn is_false(b: &bool) -> bool {
+    !*b
 }
 
 /// A utility — ungated, **no duplicates on one machine**; may unlock capabilities.

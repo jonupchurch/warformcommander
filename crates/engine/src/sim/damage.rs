@@ -43,6 +43,51 @@ fn execute_mult(att_stance: Stance, target: &Combatant, ruleset: &Ruleset) -> Bp
     }
 }
 
+/// The **reactive plating** damage multiplier (v2, Mech). A reactive machine that has already absorbed
+/// hull damage from a family mitigates further hits of that *currently dominant* family at the ruleset
+/// `reactive` rate; every other case is `BP_ONE`. Computed per victim from its **pre-hit** absorbed
+/// state, so the bias reflects what has hit it so far, not the shot landing now (data-model §5.2).
+fn reactive_mult(target: &Combatant, dtype: DamageType, ruleset: &Ruleset) -> Bp {
+    if !target.stats.reactive {
+        return BP_ONE;
+    }
+    let idx = dtype_index(dtype);
+    if target.absorbed[idx].milli() > 0 && dominant_family(&target.absorbed) == idx {
+        ruleset.reactive_mods.rate
+    } else {
+        BP_ONE
+    }
+}
+
+/// The `absorbed`/`DamageType` index for a family (declaration order: Kinetic, Energy, Explosive).
+fn dtype_index(t: DamageType) -> usize {
+    match t {
+        DamageType::Kinetic => 0,
+        DamageType::Energy => 1,
+        DamageType::Explosive => 2,
+    }
+}
+
+/// Index of the family absorbed most. Ties resolve to the **lowest** index, so an even split is
+/// deterministic and reproduces on replay (research R9, FR-024).
+fn dominant_family(absorbed: &[Fixed; 3]) -> usize {
+    let mut best = 0;
+    for i in 1..3 {
+        if absorbed[i].milli() > absorbed[best].milli() {
+            best = i;
+        }
+    }
+    best
+}
+
+/// Record the `hull_dealt` from a hit against the victim's reactive-plating history. Tracked for every
+/// combatant (cheap, branch-free) but only ever *read* for a reactive machine, so it costs a non-Mech
+/// nothing observable and keeps the battle byte-identical for the stock field.
+fn absorb_family(target: &mut Combatant, dtype: DamageType, hull_dealt: Fixed) {
+    let idx = dtype_index(dtype);
+    target.absorbed[idx] = target.absorbed[idx].saturating_add(hull_dealt);
+}
+
 /// The attacker's role-counter damage multiplier vs a `target` type — `BP_ONE` when none applies.
 /// Lets a machine class hit specific target types harder (e.g. light tanks vs the fragile backline);
 /// the bonus set is a ruleset table, so it is balance-tunable without an engine change.
@@ -132,16 +177,21 @@ pub(crate) fn resolve_attack(
     let save = roll_ablative_save(&combatants[target_idx], ruleset, rng);
     let att_stance = combatants[att_idx].dials.stance;
     let execute = execute_mult(att_stance, &combatants[target_idx], ruleset);
+    // Reactive plating reads the target's absorbed history *before* this hit, then the hull damage this
+    // hit deals is folded back into that history below.
+    let reactive = reactive_mult(&combatants[target_idx], prof.damage_type, ruleset);
     let (sh, ab, hu, died) = apply_damage(
         &mut combatants[target_idx],
         d0.mul_bp(role_mult(ruleset, att_type, target_type))
             .mul_bp(target_posture)
-            .mul_bp(execute),
+            .mul_bp(execute)
+            .mul_bp(reactive),
         prof.damage_type,
         prof.penetration,
         save,
         ruleset,
     );
+    absorb_family(&mut combatants[target_idx], prof.damage_type, hu);
     emit_hit(events, prof.actor, target_ref, sh, ab, hu, crit, false);
     let mut dealt = sh.saturating_add(ab).saturating_add(hu);
     if died {
@@ -182,14 +232,16 @@ pub(crate) fn resolve_attack(
             }
             let sunit = combatants[j].unit;
             let save = roll_ablative_save(&combatants[j], ruleset, rng);
+            let reactive = reactive_mult(&combatants[j], prof.damage_type, ruleset);
             let (s2, a2, h2, died2) = apply_damage(
                 &mut combatants[j],
-                sd0,
+                sd0.mul_bp(reactive),
                 prof.damage_type,
                 prof.penetration,
                 save,
                 ruleset,
             );
+            absorb_family(&mut combatants[j], prof.damage_type, h2);
             emit_hit(events, prof.actor, sunit, s2, a2, h2, false, true);
             dealt = dealt
                 .saturating_add(s2)
@@ -562,5 +614,33 @@ mod counterweb_tests {
             "absorbs exactly the pool"
         );
         assert!(hull_dmg.milli() > 0, "the excess spills to hull");
+    }
+}
+
+#[cfg(test)]
+mod reactive_tests {
+    //! US3: the pure reactive-plating helpers — family indexing and the tie-broken dominant family.
+    use super::{dominant_family, dtype_index};
+    use crate::fixed::Fixed;
+    use crate::model::types::DamageType;
+
+    #[test]
+    fn family_index_follows_damage_type_declaration_order() {
+        assert_eq!(dtype_index(DamageType::Kinetic), 0);
+        assert_eq!(dtype_index(DamageType::Energy), 1);
+        assert_eq!(dtype_index(DamageType::Explosive), 2);
+    }
+
+    #[test]
+    fn dominant_family_is_argmax_with_ties_to_the_lowest_index() {
+        let f = Fixed::from_int;
+        // A clear winner.
+        assert_eq!(dominant_family(&[f(10), f(30), f(20)]), 1);
+        // Nothing absorbed → lowest index (neutral baseline).
+        assert_eq!(dominant_family(&[Fixed::ZERO; 3]), 0);
+        // An exact tie between two families resolves to the lower index, deterministically (R9).
+        assert_eq!(dominant_family(&[f(50), f(50), f(10)]), 0);
+        assert_eq!(dominant_family(&[f(10), f(50), f(50)]), 1);
+        assert_eq!(dominant_family(&[f(50), f(10), f(50)]), 0);
     }
 }

@@ -173,6 +173,9 @@ export interface DefenseSpec {
   shieldDelta?: ShieldDelta;
   ablativeDelta?: AblativeDelta;
   specialMitigation?: MitigationMod;
+  /** Reactive plating (v2, Mech-exclusive) — mitigation adapts toward the family absorbed most.
+   *  Omitted (false) on every ordinary defense so a pre-v2 ruleset hashes identically. */
+  reactive?: boolean;
   tradeoff: StatDeltas;
 }
 
@@ -336,6 +339,14 @@ export interface EmpowerMods {
 /** The engine's `EmpowerMods::default()`, mirrored for when a stored ruleset omits the field. */
 export const DEFAULT_EMPOWER_MODS: EmpowerMods = { shieldCapBp: 3000 };
 
+/** Reactive plating (`ReactiveMods`, v2, Mech) — the rate applied to the dominant absorbed family. */
+export interface ReactiveMods {
+  rate: number; // bp — damage multiplier vs the dominant absorbed family (8000 = ×0.8)
+}
+
+/** The engine's `ReactiveMods::default()`, mirrored for when a stored ruleset omits the field. */
+export const DEFAULT_REACTIVE_MODS: ReactiveMods = { rate: 8000 };
+
 /** The engine's `MountScale::default()`, mirrored for when a stored ruleset omits the field. */
 export const DEFAULT_MOUNT_SCALE: MountScale = {
   heavy: 10000,
@@ -409,6 +420,8 @@ export interface Ruleset {
   executeMods?: ExecuteMods;
   /** The Empower overshield ceiling; omitted at the default ({@link DEFAULT_EMPOWER_MODS}). */
   empowerMods?: EmpowerMods;
+  /** Reactive plating's mitigation rate; omitted at the default ({@link DEFAULT_REACTIVE_MODS}). */
+  reactiveMods?: ReactiveMods;
 }
 
 // --- Derived output --------------------------------------------------------
@@ -425,6 +438,7 @@ export interface EffectiveStats {
   shieldRegen: number; // milli
   shieldDelay: number; // ticks
   ablativeCap: number; // milli — v2 one-time non-regenerating pool (0 when no ablative defense)
+  reactive: boolean; // v2 — true only for the Mech's reactive plating; drives adaptive mitigation
   damage: number; // milli
   damageType: DamageType;
   family: DamageFamily;

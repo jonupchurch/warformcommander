@@ -16,7 +16,7 @@ use crate::fixed::Fixed;
 use crate::model::army::MachineInstance;
 use crate::model::ruleset::{
     AblativeMods, AirModifiers, CadenceTicks, DamageMatrix, EmpowerMods, EnergyModes, ExecuteMods,
-    GlobalConstants, LayerMultipliers, MountScale, Ruleset, StanceAggro,
+    GlobalConstants, LayerMultipliers, MountScale, ReactiveMods, Ruleset, StanceAggro,
 };
 use crate::model::types::{
     AblativeDelta, AuraEffect, AuraKind, AuraScope, BaseStats, CadenceTier, Capability,
@@ -97,6 +97,7 @@ pub fn seed_ruleset() -> Ruleset {
         stance_aggro: StanceAggro::default(),
         execute_mods: ExecuteMods::default(),
         empower_mods: EmpowerMods::default(),
+        reactive_mods: ReactiveMods::default(),
     }
 }
 
@@ -603,6 +604,7 @@ fn defense(
         shield_delta: shield,
         ablative_delta: None,
         special_mitigation: mitigation,
+        reactive: false,
         tradeoff,
     })
 }
@@ -616,6 +618,26 @@ fn defense_ablative(mount: MountClass, cap: crate::fixed::Fixed) -> EquipmentSpe
         shield_delta: None,
         ablative_delta: Some(AblativeDelta { cap }),
         special_mitigation: None,
+        reactive: false,
+        tradeoff: StatDeltas::default(),
+    })
+}
+
+/// **Reactive plating** (v2, Mech-exclusive): the same armour + shield as the Balanced module, plus the
+/// `reactive` flag that makes mitigation adapt toward the family that has hit hardest. It starts exactly
+/// as Balanced (nothing absorbed yet), so it is never worse at battle start (FR-024).
+fn defense_reactive(
+    mount: MountClass,
+    armor_delta: crate::fixed::Bp,
+    shield: ShieldDelta,
+) -> EquipmentSpec {
+    EquipmentSpec::Defense(DefenseSpec {
+        mount_class: mount,
+        armor_pct_delta: armor_delta,
+        shield_delta: Some(shield),
+        ablative_delta: None,
+        special_mitigation: None,
+        reactive: true,
         tradeoff: StatDeltas::default(),
     })
 }
@@ -851,6 +873,25 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
             "Ablative Plating",
             defense_ablative(mount, q(600)),
         );
+        // Reactive plating (v2) — Mech-exclusive fifth option (FR-023). Same armour + shield as
+        // Balanced, so it opens identical and is never worse at battle start (FR-024); the `reactive`
+        // flag makes its mitigation adapt toward whatever family has hit it hardest. Mount-gated, so no
+        // other chassis can equip it (scenario 5) — the mount check enforces exclusivity for free.
+        if mount == MountClass::Mech {
+            add(
+                &format!("{suffix}Reactive"),
+                "Reactive Plating",
+                defense_reactive(
+                    mount,
+                    500,
+                    ShieldDelta {
+                        cap: q(150),
+                        regen: q(5),
+                        delay: 25,
+                    },
+                ),
+            );
+        }
     }
 
     // --- Defenses: the specials (§4) ---

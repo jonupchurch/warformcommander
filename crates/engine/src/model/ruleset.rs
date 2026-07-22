@@ -82,6 +82,10 @@ pub struct Ruleset {
     /// instead of repairing it. Omitted from serialization at the default (hash-stable).
     #[serde(default, skip_serializing_if = "EmpowerMods::is_default")]
     pub empower_mods: EmpowerMods,
+    /// Reactive plating (v2, Mech) — the mitigation rate applied to the dominant absorbed damage
+    /// family. Omitted from serialization at the default (hash-stable).
+    #[serde(default, skip_serializing_if = "ReactiveMods::is_default")]
+    pub reactive_mods: ReactiveMods,
 }
 
 impl Ruleset {
@@ -437,6 +441,31 @@ impl EmpowerMods {
     }
 }
 
+/// Reactive plating (v2, Mech-exclusive). Once a reactive Mech has absorbed hull damage from a family,
+/// further hits of that (currently dominant) family are scaled by `rate` — so the chassis is punished
+/// by burst (nothing absorbed yet → no bonus) and rewards attrition. `rate == BP_ONE` disables the
+/// mechanic without a code change. The bias only ever *reduces* incoming damage (`rate ≤ BP_ONE`), so
+/// reactive plating is never worse than its Balanced baseline at battle start (data-model §5.2).
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReactiveMods {
+    /// Damage multiplier (bp) applied to the dominant absorbed family. `8_000` = ×0.8 (−20%).
+    pub rate: Bp,
+}
+
+impl Default for ReactiveMods {
+    fn default() -> Self {
+        ReactiveMods { rate: 8_000 }
+    }
+}
+
+impl ReactiveMods {
+    /// Serialization skip at the default (hash stability).
+    pub fn is_default(&self) -> bool {
+        *self == ReactiveMods::default()
+    }
+}
+
 /// Air-combat modifiers (stat block §1). Indirect Artillery "never targets air" is a *structural*
 /// rule enforced in targeting, not a number, so it has no field here.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
@@ -703,6 +732,7 @@ mod tests {
             stance_aggro: StanceAggro::default(),
             execute_mods: ExecuteMods::default(),
             empower_mods: EmpowerMods::default(),
+            reactive_mods: ReactiveMods::default(),
         }
     }
 }

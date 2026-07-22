@@ -97,6 +97,9 @@ pub struct EffectiveStats {
     /// v2 ablative pool — one-time, non-regenerating absorption between shields and hull. `ZERO` when
     /// no ablative defense is mounted (the overwhelmingly common case).
     pub ablative_cap: Fixed,
+    /// Reactive plating (v2, Mech-exclusive): mitigation adapts toward the family absorbed most. `true`
+    /// only for the reactive-plating defense; drives the reactive bias in `sim::damage`.
+    pub reactive: bool,
     // Offense
     pub damage: Fixed,
     pub damage_type: DamageType,
@@ -254,6 +257,7 @@ pub fn derive_effective_stats(
         .map(|a| a.cap.mul_bp(scale))
         .unwrap_or(Fixed::ZERO);
     let special_mitigation = defense.special_mitigation;
+    let reactive = defense.reactive;
 
     // --- Utilities (additive deltas + capability unlocks + cadence shifts) ---
     for uid in &machine.loadout.utilities {
@@ -263,6 +267,13 @@ pub fn derive_effective_stats(
         }
         caps.extend(util.unlocks.iter().copied());
         cadence_shift += util.cadence_shift as i32;
+    }
+
+    // Native behavioural flexibility (v2, FR-025): the Mech — the sole generalist (`native_family ==
+    // None`) — natively carries the extra Plan-B slot other chassis must buy with a Combat-AI utility.
+    // It is the mechanical compensation for forfeiting the native-family weapon bonus (FR-027).
+    if mtype.native_family.is_none() {
+        caps.insert(Capability::ExtraPlanBSlot);
     }
 
     // Resolve cadence shifts (positive = faster, saturating at the tier ends).
@@ -305,6 +316,7 @@ pub fn derive_effective_stats(
         shield_regen,
         shield_delay,
         ablative_cap,
+        reactive,
         damage: acc.damage.max_zero(),
         damage_type,
         family,
@@ -474,6 +486,7 @@ mod tests {
                     shield_delta: None,
                     ablative_delta: None,
                     special_mitigation: None,
+                    reactive: false,
                     tradeoff: StatDeltas {
                         move_speed: -1,
                         ..Default::default()
@@ -497,6 +510,7 @@ mod tests {
                     }),
                     ablative_delta: None,
                     special_mitigation: None,
+                    reactive: false,
                     tradeoff: StatDeltas::default(),
                 }),
             },
@@ -601,6 +615,7 @@ mod tests {
             stance_aggro: crate::model::ruleset::StanceAggro::default(),
             execute_mods: crate::model::ruleset::ExecuteMods::default(),
             empower_mods: crate::model::ruleset::EmpowerMods::default(),
+            reactive_mods: crate::model::ruleset::ReactiveMods::default(),
         }
     }
 

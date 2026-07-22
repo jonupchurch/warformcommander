@@ -50,6 +50,10 @@ pub(crate) struct Combatant {
     /// v2 ablative pool — depletes as it absorbs, never regenerates (unlike `shield`). Initialised
     /// from `stats.ablative_cap`; `ZERO` for the machines with no ablative defense.
     pub ablative: Fixed,
+    /// v2 reactive-plating state — hull damage absorbed per damage family (indexed by `DamageType`
+    /// declaration order: Kinetic, Energy, Explosive). Accumulated for every combatant but only *read*
+    /// when `stats.reactive`. Starts `[0, 0, 0]`, so a reactive Mech opens exactly as its Balanced twin.
+    pub absorbed: [Fixed; 3],
     pub ticks_since_hit: u16,
     pub cooldown: u16,
     pub move_cooldown: u16,
@@ -125,6 +129,7 @@ pub(crate) fn build_combatants(
                 max_hull: stats.hull,
                 shield: stats.shield_cap,
                 ablative: stats.ablative_cap,
+                absorbed: [Fixed::ZERO; 3],
                 ticks_since_hit: 0,
                 cooldown: 0,
                 move_cooldown: 0,

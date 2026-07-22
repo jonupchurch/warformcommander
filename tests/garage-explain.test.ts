@@ -127,6 +127,16 @@ describe('defenses', () => {
     const ex = explainDefense(defense('MechAblative'), tuned);
     expect(values(ex, 'Ablative')[0]).toContain('35% chance');
   });
+
+  it('describes reactive plating with the live rate and its adapts-slowly caveat', () => {
+    const ex = explainDefense(defense('MechReactive'), rs);
+    // Default reactive rate is ×0.8 against the most-absorbed family, read from the ruleset.
+    expect(values(ex, 'Reactive')[0]).toBe('damage from the most-absorbed family ×0.80 once it adapts');
+    expect(ex.caveat).toMatch(/opens exactly as Balanced/);
+    // The rate is live data, not authored text.
+    const tuned: Ruleset = { ...rs, reactiveMods: { rate: 6000 } };
+    expect(values(explainDefense(defense('MechReactive'), tuned), 'Reactive')[0]).toContain('×0.60');
+  });
 });
 
 describe('utilities', () => {

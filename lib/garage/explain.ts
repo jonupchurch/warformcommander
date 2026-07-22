@@ -24,6 +24,7 @@ import {
   DEFAULT_ENERGY_MODES,
   DEFAULT_EXECUTE_MODS,
   DEFAULT_MOUNT_SCALE,
+  DEFAULT_REACTIVE_MODS,
   DEFAULT_STANCE_AGGRO,
   mountScaleFor,
 } from '@/sim/ruleset';
@@ -279,14 +280,29 @@ export function explainDefense(defense: DefenseModule, ruleset: Ruleset): Explan
       tone: 'gain',
     });
   }
+  if (defense.reactive) {
+    // Reactive plating opens as Balanced, then biases mitigation toward the family it has absorbed
+    // most — a rate that lives in the ruleset (FR-033). Shown as the damage taken from that family.
+    const rate = (ruleset.reactiveMods ?? DEFAULT_REACTIVE_MODS).rate;
+    effects.push({
+      label: 'Reactive',
+      value: `damage from the most-absorbed family ${mult(rate)} once it adapts`,
+      tone: 'gain',
+    });
+  }
   effects.push(...statDeltaLines(defense.tradeoff, ruleset));
   if (effects.length === 0) {
     effects.push({ label: 'Effect', value: 'None — this slot grants nothing', tone: 'none' });
   }
-  // The ablative pool's defining drawback is inherent, not a stat line: it never comes back.
+  // Two defences carry an inherent drawback that is not a stat line: ablative never regenerates, and
+  // reactive plating is mediocre until it has taken enough fire to adapt (punished by burst).
   const caveat =
     EQUIPMENT_CAVEAT[defense.id] ??
-    (defense.ablativeDelta ? 'The ablative pool never regenerates — once spent, it is gone.' : undefined);
+    (defense.ablativeDelta
+      ? 'The ablative pool never regenerates — once spent, it is gone.'
+      : defense.reactive
+        ? 'Reactive plating opens exactly as Balanced — it only pays off once a battle wears on.'
+        : undefined);
   return {
     title: defense.name,
     blurb: EQUIPMENT_BLURB[defense.id] ?? '',

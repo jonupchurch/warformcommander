@@ -169,25 +169,25 @@ layers are widespread enough for the matrix to discriminate. **Engine deploys be
 
 ### Tests for User Story 3
 
-- [ ] T049 [P] [US3] Create Mech reactive-mitigation tests in `crates/engine/tests/defenses.rs` — repeated exposure to one family measurably reduces later damage from it
-- [ ] T050 [P] [US3] Add a neutral-baseline test in `crates/engine/tests/defenses.rs` — an untouched Mech mitigates exactly as its Balanced equivalent, so reactive is never worse at battle start
-- [ ] T051 [P] [US3] Add a tie-determinism test in `crates/engine/tests/defenses.rs` — equal absorption across families resolves to the lowest-ordered family and reproduces on replay (R9)
-- [ ] T052 [P] [US3] Add an exclusivity test in `crates/engine/tests/defenses.rs` — reactive plating is rejected on every non-Mech mount class (FR-023)
+- [X] T049 [P] [US3] Create Mech reactive-mitigation tests in `crates/engine/tests/defenses.rs` — repeated exposure to one family measurably reduces later damage from it
+- [X] T050 [P] [US3] Add a neutral-baseline test in `crates/engine/tests/defenses.rs` — an untouched Mech mitigates exactly as its Balanced equivalent, so reactive is never worse at battle start
+- [X] T051 [P] [US3] Add a tie-determinism test in `crates/engine/tests/defenses.rs` — equal absorption across families resolves to the lowest-ordered family and reproduces on replay (R9)
+- [X] T052 [P] [US3] Add an exclusivity test in `crates/engine/tests/defenses.rs` — reactive plating is rejected on every non-Mech mount class (FR-023)
 
 ### Implementation for User Story 3
 
-- [ ] T053 [US3] Add `absorbed: [Fixed; 3]` and `reactive: bool` to `Combatant` and `EffectiveStats` in `crates/engine/src/sim/mod.rs` and `crates/engine/src/model/army.rs`
-- [ ] T054 [US3] Accumulate absorbed damage per family in `crates/engine/src/sim/damage.rs` and apply the reactive mitigation bias when `stats.reactive` (depends on T053)
-- [ ] T055 [US3] Add the Mech-exclusive reactive plating module to `crates/engine/src/content.rs`, gated on `mount_class == Mech`
+- [X] T053 [US3] Add `absorbed: [Fixed; 3]` and `reactive: bool` to `Combatant` and `EffectiveStats` in `crates/engine/src/sim/mod.rs` and `crates/engine/src/model/army.rs`
+- [X] T054 [US3] Accumulate absorbed damage per family in `crates/engine/src/sim/damage.rs` and apply the reactive mitigation bias when `stats.reactive` (depends on T053)
+- [X] T055 [US3] Add the Mech-exclusive reactive plating module to `crates/engine/src/content.rs`, gated on `mount_class == Mech`
 - [ ] T056 [US3] Add the Rocket Pack module and its anti-air capability to `crates/engine/src/content.rs`, differentiated from dedicated anti-air by reach rather than damage rate
-- [ ] T057 [US3] Grant the Mech its native behavioural flexibility in `crates/engine/src/content.rs` — the extra Plan-B slot other chassis buy with a utility slot (FR-025)
-- [ ] T058 [P] [US3] Mirror the new capability and module in `sim/ruleset.ts` and `sim/legality.ts`, and gate the option in `components/garage/loadout-editor.tsx`
-- [ ] T059 [US3] Explain reactive plating and the Rocket Pack from live values in `lib/garage/explain.ts`, with coverage in `tests/garage-explain.test.ts`
+- [X] T057 [US3] Grant the Mech its native behavioural flexibility in `crates/engine/src/content.rs` — the extra Plan-B slot other chassis buy with a utility slot (FR-025)
+- [X] T058 [P] [US3] Mirror the new capability and module in `sim/ruleset.ts` and `sim/legality.ts`, and gate the option in `components/garage/loadout-editor.tsx`
+- [X] T059 [US3] Explain reactive plating and the Rocket Pack from live values in `lib/garage/explain.ts`, with coverage in `tests/garage-explain.test.ts`
 
 ### Verification for User Story 3
 
-- [ ] T060 [US3] Run the full cascade per [quickstart.md](./quickstart.md), including the golden re-bless for the new modules
-- [ ] T061 [US3] Run the balancer and confirm the Mech's profile shifts from flat-efficient toward duration-dependent, recording the result
+- [X] T060 [US3] Run the full cascade per [quickstart.md](./quickstart.md), including the golden re-bless for the new modules
+- [X] T061 [US3] Run the balancer and confirm the Mech's profile shifts from flat-efficient toward duration-dependent, recording the result
 
 **Checkpoint**: US3 functional. Ship as v15.
 
