@@ -33,6 +33,19 @@ fn with_target_row(mut m: MachineInstance, row: TargetRow) -> MachineInstance {
     m
 }
 
+/// Fit a Flak Battery (unlocks `AntiAir`) into a ground unit's first utility slot when the ruleset
+/// carries it — turning it into an anti-air platform that can contest the Air zone. A no-op (stock
+/// unit) when the utility is absent, so the archetype stays legal against `seed_ruleset()` and the
+/// A/B (flak on / off) is a pure ruleset swap.
+fn with_flak(mut m: MachineInstance, rs: &Ruleset) -> MachineInstance {
+    if rs.equipment.contains_key(&EquipmentId::new("FlakBattery"))
+        && !m.loadout.utilities.is_empty()
+    {
+        m.loadout.utilities[0] = EquipmentId::new("FlakBattery");
+    }
+    m
+}
+
 // ---------------------------------------------------------------------------
 // The reference field / candidate pool (a bounded, counter-web-spanning set)
 // ---------------------------------------------------------------------------
@@ -58,7 +71,10 @@ pub fn kinetic_tanks(rs: &Ruleset) -> Army {
     };
     Army {
         machines: vec![
-            place(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 0),
+            with_flak(
+                place(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 0),
+                rs,
+            ),
             place(rs, MachineTypeId::HeavyTank, "Cavalier", ZoneId::Front, 1),
             place(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 2),
             light("Scout", 3),
@@ -71,9 +87,12 @@ pub fn kinetic_tanks(rs: &Ruleset) -> Army {
 pub fn energy_mechs(rs: &Ruleset) -> Army {
     Army {
         machines: vec![
-            with_weapon(
-                place(rs, MachineTypeId::Mech, "Vanguard", ZoneId::Front, 0),
-                "PulseLaser",
+            with_flak(
+                with_weapon(
+                    place(rs, MachineTypeId::Mech, "Vanguard", ZoneId::Front, 0),
+                    "PulseLaser",
+                ),
+                rs,
             ),
             with_weapon(
                 place(rs, MachineTypeId::Mech, "Vanguard", ZoneId::Front, 1),
@@ -139,7 +158,10 @@ pub fn artillery_line(rs: &Ruleset) -> Army {
         machines: vec![
             place(rs, MachineTypeId::Artillery, "Longbow", ZoneId::Rear, 0),
             place(rs, MachineTypeId::Artillery, "Siege", ZoneId::Rear, 1),
-            place(rs, MachineTypeId::HeavyTank, "Bulwark", ZoneId::Front, 2),
+            with_flak(
+                place(rs, MachineTypeId::HeavyTank, "Bulwark", ZoneId::Front, 2),
+                rs,
+            ),
             place(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 3),
             place(rs, MachineTypeId::Mech, "Vanguard", ZoneId::Middle, 4),
         ],
@@ -152,7 +174,10 @@ pub fn support_ball(rs: &Ruleset) -> Army {
         machines: vec![
             place(rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 0),
             place(rs, MachineTypeId::RearSupport, "Warden", ZoneId::Middle, 1),
-            place(rs, MachineTypeId::HeavyTank, "Bulwark", ZoneId::Front, 2),
+            with_flak(
+                place(rs, MachineTypeId::HeavyTank, "Bulwark", ZoneId::Front, 2),
+                rs,
+            ),
             place(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 3),
             place(rs, MachineTypeId::HeavyTank, "Cavalier", ZoneId::Front, 4),
         ],
