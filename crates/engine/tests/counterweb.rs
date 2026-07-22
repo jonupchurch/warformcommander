@@ -8,7 +8,9 @@ use engine::content::{seed_ruleset, stock_instance};
 use engine::model::army::Army;
 use engine::model::ruleset::Ruleset;
 use engine::model::types::{EquipmentId, MachineTypeId, ZoneId};
-use engine::replay::{Adaptation, Fate, MatchConfig, Replay, Side, TickEvent, UnitRef};
+use engine::replay::{
+    Adaptation, Fate, MatchConfig, Replay, Side, SupportKind, TickEvent, UnitRef,
+};
 use engine::{resolve, BattleInput, BattleOutput};
 
 fn config() -> MatchConfig {
@@ -164,6 +166,87 @@ fn sam_bombards_ground_when_no_air_present() {
             }
         ),
         "a SAM must bombard ground (land ≥1 hit) when there is no enemy air to engage"
+    );
+}
+
+/// Helis are excluded from healing: a whole-army medic mends wounded *ground* allies but never an
+/// airframe, even when the heli is the one under fire. Regression guard for the `resolve_support`
+/// heli skip.
+#[test]
+fn helis_are_never_a_heal_target() {
+    let rs = seed_ruleset();
+    let heli = UnitRef {
+        side: Side::A,
+        instance_id: 2,
+    };
+
+    // Side A: a Medic (whole-army heal reach) + a Gunship heli + a ground line that will take fire.
+    let with_medic = Army {
+        machines: vec![
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 0),
+            stock_instance(&rs, MachineTypeId::Mech, "Vanguard", ZoneId::Front, 1),
+            stock_instance(&rs, MachineTypeId::AttackHeli, "Gunship", ZoneId::Air, 2),
+            stock_instance(&rs, MachineTypeId::Artillery, "Longbow", ZoneId::Rear, 3),
+            stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
+        ],
+    };
+    // Side B: AA (a Sentry SAM engages the heli) + a ground line (wounds side A's front, so the
+    // medic has ground allies to mend).
+    let mixed = Army {
+        machines: vec![
+            stock_instance(
+                &rs,
+                MachineTypeId::RocketArtillery,
+                "Sentry",
+                ZoneId::Middle,
+                0,
+            ),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 1),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 2),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Cavalier", ZoneId::Front, 3),
+            stock_instance(&rs, MachineTypeId::Artillery, "Longbow", ZoneId::Rear, 4),
+        ],
+    };
+    let out = run(&rs, with_medic, mixed, 0x5A66);
+
+    let events: Vec<&TickEvent> = out
+        .replay
+        .games
+        .iter()
+        .flat_map(|g| &g.ticks)
+        .flat_map(|t| &t.events)
+        .collect();
+
+    // Non-vacuity: the heli actually takes fire, so absent the skip it WOULD become a heal candidate.
+    let heli_hit = events
+        .iter()
+        .any(|e| matches!(e, TickEvent::Hit { target, .. } if *target == heli));
+    assert!(
+        heli_hit,
+        "the heli must be under fire for this test to mean anything"
+    );
+
+    let heals: Vec<UnitRef> = events
+        .iter()
+        .filter_map(|e| match e {
+            TickEvent::Support {
+                target,
+                kind: SupportKind::Heal,
+                ..
+            } => Some(*target),
+            _ => None,
+        })
+        .collect();
+
+    // The medic is doing its job (mending wounded ground allies)…
+    assert!(
+        !heals.is_empty(),
+        "the medic should heal wounded ground allies"
+    );
+    // …but a heal never lands on the heli.
+    assert!(
+        !heals.iter().any(|t| *t == heli),
+        "a heli must never be the target of a heal"
     );
 }
 
