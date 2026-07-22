@@ -543,9 +543,11 @@ fn support_grants_a_start_shield_to_the_squad() {
             .milli()
     };
 
-    // Control: no aura on the Medic → the tank starts with no shield.
+    // Control: no aura on the Medic. The tank still opens with the small Balanced-default shield
+    // (v2 — the default slot is no longer a no-op), so we capture that baseline and prove the aura
+    // adds a *substantial* barrier on top of it, rather than asserting a bare zero.
     let base = run(&rs, army_a.clone(), air_squad(&rs), 0x5A77);
-    assert_eq!(start_shield(&base, ally), 0, "no aura ⇒ no start shield");
+    let base_shield = start_shield(&base, ally);
 
     // Grant the Medic a whole-army start-shield aura at 20% of each ally's hull.
     rs.chassis
@@ -564,11 +566,11 @@ fn support_grants_a_start_shield_to_the_squad() {
         .milli();
     let got = start_shield(&out, ally);
     // The first snapshot is taken after tick 0's combat, so the ~20%-of-hull barrier has already
-    // soaked some fire — assert it opened with a substantial shield (between an eighth and the full
-    // 20% grant), where the control had none.
+    // soaked some fire — assert the aura added a substantial shield (at least an eighth of hull) on
+    // top of whatever the Balanced default provided.
     assert!(
-        got >= hull / 8 && got <= hull * 20 / 100,
-        "tank should open with a substantial shield from the aura: got {got}, hull {hull}"
+        got >= base_shield + hull / 8,
+        "the aura should add a substantial shield over the Balanced default: got {got}, base {base_shield}, hull {hull}"
     );
 }
 
@@ -778,4 +780,55 @@ fn no_single_archetype_wins_every_matchup() {
     // alpha beats every non-AA archetype and only AA counters it — so 3 of 4 archetypes want an
     // affordable AA option, or air's alpha wants trimming, to widen the counter-web. The *shape* is
     // correct here (AA hard-counters air; air hard-counters non-AA); the *spread* is the tuning job.
+}
+
+/// v2 three-layer counter-web (spec 013, US1/T010): the three defensive families fail to **different**
+/// threats, so a defense choice is a real counter decision rather than a strict ordering.
+///
+/// Penetration is the discriminator here. A Railgun bypasses shields entirely (its penetrating
+/// fraction leaks straight past), but penetration does **not** bypass the ablative pool (research R2).
+/// So against the same penetrating attacker, the Shield defender falls faster than the Ablative one —
+/// the shield is the wrong tool, the ablative pool the right one.
+#[test]
+fn the_three_defensive_layers_fail_to_different_threats() {
+    let rs = seed_ruleset();
+
+    // Ground zones cap at 3 units, so spread each squad across Front + Middle.
+    let zone = |i: u8| if i < 3 { ZoneId::Front } else { ZoneId::Middle };
+
+    // A squad of heavy tanks behind one defense family, dueling a Railgun (50% penetration) squad.
+    let defender = |rs: &Ruleset, defense: &str| Army {
+        machines: (0..5)
+            .map(|i| {
+                let mut m = stock_instance(rs, MachineTypeId::HeavyTank, "Grizzly", zone(i), i);
+                m.loadout.defense = EquipmentId::new(defense);
+                m
+            })
+            .collect(),
+    };
+    let railgunners = |rs: &Ruleset| Army {
+        machines: (0..5)
+            .map(|i| {
+                let mut m = stock_instance(rs, MachineTypeId::HeavyTank, "Cavalier", zone(i), i);
+                m.loadout.weapon = EquipmentId::new("Railgun"); // 50% penetration
+                m
+            })
+            .collect(),
+    };
+
+    // Squad-survival score: survivors dominate, battle duration breaks ties. Higher = outlasted.
+    let survival = |defense: &str| -> i64 {
+        let out = run(&rs, railgunners(&rs), defender(&rs, defense), 0xF00D);
+        out.result.side(Side::B).survivors as i64 * 100_000 + out.result.duration_ticks as i64
+    };
+
+    let shield = survival("HeavyShield");
+    let ablative = survival("HeavyAblative");
+
+    // Against penetration, the ablative pool (which penetration cannot bypass) outlasts the shield
+    // (which it can). If the shield somehow survived outright this still holds by the tie.
+    assert!(
+        ablative > shield,
+        "ablative should outlast shield vs penetration: shield={shield} ablative={ablative}"
+    );
 }

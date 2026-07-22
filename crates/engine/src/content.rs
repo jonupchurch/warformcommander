@@ -19,10 +19,10 @@ use crate::model::ruleset::{
     LayerMultipliers, MountScale, Ruleset,
 };
 use crate::model::types::{
-    AuraEffect, AuraKind, AuraScope, BaseStats, CadenceTier, Capability, ChassisVariant,
-    DamageFamily, DamageType, DefenseSpec, EquipmentId, EquipmentModule, EquipmentSpec, Loadout,
-    MachineType, MachineTypeId, MitigationMod, MountClass, ReachTag, ShieldDelta, SlotLayout,
-    StatDeltas, SupportRange, VariantId, WeaponSpec,
+    AblativeDelta, AuraEffect, AuraKind, AuraScope, BaseStats, CadenceTier, Capability,
+    ChassisVariant, DamageFamily, DamageType, DefenseSpec, EquipmentId, EquipmentModule,
+    EquipmentSpec, Loadout, MachineType, MachineTypeId, MitigationMod, MountClass, ReachTag,
+    ShieldDelta, SlotLayout, StatDeltas, SupportRange, VariantId, WeaponSpec,
 };
 use crate::model::types::{
     BehaviorDials, EnergyMode, MovementMode, Stance, TargetRow, TargetRule, ZoneId,
@@ -224,7 +224,7 @@ fn seed_variants(
 
     // --- Heavy Tank (Kinetic · Slow · the wall) ---
     let grizzly = BaseStats {
-        hull: q(1700),
+        hull: q(1479),
         armor_pct: 3_000,
         shield_cap: Fixed::ZERO,
         shield_regen: Fixed::ZERO,
@@ -249,7 +249,7 @@ fn seed_variants(
         "Cavalier",
         MachineTypeId::HeavyTank,
         BaseStats {
-            hull: q(1360),
+            hull: q(1183),
             armor_pct: 2_800,
             damage: q(40),
             move_speed: Some(4),
@@ -264,7 +264,7 @@ fn seed_variants(
         "Bulwark",
         MachineTypeId::HeavyTank,
         BaseStats {
-            hull: q(2125),
+            hull: q(1849),
             armor_pct: 3_500,
             damage: q(26),
             move_speed: Some(1),
@@ -281,7 +281,7 @@ fn seed_variants(
 
     // --- Light Tank (Kinetic · Fast · skirmisher) ---
     let scout = BaseStats {
-        hull: q(650),
+        hull: q(572),
         armor_pct: 600,
         shield_cap: Fixed::ZERO,
         shield_regen: Fixed::ZERO,
@@ -317,7 +317,7 @@ fn seed_variants(
         "Outrider",
         MachineTypeId::LightTank,
         BaseStats {
-            hull: q(550),
+            hull: q(484),
             move_speed: Some(8),
             evasion: 2_800,
             ..scout
@@ -328,7 +328,7 @@ fn seed_variants(
 
     // --- Mech (generalist · Medium · bruiser) ---
     let vanguard = BaseStats {
-        hull: q(1000),
+        hull: q(870),
         armor_pct: 1_200,
         shield_cap: Fixed::ZERO,
         shield_regen: Fixed::ZERO,
@@ -353,7 +353,7 @@ fn seed_variants(
         "Striker",
         MachineTypeId::Mech,
         BaseStats {
-            hull: q(820),
+            hull: q(713),
             damage: q(19),
             move_speed: Some(6),
             threat: q(19),
@@ -366,7 +366,7 @@ fn seed_variants(
         "Sentinel",
         MachineTypeId::Mech,
         BaseStats {
-            hull: q(1150),
+            hull: q(1000),
             damage: q(12),
             threat: q(12),
             ..vanguard
@@ -377,7 +377,7 @@ fn seed_variants(
 
     // --- Attack Heli (Explosive · Medium · air-locked alpha) ---
     let gunship = BaseStats {
-        hull: q(600),
+        hull: q(504),
         armor_pct: 400,
         shield_cap: Fixed::ZERO,
         shield_regen: Fixed::ZERO,
@@ -414,7 +414,7 @@ fn seed_variants(
         "Warhog",
         MachineTypeId::AttackHeli,
         BaseStats {
-            hull: q(750),
+            hull: q(630),
             armor_pct: 600,
             damage: q(21),
             evasion: 2_200,
@@ -427,7 +427,7 @@ fn seed_variants(
 
     // --- Rocket Artillery (Explosive · Slow · AA specialist) ---
     let sentry = BaseStats {
-        hull: q(750),
+        hull: q(638),
         armor_pct: 1_000,
         shield_cap: Fixed::ZERO,
         shield_regen: Fixed::ZERO,
@@ -476,7 +476,7 @@ fn seed_variants(
 
     // --- Artillery (Explosive · Siege · backline sniper, no air) ---
     let longbow = BaseStats {
-        hull: q(620),
+        hull: q(527),
         armor_pct: 600,
         shield_cap: Fixed::ZERO,
         shield_regen: Fixed::ZERO,
@@ -501,7 +501,7 @@ fn seed_variants(
         "Siege",
         MachineTypeId::Artillery,
         BaseStats {
-            hull: q(520),
+            hull: q(442),
             damage: q(82),
             threat: q(82),
             ..longbow
@@ -525,7 +525,7 @@ fn seed_variants(
 
     // --- Rear Support (Support · Shields · force multiplier) ---
     let medic = BaseStats {
-        hull: q(700),
+        hull: q(616),
         armor_pct: 1_200,
         shield_cap: q(250),
         shield_regen: q(6),
@@ -550,7 +550,7 @@ fn seed_variants(
         "Warden",
         MachineTypeId::RearSupport,
         BaseStats {
-            hull: q(910),
+            hull: q(801),
             armor_pct: 1_800,
             support_range: Some(SupportRange::OwnZone),
             ..medic
@@ -562,7 +562,7 @@ fn seed_variants(
         "CommandPost",
         MachineTypeId::RearSupport,
         BaseStats {
-            hull: q(420),
+            hull: q(370),
             move_speed: Some(0), // immobile
             ..medic
         },
@@ -602,6 +602,32 @@ fn defense(
         special_mitigation: mitigation,
         tradeoff,
     })
+}
+
+/// An ablative-family defense: a one-time, non-regenerating pool of `cap`, no armor/shield/tradeoff
+/// (its drawback — never regenerating — is inherent). The pool magnitude scales by mount at derive.
+fn defense_ablative(mount: MountClass, cap: crate::fixed::Fixed) -> EquipmentSpec {
+    EquipmentSpec::Defense(DefenseSpec {
+        mount_class: mount,
+        armor_pct_delta: 0,
+        shield_delta: None,
+        ablative_delta: Some(AblativeDelta { cap }),
+        special_mitigation: None,
+        tradeoff: StatDeltas::default(),
+    })
+}
+
+/// The id stem for a mount's generated defense modules (`{stem}Armor`, `{stem}Shield`, …).
+fn mount_suffix(mount: MountClass) -> &'static str {
+    match mount {
+        MountClass::Heavy => "Heavy",
+        MountClass::Light => "Light",
+        MountClass::Mech => "Mech",
+        MountClass::Heli => "Heli",
+        MountClass::RktArty => "RktArty",
+        MountClass::Artillery => "Artillery",
+        MountClass::Support => "Support",
+    }
 }
 
 fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
@@ -749,7 +775,13 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
         ),
     );
 
-    // --- Defenses: a base/identity hull per mount (keeps every std build legal) ---
+    // --- Defenses: four families per mount, generated from one scale loop (v2) ---
+    // The per-mount magnitude scaling happens at *derive* time (`mount_scale`), so every mount shares
+    // these base numbers and the scale table alone differentiates a fragile heli from a heavy tank —
+    // one table tunes the whole system (FR-009). The default slot is the Balanced module
+    // (`base_defense_id`), which — unlike the old no-op "Standard Hull" — grants a modest mix of armor
+    // and shield with no drawback. The four families fail to *different* threats (research R1/R2):
+    // Armor to Energy + the min-floor, Shield to penetration + Energy, Ablative to attrition alone.
     for mount in [
         MountClass::Heavy,
         MountClass::Light,
@@ -759,10 +791,62 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
         MountClass::Artillery,
         MountClass::Support,
     ] {
+        let suffix = mount_suffix(mount);
+        // Balanced (default). Keeps the `StandardHull*` id stable across the v1→v2 transition — every
+        // stock build, seed army, and fixture already references it — while replacing its dead no-op
+        // with a real, if unremarkable, defense: modest armor + a small shield, no cost.
         add(
             base_defense_id(mount),
-            "Standard Hull",
-            defense(mount, 0, None, None, StatDeltas::default()),
+            "Balanced",
+            defense(
+                mount,
+                500,
+                Some(ShieldDelta {
+                    cap: q(150),
+                    regen: q(5),
+                    delay: 25,
+                }),
+                None,
+                StatDeltas::default(),
+            ),
+        );
+        // Armor — permanent, matrix-agnostic hull mitigation, paid for in mobility.
+        add(
+            &format!("{suffix}Armor"),
+            "Armor Plating",
+            defense(
+                mount,
+                2_000,
+                None,
+                None,
+                StatDeltas {
+                    move_speed: -1,
+                    ..Default::default()
+                },
+            ),
+        );
+        // Shield — a regenerating pool; strong against sustained chip, bypassed by penetration.
+        add(
+            &format!("{suffix}Shield"),
+            "Shield Array",
+            defense(
+                mount,
+                0,
+                Some(ShieldDelta {
+                    cap: q(450),
+                    regen: q(12),
+                    delay: 16,
+                }),
+                None,
+                StatDeltas::default(),
+            ),
+        );
+        // Ablative — a large one-time pool that never regenerates; front-loaded, indifferent to
+        // damage family, vulnerable only to attrition. The 20% save makes it ~1.25× its face value.
+        add(
+            &format!("{suffix}Ablative"),
+            "Ablative Plating",
+            defense_ablative(mount, q(600)),
         );
     }
 
@@ -1011,13 +1095,17 @@ mod tests {
     #[test]
     fn spot_check_stat_block_numbers() {
         let rs = seed_ruleset();
+        // Hull values are the v2 rebase (spec 013/US1): chassis hull was cut ~13% so that lighting up
+        // the previously-dead defense slot (the new Balanced default grants armor + a shield)
+        // redistributes survivability rather than inflating it — median battle duration stays within
+        // 10% of the v11 baseline. See specs/013-v2-ruleset/baseline/comparison-points.md.
         assert_eq!(
             rs.base_stats(&VariantId::new("Grizzly")).unwrap().hull,
-            q(1700)
+            q(1479)
         );
         assert_eq!(
             rs.base_stats(&VariantId::new("Bulwark")).unwrap().hull,
-            q(2125)
+            q(1849)
         );
         assert_eq!(
             rs.base_stats(&VariantId::new("Siege")).unwrap().damage,

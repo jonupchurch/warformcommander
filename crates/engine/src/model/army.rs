@@ -231,14 +231,16 @@ pub fn derive_effective_stats(
     acc.apply(&weapon.stat_deltas);
     let family = weapon.family;
 
-    // --- Defense (armor/shield layer + its tradeoff cost) ---
-    let defense = lookup_defense(ruleset, &machine.loadout.defense)?;
-    acc.armor_pct += defense.armor_pct_delta;
-    acc.apply(&defense.tradeoff);
+    // --- Defense (armor/shield/ablative layer + its tradeoff cost) ---
     // Defensive magnitudes scale by mount class (v2): the fragile back-rank mounts get less out of
     // the same slot, so lighting up their dead defense slot redistributes survivability rather than
-    // inflating it. The scale is applied once, here, to shield and ablative capacity alike.
+    // inflating it. The scale is applied once, here, to every survivability grant — armor %, shield
+    // pool, and ablative pool alike — so one mount-scale table tunes the whole defense system.
+    let defense = lookup_defense(ruleset, &machine.loadout.defense)?;
     let scale = ruleset.mount_scale.for_mount(defense.mount_class);
+    // Scale a bp armor delta by the (bp) mount factor: (delta × scale) / BP_ONE.
+    acc.armor_pct += ((defense.armor_pct_delta as i128 * scale as i128) / BP_ONE as i128) as Bp;
+    acc.apply(&defense.tradeoff);
     let (shield_cap, shield_regen, shield_delay) = match &defense.shield_delta {
         Some(s) => (
             base.shield_cap.saturating_add(s.cap.mul_bp(scale)),
