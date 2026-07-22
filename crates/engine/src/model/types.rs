@@ -287,12 +287,18 @@ pub enum AuraKind {
     DamageDealt,
     /// Command-and-control boost (Command Post) — reserved for support-flavor resolution.
     CommandBoost,
+    /// At **match start**, confer a one-time shield to allies in scope, sized by [`AuraEffect::magnitude`]
+    /// as a fraction (bp) of each recipient's max hull (a rear-support role feature). Applied once, at
+    /// setup — the shield sits above the recipient's cap and depletes without regenerating.
+    StartShield,
 }
 
 /// Who an [`AuraEffect`] reaches.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub enum AuraScope {
     ZoneAllies,
+    /// Every allied machine on the same side, regardless of zone.
+    AllAllies,
 }
 
 // ---------------------------------------------------------------------------
