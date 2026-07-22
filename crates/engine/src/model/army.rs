@@ -575,6 +575,7 @@ mod tests {
                 hit_clamp_min: 500,
                 hit_clamp_max: 9_500,
             },
+            role_damage_bonuses: BTreeMap::new(),
         }
     }
 

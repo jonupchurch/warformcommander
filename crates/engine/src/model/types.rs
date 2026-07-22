@@ -301,6 +301,20 @@ pub enum AuraScope {
     AllAllies,
 }
 
+/// A per-attacker-type damage bonus versus a set of target machine types — a "role counter" (e.g.
+/// light tanks hitting the fragile backline harder). Stored in [`Ruleset::role_damage_bonuses`]
+/// keyed by the *attacker's* machine type; applied per target at impact.
+///
+/// [`Ruleset::role_damage_bonuses`]: crate::model::ruleset::Ruleset::role_damage_bonuses
+#[derive(Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RoleDamageBonus {
+    /// The target machine types this bonus applies against.
+    pub vs: Vec<MachineTypeId>,
+    /// Additive damage multiplier, bp (`5_000` = +50% vs the listed types).
+    pub mult: Bp,
+}
+
 // ---------------------------------------------------------------------------
 // Base stats
 // ---------------------------------------------------------------------------
