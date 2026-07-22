@@ -49,7 +49,8 @@ export type Capability =
   | 'AdaptiveEnergy'
   | 'OpportunistStance'
   | 'ExtendReach'
-  | 'TargetAir';
+  | 'TargetAir'
+  | 'AntiAir';
 
 /** The canonical `Capability` sort order (the Rust enum's `Ord` / declaration order). */
 export const CAPABILITY_ORDER: readonly Capability[] = [
@@ -58,6 +59,7 @@ export const CAPABILITY_ORDER: readonly Capability[] = [
   'OpportunistStance',
   'ExtendReach',
   'TargetAir',
+  'AntiAir',
 ];
 
 /** Which equipment kind a slot expects (`SlotKind`) — carried on a `WrongSlotKind` derivation error. */
@@ -222,6 +224,8 @@ export interface AirModifiers {
   plinkDmgMult: number;
   /** SAM (Air-reach) suppressing ground — damage multiplier, split from `plinkDmgMult`. */
   samGroundDmgMult: number;
+  /** Flak platform (`AntiAir` capability) firing on air — damage multiplier; omitted at the ×1.0 default. */
+  flakDmgMult?: number;
 }
 
 /** Global combat coefficients + tick budget (`GlobalConstants`). The derivation reads `splashCap`. */

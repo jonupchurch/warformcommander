@@ -82,6 +82,9 @@ pub(crate) struct AttackProfile {
     pub penetration: Bp,
     pub splash: Bp,
     pub reach: ReachTag,
+    /// A flak platform (the `AntiAir` capability): fires on air at `flak_dmg_mult` instead of taking
+    /// the plink penalty — so a ground unit with a Flak Battery is a real anti-air weapon.
+    pub anti_air: bool,
     /// Outgoing-damage multiplier from the active energy dial (bp).
     pub energy_mult: Bp,
 }

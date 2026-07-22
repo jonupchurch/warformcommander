@@ -155,12 +155,33 @@ pub struct AirModifiers {
     /// before this field existed deserializes with identical SAM-vs-ground behavior.
     #[serde(default = "default_sam_ground_dmg_mult")]
     pub sam_ground_dmg_mult: Bp,
+    /// A **flak** platform (the `AntiAir` capability, a non-`Air`-reach weapon) firing on **air**: its
+    /// damage multiplier, bp. Defaults to `10_000` (×1.0 — full damage, no plink penalty), i.e. "target
+    /// air without losing damage to plinking". Tunable up toward the SAM's `aa_dmg_mult` to make flak a
+    /// harder counter, or down to soften it. Omitted from serialization at the default, so a ruleset
+    /// saved before flak existed hashes identically (no golden churn).
+    #[serde(
+        default = "default_flak_dmg_mult",
+        skip_serializing_if = "is_default_flak_dmg_mult"
+    )]
+    pub flak_dmg_mult: Bp,
 }
 
 /// Back-compat default for [`AirModifiers::sam_ground_dmg_mult`]: the historical `plink_dmg_mult`
 /// content value, so a pre-split ruleset row deserializes with unchanged SAM-vs-ground behavior.
 fn default_sam_ground_dmg_mult() -> Bp {
     5_000
+}
+
+/// Default for [`AirModifiers::flak_dmg_mult`]: `10_000` = ×1.0 (full damage, no plink). A ruleset
+/// without the field (or at the default) deserializes/serializes identically to one before flak.
+fn default_flak_dmg_mult() -> Bp {
+    10_000
+}
+
+/// Whether `flak_dmg_mult` is at its default (so it can be omitted from serialization → hash-stable).
+fn is_default_flak_dmg_mult(v: &Bp) -> bool {
+    *v == 10_000
 }
 
 /// Global combat coefficients + the tick budget (stat block §1). All bp unless a count.
@@ -332,6 +353,7 @@ mod tests {
                 plink_acc_penalty: -2_500,
                 plink_dmg_mult: 5_000,
                 sam_ground_dmg_mult: 5_000,
+                flak_dmg_mult: 10_000,
             },
             globals: GlobalConstants {
                 tick_rate: 10,

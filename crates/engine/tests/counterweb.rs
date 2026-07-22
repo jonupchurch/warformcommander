@@ -8,7 +8,8 @@ use engine::content::{seed_ruleset, stock_instance};
 use engine::model::army::Army;
 use engine::model::ruleset::Ruleset;
 use engine::model::types::{
-    AuraEffect, AuraKind, AuraScope, EquipmentId, MachineTypeId, VariantId, ZoneId,
+    AuraEffect, AuraKind, AuraScope, Capability, EquipmentId, EquipmentModule, EquipmentSpec,
+    MachineTypeId, UtilitySpec, VariantId, ZoneId,
 };
 use engine::replay::{
     Adaptation, Fate, MatchConfig, Replay, Side, SupportKind, TickEvent, UnitRef,
@@ -126,6 +127,49 @@ fn aa_hard_counters_air_and_no_aa_cannot_touch_it() {
     assert!(
         !destroyed(fate_of(&out2, Side::B, 0)) && !destroyed(fate_of(&out2, Side::B, 1)),
         "without AA the helicopters must survive (nothing can hit them)"
+    );
+}
+
+/// A **flak platform** (the `AntiAir` capability, via a Flak Battery utility) lets a *ground* unit
+/// engage air. Where the no-AA heavy company above leaves the helicopters untouched, heavy tanks
+/// fitted with a Flak Battery target and destroy them — the air counter is no longer AA-rocket-only.
+/// (The utility lives in the DB ruleset row in prod; the test injects it, as the balancer does via
+/// `--ruleset`.)
+#[test]
+fn flak_lets_ground_units_shoot_down_aircraft() {
+    let mut rs = seed_ruleset();
+    rs.equipment.insert(
+        EquipmentId::new("FlakBattery"),
+        EquipmentModule {
+            id: EquipmentId::new("FlakBattery"),
+            name: "Flak Battery".into(),
+            spec: EquipmentSpec::Utility(UtilitySpec {
+                stat_deltas: None,
+                unlocks: vec![Capability::AntiAir],
+                cadence_shift: 0,
+            }),
+        },
+    );
+
+    // Five heavy tanks, each fitted with a Flak Battery in its first utility slot.
+    let flak = |v: &str, z: ZoneId, i: u8| {
+        let mut m = stock_instance(&rs, MachineTypeId::HeavyTank, v, z, i);
+        m.loadout.utilities[0] = EquipmentId::new("FlakBattery");
+        m
+    };
+    let flak_company = Army {
+        machines: vec![
+            flak("Grizzly", ZoneId::Front, 0),
+            flak("Grizzly", ZoneId::Front, 1),
+            flak("Grizzly", ZoneId::Front, 2),
+            flak("Cavalier", ZoneId::Middle, 3),
+            flak("Bulwark", ZoneId::Middle, 4),
+        ],
+    };
+    let out = run(&rs, flak_company, air_squad(&rs), 0x5A11);
+    assert!(
+        destroyed(fate_of(&out, Side::B, 0)) && destroyed(fate_of(&out, Side::B, 1)),
+        "flak-equipped ground units must be able to destroy enemy aircraft"
     );
 }
 

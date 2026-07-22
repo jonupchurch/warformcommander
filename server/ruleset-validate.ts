@@ -111,6 +111,10 @@ export function validateRuleset(data: unknown): RulesetValidation {
   for (const k of ["aaAccBonus", "aaDmgMult", "plinkAccPenalty", "plinkDmgMult", "samGroundDmgMult"] as const) {
     if (typeof am[k] !== "number" || !Number.isFinite(am[k])) return fail(`airMods.${k} must be a finite number`);
   }
+  // flakDmgMult is optional (omitted at the ×1.0 default); when present it must be finite.
+  if (am.flakDmgMult !== undefined && (typeof am.flakDmgMult !== "number" || !Number.isFinite(am.flakDmgMult))) {
+    return fail("airMods.flakDmgMult must be a finite number");
+  }
 
   // 6) Per-variant base stats — the bp fields are fractions/probabilities in [0,1] (0..10000 bp),
   //    hull positive, damage non-negative. Catches an out-of-[0,1] probability or a bad splash.
