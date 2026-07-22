@@ -115,6 +115,14 @@ export function validateRuleset(data: unknown): RulesetValidation {
   if (am.flakDmgMult !== undefined && (typeof am.flakDmgMult !== "number" || !Number.isFinite(am.flakDmgMult))) {
     return fail("airMods.flakDmgMult must be a finite number");
   }
+  // aaFocusPerAir is optional (omitted at the default 2); when present it is a whole count ≥ 1 —
+  // zero would make aircraft untargetable outright.
+  if (
+    am.aaFocusPerAir !== undefined &&
+    (typeof am.aaFocusPerAir !== "number" || !Number.isInteger(am.aaFocusPerAir) || am.aaFocusPerAir < 1)
+  ) {
+    return fail("airMods.aaFocusPerAir must be a whole number ≥ 1");
+  }
 
   // 6) Per-variant base stats — the bp fields are fractions/probabilities in [0,1] (0..10000 bp),
   //    hull positive, damage non-negative. Catches an out-of-[0,1] probability or a bad splash.

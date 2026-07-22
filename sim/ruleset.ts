@@ -226,6 +226,12 @@ export interface AirModifiers {
   samGroundDmgMult: number;
   /** Flak platform (`AntiAir` capability) firing on air — damage multiplier; omitted at the ×1.0 default. */
   flakDmgMult?: number;
+  /**
+   * Anti-air fire discipline: how many attackers may engage each living enemy aircraft per tick.
+   * Without it, one cheap aircraft monopolises an entire air-defence network. Omitted at the
+   * default (2).
+   */
+  aaFocusPerAir?: number;
 }
 
 /** Global combat coefficients + tick budget (`GlobalConstants`). The derivation reads `splashCap`. */

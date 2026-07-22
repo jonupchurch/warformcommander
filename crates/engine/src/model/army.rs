@@ -564,6 +564,7 @@ mod tests {
                 plink_dmg_mult: 5_000,
                 sam_ground_dmg_mult: 5_000,
                 flak_dmg_mult: 10_000,
+                aa_focus_per_air: 2,
             },
             globals: GlobalConstants {
                 tick_rate: 10,
