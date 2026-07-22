@@ -19,7 +19,7 @@ use serde::{Deserialize, Serialize};
 use crate::fixed::Bp;
 use crate::model::types::{
     BaseStats, CadenceTier, ChassisVariant, DamageType, EquipmentId, EquipmentModule, MachineType,
-    MachineTypeId, VariantId,
+    MachineTypeId, RoleDamageBonus, VariantId,
 };
 
 /// A stable, portable digest of a [`Ruleset`] (BLAKE3 hex). Stamped into each Replay/Result
@@ -48,6 +48,11 @@ pub struct Ruleset {
     pub air_mods: AirModifiers,
     /// Tick constants + the global combat coefficients.
     pub globals: GlobalConstants,
+    /// Per-attacker-type "role counter" damage bonuses vs specific target types (e.g. light tanks vs
+    /// the fragile backline). Empty by default and **omitted from serialization when empty**, so a
+    /// ruleset without it hashes identically to one before the field existed (hash-stable).
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub role_damage_bonuses: BTreeMap<MachineTypeId, RoleDamageBonus>,
 }
 
 impl Ruleset {
@@ -340,6 +345,7 @@ mod tests {
                 hit_clamp_min: 500,
                 hit_clamp_max: 9_500,
             },
+            role_damage_bonuses: BTreeMap::new(),
         }
     }
 }

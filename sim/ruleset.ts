@@ -207,6 +207,12 @@ export interface CadenceTicks {
   siege: number;
 }
 
+/** A per-attacker-type damage bonus vs a set of target machine types (`RoleDamageBonus`, "role counter"). */
+export interface RoleDamageBonus {
+  vs: MachineTypeId[];
+  mult: number; // bp — additive (5000 = +50%)
+}
+
 /** Air-combat modifiers (`AirModifiers`, bp). */
 export interface AirModifiers {
   aaAccBonus: number;
@@ -246,6 +252,8 @@ export interface Ruleset {
   cadenceTicks: CadenceTicks;
   airMods: AirModifiers;
   globals: GlobalConstants;
+  /** Per-attacker-type role-counter bonuses; omitted when empty. */
+  roleDamageBonuses?: Record<string, RoleDamageBonus>;
 }
 
 // --- Derived output --------------------------------------------------------

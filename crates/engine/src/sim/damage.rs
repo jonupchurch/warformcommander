@@ -6,7 +6,7 @@
 
 use crate::fixed::{Bp, Fixed, BP_ONE};
 use crate::model::ruleset::Ruleset;
-use crate::model::types::{DamageFamily, DamageType, ReachTag, ZoneId};
+use crate::model::types::{DamageFamily, DamageType, MachineTypeId, ReachTag, ZoneId};
 use crate::replay::{DamageLayer, TickEvent, UnitRef};
 use crate::rng::Rng;
 
@@ -29,6 +29,18 @@ fn profile(att: &Combatant) -> AttackProfile {
     }
 }
 
+/// The attacker's role-counter damage multiplier vs a `target` type — `BP_ONE` when none applies.
+/// Lets a machine class hit specific target types harder (e.g. light tanks vs the fragile backline);
+/// the bonus set is a ruleset table, so it is balance-tunable without an engine change.
+fn role_mult(ruleset: &Ruleset, attacker: MachineTypeId, target: MachineTypeId) -> Bp {
+    ruleset
+        .role_damage_bonuses
+        .get(&attacker)
+        .filter(|rb| rb.vs.contains(&target))
+        .map(|rb| BP_ONE + rb.mult)
+        .unwrap_or(BP_ONE)
+}
+
 /// Resolve one attacker's shot against `target_idx`, mutating the target(s) and pushing events.
 /// Consumes RNG in a fixed order regardless of the miss/hit branch structure (still deterministic).
 pub(crate) fn resolve_attack(
@@ -43,6 +55,10 @@ pub(crate) fn resolve_attack(
     let prof = profile(&combatants[att_idx]);
     let g = &ruleset.globals;
     let target_air = combatants[target_idx].zone == ZoneId::Air;
+    // Attacker/target classes drive the "role counter" bonus (e.g. light tanks vs the backline),
+    // applied per target at impact so a splash into a different type is scaled by *its* type.
+    let att_type = combatants[att_idx].type_id;
+    let target_type = combatants[target_idx].type_id;
 
     // --- Hit chance: accuracy − evasion, with off-domain modifiers, clamped. ---
     // `domain_mult` scales damage for a weapon firing outside its element: AA vs air gets the bonus;
@@ -91,10 +107,10 @@ pub(crate) fn resolve_attack(
     d0 = d0.mul_bp(domain_mult); // BP_ONE for ordinary same-domain fire
     d0 = d0.mul_bp(BP_ONE + variance);
 
-    // --- Primary hit: shields then hull. ---
+    // --- Primary hit: shields then hull (role-counter bonus applied vs the primary target's type). ---
     let (sh, hu, died) = apply_damage(
         &mut combatants[target_idx],
-        d0,
+        d0.mul_bp(role_mult(ruleset, att_type, target_type)),
         prof.damage_type,
         prof.penetration,
         ruleset,
@@ -124,7 +140,7 @@ pub(crate) fn resolve_attack(
             .collect();
         for j in splash_targets {
             // Blast Plating and friends reduce splash of a matching damage type taken.
-            let mut sd0 = splash_d0;
+            let mut sd0 = splash_d0.mul_bp(role_mult(ruleset, att_type, combatants[j].type_id));
             if let Some(m) = combatants[j].stats.special_mitigation {
                 if m.against == prof.damage_type {
                     sd0 = sd0.mul_bp(m.splash_taken_mult);
@@ -278,6 +294,42 @@ mod counterweb_tests {
     use crate::model::types::DamageType;
 
     const BIG_HULL: Fixed = Fixed(2_000_000); // 2000 units — effectively unkillable for shield tests
+
+    /// The `role_damage_bonus` table multiplies an attacker class's damage only vs the listed target
+    /// types (a "role counter" — e.g. light tanks vs the backline), and only for the listed attacker.
+    #[test]
+    fn role_bonus_applies_only_to_listed_attacker_and_targets() {
+        use super::role_mult;
+        use crate::fixed::BP_ONE;
+        use crate::model::types::{MachineTypeId, RoleDamageBonus};
+
+        let mut rs = seed_ruleset();
+        rs.role_damage_bonuses.insert(
+            MachineTypeId::LightTank,
+            RoleDamageBonus {
+                vs: vec![MachineTypeId::Artillery, MachineTypeId::RearSupport],
+                mult: 5_000, // +50%
+            },
+        );
+        // Light tank vs a listed backline type → +50%; vs an unlisted type → nothing.
+        assert_eq!(
+            role_mult(&rs, MachineTypeId::LightTank, MachineTypeId::Artillery),
+            BP_ONE + 5_000
+        );
+        assert_eq!(
+            role_mult(&rs, MachineTypeId::LightTank, MachineTypeId::RearSupport),
+            BP_ONE + 5_000
+        );
+        assert_eq!(
+            role_mult(&rs, MachineTypeId::LightTank, MachineTypeId::HeavyTank),
+            BP_ONE
+        );
+        // A different attacker (no table entry) → no bonus.
+        assert_eq!(
+            role_mult(&rs, MachineTypeId::HeavyTank, MachineTypeId::Artillery),
+            BP_ONE
+        );
+    }
 
     /// Shots to strip `shield0` with a `d0`-per-hit weapon of `dtype` (no penetration, no armor).
     fn shots_to_strip_shield(rs: &Ruleset, dtype: DamageType, d0: Fixed, shield0: Fixed) -> u32 {

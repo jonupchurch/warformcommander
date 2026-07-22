@@ -7,7 +7,7 @@
 use engine::content::stock_instance;
 use engine::model::army::{Army, MachineInstance};
 use engine::model::ruleset::Ruleset;
-use engine::model::types::{EquipmentId, MachineTypeId, ZoneId};
+use engine::model::types::{EquipmentId, MachineTypeId, TargetRow, ZoneId};
 
 /// A labeled army builder — a candidate combo / field opponent (data-model MatchupSpec source).
 #[derive(Clone, Copy)]
@@ -27,19 +27,42 @@ fn with_weapon(mut m: MachineInstance, weapon: &str) -> MachineInstance {
     m
 }
 
+/// Override a machine's Target Row dial (e.g. `LastReachable` for a backline raider).
+fn with_target_row(mut m: MachineInstance, row: TargetRow) -> MachineInstance {
+    m.dials.target_row = row;
+    m
+}
+
 // ---------------------------------------------------------------------------
 // The reference field / candidate pool (a bounded, counter-web-spanning set)
 // ---------------------------------------------------------------------------
 
 /// Heavy + light kinetic tanks — the armored spearhead.
+///
+/// The two light tanks become **backline raiders** whenever the loaded ruleset carries the raider
+/// weapon (`SkirmishCannon`, AnyGround reach): they mount it and switch to `LastReachable` so they
+/// snipe the enemy rear (artillery / support), where the LightTank role-damage bonus applies. When
+/// the weapon is absent (e.g. the canonical seed) they fall back to stock light tanks, so the
+/// archetype stays legal against `seed_ruleset()` and the A/B is a pure ruleset swap.
 pub fn kinetic_tanks(rs: &Ruleset) -> Army {
+    let light = |v: &str, i: u8| -> MachineInstance {
+        let m = place(rs, MachineTypeId::LightTank, v, ZoneId::Middle, i);
+        if rs
+            .equipment
+            .contains_key(&EquipmentId::new("SkirmishCannon"))
+        {
+            with_target_row(with_weapon(m, "SkirmishCannon"), TargetRow::LastReachable)
+        } else {
+            m
+        }
+    };
     Army {
         machines: vec![
             place(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 0),
             place(rs, MachineTypeId::HeavyTank, "Cavalier", ZoneId::Front, 1),
             place(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 2),
-            place(rs, MachineTypeId::LightTank, "Scout", ZoneId::Middle, 3),
-            place(rs, MachineTypeId::LightTank, "Hunter", ZoneId::Middle, 4),
+            light("Scout", 3),
+            light("Hunter", 4),
         ],
     }
 }

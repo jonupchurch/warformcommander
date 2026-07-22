@@ -87,6 +87,7 @@ pub fn seed_ruleset() -> Ruleset {
             hit_clamp_min: 500,      // 5%
             hit_clamp_max: 9_500,    // 95%
         },
+        role_damage_bonuses: BTreeMap::new(),
     }
 }
 
