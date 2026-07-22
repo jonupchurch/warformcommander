@@ -226,7 +226,8 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
 
   const nativeMatch = mtype.nativeFamily === family;
   const damageType = asDamageType(family) ?? base.damageType;
-  const canTargetAir = mtype.airCapableByDefault || caps.has('TargetAir') || reach === 'Air';
+  const canTargetAir =
+    mtype.airCapableByDefault || caps.has('TargetAir') || caps.has('AntiAir') || reach === 'Air';
   const planBSlots = 1 + (caps.has('ExtraPlanBSlot') ? 1 : 0);
 
   return {

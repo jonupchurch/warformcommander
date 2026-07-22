@@ -6,7 +6,7 @@
 
 use crate::fixed::{Bp, Fixed, BP_ONE};
 use crate::model::ruleset::Ruleset;
-use crate::model::types::{DamageFamily, DamageType, MachineTypeId, ReachTag, ZoneId};
+use crate::model::types::{Capability, DamageFamily, DamageType, MachineTypeId, ReachTag, ZoneId};
 use crate::replay::{DamageLayer, TickEvent, UnitRef};
 use crate::rng::Rng;
 
@@ -25,6 +25,7 @@ fn profile(att: &Combatant) -> AttackProfile {
         penetration: att.stats.penetration,
         splash: att.stats.splash,
         reach: att.stats.reach,
+        anti_air: att.stats.capabilities.contains(&Capability::AntiAir),
         energy_mult: behavior::energy_damage_mult(att.dials.energy),
     }
 }
@@ -71,6 +72,10 @@ pub(crate) fn resolve_attack(
         if prof.reach == ReachTag::Air {
             acc += ruleset.air_mods.aa_acc_bonus; // AA bonus
             domain_mult = ruleset.air_mods.aa_dmg_mult;
+        } else if prof.anti_air {
+            // Flak platform: engages air at the tunable flak rate, accurate (no plink penalty).
+            acc += ruleset.air_mods.aa_acc_bonus;
+            domain_mult = ruleset.air_mods.flak_dmg_mult;
         } else {
             acc += ruleset.air_mods.plink_acc_penalty; // direct-fire "plink" (incl. dogfights)
             domain_mult = ruleset.air_mods.plink_dmg_mult;

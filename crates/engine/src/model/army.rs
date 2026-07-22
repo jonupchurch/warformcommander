@@ -281,6 +281,7 @@ pub fn derive_effective_stats(
     let damage_type = family.as_damage_type().unwrap_or(base.damage_type);
     let can_target_air = mtype.air_capable_by_default
         || caps.contains(&Capability::TargetAir)
+        || caps.contains(&Capability::AntiAir)
         || reach == ReachTag::Air;
     let plan_b_slots = 1 + u8::from(caps.contains(&Capability::ExtraPlanBSlot));
 
@@ -562,6 +563,7 @@ mod tests {
                 plink_acc_penalty: -2_500,
                 plink_dmg_mult: 5_000,
                 sam_ground_dmg_mult: 5_000,
+                flak_dmg_mult: 10_000,
             },
             globals: GlobalConstants {
                 tick_rate: 10,

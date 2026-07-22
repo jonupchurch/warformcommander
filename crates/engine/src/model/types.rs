@@ -479,6 +479,10 @@ pub enum Capability {
     ExtendReach,
     /// Lets a non-AA weapon target Air (Sensor Suite).
     TargetAir,
+    /// Flak targeting (Flak Battery): lets a ground unit engage Air **and** hit it at the tunable
+    /// `flak_dmg_mult` rate instead of the plink penalty — a real anti-air platform, not a spotter.
+    /// Added last to keep the enum's `Ord`/serialization stable for the pre-existing variants.
+    AntiAir,
 }
 
 // ---------------------------------------------------------------------------
