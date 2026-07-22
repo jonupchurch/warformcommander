@@ -32,8 +32,8 @@ use crate::rng::Rng;
 /// only the fields the renderer needs are snapshotted into the replay.
 pub(crate) struct Combatant {
     pub unit: UnitRef,
-    /// Carried for the replay's `unitOrder` dictionary (populated in US5/T048); not read by the sim.
-    #[allow(dead_code)]
+    /// The machine class — read to exclude helis from heal targeting (`resolve_support`) and carried
+    /// for the replay's `unitOrder` dictionary (populated in US5/T048).
     pub type_id: MachineTypeId,
     #[allow(dead_code)]
     pub variant_id: VariantId,
@@ -320,6 +320,11 @@ fn resolve_support(combatants: &mut [Combatant], events: &mut Vec<TickEvent>) {
                 continue;
             }
             if a.hull >= a.max_hull || !zones.contains(&a.zone) {
+                continue;
+            }
+            // Helis are never a heal target — a ground medic can't service an airframe mid-sortie.
+            // Air units fight and fall on their own; support exists to hold the ground line.
+            if a.type_id == MachineTypeId::AttackHeli {
                 continue;
             }
             best = match best {
