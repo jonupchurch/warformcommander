@@ -234,6 +234,38 @@ export interface AirModifiers {
   aaFocusPerAir?: number;
 }
 
+/** One energy mode's two-sided trade (`EnergyProfile`, bp; `10000` = ×1.0). */
+export interface EnergyProfile {
+  /** Outgoing damage multiplier for a machine firing in this mode. */
+  damageDealt: number;
+  /** Incoming damage multiplier for a machine *being hit* while in this mode. */
+  damageTaken: number;
+}
+
+/** The energy dial's balance table (`EnergyModes`) — one profile per mode. */
+export interface EnergyModes {
+  overdrive: EnergyProfile;
+  offense: EnergyProfile;
+  balanced: EnergyProfile;
+  adaptive: EnergyProfile;
+  defense: EnergyProfile;
+  fortify: EnergyProfile;
+}
+
+/**
+ * The engine's `EnergyModes::default()`, mirrored for display when a stored ruleset omits the field
+ * (it is `skip_serializing_if` at the default, so rows saved before it existed carry no `energyModes`
+ * and the engine fills these in). Keep in step with `crates/engine/src/model/ruleset.rs`.
+ */
+export const DEFAULT_ENERGY_MODES: EnergyModes = {
+  overdrive: { damageDealt: 12000, damageTaken: 11000 },
+  offense: { damageDealt: 11000, damageTaken: 10500 },
+  balanced: { damageDealt: 10000, damageTaken: 10000 },
+  adaptive: { damageDealt: 10000, damageTaken: 10000 },
+  defense: { damageDealt: 9000, damageTaken: 9000 },
+  fortify: { damageDealt: 8500, damageTaken: 8000 },
+};
+
 /** Global combat coefficients + tick budget (`GlobalConstants`). The derivation reads `splashCap`. */
 export interface GlobalConstants {
   tickRate: number;
@@ -264,6 +296,8 @@ export interface Ruleset {
   globals: GlobalConstants;
   /** Per-attacker-type role-counter bonuses; omitted when empty. */
   roleDamageBonuses?: Record<string, RoleDamageBonus>;
+  /** The energy dial's dealt/taken table; omitted at the default ({@link DEFAULT_ENERGY_MODES}). */
+  energyModes?: EnergyModes;
 }
 
 // --- Derived output --------------------------------------------------------

@@ -6,7 +6,8 @@
 //! never on firing order. We enforce this by recomputing active dials from the base each tick:
 //! apply Slot-2's latched value first, then Slot-1's, so Slot-1 always wins a shared dial.
 
-use crate::fixed::{Bp, BP_ONE};
+use crate::fixed::Bp;
+use crate::model::ruleset::Ruleset;
 use crate::model::types::{
     BehaviorDials, DialValue, EnergyMode, MovementMode, PlanBSlot, TriggerCondition, ZoneId,
 };
@@ -14,15 +15,19 @@ use crate::replay::TickEvent;
 
 use super::Combatant;
 
-/// Outgoing-damage multiplier for an energy mode (bp). A modest first-pass; the balancer tunes.
-pub(crate) fn energy_damage_mult(energy: EnergyMode) -> Bp {
-    match energy {
-        EnergyMode::Overdrive => 12_000, // ×1.20
-        EnergyMode::Offense => 11_000,   // ×1.10
-        EnergyMode::Balanced | EnergyMode::Adaptive => BP_ONE,
-        EnergyMode::Defense => 9_000, // ×0.90 (trades offense for the defensive posture)
-        EnergyMode::Fortify => 8_500, // ×0.85
-    }
+/// Outgoing-damage multiplier for an energy mode (bp), from the ruleset's tunable table.
+pub(crate) fn energy_damage_mult(energy: EnergyMode, ruleset: &Ruleset) -> Bp {
+    ruleset.energy_modes.profile(energy).damage_dealt
+}
+
+/// **Incoming**-damage multiplier for a machine *being hit* while in an energy mode (bp).
+///
+/// This is the other half of the dial's trade. Without it the defensive modes only ever subtracted
+/// damage — Fortify cost 15% offense and returned nothing — so Overdrive strictly dominated every
+/// other option and the Garage's "every choice is a trade-off, never a strict upgrade" was untrue for
+/// the energy dial. Reading the *target's* mode here makes the posture mean something.
+pub(crate) fn energy_damage_taken_mult(energy: EnergyMode, ruleset: &Ruleset) -> Bp {
+    ruleset.energy_modes.profile(energy).damage_taken
 }
 
 /// Latch Plan-B triggers and resolve movement for every living combatant this tick.

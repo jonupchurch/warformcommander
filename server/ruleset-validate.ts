@@ -124,6 +124,24 @@ export function validateRuleset(data: unknown): RulesetValidation {
     return fail("airMods.aaFocusPerAir must be a whole number ≥ 1");
   }
 
+  // energyModes is optional (omitted at the default). When present every mode needs both halves as
+  // non-negative finite bp — a negative multiplier would invert damage.
+  const em = (rs as unknown as Record<string, unknown>).energyModes;
+  if (em !== undefined) {
+    if (typeof em !== "object" || em === null) return fail("energyModes must be an object");
+    const modes = em as Record<string, { damageDealt?: unknown; damageTaken?: unknown } | undefined>;
+    for (const mode of ["overdrive", "offense", "balanced", "adaptive", "defense", "fortify"]) {
+      const p = modes[mode];
+      if (typeof p !== "object" || p === null) return fail(`energyModes.${mode} is required`);
+      for (const half of ["damageDealt", "damageTaken"] as const) {
+        const v = p[half];
+        if (typeof v !== "number" || !Number.isFinite(v) || v < 0) {
+          return fail(`energyModes.${mode}.${half} must be a non-negative number`);
+        }
+      }
+    }
+  }
+
   // 6) Per-variant base stats — the bp fields are fractions/probabilities in [0,1] (0..10000 bp),
   //    hull positive, damage non-negative. Catches an out-of-[0,1] probability or a bad splash.
   const BP_FIELDS = ["armorPct", "accuracy", "critChance", "splash", "penetration", "evasion"] as const;

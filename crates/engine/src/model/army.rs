@@ -373,7 +373,7 @@ fn lookup_utility<'r>(
 mod tests {
     use super::*;
     use crate::model::ruleset::{
-        AirModifiers, CadenceTicks, DamageMatrix, GlobalConstants, LayerMultipliers,
+        AirModifiers, CadenceTicks, DamageMatrix, EnergyModes, GlobalConstants, LayerMultipliers,
     };
     use crate::model::types::{
         BaseStats, BehaviorDials, ChassisVariant, DefenseSpec, EnergyMode, EquipmentModule,
@@ -579,6 +579,7 @@ mod tests {
                 hit_clamp_max: 9_500,
             },
             role_damage_bonuses: BTreeMap::new(),
+            energy_modes: EnergyModes::default(),
         }
     }
 

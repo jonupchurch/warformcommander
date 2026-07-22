@@ -117,7 +117,7 @@ export function DialEditor() {
  * the explanations sit below every control they describe.
  */
 export function DialBreakdown() {
-  const { session } = useGarageEditor();
+  const { session, ruleset } = useGarageEditor();
   const slot = session.selection.selectedSlot;
   const machine = slot === null ? null : session.draft.machines[slot];
   if (machine === null) return null;
@@ -128,7 +128,7 @@ export function DialBreakdown() {
       title="What these orders do"
       items={DIAL_SECTIONS.map(({ dial, label }) => ({
         slotLabel: label.toUpperCase(),
-        ex: explainDial(dial, machine.dials[dial]),
+        ex: explainDial(dial, machine.dials[dial], ruleset),
       }))}
     />
   );

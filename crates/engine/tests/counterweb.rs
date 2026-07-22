@@ -6,10 +6,10 @@
 
 use engine::content::{seed_ruleset, stock_instance};
 use engine::model::army::Army;
-use engine::model::ruleset::Ruleset;
+use engine::model::ruleset::{EnergyModes, EnergyProfile, Ruleset};
 use engine::model::types::{
-    AuraEffect, AuraKind, AuraScope, Capability, EquipmentId, EquipmentModule, EquipmentSpec,
-    MachineTypeId, UtilitySpec, VariantId, ZoneId,
+    AuraEffect, AuraKind, AuraScope, Capability, EnergyMode, EquipmentId, EquipmentModule,
+    EquipmentSpec, MachineTypeId, UtilitySpec, VariantId, ZoneId,
 };
 use engine::replay::{
     Adaptation, Fate, MatchConfig, Replay, Side, SupportKind, TickEvent, UnitRef,
@@ -303,6 +303,89 @@ fn one_aircraft_cannot_monopolise_the_air_defence_network() {
     assert!(
         capped_bombarded,
         "launchers beyond the air budget must bombard ground, not idle on a covered target"
+    );
+}
+
+/// The energy dial is a **two-sided** trade. `Fortify` gives up 15% of its damage; before the
+/// defensive half existed it got nothing back, so every defensive mode was strictly worse than
+/// Balanced and `Overdrive` was free upside — which contradicts the design rule that a choice is
+/// never a strict upgrade.
+///
+/// Two identical armies, one fighting in Fortify. Under the wired table the mitigation is worth more
+/// than the forfeited damage; with the taken-multipliers flattened to ×1.0 (the old behaviour) the
+/// same army does strictly worse. Also checks the table is honoured as *data*, not hard-coded.
+#[test]
+fn defensive_energy_modes_trade_offense_for_survivability() {
+    let base = seed_ruleset();
+
+    let army = |energy: EnergyMode| Army {
+        machines: (0..5)
+            .map(|i| {
+                let zone = if i < 3 { ZoneId::Front } else { ZoneId::Middle };
+                let mut m = stock_instance(&base, MachineTypeId::HeavyTank, "Grizzly", zone, i);
+                m.dials.energy = energy;
+                m
+            })
+            .collect(),
+    };
+
+    // Total hull remaining across side B, as a percentage of full — how well the posture held up.
+    let hull_pct_b = |out: &BattleOutput| -> u32 {
+        (0..5u8)
+            .map(|i| match fate_of(out, Side::B, i) {
+                Fate::SurvivedWithHullPct(p) => p as u32,
+                Fate::DestroyedAtTick(_) => 0,
+            })
+            .sum()
+    };
+
+    // The old behaviour: every mode takes ×1.0, so Fortify only ever subtracted its own damage.
+    let mut flat = base.clone();
+    let flat_profile = |dealt| EnergyProfile {
+        damage_dealt: dealt,
+        damage_taken: 10_000,
+    };
+    flat.energy_modes = EnergyModes {
+        overdrive: flat_profile(12_000),
+        offense: flat_profile(11_000),
+        balanced: flat_profile(10_000),
+        adaptive: flat_profile(10_000),
+        defense: flat_profile(9_000),
+        fortify: flat_profile(8_500),
+    };
+
+    let wired = run(
+        &base,
+        army(EnergyMode::Balanced),
+        army(EnergyMode::Fortify),
+        0x5A66,
+    );
+    let old = run(
+        &flat,
+        army(EnergyMode::Balanced),
+        army(EnergyMode::Fortify),
+        0x5A66,
+    );
+
+    assert!(
+        hull_pct_b(&wired) > hull_pct_b(&old),
+        "Fortify must buy survivability: wired={} old={}",
+        hull_pct_b(&wired),
+        hull_pct_b(&old)
+    );
+
+    // And the table is data: deepening Fortify's mitigation must help it further still.
+    let mut tougher = base.clone();
+    tougher.energy_modes.fortify.damage_taken = 5_000; // ×0.50
+    let out_tough = run(
+        &tougher,
+        army(EnergyMode::Balanced),
+        army(EnergyMode::Fortify),
+        0x5A66,
+    );
+    assert!(
+        hull_pct_b(&out_tough) > hull_pct_b(&wired),
+        "the energy table must be read from the ruleset, not hard-coded"
     );
 }
 

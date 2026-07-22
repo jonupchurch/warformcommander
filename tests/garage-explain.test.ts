@@ -18,6 +18,7 @@ import {
 } from '@/lib/garage/explain';
 import type { DefenseModule, UtilityModule, WeaponModule } from '@/lib/garage/loadout-options';
 import type { BehaviorDials } from '@/sim/model';
+import { DEFAULT_ENERGY_MODES } from '@/sim/ruleset';
 import type { Ruleset } from '@/sim/ruleset';
 
 import { defaultRuleset } from './ruleset-fixture';
@@ -159,31 +160,59 @@ describe('utilities', () => {
 });
 
 describe('dials', () => {
-  it('shows the energy multiplier and its direction', () => {
-    const over = explainDial('energy', 'Overdrive');
-    expect(values(over, 'Outgoing damage')[0]).toBe('×1.20');
-    expect(over.effects[0]?.tone).toBe('gain');
-
-    const fort = explainDial('energy', 'Fortify');
-    expect(values(fort, 'Outgoing damage')[0]).toBe('×0.85');
-    expect(fort.effects[0]?.tone).toBe('cost');
+  it('always shows BOTH halves of the energy trade', () => {
+    // Showing only the favourable side would misrepresent the choice.
+    for (const mode of ['Overdrive', 'Offense', 'Balanced', 'Defense', 'Fortify']) {
+      const ex = explainDial('energy', mode, rs);
+      expect(values(ex, 'Damage dealt'), `${mode} dealt`).toHaveLength(1);
+      expect(values(ex, 'Damage taken'), `${mode} taken`).toHaveLength(1);
+    }
   });
 
-  it('warns that the defensive energy modes give nothing back', () => {
-    expect(explainDial('energy', 'Defense').caveat).toMatch(/no defensive benefit/);
+  it('tones each half by whether it helps or hurts', () => {
+    const over = explainDial('energy', 'Overdrive', rs);
+    expect(values(over, 'Damage dealt')[0]).toBe('×1.20');
+    expect(values(over, 'Damage taken')[0]).toBe('×1.10');
+    expect(over.effects.find((e) => e.label === 'Damage dealt')?.tone).toBe('gain');
+    expect(over.effects.find((e) => e.label === 'Damage taken')?.tone).toBe('cost');
+
+    const fort = explainDial('energy', 'Fortify', rs);
+    expect(values(fort, 'Damage dealt')[0]).toBe('×0.85');
+    expect(values(fort, 'Damage taken')[0]).toBe('×0.80');
+    expect(fort.effects.find((e) => e.label === 'Damage dealt')?.tone).toBe('cost');
+    expect(fort.effects.find((e) => e.label === 'Damage taken')?.tone).toBe('gain');
+  });
+
+  it('reads the energy table from the ruleset when it carries one', () => {
+    const tuned: Ruleset = {
+      ...rs,
+      energyModes: {
+        ...DEFAULT_ENERGY_MODES,
+        fortify: { damageDealt: 7000, damageTaken: 5000 },
+      },
+    };
+    const ex = explainDial('energy', 'Fortify', tuned);
+    expect(values(ex, 'Damage dealt')[0]).toBe('×0.70');
+    expect(values(ex, 'Damage taken')[0]).toBe('×0.50');
+  });
+
+  it('no longer claims the defensive modes give nothing back', () => {
+    for (const mode of ['Defense', 'Fortify']) {
+      expect(explainDial('energy', mode, rs).caveat).toBeUndefined();
+    }
   });
 
   it('warns that stance is not wired, for every option', () => {
     for (const stance of ['Aggressive', 'Neutral', 'Opportunist', 'Triage']) {
-      expect(explainDial('stance', stance).caveat).toMatch(/No effect yet/);
+      expect(explainDial('stance', stance, rs).caveat).toMatch(/No effect yet/);
     }
   });
 
   it('warns that the unimplemented movement modes do not move', () => {
     for (const mode of ['Kite', 'Reposition', 'Escort']) {
-      expect(explainDial('movement', mode).caveat).toMatch(/No effect yet/);
+      expect(explainDial('movement', mode, rs).caveat).toMatch(/No effect yet/);
     }
-    expect(explainDial('movement', 'Advance').caveat).toBeUndefined();
+    expect(explainDial('movement', 'Advance', rs).caveat).toBeUndefined();
   });
 
   it('describes every option offered by every dial', () => {
@@ -200,11 +229,12 @@ describe('dials', () => {
         'TargetAir',
         'SmartCounter',
       ],
+      energy: ['Overdrive', 'Offense', 'Balanced', 'Adaptive', 'Defense', 'Fortify'],
       movement: ['Hold', 'Advance', 'FallBack', 'Kite', 'Reposition', 'Escort'],
     };
     for (const [dial, opts] of Object.entries(byDial)) {
       for (const opt of opts) {
-        const ex = explainDial(dial as keyof BehaviorDials, opt);
+        const ex = explainDial(dial as keyof BehaviorDials, opt, rs);
         expect(ex.blurb, `${dial}=${opt} needs a blurb`).not.toBe('');
       }
     }

@@ -18,8 +18,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::fixed::Bp;
 use crate::model::types::{
-    BaseStats, CadenceTier, ChassisVariant, DamageType, EquipmentId, EquipmentModule, MachineType,
-    MachineTypeId, RoleDamageBonus, VariantId,
+    BaseStats, CadenceTier, ChassisVariant, DamageType, EnergyMode, EquipmentId, EquipmentModule,
+    MachineType, MachineTypeId, RoleDamageBonus, VariantId,
 };
 
 /// A stable, portable digest of a [`Ruleset`] (BLAKE3 hex). Stamped into each Replay/Result
@@ -53,6 +53,13 @@ pub struct Ruleset {
     /// ruleset without it hashes identically to one before the field existed (hash-stable).
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub role_damage_bonuses: BTreeMap<MachineTypeId, RoleDamageBonus>,
+    /// The energy dial's two-sided trade — what each mode does to damage **dealt** and damage
+    /// **taken**. Previously the dealt side was hard-coded in `sim::behavior` and the taken side did
+    /// not exist, which made the defensive modes strictly worse than Balanced and the offensive ones
+    /// free upside. Both halves live here so the dial is tunable without an engine deploy, like every
+    /// other balance number. Omitted from serialization at the default (hash-stable).
+    #[serde(default, skip_serializing_if = "EnergyModes::is_default")]
+    pub energy_modes: EnergyModes,
 }
 
 impl Ruleset {
@@ -131,6 +138,84 @@ impl CadenceTicks {
             CadenceTier::Slow => self.slow,
             CadenceTier::Siege => self.siege,
         }
+    }
+}
+
+/// One energy mode's two-sided trade (bp; `10_000` = ×1.0). A mode that raises `damage_dealt`
+/// should raise `damage_taken` too, and vice versa — the Garage's promise is "every choice is a
+/// trade-off, never a strict upgrade", and a free damage bonus breaks it.
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EnergyProfile {
+    /// Outgoing damage multiplier for a machine firing in this mode.
+    pub damage_dealt: Bp,
+    /// Incoming damage multiplier for a machine *being hit* while in this mode.
+    pub damage_taken: Bp,
+}
+
+/// The energy dial's balance table — one [`EnergyProfile`] per mode.
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EnergyModes {
+    pub overdrive: EnergyProfile,
+    pub offense: EnergyProfile,
+    pub balanced: EnergyProfile,
+    pub adaptive: EnergyProfile,
+    pub defense: EnergyProfile,
+    pub fortify: EnergyProfile,
+}
+
+impl Default for EnergyModes {
+    /// The dealt values are the engine's historical hard-coded ones (behaviour-preserving on the
+    /// offensive side); the taken values are the defensive half that was always implied by the dial's
+    /// naming — "trades offense for the defensive posture" — but never built.
+    fn default() -> Self {
+        EnergyModes {
+            overdrive: EnergyProfile {
+                damage_dealt: 12_000,
+                damage_taken: 11_000,
+            },
+            offense: EnergyProfile {
+                damage_dealt: 11_000,
+                damage_taken: 10_500,
+            },
+            balanced: EnergyProfile {
+                damage_dealt: 10_000,
+                damage_taken: 10_000,
+            },
+            adaptive: EnergyProfile {
+                damage_dealt: 10_000,
+                damage_taken: 10_000,
+            },
+            defense: EnergyProfile {
+                damage_dealt: 9_000,
+                damage_taken: 9_000,
+            },
+            fortify: EnergyProfile {
+                damage_dealt: 8_500,
+                damage_taken: 8_000,
+            },
+        }
+    }
+}
+
+impl EnergyModes {
+    /// The profile for a mode.
+    pub fn profile(&self, mode: EnergyMode) -> EnergyProfile {
+        match mode {
+            EnergyMode::Overdrive => self.overdrive,
+            EnergyMode::Offense => self.offense,
+            EnergyMode::Balanced => self.balanced,
+            EnergyMode::Adaptive => self.adaptive,
+            EnergyMode::Defense => self.defense,
+            EnergyMode::Fortify => self.fortify,
+        }
+    }
+
+    /// Serialization skip at the default (hash stability — a ruleset saved before this field existed
+    /// hashes identically to one carrying the defaults).
+    pub fn is_default(&self) -> bool {
+        *self == EnergyModes::default()
     }
 }
 
@@ -394,6 +479,7 @@ mod tests {
                 hit_clamp_max: 9_500,
             },
             role_damage_bonuses: BTreeMap::new(),
+            energy_modes: EnergyModes::default(),
         }
     }
 }
