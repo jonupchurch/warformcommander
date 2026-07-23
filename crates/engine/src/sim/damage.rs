@@ -14,6 +14,21 @@ use crate::rng::Rng;
 
 use super::{AttackProfile, Combatant};
 
+/// Paint on-hit rider (v3 US3, design §13.2): extra incoming damage a **painted** target takes, and
+/// how long the mark lasts. Start-values held as consts here (like the targeting armour threshold);
+/// they move to the ruleset in the balance pass.
+const PAINT_TAKEN_BONUS: Bp = 2_500; // +25% damage taken while painted
+const PAINT_DURATION_TICKS: u16 = 30;
+
+/// The incoming-damage multiplier from an active Paint mark (`BP_ONE` when the target is not painted).
+fn paint_mult(target: &Combatant, tick: u16) -> Bp {
+    if target.painted_until > tick {
+        BP_ONE + PAINT_TAKEN_BONUS
+    } else {
+        BP_ONE
+    }
+}
+
 /// Product of the `(BP_ONE + magnitude)` multipliers from every **living** same-side machine whose
 /// passive aura matches one of `kinds` and whose scope reaches `subject_idx`'s zone (v3 US5). Because
 /// only living sources count, an aura vanishes the tick its source dies — so a Commander's army-wide
@@ -134,6 +149,11 @@ pub(crate) fn resolve_attack(
     // adjusts its outgoing output + accuracy, each target's stance its incoming damage + evasion.
     let att_stance = combatants[att_idx].dials.stance;
     let sm = &ruleset.stance_mods;
+    // Whether this attacker carries the Paint on-hit rider (v3 US3) — captured before any mutation.
+    let att_paints = combatants[att_idx]
+        .stats
+        .capabilities
+        .contains(&Capability::OnHitPaint);
 
     // --- Hit chance: accuracy − evasion, with off-domain modifiers, clamped. ---
     // `domain_mult` scales damage for a weapon firing outside its element: AA vs air gets the bonus;
@@ -208,6 +228,8 @@ pub(crate) fn resolve_attack(
     let taken = sm.taken_mult(combatants[target_idx].dials.stance);
     // A living protector/Commander projection on the target's side reduces the damage it takes (US5).
     let taken_aura = aura_mult(combatants, target_idx, &[AuraKind::DamageTaken]);
+    // A Paint mark from earlier fire raises this target's incoming damage (US3); read before we re-mark.
+    let paint = paint_mult(&combatants[target_idx], tick);
     // Reactive plating reads the target's absorbed history *before* this hit, then the hull damage this
     // hit deals is folded back into that history below.
     let reactive = reactive_mult(&combatants[target_idx], prof.damage_type, ruleset);
@@ -216,6 +238,7 @@ pub(crate) fn resolve_attack(
         d0.mul_bp(role_mult(ruleset, att_type, target_type))
             .mul_bp(taken)
             .mul_bp(taken_aura)
+            .mul_bp(paint)
             .mul_bp(reactive),
         prof.damage_type,
         prof.penetration,
@@ -224,6 +247,11 @@ pub(crate) fn resolve_attack(
     );
     absorb_family(&mut combatants[target_idx], prof.damage_type, hu);
     emit_hit(events, prof.actor, target_ref, sh, ab, hu, crit, false);
+    // Paint the aimed target after this hit lands (so the painting shot itself doesn't self-benefit);
+    // the mark amplifies further fire on it until it expires.
+    if att_paints && !died {
+        combatants[target_idx].painted_until = tick.saturating_add(PAINT_DURATION_TICKS);
+    }
     let mut dealt = sh.saturating_add(ab).saturating_add(hu);
     if died {
         kill(&mut combatants[target_idx], tick);
@@ -251,7 +279,8 @@ pub(crate) fn resolve_attack(
             let mut sd0 = splash_d0
                 .mul_bp(role_mult(ruleset, att_type, combatants[j].type_id))
                 .mul_bp(sm.taken_mult(combatants[j].dials.stance))
-                .mul_bp(aura_mult(combatants, j, &[AuraKind::DamageTaken]));
+                .mul_bp(aura_mult(combatants, j, &[AuraKind::DamageTaken]))
+                .mul_bp(paint_mult(&combatants[j], tick));
             if let Some(m) = combatants[j].stats.special_mitigation {
                 if m.against == prof.damage_type {
                     sd0 = sd0.mul_bp(m.splash_taken_mult);

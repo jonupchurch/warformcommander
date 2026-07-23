@@ -987,10 +987,11 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
     add(
         "ECMSuite",
         "ECM Suite",
-        // ECM lowers *attacker* accuracy at combat time (an aura we don't yet model); the seed
-        // stands in with a small self-evasion bump so it is a meaningful, legal utility.
+        // ECM sheds fire (v3 US3, design §12.4): −2 targeting draw drops the unit a couple of places in
+        // every enemy's priority queue. Distinct from a camo net (which is +evasion — *shot but missed*);
+        // ECM means *not picked* — countered by a dedicated class-filter hunter that ignores the offset.
         util_deltas(StatDeltas {
-            evasion: 500,
+            target_draw: -2,
             ..Default::default()
         }),
     );
@@ -1030,6 +1031,27 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
         EquipmentSpec::Utility(crate::model::types::UtilitySpec {
             stat_deltas: None,
             unlocks: vec![Capability::RocketPack],
+            cadence_shift: 0,
+        }),
+    );
+    // Decoy / Lure (v3 US3, Heavy Tank signature, design §12.4): +2 targeting draw — pull enemy fire to
+    // a durable front-line anchor so the fragile backline is screened (the matched opposite of ECM).
+    add(
+        "Decoy",
+        "Decoy Beacon",
+        util_deltas(StatDeltas {
+            target_draw: 2,
+            ..Default::default()
+        }),
+    );
+    // Spotter / Paint (v3 US3, Light Tank signature, design §13.2): this unit's landed hits mark the
+    // target so the army's further fire lands harder — a focus-fire multiplier (the Paint on-hit rider).
+    add(
+        "Spotter",
+        "Spotter Array",
+        EquipmentSpec::Utility(crate::model::types::UtilitySpec {
+            stat_deltas: None,
+            unlocks: vec![Capability::OnHitPaint],
             cadence_shift: 0,
         }),
     );

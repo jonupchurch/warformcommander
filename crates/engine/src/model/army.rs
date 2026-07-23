@@ -169,6 +169,7 @@ struct Accum {
     splash: Bp,
     penetration: Bp,
     move_delta: i32,
+    target_draw: i32,
     cadence: CadenceTier,
     reach: ReachTag,
 }
@@ -184,6 +185,7 @@ impl Accum {
         self.splash += d.splash;
         self.penetration += d.penetration;
         self.move_delta += d.move_speed as i32;
+        self.target_draw += d.target_draw as i32;
         if let Some(c) = d.cadence_tier {
             self.cadence = c;
         }
@@ -227,6 +229,7 @@ pub fn derive_effective_stats(
         splash: base.splash,
         penetration: base.penetration,
         move_delta: 0,
+        target_draw: 0, // equipment-only (Decoy/ECM); no chassis carries an innate draw offset
         cadence: base.cadence,
         reach: base.reach,
     };
@@ -340,7 +343,8 @@ pub fn derive_effective_stats(
         move_speed,
         evasion,
         threat: base.threat,
-        target_draw: 0, // US3 equipment (Decoy/ECM) will set this; 0 = no draw offset
+        // Clamped to the ±2-per-source design range even if several draw modules stack (start-value).
+        target_draw: acc.target_draw.clamp(i8::MIN as i32, i8::MAX as i32) as i8,
         support_power: base.support_power,
         support_range: base.support_range,
         special_mitigation,

@@ -243,6 +243,9 @@ pub struct StatDeltas {
     pub crit_chance: Bp,
     /// Additive move-speed delta (zone-transition steps), e.g. Drive Servos `+2`, a `-1` tradeoff.
     pub move_speed: i8,
+    /// Additive targeting-draw delta (v3 US3, design §12.4): **Decoy/Taunt +2** pulls enemy fire,
+    /// **ECM −2** sheds it. Feeds `EffectiveStats::target_draw`, read by the priority-score chain.
+    pub target_draw: i8,
     /// **Override** the cadence tier outright (a weapon's own tier), not a delta.
     pub cadence_tier: Option<CadenceTier>,
     /// **Override** the reach tag outright (a weapon's own reach), not a delta.
@@ -515,6 +518,10 @@ pub enum Capability {
     /// dedicated SAM keeps its whole-field reach advantage (FR-029). Added last to keep the enum's
     /// `Ord`/serialization stable; a re-seed introducing it requires the variant-aware engine first.
     RocketPack,
+    /// **Paint** on-hit rider (v3 US3, design §13.2, the Light Tank's Spotter signature): a landed hit
+    /// marks the target so it takes extra damage from further fire for a spell — a focus-fire
+    /// multiplier. Added last to keep the enum's `Ord`/serialization stable.
+    OnHitPaint,
 }
 
 // ---------------------------------------------------------------------------

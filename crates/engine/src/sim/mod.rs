@@ -62,6 +62,9 @@ pub(crate) struct Combatant {
     pub ticks_since_hit: u16,
     pub cooldown: u16,
     pub move_cooldown: u16,
+    /// Tick until which this machine is **painted** (v3 US3) — a Paint on-hit rider marked it, so it
+    /// takes extra damage from further fire until here. `0` = not painted (no tick 0 marking survives).
+    pub painted_until: u16,
     pub zone: ZoneId,
     /// The zone this machine was placed in (v3 US2). `FallBack` returns here after its duck; the field
     /// never changes, so a machine's "home" is always its start position regardless of how it has moved.
@@ -188,6 +191,7 @@ pub(crate) fn build_combatants(
                 ticks_since_hit: 0,
                 cooldown: 0,
                 move_cooldown: 0,
+                painted_until: 0,
                 zone: m.zone,
                 home_zone: m.zone,
                 fallback: FallbackPhase::Inactive,
