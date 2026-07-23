@@ -277,15 +277,18 @@ agreed · **[OPEN]** needs design/audit.
   universal cost, not a chassis gate. **Open:** slot budget per chassis · which equipment costs what ·
   does variable cost cover weapons/defense too, or just utilities? Design alongside secondary weapons.
 
-### 9.4 All stances / dials **[audit OPEN]**
-- **Now — Stance (8):** Neutral (shared) · Combat: Aggressive, Defensive, Protector, Opportunist ·
-  Support: Triage, Sustain, Empower.
-- **Adjacent dials:** Energy (Offense/Balanced/Defense/Overdrive/Fortify/Adaptive) · Movement
-  (Hold/Advance/FallBack/Kite/Reposition/Escort) · TargetRow (4) · TargetRule (8, incl. TargetAir/
-  TargetSupport/SmartCounter).
-- **Rebalance:** do stances create real tradeoffs or are they inert like damage tuning? How do
-  Defensive/Protector interact with the new shield/mitigation support modes (9 = armor)?
-- **Decisions:** which stances matter · gating · interaction with support modes.
+### 9.4 Stances **[DECIDED — collapsed to 3 (§15.1)]**
+- **Was (8):** Neutral · Combat: Aggressive/Defensive/Protector/Opportunist · Support:
+  Triage/Sustain/Empower.
+- **Now (3, universal):** **Aggressive · Balanced · Defensive** — combat *and* support use the same
+  three. Stance is now exactly one thing: the **risk/aggression posture** (a global stat multiplier).
+- **Why the collapse is safe:** the other five stances encoded jobs that other surfaces already own.
+  Protector/Opportunist = *who to shoot* → owned by **targeting** (§12: Follow / Target-X). Triage/
+  Sustain/Empower = *what a support projects* → owned by **equipment** (§14.6: Heal/Shield/Ablation
+  gun + auras). Behaviour split is now clean: **stance = how hard you lean · targeting = who you hit ·
+  energy = how you spend the resource.**
+- Numbers + rationale in **§15.1**. Retires the `OpportunistStance` unlock and the `Stance::COMBAT/
+  SUPPORT/is_support/fits_role` role machinery (build-time cleanup).
 
 ### 9.5 All secondary orders (Plan-B triggers) **[audit OPEN — the async counter engine]**
 - **Now:** `when [condition] → set [dial] to [value]`, latches once. **6 conditions:** HullBelowPct
@@ -402,14 +405,18 @@ Tracking every open decision here so nothing is lost across the many interdepend
 | P18 | Fallback selector pool | positional only: Closest / Furthest | **DECIDED (§12.7)** |
 | P19 | Cadence delivery | firing-profile (#1) welded to **type**: Energy Fast / Kinetic Med / Explosive Slow / Arty Siege | **DECIDED (D6)** |
 | P20 | Cadence tradeoff + chassis mod | fast +slight DPS/low alpha, slow −DPS/high alpha; **Heavy+Mech +1 tick & +10% dmg** all types | **DECIDED (D6)** |
-| P21 | Movement value | does positioning change outcomes? mobility kit (§14.2) + MovementMode dials depend on it | **PARKED → behaviors surface**; measure |
+| P21 | Movement value | 6→**4 modes** (Hold/Advance/Kite/FallBack); FallBack = 10-tick duck+return (fixes flee-and-rot), Kite = forward-shoot-back oscillation; positioning gates reach (zones cap 3/2) | **DECIDED (§15.3)**; kite non-degeneracy + field value measure post-content |
 | P22 | Spotter Network — innate vs slot | **innate** (free zone-accuracy aura, Light's namesake) | **DECIDED** |
 | P23 | Commander baseline | innate Command (unlock advanced behaviors + Plan-B); weapon = Heal/Shield/Ablation projector; **5 slots** | **DECIDED (§14.6)** |
 | P24 | Aura-stacking | multiplicative buff stacking may run hot | **watch — measure**; cap/diminishing if needed |
+| P25 | Stances | collapse 8 → **3 universal** (Aggr/Balanced/Def); "output" = weapon *or* support-weapon output; **Def −20% output flagged for duration gate** | **DECIDED (§15.1); −20% measure** |
+| P26 | Energy modes | **CUT** — duplicated the stance posture axis; stance is a superset. NB: separate from `energy_air_dmg_mult` (kept) | **DECIDED (§15.2)** |
+| P27 | Plan-B | keep **latch** (no while-true); behaviors self-terminate so latch is correct; **+`NoTargetsReachable`** trigger (→7); dials = Targeting/Movement/Stance; slots 1(+1 Combat AI) | **DECIDED (§15.4); slot count measure** |
 
-**Surfaces DONE:** targeting · primary weapons (incl. cadence) · armor.
-**Open:** secondary-weapon menu (P4/P5) · stances · equipment prune · support-mode numbers ·
-matrix+cadence measurement.
+**ALL DESIGN SURFACES DONE:** targeting · primary weapons (cadence) · armor · **behaviors** (stances
+§15.1 · energy cut §15.2 · movement §15.3 · Plan-B §15.4).
+**Remaining = build/measure, not design:** equipment prune · support-mode numbers · matrix+cadence+
+stance+movement measurement · **P13 scope call (§11) → plan → build → measure**.
 
 ---
 
@@ -772,3 +779,157 @@ hot; measure, and put diminishing returns on stacked auras if needed.
 Note: **Lure = the Heavy's Decoy signature; Guardian + Lure + shield = the true anchor** (Lure pulls
 targeting, Guardian eats leak-through). Overlaps with the common pool (Improved Tread, Smoke) are
 kept only because the Heavy versions add something common can't (penalty-negation, zone scope).
+
+---
+
+## 15. Behaviors — the last design surface **[in progress]**
+
+The dials a machine holds: **stance** (how hard you lean), **targeting** (who you hit — §12, DONE),
+**movement** (where you stand — §15.3). Plus **Plan-B** — the reactive layer that flips any dial on a
+trigger. **Energy is CUT (§15.2)** — it duplicated stance. Remaining after stance + movement: Plan-B.
+
+### 15.1 Stances — the risk/aggression posture **[DECIDED]**
+
+Collapsed from 8 → **3, universal** (combat *and* support). Stance is now exactly one lever: a global
+posture multiplier on what a unit **produces** and how much it **absorbs**. Deliberately simple —
+targeting owns *who*, equipment owns *what*, so stance only has to own *how hard*.
+
+| Stance | Effect |
+|---|---|
+| **Aggressive** | +5% damage · +5% accuracy · **+10% damage taken** |
+| **Balanced** | no bonus, no malus (the shared default; enum `Neutral`) |
+| **Defensive** | −5% damage taken · +5% evasion · +5% armor · +5% shield · **−20% output** |
+
+**The one rule that makes it universal — "output" = whatever the unit produces.** For a combat unit
+that's weapon damage. **For the Commander it's support-weapon output** (heal / shield / ablation
+projected). So a Defensive Commander projects 20% less and a Defensive tank deals 20% less — same
+rule, no free ride. (Without this, Defensive would be pure upside on the damage-less Commander and
+every Commander would run it.) Aggressive is symmetric: +5% to that same output, +5% accuracy where it
+applies, for +10% incoming.
+
+**Design notes:**
+- **Asymmetric by intent.** Aggressive is a *small two-sided tilt* (+5/+5 out for +10% in). Defensive
+  is a *big commitment* (−20% out for a 4-part defence bundle). Not a symmetry bug — the postures are
+  meant to feel different.
+- **Built-in counter on the acc/evasion axis.** Aggressive's +5% accuracy directly eats Defensive's
+  +5% evasion — attacker-posture vs defender-posture already interact.
+- **Defensive deepens chassis identity, doesn't flatten it.** +armor/+shield/+evasion do more for a
+  chassis that already leans on that layer, and the §12/matrix counters still bite *through* the
+  buffed layers — so Defensive rewards durable chassis (Heavy) without rescuing glass, and stays
+  inside the counter-web.
+- **Symmetric lever — no cycles on its own.** Both players set it, so like coordination stance builds
+  *no* counter-web by itself (structure comes from content, not global dials). Its real payoff is as
+  **Plan-B fuel**: `HullBelowPct(30) → Defensive` is a genuine reactive move, and the engine already
+  carries `DialValue::Stance`. Posture pays off *reactively*, not statically.
+
+**⚠ Measure at build (the −20% risk):** Defensive-vs-Defensive (both −20% output *and* tankier) is the
+matchup most likely to blow the **"median duration within ~10% of 491 ticks"** gate. And
+Defensive-vs-Balanced is an open question — is 80% output survivable, or does Defensive just lose the
+attrition race slower? **−20% is the first dial to revisit if duration drifts.**
+
+**Build-time cleanup:** drop `Stance::{Protector, Opportunist, Triage, Sustain, Empower}`, the
+`OpportunistStance` unlock, and `Stance::{COMBAT, SUPPORT, is_support, fits_role}`. Keep the `Neutral`
+variant, label it "Balanced" in the UI.
+
+### 15.2 Energy modes — CUT **[DECIDED]**
+
+**Removed entirely.** The `feat/energy-two-sided-trade` merge had just rebuilt energy into a genuine
+offense/defense trade (Overdrive +20%dealt/+10%taken … Fortify −15%/−20%) — which is **the same axis
+stance now owns**. Stance is a superset: it moves dealt+taken *and* accuracy/evasion/armor/shield.
+Two dials for one posture axis is the overthink we're trimming; keep stance, cut energy.
+
+- **Not to be confused with** `air_mods.energy_air_dmg_mult` (energy *damage type* contesting air) —
+  a separate lever, unaffected, still available (shipped OFF).
+- **Plan-B:** replace any `Energy → Fortify` latch with `Stance → Defensive` — same reactive move, one
+  fewer dial. Drop `DialValue::Energy` / `DialKey::Energy` / `AdaptiveEnergy` unlock.
+- **What we give up:** the −10%/−15% *mild-defense middle*. Post-cut the only defensive step is the
+  −20% Defensive stance (a cliff). If a gentler step is wanted, **tune/add a stance — don't resurrect
+  the dial.**
+- **Build-time cleanup:** remove `EnergyMode`, `EnergyModes`/`EnergyProfile` from the ruleset,
+  `energy_damage_mult` / `energy_damage_taken_mult` (behavior.rs), and the `energy` field on
+  `BehaviorDials`; strip energy from damage.rs/target.rs/army.rs/validate.rs. Net removes code.
+
+### 15.3 Movement **[DECIDED — 4 modes; 2 need building]**
+
+**Zone model (engine fact):** 3 ground zones Rear→Middle→Front + Air, **capped at 3 ground / 2 air**
+([validate.rs:19](../../crates/engine/src/validate.rs)); each unit has an assigned **home zone**
+([army.rs:50](../../crates/engine/src/model/army.rs)). Reach reads zone: Front shoots the nearest
+enemy row, Middle shoots Front+Middle, **Rear direct-fire shoots nothing** (only indirect). So
+position gates who-shoots-whom, and the 3-slot cap is *why* advancing to fill a dead unit's slot
+matters. Positioning is load-bearing; the movement *dial* is the trimmed part.
+
+Play-derived design (user, from observed degeneracy: "tell a unit to fall back on damage and it just
+runs and becomes useless"):
+
+| Mode | Behavior | Today |
+|---|---|---|
+| **Hold** *(default)* | stay in home zone, fire what's in reach — most units | ✅ works (the correct no-op) |
+| **Advance** | step forward to fill a gap / close to contact | ✅ works |
+| **Kite** | **forward → shoot → fall back → repeat** (hit-and-run oscillation) | ⚠ build (stub today) |
+| **FallBack** | **duck ~10 ticks, then return to home zone if a slot is free** | ⚠ redefine (today: flees to Rear and rots) |
+
+**Cut** `Reposition` (vague) + `Escort` (= targeting Follow, §12). 6 → 4. Removes their capability-gate
+unlocks (types.rs:565).
+
+**FallBack — timed duck + return (fixes the bug):** on trigger (≈ always Plan-B `HullBelowPct`),
+retreat, run a ~10-tick timer, then attempt to return to **home zone**; if the home slot is now full
+(teammate advanced into it), hold at the nearest open zone. It is an *emergency valve* to break
+focus-fire, **not** a permanent flee.
+
+**Kite — the oscillation:** advance until in firing reach → fire → retreat a zone on cooldown →
+advance again; "dances" on the reach boundary. Rewards fast units (short move-interval → tighter,
+higher-uptime dance) and long-reach units (retreat keeps them firing) — **the mobility+reach counter
+made playable**: a kiter whittles a slow brawler that can't close.
+
+**⚠ Kite balance watch (measure):** *forward → **shoot** → back* is the built-in counter-play — the
+kiter must enter reach to fire, so it is **exposed on the forward step**; catch it there. If it can
+ever fire while staying permanently out of enemy reach it becomes an unkillable poke and breaks the
+web. Rule: **Kite is only safe while the shoot-step genuinely exposes it.**
+
+**Kite vs FallBack** never overlap: Kite is a *proactive continuous* doctrine (poke-retreat is the
+whole playstyle); FallBack is a *reactive one-shot* recovery (fighting → hurt → duck → return).
+
+**Build requirements:** Kite oscillation logic; FallBack 10-tick timer + home-zone return + slot-cap
+check; a `home_zone` (from assigned placement) + return-timer on `Combatant`. **Advance is
+self-terminating** (see §15.4): step toward contact each interval *until in firing reach or
+cap-blocked*, then idle — so a latched `NoTargetsReachable → Advance` closes the gap and stops, and
+re-closes if enemies later retreat. **P21 measure:** kite non-degeneracy (above) + whether movement
+moves the field — contingent on **reach diversity in the roster**, so measure *after* the content
+pass, not before.
+
+### 15.4 Plan-B — the reactive counter engine **[DECIDED]**
+
+The `when [condition] → set [dial] to [value]` layer — *the* "planning beats gear" mechanism. **Model
+unchanged:** latches (fires once, stays flipped), Slot-1 > Slot-2 precedence, **1 slot (+1 w/ Combat
+AI)**. Dials it can set (post-cut): **Targeting** (§12 priority slots) · **Movement** · **Stance**
+(Energy removed — drop `DialValue::Energy`/`DialKey::Energy`).
+
+**The latch-vs-revert decision (the one real question, surfaced by `NoTargetsReachable`):** keep the
+**simple latch**; do *not* add "while-true" semantics. Instead the **behaviors self-terminate** — a
+latch points at a mode that knows when to stop:
+- FallBack ducks, then returns on its own (§15.3).
+- Advance closes to reach, then idles; re-closes if re-stranded (§15.3).
+- Kite oscillates as a *mode*, never as a Plan-B loop.
+
+So Plan-B stays a dumb one-shot latch and the movement modes absorb the "revert." No state machine, no
+oscillation bugs. `NoTargetsReachable → Advance` (user) is the worked example: latch to Advance, the
+self-terminating mode does the rest.
+
+**Trigger menu — keep 6, add 1 (→ 7):**
+
+| Trigger | Typical use |
+|---|---|
+| `HullBelowPct(x)` | panic → Defensive / FallBack |
+| `ShieldDown` | shield cracked → Defensive / duck |
+| `AfterTick(t)` | open aggressive, turtle late (or reverse) |
+| `AllyLostInZone` | zone-mate died → FallBack, or Advance to fill the freed slot |
+| `AirEnemyExists` | **the AA reactive** → add Target Air to priority |
+| `EnemyInZone(z)` | positional → e.g. a kite trigger |
+| **`NoTargetsReachable`** *(new — user)* | **stranded → Advance** (self-terminating) |
+
+**Open lever — slot count:** 1 base (+1 Combat AI) is stingy for *the* counter engine; bump base to 2
+if the field needs more reactivity, but more slots ⇒ more "solved" optimal configs. **Lean keep
+1(+1); let the balancer decide** — interacts with the locked equipment budget. **Measure.**
+
+**Build:** add `TriggerCondition::NoTargetsReachable`; wire self-terminating `Advance`; remove
+`DialValue::Energy`/`DialKey::Energy` from the Plan-B dial set.
