@@ -500,34 +500,32 @@ pub fn max_gear(rs: &Ruleset) -> Army {
     army
 }
 
-/// A **well-composed** base-gear army: a compact **energy** anti-armor brawler (Siege-Laser heavies
-/// with Pulse-Laser mechs) — the deliberate counter-pick to a kinetic-armored wall, since energy
-/// melts armor (×1.25). Base gear only; skill = choosing the countering composition (P2, FR-015). On
-/// the baseline this out-plays the armored-tank sloppy side; a gear crank (huge armor) lets raw gear
-/// overwhelm the counter, flipping the check.
+/// A **well-composed** base-gear army — a combined-arms *siege + sustain* list: a durable two-heavy
+/// screen, two artillery tubes working the enemy from range, and a Medic keeping the line up. Its edge
+/// over the sloppy stack is meant to be **composition quality** — reach + sustain + a screen
+/// out-attritioning a naive brawler blob — *not* a damage-type matchup.
+///
+/// This is the S0 re-fixture (FR-030). The old fixture was a pure **energy** anti-armor brawler, so its
+/// entire skilled edge was the matrix's Energy-vs-armor multiplier — meaning **any** structural matrix
+/// change moved SkillBeatsGear by construction, making it useless as a gate on a counter-web redesign
+/// (research D0). This army deals **no energy damage**, so perturbing the energy matrix row leaves the
+/// check byte-identical (see `skill_beats_gear_is_matrix_energy_invariant`) — the gate now measures
+/// *plan* (P2/FR-015), not a single damage type.
+///
+/// **This gate reads RED on the v2 baseline by design.** On the degenerate v2 field, composition does
+/// not yet beat max gear (measured survivor margin ≈ −0.41): reach/kiting is half-built, so the
+/// screen+reach+sustain plan cannot out-attrition a max-armor blob. That is the exact disease v3 exists
+/// to cure — the gate is expected to flip green as US2 makes reach/positioning a real counter. Base
+/// gear only; the crank fixture (`fixtures::gear_overwhelms`) drives it further negative, so the
+/// "gear can overwhelm skill" violation test still holds.
 pub fn skilled_base_gear(rs: &Ruleset) -> Army {
     Army {
         machines: vec![
-            with_weapon(
-                place(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 0),
-                "SiegeLaser",
-            ),
-            with_weapon(
-                place(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 1),
-                "SiegeLaser",
-            ),
-            with_weapon(
-                place(rs, MachineTypeId::Mech, "Vanguard", ZoneId::Front, 2),
-                "PulseLaser",
-            ),
-            with_weapon(
-                place(rs, MachineTypeId::Mech, "Vanguard", ZoneId::Middle, 3),
-                "PulseLaser",
-            ),
-            with_weapon(
-                place(rs, MachineTypeId::Mech, "Striker", ZoneId::Middle, 4),
-                "PulseLaser",
-            ),
+            place(rs, MachineTypeId::HeavyTank, "Bulwark", ZoneId::Front, 0),
+            place(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 1),
+            place(rs, MachineTypeId::Artillery, "Longbow", ZoneId::Rear, 2),
+            place(rs, MachineTypeId::Artillery, "Siege", ZoneId::Rear, 3),
+            place(rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
         ],
     }
 }
@@ -557,7 +555,10 @@ pub fn sloppy_max_gear(rs: &Ruleset) -> Army {
 mod tests {
     use super::*;
     use engine::content::seed_ruleset;
+    use engine::model::ruleset::LayerMultipliers;
     use engine::validate::validate;
+
+    use crate::invariants::{skill_beats_gear, InvariantConfig};
 
     /// Every archetype + fixture is a legal army on the seed ruleset (the sweep never feeds the
     /// engine an illegal candidate for these curated builds).
@@ -577,5 +578,47 @@ mod tests {
         for (label, army) in builds {
             assert_eq!(validate(&army, &rs), Ok(()), "{label} must be a legal army");
         }
+    }
+
+    /// **S0 / FR-030** — the re-fixtured `SkillBeatsGear` must NOT move when only the damage matrix
+    /// changes. The well-composed skilled fixture deals no energy damage, so the matrix's **energy
+    /// row is never consulted**; perturbing it (here to the exact US1 sharpen, `{7_000, 16_000}`, and
+    /// again to an absurd value) must leave the measured margin **byte-identical**. The old
+    /// energy-brawler fixture failed this by construction — its whole edge was that row. This is also
+    /// self-validating: it would fail the instant any fixture unit dealt energy damage.
+    #[test]
+    fn skill_beats_gear_is_matrix_energy_invariant() {
+        let cfg = InvariantConfig {
+            base_seed: 1,
+            samples: 128,
+            threads: Some(1),
+        };
+        let rs = seed_ruleset();
+        let before = skill_beats_gear(&rs, &cfg).measured;
+
+        // The exact US1 energy sharpen (12_500 → 16_000 vs armor, 6_000 → 7_000 vs shields).
+        let mut sharp = rs.clone();
+        sharp.damage_matrix.energy = LayerMultipliers {
+            vs_shields: 7_000,
+            vs_armor: 16_000,
+        };
+        assert_eq!(
+            before,
+            skill_beats_gear(&sharp, &cfg).measured,
+            "SkillBeatsGear moved when only the energy matrix row changed — the fixture is not \
+             composition-quality (it deals energy damage), so it still fails matrix edits by construction"
+        );
+
+        // And an absurd energy row — still no effect, because energy is never dealt here.
+        let mut absurd = rs.clone();
+        absurd.damage_matrix.energy = LayerMultipliers {
+            vs_shields: 30_000,
+            vs_armor: 30_000,
+        };
+        assert_eq!(
+            before,
+            skill_beats_gear(&absurd, &cfg).measured,
+            "SkillBeatsGear must be independent of the energy matrix row"
+        );
     }
 }

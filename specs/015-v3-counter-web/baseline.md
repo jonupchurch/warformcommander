@@ -69,8 +69,8 @@ US2/US4/US5 TS-mirror updates bring it current).
 
 | Slice | Walls | Contested | Monotone | Top WR | Median dur | SkillBeatsGear | Notes |
 |---|---|---|---|---|---|---|---|
-| **v2 baseline** | 125 | 7 | 93.9% | 90.9% | 492.5 | 0.5896 (old fixture) | this file |
-| S0 (re-fixture) | — | — | — | — | — | _(new value)_ | field metrics unchanged by design |
+| **v2 baseline** | 125 | 7 | 93.9% | 90.9% | 492.5 | 0.5896 (old energy fixture) | this file |
+| S0 (re-fixture) | 125 | 7 | 93.9% | 90.9% | 492.5 | **−0.403** (composition gate, ❌ red by design) | field/ruleset untouched → field metrics identical; the gate is expected red until US2 makes reach a real counter (T003–T005) |
 | US1 (triangle) | | | | | | | contested ↑ / monotone ↓ expected |
 | US2 (reach) | | | | | | | reach/kite counter appears |
 | US3 (equipment) | | | | | | | a matchup *bends* |
