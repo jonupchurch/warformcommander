@@ -1,5 +1,9 @@
 # Implementation Plan: Counter-Web — a contested battle field
 
+> ⚠️ **SUPERSEDED (2026-07-23).** Plans the falsified Axis-A + Axis-B approach. The work pivoted to a
+> ground-up **v3 rewrite** — live design in `weapons-design.md` (§11 registry = source of truth); a
+> fresh v3 `plan.md` will replace this. Kept for the record. See the banner in `spec.md`.
+
 **Branch**: `feat/014-counter-web` | **Date**: 2026-07-22 | **Spec**: [spec.md](./spec.md)
 
 **Input**: Feature specification from `/specs/014-counter-web/spec.md`; measured evidence from

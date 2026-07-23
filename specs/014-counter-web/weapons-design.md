@@ -181,52 +181,51 @@ Cadence is a **property welded to damage type** (P19 = firing-profile config, *n
 
 ---
 
-## 5. Proposed weapon menu **[DRAFT — numbers TBD]**
-Native type in **bold**. Throughput held ~flat within a chassis so the choice is *type*, not power.
+## 5. Proposed weapon menu **[SUPERSEDED — the "Secondary" column is dead (P3)]**
+> ⚠️ **Partly stale.** The **Secondary (situational)** column reflects the *abandoned* secondary-weapon
+> idea (P3): each unit now mounts **one** weapon and all situational kit moved to **equipment** (§13–14).
+> Cadence is welded to type (P19) and throughput is **not** flat (fast +DPS / slow +alpha, P20). The
+> per-type columns below survive as an illustrative roster; **all numbers are start-values to measure**.
 
-| Chassis | Kinetic | Energy | Explosive | Secondary (situational) |
-|---|---|---|---|---|
-| Heavy Tank | **Heavy Cannon** | Siege Laser | Siege Mortar | Railgun (pierce+reach) / Flak |
-| Light Tank | **Autocannon** | Arc Repeater | Grenade Launcher | Flak / Spotter |
-| Mech (*no native*) | Assault Cannon | Pulse Laser | Rocket Salvo | Rocket Pack (AA) / pierce |
-| Attack Heli | Chaingun | Beam Cannon | **Rocket Pods** | SEAD / evasion / ground-attack |
-| Rocket Arty | Railcannon | Ion Battery | **SAM Battery** | Guided (Deep reach) |
-| Artillery | Siege Railgun | Beam Artillery | **Howitzer** | Saturation (max splash) |
-| Rear Support | — | — | — | Heal / Shield / Boost / Reduction (D4) |
+Native type in **bold**. (Secondary column removed — see equipment §14 for what those capabilities became.)
+
+| Chassis | Kinetic | Energy | Explosive |
+|---|---|---|---|
+| Heavy Tank | **Heavy Cannon** | Siege Laser | Siege Mortar |
+| Light Tank | **Autocannon** | Arc Repeater | Grenade Launcher |
+| Mech (*no native*) | Assault Cannon | Pulse Laser | Rocket Salvo |
+| Attack Heli | Chaingun | Beam Cannon | **Rocket Pods** |
+| Rocket Arty | Railcannon | Ion Battery | **SAM Battery** |
+| Artillery | Siege Railgun | Beam Artillery | **Howitzer** |
+| Rear Support (Commander) | — | — | — (weapon = Heal/Shield/Ablation projector, §14.6) |
 
 ---
 
-## 6. Open decisions (knock these down next)
-1. **[OPEN] Native +12% bonus — keep?** (Lean: keep — it's what makes off-type a tradeoff and
-   Mech-as-flex depends on it.)
-2. **[OPEN] Secondary selection rule.** Proposed: auto-fire secondary at its target class whenever
-   such a target is in reach *and* fire-discipline allows, else primary; plus a per-unit priority
-   dial ("prioritize air" / "hold ground"). Set at build → no in-battle input.
-3. **[OPEN] Secondary menu scope for v1.** Which capabilities beyond flak (pierce? spotter? SEAD?
-   evasion?). Air's answer must ship in the *same* slice as ground AA (see §7).
-4. **[OPEN] Which chassis get a secondary slot** — all, or some? Slot-cost model?
-5. **[OPEN] Hold throughput flat within a chassis?** (Lean: yes — keep the choice about type/role.)
-6. **[OPEN] Matrix magnitudes** — keep ±25/40%, or sharpen so off-type reliably overturns a small
-   rank gap? (Measure before changing.)
-7. **[OPEN] Defense-choice pass (D5)** — in scope for this spec, or a follow-on?
+## 6. Open decisions **[SUPERSEDED → §11 registry (P1–P27)]**
+> ⚠️ **All resolved.** These seven early questions are now decided in the §11 registry; several were
+> reframed by the abandonment of secondary weapons (P3) and the move to a full v3 rewrite.
 
-## 7. Slice order **[DRAFT]**
-Each slice ends with `balancer verify --field all` + `scripts/field-metrics.js`.
+| Old §6 question | Resolution |
+|---|---|
+| 1. Native bonus — keep? | **P1** keep (+12%) |
+| 2. Secondary selection rule | **P3** secondary weapons abandoned — targeting picks the target, one weapon fires |
+| 3. Secondary menu scope | **P3** abandoned → capabilities became equipment (§14) |
+| 4. Which chassis get a secondary slot | **P5** slot economy (per-chassis utility budgets, §13.5/§14) |
+| 5. Hold throughput flat? | **P6/P20** — *not* flat: fast +DPS / slow +alpha; Heavy+Mech +1 tick & +10% |
+| 6. Matrix magnitudes | **P2** sharpen → ×1.6 same-layer / ×0.7 cross (start value, measure) |
+| 7. Defense-choice pass (D5) | in scope — defense families designed (§10); Ablative retired (P7) |
 
-1. **Secondary-weapon plumbing** — the one-at-a-time firing mechanism + selection dial (D2).
-2. **First real test: the air⇄AA pair** — ground flak secondary **and** air's answer
-   (SEAD/evasion), shipped together, heli ground damage held *up*. Measure whether accessible-
-   but-answerable AA **bends** the air matchups instead of flattening them. *(Do NOT ship AA
-   alone — that measures a one-sided nerf.)*
-3. **Widen the menu** — primary damage-type weapons (D1) + remaining secondaries (pierce, spotter).
-4. **Support modes** (D4) — especially shield projector, to wake the triangle.
-5. **Defense-choice pass** (D5) if needed.
+## 7. Slice order **[SUPERSEDED → the v3 speckit plan/tasks]**
+> ⚠️ **Stale.** This slice order was built around secondary-weapon plumbing (abandoned, P3). The real
+> build order will come from the **fresh v3 speckit `plan.md` → `tasks.md`** (the P13 scope call). The
+> only durable rule below is the per-slice measurement loop (§8).
 
 ## 8. Measurement instrument (unchanged)
 `cargo run -p balancer --release -- verify --field all --seed 1 --samples 250`
 → `node scripts/field-metrics.js <report.json>` → walls / contested / near-ties / monotone / spread.
-Re-baseline before slice 1. **Revise `spec.md` success criteria** to the §2 signals (drop the
-near-ties target) before building.
+Re-baseline before slice 1. **Success criteria will be set fresh in the v3 `spec.md`** — the target is
+a **counter-web** (no dominant build; decisive-but-strategic wins ok; not coin-flips), *not* the old
+"near-ties ≥ 20" bar (retired — see [[current-build-state]] / diagnosis).
 
 ---
 
@@ -371,9 +370,9 @@ by accuracy/volume/splash). Only the front-line (Heavy, Mech) get *heavy* mitiga
 ### 10.3 Open questions
 1. **[DECIDED] Ablative retired from the core** armor set — the only "hedge" (anti-counter-pick)
    defense is Mech Reactive, keeping type-countering meaningful for the other five chassis.
-2. **[PARKED → targeting] ECM targeting model** — the one mechanic with real engine cost. How
-   universal is it (only vs threat-based targeting, or a global target-draw reduction that all rules
-   weight)? **Deferred to the dedicated targeting discussion (9.7); do not decide until then.**
+2. **[DECIDED → §12.4] ECM targeting model** — resolved in the targeting pass: ECM is a **−2
+   target-rank offset** in the priority-score model (Decoy = +2), not a global draw reduction. Camo
+   is separate (+evasion). See §12.4 / P8.
 3. **[DECIDED] Mech Reactive kept** as Mech's exclusive 4th — the flex chassis's anti-counter-pick
    hedge (adapts mitigation toward whatever's hitting hardest).
 4. **[DECIDED] AA & Artillery** each get the same three (shared fragile-backline identity).
@@ -515,7 +514,7 @@ This gives the class-filter target rules (12.2) their job: **anti-concealment.**
 - **BiggestThreat / SmartCounter [DECIDED — retired]** along with Most/Least HP and Most Threat: no
   auto-optimizing selectors at all (12.7). "Kill their DPS" = hunt the *class* that carries it.
 
-### 12.6 Open questions
+### 12.6 Resolved questions (all decided)
 - **Q1 — "Target Armor" [DECIDED]:** by `armor_pct` (prefer high-armor targets — the energy-weapon
   partner). A declarative filter, not an auto-optimizer, so it fits 12.7.
 - **Q2 — "Ally's-target" (Follow) resolution [DECIDED]:** a Follow unit anchors only to a zone ally
@@ -619,7 +618,7 @@ them). Resolves the "when/what target" problem that killed secondary weapons.
 **Budgets [DECIDED]:** Commander **5** (no damage → all utility) · Mech 4 · Heavy 3 · Light 3 · Heli/RktArty/Artillery 2.
 **Cost tiers:** **1** = stat · **2** = capability/counter-defining · **3** = build-defining ability (Jump Jets).
 
-### 13.6 Common vs specific utilities **[DRAFT]**
+### 13.6 Common vs specific utilities **[DECIDED]**
 Organizing principle: **common = soft/accessible counters · specific = the hard, dedicated
 specialist.** (Exemplar: common **AA-unlock** = soft front-only air; Rocket Arty's exclusive **SAM**
 = hard whole-field air. Same threat, two tiers, gated by chassis.)
@@ -644,7 +643,7 @@ appear on **several** classes' specific lists (park for the class pass).
 
 ---
 
-## 14. Class-specific equipment **[DRAFT — in progress]**
+## 14. Class-specific equipment **[LOCKED — all 7 chassis]**
 
 ### 14.1 Heavy Tank — durable front-line anchor / protector **[LOCKED — 10 items · 3 utility slots]**
 Theme: soak fire, protect the line, outlast.

@@ -4,6 +4,10 @@ description: "Task list for the Counter-Web feature (spec 014)"
 
 # Tasks: Counter-Web — a contested battle field
 
+> ⚠️ **SUPERSEDED (2026-07-23).** Task list for the falsified Axis-A + Axis-B approach. Superseded by a
+> fresh v3 `tasks.md` (ground-up rewrite). Live design: `weapons-design.md` (§11 registry). See the
+> banner in `spec.md`.
+
 **Input**: Design documents from `/specs/014-counter-web/` (plan.md, spec.md, research.md,
 data-model.md, contracts/ruleset-schema.md, quickstart.md, diagnosis.md).
 

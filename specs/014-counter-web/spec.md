@@ -1,10 +1,17 @@
 # Feature Specification: Counter-Web — a contested battle field
 
+> ⚠️ **SUPERSEDED (2026-07-23).** This spec describes the original **Axis-A (flatten power) + Axis-B**
+> approach. **Axis A was built, measured, and falsified** — power-flattening is symmetric and cannot
+> create counter-cycles (see `diagnosis.md` + [[current-build-state]]). The work pivoted to a
+> **ground-up v3 system rewrite**; the live design is **`weapons-design.md`** (its §11 registry is the
+> source of truth). A **fresh v3 `spec.md`** replaces this one. Kept for the record — the falsification
+> is a real result. `diagnosis.md` and the baseline remain valid.
+
 **Feature Branch**: `feat/014-counter-web`
 
 **Created**: 2026-07-22
 
-**Status**: Draft
+**Status**: Superseded → v3 rewrite (see `weapons-design.md`)
 
 **Input**: Break the degenerate near-total-order battle field into a contested counter-web. Flatten
 composition power gaps (Axis A, mechanics) so matchups land near parity, then add graded soft counters
