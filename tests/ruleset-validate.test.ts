@@ -79,4 +79,23 @@ describe("validateRuleset", () => {
     rs.variants[firstVariantId(rs)].hull = 0;
     expect(validateRuleset(rs).ok).toBe(false);
   });
+
+  it("accepts energyAirDmgMult strictly between plink and flak (v2, US4)", () => {
+    const rs = baseRuleset();
+    rs.airMods.energyAirDmgMult = 7500; // between plink 5000 and flak 10000
+    expect(validateRuleset(rs)).toEqual({ ok: true });
+  });
+
+  it("rejects energyAirDmgMult that is not strictly between plink and flak", () => {
+    const tooLow = baseRuleset();
+    tooLow.airMods.energyAirDmgMult = 5000; // == plink → not strictly greater
+    const lo = validateRuleset(tooLow);
+    expect(lo.ok).toBe(false);
+    if (!lo.ok) expect(lo.reason).toMatch(/energyAirDmgMult/);
+
+    const tooHigh = baseRuleset();
+    tooHigh.airMods.flakDmgMult = 10000;
+    tooHigh.airMods.energyAirDmgMult = 10000; // == flak → not strictly less
+    expect(validateRuleset(tooHigh).ok).toBe(false);
+  });
 });

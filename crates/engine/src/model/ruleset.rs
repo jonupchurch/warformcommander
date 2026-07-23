@@ -510,6 +510,20 @@ pub struct AirModifiers {
         skip_serializing_if = "is_default_aa_focus_per_air"
     )]
     pub aa_focus_per_air: u32,
+    /// **Energy weapons contest air** (v2, staged US4). A ground *energy* weapon engaging air deals
+    /// damage at this rate — meant to sit strictly between the incidental "plink" rate and the dedicated
+    /// flak rate (FR-028), so an army carrying lasers has partial recourse against aircraft without a
+    /// dedicated counter. `0` (the default) **disables the mechanic entirely** — energy weapons can
+    /// neither reach nor hit air, exactly as before v2 — so the field is unchanged until a ruleset
+    /// re-seed turns it on. It is the one air change that genuinely shifts the stock field, so it ships
+    /// and is measured in isolation (FR-030). Omitted from serialization at `0` (hash-stable).
+    #[serde(default, skip_serializing_if = "is_zero_bp")]
+    pub energy_air_dmg_mult: Bp,
+}
+
+/// Serialization skip for a `Bp` field at its `0` default (hash stability for an off-by-default knob).
+fn is_zero_bp(v: &Bp) -> bool {
+    *v == 0
 }
 
 /// Back-compat default for [`AirModifiers::sam_ground_dmg_mult`]: the historical `plink_dmg_mult`
@@ -712,6 +726,7 @@ mod tests {
                 sam_ground_dmg_mult: 5_000,
                 flak_dmg_mult: 10_000,
                 aa_focus_per_air: 2,
+                energy_air_dmg_mult: 0,
             },
             globals: GlobalConstants {
                 tick_rate: 10,

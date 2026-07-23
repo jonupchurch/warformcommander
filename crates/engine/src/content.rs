@@ -77,6 +77,7 @@ pub fn seed_ruleset() -> Ruleset {
             sam_ground_dmg_mult: 5_000, // ×0.5  (SAM vs ground — split from plink)
             flak_dmg_mult: 10_000,      // ×1.0  (flak vs air — full damage, no plink; default)
             aa_focus_per_air: 2, // AA attackers per enemy aircraft (fire discipline; default)
+            energy_air_dmg_mult: 0, // OFF by default — energy weapons cannot contest air until re-seeded
         },
         globals: GlobalConstants {
             tick_rate: 10,

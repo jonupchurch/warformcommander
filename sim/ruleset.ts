@@ -241,6 +241,12 @@ export interface AirModifiers {
    * default (2).
    */
   aaFocusPerAir?: number;
+  /**
+   * Energy weapons contest air (v2, staged US4): a ground energy weapon engaging air deals damage at
+   * this rate, meant to sit strictly between `plinkDmgMult` and `flakDmgMult`. `0` (the default,
+   * omitted) disables the mechanic — energy weapons can neither reach nor hit air.
+   */
+  energyAirDmgMult?: number;
 }
 
 /** One energy mode's two-sided trade (`EnergyProfile`, bp; `10000` = ×1.0). */

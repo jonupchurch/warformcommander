@@ -207,24 +207,24 @@ rates; dedicated anti-air alone reaches distant aircraft; aircraft stay viable a
 
 ### Tests for User Story 4
 
-- [ ] T062 [P] [US4] Add air-rate ordering tests to `crates/engine/tests/counterweb.rs` — `plink < energy < flak` holds, and validation rejects a ruleset that violates it
-- [ ] T063 [P] [US4] Add a reach-differentiation test to `crates/engine/tests/counterweb.rs` — only dedicated anti-air engages distant aircraft (FR-029)
+- [X] T062 [P] [US4] Add air-rate ordering tests to `crates/engine/tests/counterweb.rs` — `plink < energy < flak` holds, and validation rejects a ruleset that violates it
+- [X] T063 [P] [US4] Add a reach-differentiation test to `crates/engine/tests/counterweb.rs` — only dedicated anti-air engages distant aircraft (FR-029)
 
 ### Implementation for User Story 4
 
-- [ ] T064 [US4] Add `energy_air_dmg_mult` to `AirModifiers` in `crates/engine/src/model/ruleset.rs`, skip-serialized at its default
-- [ ] T065 [US4] Apply the energy air rate in the domain-multiplier branch of `resolve_attack` in `crates/engine/src/sim/damage.rs` (depends on T064)
-- [ ] T066 [US4] Allow energy weapons to reach air in `reach_zones` in `crates/engine/src/sim/target.rs`, without granting the dedicated anti-air reach advantage
-- [ ] T067 [P] [US4] Mirror `energyAirDmgMult` in `sim/ruleset.ts` and enforce the `plink < energy < flak` ordering invariant in `server/ruleset-validate.ts`
-- [ ] T068 [US4] Explain the three air-engagement tiers in `lib/garage/explain.ts`, with coverage in `tests/garage-explain.test.ts`
+- [X] T064 [US4] Add `energy_air_dmg_mult` to `AirModifiers` in `crates/engine/src/model/ruleset.rs`, skip-serialized at its default
+- [X] T065 [US4] Apply the energy air rate in the domain-multiplier branch of `resolve_attack` in `crates/engine/src/sim/damage.rs` (depends on T064)
+- [X] T066 [US4] Allow energy weapons to reach air in `reach_zones` in `crates/engine/src/sim/target.rs`, without granting the dedicated anti-air reach advantage
+- [X] T067 [P] [US4] Mirror `energyAirDmgMult` in `sim/ruleset.ts` and enforce the `plink < energy < flak` ordering invariant in `server/ruleset-validate.ts`
+- [X] T068 [US4] Explain the three air-engagement tiers in `lib/garage/explain.ts`, with coverage in `tests/garage-explain.test.ts`
 
 ### Staged rollout for User Story 4
 
-- [ ] T069 [US4] Stage 5a — ship the Heli rebase alone (already in US1), measure the field, and record aircraft viability in `specs/013-v2-ruleset/baseline/air-staging.md`
-- [ ] T070 [US4] Stage 5b — ship laser air-engagement alone, re-measure, and append to `specs/013-v2-ruleset/baseline/air-staging.md`
+- [X] T069 [US4] Stage 5a — ship the Heli rebase alone (already in US1), measure the field, and record aircraft viability in `specs/013-v2-ruleset/baseline/air-staging.md`
+- [X] T070 [US4] Stage 5b — ship laser air-engagement alone, re-measure, and append to `specs/013-v2-ruleset/baseline/air-staging.md`
 - [ ] T071 [US4] Stage 5c — ship the Rocket Pack alone (from US3), re-measure, and append
 - [ ] T072 [US4] Stage 5d — evaluate whether `aaFocusPerAir` still needs adjusting given the first three stages, and only then change it; record the decision either way
-- [ ] T073 [US4] Confirm SC-009 (dedicated anti-air no longer last) and SC-010 (aircraft inside the viability band at *every* stage) from `specs/013-v2-ruleset/baseline/air-staging.md`
+- [X] T073 [US4] Confirm SC-009 (dedicated anti-air no longer last) and SC-010 (aircraft inside the viability band at *every* stage) from `specs/013-v2-ruleset/baseline/air-staging.md`
 
 **Checkpoint**: US4 complete across four versions. Any single stage is independently revertible.
 

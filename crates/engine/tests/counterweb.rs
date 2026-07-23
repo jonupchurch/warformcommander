@@ -66,6 +66,17 @@ fn actor_landed_hit(replay: &Replay, who: UnitRef) -> bool {
     })
 }
 
+/// Whether `who` ever landed a hit on one of the enemy **air** units. `air_squad` puts its two
+/// helicopters at Side::B instances 0 and 1, so a hit on either is a hit on air.
+fn actor_hit_air(replay: &Replay, who: UnitRef) -> bool {
+    let is_heli = |u: UnitRef| u.side == Side::B && (u.instance_id == 0 || u.instance_id == 1);
+    replay.games.iter().flat_map(|g| &g.ticks).any(|t| {
+        t.events.iter().any(
+            |e| matches!(e, TickEvent::Hit { actor, target, .. } if *actor == who && is_heli(*target)),
+        )
+    })
+}
+
 /// A squad of two air helicopters (i0, i1) + three ground fillers (i2–i4) in Front.
 fn air_squad(rs: &Ruleset) -> Army {
     Army {
@@ -170,6 +181,60 @@ fn flak_lets_ground_units_shoot_down_aircraft() {
     assert!(
         destroyed(fate_of(&out, Side::B, 0)) && destroyed(fate_of(&out, Side::B, 1)),
         "flak-equipped ground units must be able to destroy enemy aircraft"
+    );
+}
+
+/// Energy weapons contest air (v2, staged US4) — but only when the ruleset enables the mechanic
+/// (`energy_air_dmg_mult > 0`), and only up close. A FRONT energy laser shoots at the helicopters;
+/// the same laser in the MIDDLE cannot reach air at all (the reach advantage that keeps dedicated AA
+/// distinct, FR-029), though it still fights on the ground; and with the mechanic OFF it cannot touch
+/// air from anywhere (FR-028, the enable gate). Uses the seed's Heavy-mount `SiegeLaser` (Energy).
+#[test]
+fn energy_weapons_contest_air_up_close_only_when_enabled() {
+    let off = seed_ruleset();
+    let mut on = seed_ruleset();
+    on.air_mods.energy_air_dmg_mult = 7_500; // ×0.75 — between plink (×0.5) and flak (×1.0)
+
+    // A heavy company whose instance-0 tank carries an energy laser, placed in `laser_zone`. The rest
+    // sit up front so instance 0 is free to test its own reach in isolation.
+    let company = |rs: &Ruleset, laser_zone: ZoneId| {
+        let laser = |z: ZoneId, i: u8| {
+            let mut m = stock_instance(rs, MachineTypeId::HeavyTank, "Grizzly", z, i);
+            m.loadout.weapon = EquipmentId::new("SiegeLaser");
+            m
+        };
+        Army {
+            machines: vec![
+                laser(laser_zone, 0),
+                stock_instance(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 1),
+                stock_instance(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 2),
+                stock_instance(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Middle, 3),
+                stock_instance(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Middle, 4),
+            ],
+        }
+    };
+    let laser0 = UnitRef {
+        side: Side::A,
+        instance_id: 0,
+    };
+
+    // OFF: the Front laser cannot touch air.
+    let off_out = run(&off, company(&off, ZoneId::Front), air_squad(&off), 0x5A11);
+    assert!(
+        !actor_hit_air(&off_out.replay, laser0),
+        "with the mechanic off, an energy laser must not be able to hit air"
+    );
+    // ON, Front: it contests the air.
+    let front_out = run(&on, company(&on, ZoneId::Front), air_squad(&on), 0x5A11);
+    assert!(
+        actor_hit_air(&front_out.replay, laser0),
+        "with the mechanic on, a FRONT energy laser must contest air"
+    );
+    // ON, Middle: it cannot reach air (improvised reach is close-range only — the AA reach advantage).
+    let mid_out = run(&on, company(&on, ZoneId::Middle), air_squad(&on), 0x5A11);
+    assert!(
+        !actor_hit_air(&mid_out.replay, laser0),
+        "an improvised energy laser off the front line must not reach air (dedicated AA keeps its reach advantage)"
     );
 }
 

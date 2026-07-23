@@ -123,6 +123,22 @@ export function validateRuleset(data: unknown): RulesetValidation {
   ) {
     return fail("airMods.aaFocusPerAir must be a whole number ≥ 1");
   }
+  // energyAirDmgMult is optional (omitted/0 = the mechanic is off). When ENABLED (> 0) it must be
+  // finite and sit STRICTLY between the incidental plink rate and the dedicated flak rate (FR-028) —
+  // an improvised air answer that is not as good as a plink is pointless, and one as good as flak
+  // erases the dedicated counter's edge.
+  const energyAir = am.energyAirDmgMult;
+  if (energyAir !== undefined) {
+    if (typeof energyAir !== "number" || !Number.isFinite(energyAir) || energyAir < 0) {
+      return fail("airMods.energyAirDmgMult must be a non-negative number");
+    }
+    if (energyAir > 0) {
+      const flak = am.flakDmgMult ?? 10_000; // ×1.0 default when omitted
+      if (!(am.plinkDmgMult < energyAir && energyAir < flak)) {
+        return fail("airMods.energyAirDmgMult must be strictly between plinkDmgMult and flakDmgMult");
+      }
+    }
+  }
 
   // energyModes is optional (omitted at the default). When present every mode needs both halves as
   // non-negative finite bp — a negative multiplier would invert damage.

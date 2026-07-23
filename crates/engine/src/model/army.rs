@@ -306,7 +306,10 @@ pub fn derive_effective_stats(
     let can_target_air = mtype.air_capable_by_default
         || caps.contains(&Capability::TargetAir)
         || caps.contains(&Capability::AntiAir)
-        || reach == ReachTag::Air;
+        || reach == ReachTag::Air
+        // Energy weapons contest air (v2, staged US4) — but only when the ruleset enables the mechanic
+        // (`energy_air_dmg_mult > 0`). Off by default, so this adds nothing to the pre-v2 field.
+        || (family == DamageFamily::Energy && ruleset.air_mods.energy_air_dmg_mult > 0);
     let plan_b_slots = 1 + u8::from(caps.contains(&Capability::ExtraPlanBSlot));
 
     Ok(EffectiveStats {
@@ -595,6 +598,7 @@ mod tests {
                 sam_ground_dmg_mult: 5_000,
                 flak_dmg_mult: 10_000,
                 aa_focus_per_air: 2,
+                energy_air_dmg_mult: 0,
             },
             globals: GlobalConstants {
                 tick_rate: 10,

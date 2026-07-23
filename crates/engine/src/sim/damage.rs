@@ -134,6 +134,12 @@ pub(crate) fn resolve_attack(
             // Flak platform: engages air at the tunable flak rate, accurate (no plink penalty).
             acc += ruleset.air_mods.aa_acc_bonus;
             domain_mult = ruleset.air_mods.flak_dmg_mult;
+        } else if prof.damage_type == DamageType::Energy && ruleset.air_mods.energy_air_dmg_mult > 0
+        {
+            // Improvised energy weapon contesting air (v2, staged US4): still improvised accuracy (the
+            // plink penalty), but a damage rate strictly between plink and flak (FR-028).
+            acc += ruleset.air_mods.plink_acc_penalty;
+            domain_mult = ruleset.air_mods.energy_air_dmg_mult;
         } else {
             acc += ruleset.air_mods.plink_acc_penalty; // direct-fire "plink" (incl. dogfights)
             domain_mult = ruleset.air_mods.plink_dmg_mult;

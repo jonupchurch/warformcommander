@@ -12,7 +12,7 @@
 //! (air-first — clear the skies, then bomb) — a non-AA weapon hitting air only at the plink rate.
 
 use crate::model::ruleset::Ruleset;
-use crate::model::types::{ReachTag, TargetRow, TargetRule, ZoneId};
+use crate::model::types::{Capability, DamageFamily, ReachTag, TargetRow, TargetRule, ZoneId};
 use crate::replay::Side;
 
 use super::Combatant;
@@ -110,6 +110,15 @@ fn reach_zones(att: &Combatant, occupied: &Occupancy, air_allowed: bool) -> (Vec
     // already covered by enough friendly fire, this attacker treats air as out of reach and fights on
     // the ground, rather than piling onto an aircraft that is already being handled.
     let can_air = att.stats.can_target_air && air_allowed;
+    // The reach advantage (v2, FR-029): a dedicated AA platform (a SAM's `Air` reach, the `AntiAir`
+    // capability, or an innately air-capable chassis) reaches enemy air from anywhere on the field; an
+    // IMPROVISED energy weapon contesting air only reaches it at close range — from the Front row. So
+    // an energy laser in the Front can shoot down a heli, but one in the Rear cannot, while dedicated
+    // AA reaches it from either. `can_air` alone gates every non-energy path, unchanged.
+    let improvised_air = att.stats.family == DamageFamily::Energy
+        && att.stats.reach != ReachTag::Air
+        && !att.stats.capabilities.contains(&Capability::AntiAir);
+    let air_reachable = can_air && (!improvised_air || att.zone == ZoneId::Front);
     let ground = [ZoneId::Front, ZoneId::Middle, ZoneId::Rear];
     let occ = |z: ZoneId| occupied.has(z);
 
@@ -133,8 +142,7 @@ fn reach_zones(att: &Combatant, occupied: &Occupancy, air_allowed: bool) -> (Vec
             // non-AA weapon still hits air only at the "plink" rate (air_mods); a ground unit
             // (`can_air == false`) never reaches air. With no enemy air present, air contributes
             // nothing and the unit engages ground as before.
-            let air = can_air;
-            (zones, air)
+            (zones, air_reachable)
         }
         // Direct fire: the firing row governs.
         ReachTag::Nearest | ReachTag::FrontMid => {
@@ -163,10 +171,9 @@ fn reach_zones(att: &Combatant, occupied: &Occupancy, air_allowed: bool) -> (Vec
                     }
                 }
             };
-            // Same air-first rule as the AnyGround arm: air is always a candidate for an air-capable
-            // direct-fire unit, and (sorting frontmost) is engaged before ground.
-            let air = can_air;
-            (zones, air)
+            // Same air-first rule as the AnyGround arm: air is a candidate for an air-capable direct-fire
+            // unit (subject to the improvised-energy reach limit) and, sorting frontmost, engaged first.
+            (zones, air_reachable)
         }
     }
 }

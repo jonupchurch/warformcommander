@@ -240,7 +240,12 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
   const nativeMatch = mtype.nativeFamily === family;
   const damageType = asDamageType(family) ?? base.damageType;
   const canTargetAir =
-    mtype.airCapableByDefault || caps.has('TargetAir') || caps.has('AntiAir') || reach === 'Air';
+    mtype.airCapableByDefault ||
+    caps.has('TargetAir') ||
+    caps.has('AntiAir') ||
+    reach === 'Air' ||
+    // Energy weapons contest air (v2, staged US4) only when the ruleset enables it. Mirrors the engine.
+    (family === 'Energy' && (ruleset.airMods.energyAirDmgMult ?? 0) > 0);
   const planBSlots = 1 + (caps.has('ExtraPlanBSlot') ? 1 : 0);
 
   return {

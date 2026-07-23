@@ -79,6 +79,17 @@ describe('weapons', () => {
     const ex = explainWeapon(weapon('HeavyCannon'), 'HeavyTank', rs);
     expect(values(ex, 'Damage')).toHaveLength(0);
   });
+
+  it('shows an energy weapon contesting air only when the ruleset enables it (v2)', () => {
+    // Off by default — no Air line, and a kinetic weapon never gets one.
+    expect(values(explainWeapon(weapon('SiegeLaser'), 'HeavyTank', rs), 'Air')).toHaveLength(0);
+    const on: Ruleset = { ...rs, airMods: { ...rs.airMods, energyAirDmgMult: 7500 } };
+    expect(values(explainWeapon(weapon('HeavyCannon'), 'HeavyTank', on), 'Air')).toHaveLength(0);
+    // Enabled — an energy weapon reports its live intermediate air rate.
+    expect(values(explainWeapon(weapon('SiegeLaser'), 'HeavyTank', on), 'Air')[0]).toBe(
+      'Contests aircraft at ×0.75 damage, from the front line only',
+    );
+  });
 });
 
 describe('defenses', () => {

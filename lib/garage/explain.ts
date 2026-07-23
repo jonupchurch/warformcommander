@@ -216,6 +216,17 @@ export function explainWeapon(
   const fam = familyLine(weapon.family, ruleset);
   if (fam) effects.push(fam);
 
+  // Energy weapons contest air at an improvised rate when the ruleset enables it (v2, US4) — a tier
+  // between an incidental plink and a dedicated flak/AA counter, and only from the front line (FR-028).
+  const energyAir = ruleset.airMods.energyAirDmgMult ?? 0;
+  if (weapon.family === 'Energy' && energyAir > 0) {
+    effects.push({
+      label: 'Air',
+      value: `Contests aircraft at ${mult(energyAir)} damage, from the front line only`,
+      tone: 'gain',
+    });
+  }
+
   const native = ruleset.machineTypes[typeId]?.nativeFamily;
   if (native === undefined) {
     effects.push({
