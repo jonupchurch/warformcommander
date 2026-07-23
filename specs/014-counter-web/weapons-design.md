@@ -258,6 +258,24 @@ agreed · **[OPEN]** needs design/audit.
 - **Rebalance:** which of these *migrate into the secondary-weapon slot* (Rocket Pack, arguably
   Sensor Suite) vs stay utilities? Are the flat stat bumps counters or just power? Cut the inert.
 - **Decisions:** utility-vs-secondary split · which bumps survive.
+- **Recon (Commander equipment) [DECIDED: in-battle only]:** without recon, enemies show plain
+  **friend/foe** colors in the battle view; **with** recon they're color-coded by **armor type during
+  the battle** — *not* on the arena/build screen (pre-build reveal would let a player **swap squads**
+  to hard-counter before committing, killing the committed-read that makes the counter-pick
+  strategic). So recon is a **scouting/learning** tool
+  (study replays, learn an opponent's armor tendencies → informs *future* builds), which keeps the
+  live counter-pick a genuine read. **Combat tie-in [DECIDED]:** equipping recon also grants an
+  **army-wide +5% damage on hits where your type is advantaged vs the target's defense** (energy→armor,
+  kinetic→shield — the matrix-strong matchups) — a "found the weak points, hit them harder" bonus that
+  *amplifies correct counter-picks* (stacks on the ×1.6, pairs with the `Target Armor` filter) and
+  justifies the slot. Must be an **army-wide aura** (Commander has no guns). **Explosive gets no recon
+  bonus** (matrix-neutral). Future counter = intel-denial (stealth/jammer).
+- **New idea — variable slot cost:** equipment consumes *different numbers of slots* (1, 2, …), so
+  powerful pieces (recon, hedge defenses, AA, strong secondaries) carry a real **opportunity cost** —
+  forcing specialization (can't stack every counter). Reinforces "no single build wins." **Likely
+  subsumes P5** (which chassis get a secondary): any chassis *can*, but a secondary costs slots — a
+  universal cost, not a chassis gate. **Open:** slot budget per chassis · which equipment costs what ·
+  does variable cost cover weapons/defense too, or just utilities? Design alongside secondary weapons.
 
 ### 9.4 All stances / dials **[audit OPEN]**
 - **Now — Stance (8):** Neutral (shared) · Combat: Aggressive, Defensive, Protector, Opportunist ·
@@ -366,9 +384,9 @@ Tracking every open decision here so nothing is lost across the many interdepend
 |---|---|---|---|
 | P1 | Native +12% bonus | Keep | **DECIDED** |
 | P2 | Matrix magnitude | **sharpen** → start ×1.6 same-layer / ×0.7 cross-layer, explosive ×1.0 | **DECIDED (start value; measure)** |
-| P3 | Secondary selection rule | fires at the target the priority chain picks (§12.3) | **DECIDED — unified into targeting** |
-| P4 | Secondary menu scope for v1 | flak + air-answer together | open |
-| P5 | Which chassis get a secondary slot | — | open |
+| P3 | Secondary weapons | **ABANDONED** — one weapon per unit; all situational kit → equipment (§13) | **DECIDED** |
+| P4 | AA / control delivery | AA = capability-unlock equip (targeting aims it); control = on-hit riders / auras | **DECIDED (dir)** |
+| P5 | Slot economy | variable slots per chassis + variable cost per equipment (point-buy) | **DECIDED (dir); numbers open** |
 | P6 | Throughput within a chassis | **not flat** — fast slight DPS lead, slow more alpha (D6/P20) | **DECIDED (supersedes "flat")** |
 | P7 | Ablative | **retire from core** — hedge limited to Mech Reactive | **DECIDED** |
 | P8 | ECM mechanic | −2 target-rank offset; Decoy = +1 (§12.4) | **DECIDED (dir); magnitude tunable** |
@@ -384,6 +402,8 @@ Tracking every open decision here so nothing is lost across the many interdepend
 | P18 | Fallback selector pool | positional only: Closest / Furthest | **DECIDED (§12.7)** |
 | P19 | Cadence delivery | firing-profile (#1) welded to **type**: Energy Fast / Kinetic Med / Explosive Slow / Arty Siege | **DECIDED (D6)** |
 | P20 | Cadence tradeoff + chassis mod | fast +slight DPS/low alpha, slow −DPS/high alpha; **Heavy+Mech +1 tick & +10% dmg** all types | **DECIDED (D6)** |
+| P21 | Movement value | does positioning change outcomes? mobility kit (§14.2) + MovementMode dials depend on it | **PARKED → behaviors surface**; measure |
+| P22 | Spotter Network — innate vs slot | **innate** (free zone-accuracy aura, Light's namesake) | **DECIDED** |
 
 **Surfaces DONE:** targeting · primary weapons (incl. cadence) · armor.
 **Open:** secondary-weapon menu (P4/P5) · stances · equipment prune · support-mode numbers ·
@@ -505,3 +525,175 @@ Rationale: **configuring the team well *is* the strategy — no hand-holding.** 
 behaviors auto-selectors used to give move to deliberate acts —
 - *Finish the wounded* → **Follow** (concentrate fire); default is overkill-avoiding disperse.
 - *Kill their DPS* → hunt the **class** that carries the threat (Target Indirect / Target Air).
+
+### 12.8 Numeric priority-score model **[DECIDED — concretizes 12.1 / 12.4]**
+The **priority list** (the 1–5 category ranking) is set at match start; the **scoring against live
+enemies is dynamic — recomputed each fire opportunity.** A unit fires at the highest-scoring *valid*
+target, ties → positional fallback (Closest/Furthest). So when a category empties (all air dead) its
+targets just leave the pool and the next-highest wins — **no explicit "reset" needed** — and a
+higher-priority target that appears (fresh air, a Decoy in range) is picked up on the next shot.
+*(Re-score per fire opportunity, not sticky-until-invalid — responsive; overkill-avoidance handles
+any switching waste.)*
+
+`score(target) = base(1–5) + target-equipment offset`
+- **Base 1–5** from the shooter's **ranked priority list** (top category = 5 … 5th = 1; unranked = 0).
+  Declarative (fits 12.7); *supersedes the strict 2-filter chain* with up to 5 ranked tiers.
+- **Target-equipment offsets, symmetric ±2:** **Provocation / Decoy +2** (bigger target to *all*
+  enemies), **ECM −2** (smaller to all). Applied to the target's own score.
+
+**Emergent anti-concealment (pure arithmetic):** a dedicated hunter ranking your class 5 still sees
+5−2 = **3** through ECM (shot); incidental fire ranking you 2 sees 2−2 = **0** (ignored). And Decoy
+pulls +2 but base-2+2 = 4 < base-5, so provocation is **strong, not absolute**. The ±2 range being
+smaller than the 1–5 spread is what keeps declared priorities dominant.
+
+**Concealment = two distinct tools [DECIDED]:**
+- **ECM** → **−2 targeting score** (they shoot someone else). Countered by a *dedicated hunter*.
+- **Camo net** → **+evasion** (they shoot but *miss*). Countered by *accuracy / splash*.
+Distinct axes, distinct counters — consistent with the §10 defense identities.
+
+---
+
+## 13. Equipment model — one weapon + equipment slots **[DECIDED in principle]**
+
+Secondary weapons are **abandoned** (P3). A unit = **one primary weapon** + **equipment** that
+competes for **slots** (variable count per chassis, variable cost per item — P5). Equipment adjusts
+values across **three target domains**:
+
+### 13.1 Self — buff your own unit
+| Axis | Notes |
+|---|---|
+| Damage | raw magnitude |
+| Reach | ground depth (front/any/deep) **+ air-capability** (the AA unlock; targeting aims it) |
+| Accuracy | vs evasion |
+| Evasion / Concealment | camo; **chaff** = evasion vs AA only |
+| Mitigation | armor / shield / ablative / reactive (§10 defense families) |
+| **Mobility / speed** | kite, reposition, reach, escape |
+| **Splash / AoE** | anti-cluster; partly beats evasion; defensive side = splash *taken* (Blast Plating) |
+| **Penetration** | bypass armor% / pierce shields — beats mitigation instead of out-damaging it |
+| Target-draw | **ECM (−rank)** / **Taunt·Decoy (+rank)** — steer enemy targeting (§12.4) |
+| *(minor)* Crit | chance / mult; may fold into Damage |
+
+### 13.2 Enemy — debuff them via **on-hit riders** ✔ liked
+Ride your **primary's hits** (no separate weapon, no separate targeting — the targeting chain aims
+them). Resolves the "when/what target" problem that killed secondary weapons.
+| Rider | Effect | Counters |
+|---|---|---|
+| **EMP / Shield-strip** | drop enemy shields for N ticks | shield-heavy (strip the layer, hull exposed) |
+| **Suppress** | −enemy damage/accuracy for N ticks | alpha / burst dealers |
+| **Snare** | −enemy move | mobility / kiters / backline-divers |
+| **Paint** | marked enemy takes +X% from *all* your units | tanky anchors (focus-fire multiplier) |
+
+### 13.3 Ally — auras (the Commander's domain)
+| Aura | Notes |
+|---|---|
+| Heal / Shield-projection / Damage-boost / Damage-reduction | the four support modes (§D4) |
+| **Recon** | armor-type vis in battle + army-wide +5% on matrix-advantaged hits (§9.3) |
+| Command boost | C2 buff |
+
+### 13.4 Not equipment
+- **Damage TYPE** = the primary weapon choice (not an equipment mod).
+- **Cadence / fire-rate** = determined by type + Heavy/Mech modifier (D6). **Autoloader retired**
+  (fire-rate is no longer an equipment lever) — *confirm, or keep as a slot-costly exception.*
+
+### 13.5 Slot layout **[DECIDED in principle]**
+- **Weapon slot** (dedicated): 1 primary (type).
+- **Defense slot** (dedicated): 1 of the chassis's 3 identities (§10) — armor/shield/**camo/ECM/chaff**
+  live here, already chassis-gated.
+- **Utility slots** (variable pool, per-chassis budget, per-item cost): the common/specific split (13.6).
+
+**Budgets [DECIDED]:** Mech **4** · Commander 4 · Heavy 3 · Light 3 · Heli/RktArty/Artillery 2.
+**Cost tiers:** **1** = stat · **2** = capability/counter-defining · **3** = build-defining ability (Jump Jets).
+
+### 13.6 Common vs specific utilities **[DRAFT]**
+Organizing principle: **common = soft/accessible counters · specific = the hard, dedicated
+specialist.** (Exemplar: common **AA-unlock** = soft front-only air; Rocket Arty's exclusive **SAM**
+= hard whole-field air. Same threat, two tiers, gated by chassis.)
+
+**Common pool — a universal attribute point-buy [DECIDED]:** one **+single-stat** booster per stat,
+**1 slot each**. One per stat, each stat covered:
+`+Damage · +Reach · +Accuracy · +Evasion · +Speed · +Splash · +Penetration · +Armor · (+Crit)`.
+*Capabilities/riders are NOT common* (they're not single-stat): **AA-unlock, on-hit riders (Suppress
+etc.), big Pierce → class equipment.** Consequence: keeping **air accessible** means AA-unlock must
+appear on **several** classes' specific lists (park for the class pass).
+
+**Specific / signature (exclusive, the role identity):**
+| Chassis | Signature |
+|---|---|
+| Heavy Tank | **Decoy** — draw fire (anchor) |
+| Light Tank | **Spotter / Paint** — mark targets for the army (scout) |
+| Mech | **Combat AI** — extra Plan-B / adaptivity (flex) *(Reactive = its defense-slot exclusive)* |
+| Attack Heli | **SEAD** — anti-AA on-hit rider *(chaff = its defense-slot)* |
+| Rocket Arty | **SAM** — hard, whole-field AA |
+| Artillery | **Saturation** — max splash (anti-stack) |
+| Commander | **Recon + Heal / Shield / Boost / Reduction + Command** |
+
+---
+
+## 14. Class-specific equipment **[DRAFT — in progress]**
+
+### 14.1 Heavy Tank — durable front-line anchor / protector **[LOCKED — 10 items · 3 utility slots]**
+Theme: soak fire, protect the line, outlast.
+| Equipment | Effect | Slots |
+|---|---|--:|
+| **Lure** | +2 targeting priority (Decoy) — draw fire | 2 |
+| **Low-Heat Exhaust** | +25% evasion **vs air** (dodge AA/missiles) | 2 |
+| **Rangefinder** | target +1 row (extended reach) | 1 |
+| **Extra Batteries** | +25% shield output | 2 |
+| **Improved Tread** | +2 move **+ negates armor move-penalty** (distinct from common +Speed) | 1 |
+| **Smoke Canisters** | +25% evasion **to tank + zone allies** (zone effect, distinct from common) | 2 |
+| **Guardian Protocol** | redirect a share of a zone ally's incoming damage to this tank | 2 |
+| **Siege Mode** | go immobile → large mitigation / +accuracy | 1 |
+| **Spall Liner** | −40% splash damage taken (anti-artillery) | 2 |
+| **Field Repair** | slow self-hull regen (outlast attrition) | 2 |
+
+### 14.2 Light Tank — fast fragile scout / harasser / designator **[LOCKED — 10 equipment + 1 innate · 3 utility slots]**
+Theme: designate, flank, skirmish; survive by speed not armor. The **anti-screen** chassis.
+| Equipment | Effect | Slots |
+|---|---|--:|
+| **Target Painter** *(signature)* | marked enemy takes +X% damage from **all** your units | 2 |
+| **Target Radar** | paints a backline target → **any** unit from anywhere can hit it (army-wide reach) | 2 |
+| **Scout Optics** | +accuracy (land hits on evasive targets) | 1 |
+| **Nitrus** | burst of mobility / reposition dash | 1 |
+| **Hit-and-Run Protocol** | after firing, +evasion / free reposition | 2 |
+| **Flanking Package** | target the enemy backline / +dmg vs rear (the Light's own reach) | 2 |
+| **Ambush** | +damage on the first hit vs a full-HP target | 2 |
+| **Snare Shot** | on-hit: pin the target's movement (lock a kiter / fleeing backline-diver) | 2 |
+| **Jammer** | enemies in the Light's zone suffer −accuracy (EW screen for it + zone allies) | 2 |
+| **Decoy Drone** | deploy a disposable fake target that draws enemy fire | 1 |
+| **Spotter Network** *(innate)* | friendly units **in the Light's zone** get +10% accuracy (scouting aura) | — |
+
+**Spotter Network is innate [DECIDED]:** free, always-on zone-accuracy aura, no slot — the Light's
+namesake force-multiplier and the reason to field the fragile scout. Movement-independent (P21-proof).
+**Dual-role placement (aura is zone-based):** a **front** Light scouts/designates; a **rear** Light is
+an **accuracy battery** for artillery + AA (both accuracy-starved — artillery fires low-accuracy siege,
+AA must hit evasive air). Placement is a real choice; a rear scout is fragile and vulnerable to enemy
+backline pressure (flankers / Target Radar) — counterplay intact.
+
+Combo: **Target Radar + Flanking** = the anti-turtle key (flank in, tag the backline, whole army
+reaches it). **Painter + Radar** = tag it *and* everyone hits it harder.
+**⚠ Movement-value risk (P21):** Nitrus, Hit-and-Run, Snare, Flanking, common +Speed, Improved Tread,
+and the MovementMode dials all assume positioning changes outcomes. If the balancer shows mobility is
+inert, fork: make movement meaningful (kite/advance/retreat engine pass) or de-emphasize mobility kit.
+
+### 14.3 Mech — the flex bruiser / adaptability **[LOCKED — 10 items · 4 utility slots]**
+Theme: no native type = the flex-picker; **equip toward your army's *gap*.** The answers-anything chassis.
+| Equipment | Effect | Slots |
+|---|---|--:|
+| **Combat AI** *(signature)* | extra Plan-B slot + adaptivity | 2 |
+| **Jump Jets** | enter **Air** for 10 ticks → **full** air-to-air damage + whole-battlefield reach; airborne = an AA target (×1.5); then **10-tick ground cooldown** (50% duty cycle). **P21-proof** | **3** |
+| **Adaptive Munitions** | Plan-B trigger switches the Mech's **damage type** mid-battle (e.g. EnemyShielded → Kinetic) — the flex-picker made literal | 2 |
+| **EMP Ammo** | on-hit rider: stops the target's **healing & shield regen** for 5 ticks (anti-sustain — the answer to healers) | 2 |
+| **Suppressing Fire** | on-hit rider: −enemy damage/accuracy | 1 |
+| **Repair Nanites** | self-hull regen (durable flex) | 2 |
+| **Overdrive** | burst window: +damage, −defense | 2 |
+| **Bulwark Mode** | brace: +mitigation while stationary (a lighter Siege Mode) | 1 |
+| **Duelist Servos** | ramping +damage the longer it fires at one target | 1 |
+| **Modular Hardpoint** | +1 utility slot — literal extra flexibility | 1 |
+
+Air gradient: **SAM** (Rocket Arty ×1.5, whole-field, hard) > **Jump-Jet Mech** (×1.0 full, risky/flexible)
+> **soft front-AA** (plink). Jump Jets = air answer **+** self-serve backline striker; balanced by
+airborne-exposure + a recharge cooldown.
+
+Note: **Lure = the Heavy's Decoy signature; Guardian + Lure + shield = the true anchor** (Lure pulls
+targeting, Guardian eats leak-through). Overlaps with the common pool (Improved Tread, Smoke) are
+kept only because the Heavy versions add something common can't (penalty-negation, zone scope).
