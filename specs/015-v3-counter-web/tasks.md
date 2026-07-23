@@ -36,7 +36,7 @@ native==wasm parity + a balancer field read. **All magnitudes are start-values t
 
 - [ ] T003 Re-fixture `SkillBeatsGear` in `crates/balancer/` so its "skilled" side is a **composition-quality** advantage (mixed counter-matched army vs a naive stack), NOT a single-damage-type edge (research D0 / FR-030). Keep the existing invariant name/plumbing.
 - [ ] T004 Add a balancer self-test asserting the new `SkillBeatsGear` fixture does **not** move when only matrix multipliers change (proves it no longer fails structural matrix edits by construction) in `crates/balancer/`.
-- [ ] T005 Verification gate (S0) — `cargo test -p balancer` green; run `verify --field all` and confirm `SkillBeatsGear` reads as a usable gate (informational until now). Record in baseline.md.
+- [ ] T005 Verification gate (S0) — `cargo test -p balancer` green; run `verify --field all` and confirm `SkillBeatsGear` reads as a usable gate (informational until now). Record in baseline.md. *(Engine/wasm/`npm test` are unaffected here — S0 is a balancer-fixture-only change — so the full determinism gate resumes at US1.)*
 
 **Checkpoint**: measurement instrument trustworthy → user stories can begin.
 
@@ -56,7 +56,7 @@ native==wasm parity + a balancer field read. **All magnitudes are start-values t
 ### Implementation for User Story 1
 
 - [ ] T008 [US1] Tune `DamageMatrix` to Kinetic {vs_shields 1.6, vs_armor 0.7}, Energy {0.7, 1.6}, Explosive {1.0, 1.0} in `crates/engine/src/content.rs` (seed) / `model/ruleset.rs`; keep serde skip-at-default so untouched replays stay hash-stable (data-model TUNE, P8).
-- [ ] T009 [P] [US1] Populate shield/armor **defense options across all 7 mounts** in `crates/engine/src/content.rs` so the field carries enough shields for Kinetic's ×1.6 to bite (data-model [CHANGE]); reuse existing family machinery.
+- [ ] T009 [P] [US1] Reshape the mount defense catalog in `crates/engine/src/content.rs` (data-model [CHANGE], **FR-006/007/008**): **(a)** populate shield/armor defense options across all 7 mounts so the field carries enough shields for Kinetic's ×1.6 to bite; **(b)** retire **Ablative from the core set — data-only** (no chassis offers it; leave `AblativeMods` types/logic intact so it stays hash-stable and reversible); **(c)** make **Mech Reactive Plating the sole hedge**. Reuse existing family machinery.
 - [ ] T010 [P] [US1] Weld cadence to damage type (Energy Fast / Kinetic Med / Explosive Slow / Artillery Siege) and make throughput non-flat (fast +DPS/low-alpha, slow −DPS/high-alpha) in `crates/engine/src/content.rs` (per-weapon `damage`/`cadence`).
 - [ ] T011 [US1] Confirm the native **+12%** bonus is the native-type lever (RoleDamageBonus / native-family path) and apply it consistently in `crates/engine/src/content.rs` / `model/army.rs`; document which field carries it.
 - [ ] T012 [US1] Apply the **Heavy + Mech** chassis modifier (+1 firing tick & +10% damage all types) on those chassis/variants in `crates/engine/src/content.rs`.
@@ -90,10 +90,11 @@ native==wasm parity + a balancer field read. **All magnitudes are start-values t
 - [ ] T021 [US2] Add `home_zone` (from assigned placement) + FallBack-return / Kite-phase counters to `Combatant` in `model/army.rs`.
 - [ ] T022 [US2] Implement the self-terminating movement in `sim/behavior.rs`: Advance closes-then-idles, Kite oscillation, FallBack 10-tick duck + home-zone return respecting the 3/2 zone cap (data-model [CHANGE]).
 - [ ] T023 [US2] Update `validate.rs` for the new movement enum + targeting fields; keep zone-cap validation (3 ground / 2 air) intact.
+- [ ] T023b [US2] **TS parity for the US2 shape change** — `derive-battery.json` embeds instances whose `dials` carry `targetRow`/`targetRule` and the old `MovementMode`; the priority-chain + `Hold/Advance/Kite/FallBack` shape invalidates them. Update the TS model mirror (`sim/model.ts` `BehaviorDials`, `sim/derive.ts`) to the new targeting/movement shape, then **regenerate the fixture deliberately** (`cargo run -p engine --example emit_derive_battery -- tests/fixtures/derive-battery.json`) and confirm `derive-parity.test.ts` green. Resolve the pre-existing TS `SupportRange` `'WholeArmy'` gap here if the first regen surfaces it ([[derive-battery-fixture-stale]]).
 
 ### Verification gate (US2)
 
-- [ ] T024 [US2] Gate — cargo/npm tests green; native==wasm parity green; `verify --field all` + `field-metrics.js` show a reach/kite counter appearing (US2.1–2.4). Record delta; re-tune if regressed.
+- [ ] T024 [US2] Gate — `cargo test -p engine` + `cargo test -p balancer` + `npm test` (derive-parity, green **after** the T023b regen) + native==wasm parity all green; `verify --field all` + `field-metrics.js` show a reach/kite counter appearing (US2.1–2.4). Record delta; re-tune if regressed.
 
 **Checkpoint**: reach + positioning is a real, playable counter.
 
@@ -122,7 +123,7 @@ native==wasm parity + a balancer field read. **All magnitudes are start-values t
 
 ### Verification gate (US3)
 
-- [ ] T034 [US3] Gate — tests green; native==wasm parity; `verify --field all` shows a target matchup (e.g. air) **bends** without new dominance and power stays lateral (US3.1–3.3, SC-007). Record delta; re-tune.
+- [ ] T034 [US3] Gate — `cargo test -p engine` + `cargo test -p balancer` + `npm test` (derive-parity) + native==wasm parity all green; `verify --field all` shows a target matchup (e.g. air) **bends** without new dominance and power stays lateral (US3.1–3.3, SC-007). Mirror any new `EquipmentId` literals into the TS model; regenerate the fixture only if a case exercises them. Record delta; re-tune.
 
 **Checkpoint**: graded soft counters tilt the now-contestable matchups.
 
@@ -146,10 +147,11 @@ native==wasm parity + a balancer field read. **All magnitudes are start-values t
 - [ ] T039 [US4] **Remove the Energy dial**: delete `EnergyMode`, `EnergyModes`/`EnergyProfile`, `energy_damage_mult`/`_taken_mult`, `BehaviorDials.energy`; strip energy from `damage.rs`/`target.rs`/`army.rs`/`validate.rs`. **Keep** the Energy damage type + `air_mods.energy_air_dmg_mult`.
 - [ ] T040 [US4] Plan-B trigger changes in `model/types.rs` + `sim/behavior.rs`: add `TriggerCondition::NoTargetsReachable`; remove `AirEnemyExists`/`EnemyInZone`; restrict `DialKey`/`DialValue` to Movement/Stance (drop Energy + Targeting).
 - [ ] T041 [US4] Update `validate.rs` for the new stance/trigger/dial sets; keep 1 Plan-B slot (+1 via Combat AI `ExtraPlanBSlot`).
+- [ ] T041b [US4] **TS parity for the US4 shape change** — the fixture's `dials` carry the `energy` field and pre-v3 `Stance` values; dropping the energy dial and collapsing `Stance` invalidates them. Update the TS model mirror (`sim/model.ts` `BehaviorDials` — remove `energy`, restrict `Stance`; `sim/derive.ts`), then **regenerate the fixture deliberately** (`emit_derive_battery`) and confirm `derive-parity.test.ts` green.
 
 ### Verification gate (US4)
 
-- [ ] T042 [US4] Gate — tests green; native==wasm parity; `verify --field all` shows reactive value and **median duration within ~10% of 491** (SC-005 — the Defensive-stall watch). Record delta; re-tune the −20% if duration drifts.
+- [ ] T042 [US4] Gate — `cargo test -p engine` + `cargo test -p balancer` + `npm test` (derive-parity, green **after** the T041b regen) + native==wasm parity all green; `verify --field all` shows reactive value and **median duration within ~10% of 491** (SC-005 — the Defensive-stall watch). Record delta; re-tune the −20% if duration drifts.
 
 **Checkpoint**: planning-as-reaction adds depth without breaking duration.
 
@@ -172,10 +174,11 @@ native==wasm parity + a balancer field read. **All magnitudes are start-values t
 - [ ] T046 [US5] Implement **Command** as the army-wide while-alive buff (+1 Plan-B slot + advanced-behavior unlock) in `model/army.rs` / `sim/behavior.rs`.
 - [ ] T047 [US5] Implement the Commander Heal/Shield/Ablation **projector** weapon (0 direct damage; output scaled by stance) in `content.rs` / `sim/damage.rs`.
 - [ ] T048 [US5] Wire the Commander equipment kit (Amplifier/Coordination/Recon/Broadcast/Multi-Targeting/Boost/Reduction/Rally/Comms-Jammer, §14.6) in `content.rs`; confirm assassination is expressible via Target Support + deep reach (no new mechanic).
+- [ ] T048b [US5] **TS parity for the US5 shape change** — `AuraKind::DamageTaken` is additive, so existing cases stay green, but the TS `AuraKind` mirror must gain the variant and the fixture should carry a `DamageTaken` case for coverage. Add the variant to the TS model + a parity case, regenerate deliberately (`emit_derive_battery`), and confirm `derive-parity.test.ts` green.
 
 ### Verification gate (US5)
 
-- [ ] T049 [US5] Gate — tests green; native==wasm parity; `verify --field all` shows the assassinate-vs-protect cycle (US5.1–2). Record delta.
+- [ ] T049 [US5] Gate — `cargo test -p engine` + `cargo test -p balancer` + `npm test` (derive-parity, green **after** the T048b update) + native==wasm parity all green; `verify --field all` shows the assassinate-vs-protect cycle (US5.1–2). Record delta.
 
 **Checkpoint**: the capstone counter-cycle exists.
 
@@ -185,7 +188,7 @@ native==wasm parity + a balancer field read. **All magnitudes are start-values t
 
 **Purpose**: parity, propagation, and the whole-feature acceptance.
 
-- [ ] T050 [P] Update the TS derive mirror (`lib/*`, `types.ts` `SupportRange` etc.) and **regenerate `derive-battery.json` deliberately** for the changed enum/stat shapes; confirm `derive-parity.test.ts` green (never a side effect — [[derive-battery-fixture-stale]]).
+- [ ] T050 [P] **Final derive-parity reconciliation** — the per-slice TS updates (T023b/T041b/T048b) did the bulk; here confirm the TS mirror (`lib/*`, `sim/model.ts`, `types.ts` `SupportRange` — incl. the `'WholeArmy'` fix) is fully current and `derive-battery.json` matches the shipped ruleset. Regenerate once more **only if** drift remains (deliberately, never a side effect — [[derive-battery-fixture-stale]]); confirm `derive-parity.test.ts` green.
 - [ ] T051 Document + follow the **propagation order** in `contracts/ruleset-schema.md`: new enum variants (AuraKind::DamageTaken, NoTargetsReachable, new EquipmentIds) ⇒ **deploy wasm FIRST**, then `tsx scripts/reseed-current-ruleset.ts`, then verify on the arena path.
 - [ ] T052 [P] Reconcile any drift between the shipped numbers and `../014-counter-web/weapons-design.md` (the design is source of truth) — update the doc's start-values to the tuned values.
 - [ ] T053 **Whole-feature acceptance** — run `verify --field all` and confirm SC-001…008 hold **together** (no dominant build; ≥2 non-trap counters/top build; monotone → ~70%; cycles present; duration within ~10% of 491; native==wasm; power ≤25%; no coin-flips). Judge by contested/cycle count, not spread. Record final field in baseline.md.
@@ -204,6 +207,8 @@ native==wasm parity + a balancer field read. **All magnitudes are start-values t
 - **Polish (P8)** → after all desired stories.
 
 **Slices are sequential and measure-driven** — do not start the next slice until the current one's gate is green (or its start-values re-tuned). `crates/engine/src/model/types.rs`, `sim/damage.rs`, and `sim/behavior.rs` are touched by multiple slices, so cross-slice tasks on them are **not** `[P]`.
+
+**TS derive-parity is regenerated *within* the shape-changing slices** (T023b US2 · T041b US4 · T048b US5), not deferred — `derive-battery.json` embeds its own ruleset, so **value-only US1 leaves it green** while the enum/dial-shape slices must update the TS mirror and regenerate the fixture before their gate can pass. T050 is a final reconciliation, not the first update. Lettered task IDs (`T023b`, `T041b`, `T048b`) are in-slice inserts added at the finish-planning gate; they carry the `[Story]` label and a file path like every other task.
 
 ## Parallel Opportunities (within a slice)
 
