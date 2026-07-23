@@ -290,9 +290,12 @@ agreed · **[OPEN]** needs design/audit.
 - Numbers + rationale in **§15.1**. Retires the `OpportunistStance` unlock and the `Stance::COMBAT/
   SUPPORT/is_support/fits_role` role machinery (build-time cleanup).
 
-### 9.5 All secondary orders (Plan-B triggers) **[audit OPEN — the async counter engine]**
+### 9.5 All secondary orders (Plan-B triggers) **[RESOLVED → §15.4]**
 - **Now:** `when [condition] → set [dial] to [value]`, latches once. **6 conditions:** HullBelowPct
   · ShieldDown · AfterTick · AllyLostInZone · **AirEnemyExists** · EnemyInZone. Slots: 1 (+1 w/ Combat AI).
+- **Resolved (§15.4):** kept the latch; dials = **Movement/Stance only** (targeting is self-reactive);
+  triggers **5** — dropped `AirEnemyExists` (→ Target Air is redundant) and `EnemyInZone` (per-side
+  zones — no enemy intrusion), added `NoTargetsReachable`.
 - **Why it's central:** this *is* the "planning beats gear" mechanism, and `AirEnemyExists → fire
   secondary flak` is literally how the secondary-weapon doctrine (9.2) gets expressed. The secondary
   weapon and Plan-B are the same idea from two directions — unify them.
@@ -411,7 +414,7 @@ Tracking every open decision here so nothing is lost across the many interdepend
 | P24 | Aura-stacking | multiplicative buff stacking may run hot | **watch — measure**; cap/diminishing if needed |
 | P25 | Stances | collapse 8 → **3 universal** (Aggr/Balanced/Def); "output" = weapon *or* support-weapon output; **Def −20% output flagged for duration gate** | **DECIDED (§15.1); −20% measure** |
 | P26 | Energy modes | **CUT** — duplicated the stance posture axis; stance is a superset. NB: separate from `energy_air_dmg_mult` (kept) | **DECIDED (§15.2)** |
-| P27 | Plan-B | keep **latch** (no while-true); behaviors self-terminate so latch is correct; **+`NoTargetsReachable`** trigger (→7); dials = Targeting/Movement/Stance; slots 1(+1 Combat AI) | **DECIDED (§15.4); slot count measure** |
+| P27 | Plan-B | keep **latch** (no while-true); behaviors self-terminate so latch is correct; dials = **Movement/Stance only** (targeting self-reactive via §12); **every trigger reads own-state** (enemy-reactive = targeting's job); triggers **5**: +`NoTargetsReachable`, −`AirEnemyExists`, −`EnemyInZone`; slots 1(+1 Combat AI) | **DECIDED (§15.4); slot count measure** |
 
 **ALL DESIGN SURFACES DONE:** targeting · primary weapons (cadence) · armor · **behaviors** (stances
 §15.1 · energy cut §15.2 · movement §15.3 · Plan-B §15.4).
@@ -476,8 +479,11 @@ targeting.*
    when the chain hands you an air target.
 2. **Graded AA commitment falls out for free:** Target Air *primary* = dedicated AA; Target Air
    *tertiary* = casual AA. Same chassis, different doctrine, no new machinery.
-3. **Plan-B makes it reactive:** `AirEnemyExists → set slot-1 = Target Air`. Targeting + secondary
-   weapons + Plan-B are **one system**.
+3. **The priority chain is *already* reactive — no Plan-B needed for target selection.** A `Target
+   Air` filter fires only while air is present and falls through otherwise (re-evaluated per shot), so
+   you answer aircraft by *listing* Target Air, not by a `AirEnemyExists → Target Air` trigger.
+   **Plan-B therefore does NOT set targeting** — it only flips Stance/Movement, the things the chain
+   can't express (§15.4). *(Supersedes the earlier "AirEnemyExists → Target Air" example.)*
 
 ### 12.4 ECM + Decoy — target-priority offsets (unparks P8)
 Targeting becomes **priority-score-based** (the load-bearing engine change): rank candidates by a
@@ -901,8 +907,13 @@ pass, not before.
 
 The `when [condition] → set [dial] to [value]` layer — *the* "planning beats gear" mechanism. **Model
 unchanged:** latches (fires once, stays flipped), Slot-1 > Slot-2 precedence, **1 slot (+1 w/ Combat
-AI)**. Dials it can set (post-cut): **Targeting** (§12 priority slots) · **Movement** · **Stance**
-(Energy removed — drop `DialValue::Energy`/`DialKey::Energy`).
+AI)**. Dials it can set: **Movement · Stance only** (Energy cut; **Targeting removed too**).
+
+**Boundary — Plan-B does NOT touch targeting.** The §12 priority chain is *already* self-reactive: a
+`Target Air`/`Target Armor` filter fires only while that target exists and falls through otherwise
+(re-evaluated per shot). So "answer aircraft" = **list Target Air in your priorities**, not a Plan-B
+trigger — no duplication. Clean split: **Targeting = reactive target *selection* · Plan-B = reactive
+*posture/position*** (the stance/movement flips the chain can't express).
 
 **The latch-vs-revert decision (the one real question, surfaced by `NoTargetsReachable`):** keep the
 **simple latch**; do *not* add "while-true" semantics. Instead the **behaviors self-terminate** — a
@@ -915,21 +926,34 @@ So Plan-B stays a dumb one-shot latch and the movement modes absorb the "revert.
 oscillation bugs. `NoTargetsReachable → Advance` (user) is the worked example: latch to Advance, the
 self-terminating mode does the rest.
 
-**Trigger menu — keep 6, add 1 (→ 7):**
+**Trigger menu — 5 (drop `AirEnemyExists` + `EnemyInZone`, add `NoTargetsReachable`); all set
+Movement/Stance. Every trigger reads *your own* state — see the boundary below:**
 
-| Trigger | Typical use |
-|---|---|
-| `HullBelowPct(x)` | panic → Defensive / FallBack |
-| `ShieldDown` | shield cracked → Defensive / duck |
-| `AfterTick(t)` | open aggressive, turtle late (or reverse) |
-| `AllyLostInZone` | zone-mate died → FallBack, or Advance to fill the freed slot |
-| `AirEnemyExists` | **the AA reactive** → add Target Air to priority |
-| `EnemyInZone(z)` | positional → e.g. a kite trigger |
-| **`NoTargetsReachable`** *(new — user)* | **stranded → Advance** (self-terminating) |
+| Trigger | Reads | Typical use (Movement / Stance) |
+|---|---|---|
+| `HullBelowPct(x)` | self hull | panic → Defensive / FallBack |
+| `ShieldDown` | self shield | shield cracked → Defensive / duck |
+| `AfterTick(t)` | clock | open aggressive, turtle late (or reverse) |
+| `AllyLostInZone` | my zone | zone-mate died → FallBack, or Advance to fill the freed slot |
+| **`NoTargetsReachable`** *(new — user)* | self reach | **stranded → Advance** (self-terminating) |
+
+**The boundary this makes explicit:** every Plan-B trigger reads *your own* state (hull / shield /
+clock / your zone / your reach). **The enemy-reactive job belongs entirely to targeting** (the §12
+chain reacts to what the enemy fields). *Targeting watches the enemy; Plan-B watches yourself.*
+
+**Dropped `AirEnemyExists`:** its only job was `→ Target Air`, now redundant with the priority chain
+(air response = list Target Air; air-capable units engage air first innately).
+**Dropped `EnemyInZone(z)`:** misnamed — ground zones are **per-side formation rows**, enemies never
+enter yours ([army.rs:50](../../crates/engine/src/model/army.rs)); the impl only detects "enemy still
+holds their row z," a confusing signal with no clean posture/movement use. If a "row cleared" trigger
+is ever wanted, name it properly then. *(If enemy-reactive **posture** is ever needed — e.g.
+helpless-vs-air → Defensive — `AirEnemyExists → Stance` is the well-defined re-add; held out for now.)*
 
 **Open lever — slot count:** 1 base (+1 Combat AI) is stingy for *the* counter engine; bump base to 2
 if the field needs more reactivity, but more slots ⇒ more "solved" optimal configs. **Lean keep
 1(+1); let the balancer decide** — interacts with the locked equipment budget. **Measure.**
 
-**Build:** add `TriggerCondition::NoTargetsReachable`; wire self-terminating `Advance`; remove
-`DialValue::Energy`/`DialKey::Energy` from the Plan-B dial set.
+**Build:** add `TriggerCondition::NoTargetsReachable`; **remove `TriggerCondition::AirEnemyExists`**;
+**remove `TriggerCondition::EnemyInZone`**; wire self-terminating `Advance`; **remove Targeting +
+Energy from the Plan-B dial set** (`DialValue`/
+`DialKey` keep only `Movement`/`Stance`).
