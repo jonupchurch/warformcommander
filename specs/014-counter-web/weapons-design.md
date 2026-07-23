@@ -50,10 +50,20 @@ Throughput = damage per tick. Fire rate: Fast=1t, Medium=3t, Slow=5t, Siege=10t.
 | Medic / Warden / CommandPost | Rear Support | 0 | — | — | — | 370–801 | 12–18% |
 
 ### 3.2 Damage matrix (the counter triangle)
+**Current v2** (too weak — never overturned a rank gap, per diagnosis):
 | Type | vs Shields | vs Armor |
 |---|--:|--:|
 | Kinetic | ×1.4 | ×0.85 |
 | Energy | ×0.6 | ×1.25 |
+| Explosive | ×1.0 | ×1.0 |
+
+**v3 sharpened [DECIDED start value — measure & tune]:** symmetric, wide enough that the right type
+*swings* a matchup (≈2.3× spread same-layer). Explosive stays neutral; its edge is splash + reach,
+not the matrix.
+| Type | vs Shields | vs Armor |
+|---|--:|--:|
+| Kinetic | ×1.6 | ×0.7 |
+| Energy | ×0.7 | ×1.6 |
 | Explosive | ×1.0 | ×1.0 |
 
 ### 3.3 Weapon-swap options (equipment) — where energy hides
@@ -81,12 +91,21 @@ Energy = **only two guns in the game**: Siege Laser (Heavy) and Pulse Laser (Mec
 
 ## 4. Design directions
 
-### D1 — Damage type becomes a real choice (the *primary* weapon) **[DECIDED in principle]**
+### D1 — Damage type becomes a real choice (the *primary* weapon) **[DECIDED]**
 - Every combat chassis can field **one weapon of each damage type** (kinetic / energy / explosive).
-- **Native-family bonus kept as the tradeoff:** the native type keeps its +12%; off-type weapons
-  trade that +12% for the matrix swing. Counter-picking your type is a *read*, not a free upgrade.
-- **Mech is the exception** — generalist, no native family → pays no tax on any type → the true
-  flex-picker. That becomes its identity.
+- **(A) The three type-variants differ in damage type *and* their welded firing profile** (cadence +
+  DPS/alpha — see D6); accuracy/splash stay uniform. Per-shot damage derives from throughput ÷ the
+  type's cadence, tilted by the DPS/alpha tradeoff and the Heavy/Mech chassis modifier — the matrix
+  (B) is the only bespoke new number.
+- **(C) Native +12% kept** as the tradeoff: native type keeps +12%; off-type trades it for the
+  matrix swing → counter-picking your type is a *read*, not a free upgrade.
+- **(B) Matrix sharpened** to ×1.6 same-layer / ×0.7 cross-layer (§3.2) so the right type *swings* a
+  matchup; measure & tune.
+- **Mech = no native → free flex-picker** (its identity).
+- **Weapon type × armor family = one counter loop:** your weapon counters their *defense*, their
+  weapon counters *your* defense — the counter-pick mind-game. Neither is RPS alone; together they
+  are. (Avoidance defenses — camo/ECM/chaff — are matrix-immune; countered by accuracy/splash/reach,
+  which live in equipment/secondary, not the primary.)
 
 ### D2 — Secondary weapon slot, one-at-a-time **[DECIDED in principle]**
 - Each unit carries a **primary + a secondary**; they **share the firing clock**, so the secondary
@@ -133,6 +152,32 @@ The trap: *if the only secondary is AA, we just nerf helis globally.* Fix, two p
 Type-counters only bite if targets actually *vary* their defense family. Families already exist
 (Balanced / Armor / Shield / Ablative per mount, + Mech Reactive). Likely needs the same
 "make-the-choice-matter" pass as weapons, or the triangle stays dormant even after D1.
+
+### D6 — Fire cadence & firing profile **[DECIDED]**
+Cadence is a **property welded to damage type** (P19 = firing-profile config, *not* separate weapons):
+
+| Type | Cadence | Profile |
+|---|---|---|
+| Energy | Fast | slight **DPS lead**, low alpha |
+| Kinetic | Medium | balanced |
+| Explosive | Slow (Artillery → Siege) | lower DPS, high **alpha** + splash |
+
+- **DPS↔alpha tradeoff (P20):** throughput is *not* flat — fast carries a slight sustained-DPS lead,
+  slow trades DPS for big per-shot alpha. No type is independently best: fast grinds non-regen
+  targets; slow **bursts through** shield-regen / healing / overkill-thresholds. *(Amends D1-A.)*
+- **Chassis modifier — Heavy Tank & Mech: +1 tick firing time, +10% damage across all weapon types.**
+  The "heavy platform" identity — ponderous but punchy, pushed toward the alpha end (a Heavy's fast
+  energy still fires slow-ish and hits hard). Consequence: fast weapons lose relatively more sustained
+  DPS on heavy chassis (reinforces "heavies don't machine-gun"), and **battles run a bit longer**
+  (accepted — watch median-duration in measurement).
+
+**Completed offense → defense counter map** (every defensive family now has an offensive answer):
+| Offensive axis | Counters defensive family |
+|---|---|
+| **Type** (K/E/X matrix) | Armor vs Shield — *which layer* |
+| **Cadence/alpha** (rides on type) | Shield-**regen** & Healing — *regeneration* (burst) |
+| **Delivery** (accuracy/splash — equip & secondary) | Evasion / Camo / ECM — *avoidance* |
+| **Sustained attrition** (either) | Ablative / Reactive — *the hedge* |
 
 ---
 
@@ -300,15 +345,14 @@ by accuracy/volume/splash). Only the front-line (Heavy, Mech) get *heavy* mitiga
 - **Chaff** → *dedicated* high-accuracy AA (SAM) still connects; only *casual* secondary flak whiffs.
 
 ### 10.3 Open questions
-1. **[OPEN] Ablative** isn't in the scheme — retire it, or keep as a gated option? It's the
-   "one-time pool, beaten by attrition" web node; dropping it removes a counter.
+1. **[DECIDED] Ablative retired from the core** armor set — the only "hedge" (anti-counter-pick)
+   defense is Mech Reactive, keeping type-countering meaningful for the other five chassis.
 2. **[PARKED → targeting] ECM targeting model** — the one mechanic with real engine cost. How
    universal is it (only vs threat-based targeting, or a global target-draw reduction that all rules
    weight)? **Deferred to the dedicated targeting discussion (9.7); do not decide until then.**
-3. **[OPEN] Mech Reactive Plating** — Mech's 3 are shield/balanced/armor; does the v2 Reactive
-   module stay as a 4th Mech-exclusive, or get replaced?
-4. **[OPEN] AA vs Artillery grouping** — Rocket Arty and Artillery are distinct chassis; confirm
-   they each get these same 3 (shared fragile-backline identity).
+3. **[DECIDED] Mech Reactive kept** as Mech's exclusive 4th — the flex chassis's anti-counter-pick
+   hedge (adapts mitigation toward whatever's hitting hardest).
+4. **[DECIDED] AA & Artillery** each get the same three (shared fragile-backline identity).
 
 ---
 
@@ -320,16 +364,16 @@ Tracking every open decision here so nothing is lost across the many interdepend
 
 | # | Decision | Lean | Status / blocker |
 |---|---|---|---|
-| P1 | Native +12% bonus — keep? | Keep (makes off-type a tradeoff; Mech-flex needs it) | open |
-| P2 | Matrix magnitude (±25/40% or sharpen) | — | measure before changing |
-| P3 | Secondary selection rule + priority dial | auto-fire on target class, dial-set doctrine | partly blocked → 9.7 targeting |
+| P1 | Native +12% bonus | Keep | **DECIDED** |
+| P2 | Matrix magnitude | **sharpen** → start ×1.6 same-layer / ×0.7 cross-layer, explosive ×1.0 | **DECIDED (start value; measure)** |
+| P3 | Secondary selection rule | fires at the target the priority chain picks (§12.3) | **DECIDED — unified into targeting** |
 | P4 | Secondary menu scope for v1 | flak + air-answer together | open |
 | P5 | Which chassis get a secondary slot | — | open |
-| P6 | Hold throughput flat within a chassis | Yes | open |
-| P7 | Ablative — retire or keep? | — | open (10.3 #1) |
-| P8 | ECM mechanic | −2 target-rank offset; Decoy = +1 (§12.4) | **direction DECIDED**; magnitude tunable |
-| P9 | Mech Reactive Plating — keep as 4th? | — | open (10.3 #3) |
-| P10 | AA vs Artillery share the 3 defenses? | Each gets them | confirm (10.3 #4) |
+| P6 | Throughput within a chassis | **not flat** — fast slight DPS lead, slow more alpha (D6/P20) | **DECIDED (supersedes "flat")** |
+| P7 | Ablative | **retire from core** — hedge limited to Mech Reactive | **DECIDED** |
+| P8 | ECM mechanic | −2 target-rank offset; Decoy = +1 (§12.4) | **DECIDED (dir); magnitude tunable** |
+| P9 | Mech Reactive Plating | **keep as Mech's 4th** — flex/anti-counter hedge | **DECIDED** |
+| P10 | AA vs Artillery defenses | each gets the 3 | **DECIDED** |
 | P11 | Support: add `AuraKind::DamageTaken` | Add | decided (D4) |
 | P12 | Targeting model | 2 filters + fallback selector, priority-score (§12) | **structure DECIDED** |
 | P13 | Does this re-scope spec 014, or become a new spec (v3)? | — | meta — revisit once design settles |
@@ -338,9 +382,12 @@ Tracking every open decision here so nothing is lost across the many interdepend
 | P16 | Concentration | dropped — Follow = focus; default = overkill-avoid disperse | **DECIDED (§12.5)** |
 | P17 | Smart selectors | **none** — retire BiggestThreat/SmartCounter/Most-Least-HP/Threat | **DECIDED (§12.7)** |
 | P18 | Fallback selector pool | positional only: Closest / Furthest | **DECIDED (§12.7)** |
+| P19 | Cadence delivery | firing-profile (#1) welded to **type**: Energy Fast / Kinetic Med / Explosive Slow / Arty Siege | **DECIDED (D6)** |
+| P20 | Cadence tradeoff + chassis mod | fast +slight DPS/low alpha, slow −DPS/high alpha; **Heavy+Mech +1 tick & +10% dmg** all types | **DECIDED (D6)** |
 
-**Next discussion candidates:** finish targeting (P14–P17 — small), continue locking armor
-(P7/P9/P10), or move to primary-weapon numbers (P1/P2).
+**Surfaces DONE:** targeting · primary weapons (incl. cadence) · armor.
+**Open:** secondary-weapon menu (P4/P5) · stances · equipment prune · support-mode numbers ·
+matrix+cadence measurement.
 
 ---
 
