@@ -66,7 +66,8 @@ impl AirFocus {
 pub(crate) fn select_target(
     combatants: &[Combatant],
     att_idx: usize,
-    ruleset: &Ruleset,
+    // Retained in the signature for the US2 priority-score chain (Decoy/ECM offsets); unused this slice.
+    _ruleset: &Ruleset,
     focus: Option<&mut AirFocus>,
 ) -> Option<usize> {
     let att = &combatants[att_idx];
@@ -84,13 +85,9 @@ pub(crate) fn select_target(
         return None;
     }
 
-    // 2. Target Row (a): narrow to one row.
+    // 2. Target Row (a): narrow to one row. (v3 US4: stance no longer steers targeting — it is a
+    // magnitude axis now; the priority-score chain replaces the aggro narrowing in US2.)
     let row = pick_row(combatants, &reachable, att.dials.target_row);
-
-    // 2b. Stance aggro tiers (v2): narrow the row to the units drawn first — Aggressive/Protector
-    // ahead of Neutral, Defensive last — and let a Protector in an adjacent zone intercept. Applied
-    // *before* the Target Rule so it works with all eight rules (research R5).
-    let row = narrow_by_stance(combatants, &reachable, &row, att, ruleset);
 
     // 3. Target Rule (b): pick the unit within that row.
     let chosen = pick_unit(combatants, &row, att);
@@ -281,73 +278,6 @@ fn pick_row(combatants: &[Combatant], reachable: &[usize], row: TargetRow) -> Ve
         .iter()
         .copied()
         .filter(|&j| combatants[j].zone == chosen)
-        .collect()
-}
-
-/// Two ground zones adjacent for Protector interception (`Front↔Middle↔Rear`; Air is not adjacent).
-fn ground_adjacent(a: ZoneId, b: ZoneId) -> bool {
-    matches!(
-        (a, b),
-        (ZoneId::Front, ZoneId::Middle)
-            | (ZoneId::Middle, ZoneId::Front)
-            | (ZoneId::Middle, ZoneId::Rear)
-            | (ZoneId::Rear, ZoneId::Middle)
-    )
-}
-
-/// Narrow the chosen row to the enemies drawn first by their stance tier (v2). Lower `stance_aggro`
-/// offset = targeted sooner, so Aggressive/Protector (−1) shield Neutral (0), which shields Defensive
-/// (+1). A **Protector** in a ground-adjacent zone is pulled into the candidate set, so it intercepts
-/// fire aimed at its neighbours (FR-016). An **Aggressive** attacker ignores the whole thing — its
-/// targeting cannot be baited or hidden from (FR-014). A uniform set of stances is a no-op: every
-/// candidate shares one offset, so all survive and the Target Rule chooses exactly as before (FR-017).
-fn narrow_by_stance(
-    combatants: &[Combatant],
-    reachable: &[usize],
-    row: &[usize],
-    att: &Combatant,
-    ruleset: &Ruleset,
-) -> Vec<usize> {
-    use crate::model::types::Stance;
-    if att.dials.stance == Stance::Aggressive {
-        return row.to_vec();
-    }
-    let aggro = &ruleset.stance_aggro;
-    // Aggro tiers belong to combat machines. A support machine contributes a neutral offset and never
-    // intercepts as a Protector, so an out-of-role combat stance on a support unit degrades to neutral
-    // targeting rather than letting it bait fire (v2 role split, FR-019).
-    let is_support = |j: usize| {
-        combatants[j]
-            .stats
-            .support_power
-            .is_some_and(|p| p.milli() > 0)
-    };
-    let off = |j: usize| {
-        if is_support(j) {
-            0
-        } else {
-            aggro.offset(combatants[j].dials.stance)
-        }
-    };
-
-    // Candidate set: the chosen row, plus any reachable Protector guarding an adjacent ground zone.
-    let chosen_zone = combatants[row[0]].zone;
-    let mut candidates = row.to_vec();
-    for &j in reachable {
-        if combatants[j].dials.stance == Stance::Protector
-            && !is_support(j)
-            && ground_adjacent(combatants[j].zone, chosen_zone)
-            && !candidates.contains(&j)
-        {
-            candidates.push(j);
-        }
-    }
-
-    // Keep only the minimum-offset (drawn-first) candidates.
-    let min_off = candidates.iter().map(|&j| off(j)).min().unwrap();
-    candidates
-        .into_iter()
-        .filter(|&j| off(j) == min_off)
         .collect()
 }
 

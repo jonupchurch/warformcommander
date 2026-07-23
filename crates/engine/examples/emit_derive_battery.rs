@@ -338,9 +338,9 @@ fn main() {
         validate_cases.push(validate_case(&rs, "v6:ungated-2nd-planb", &a));
     }
     {
-        use engine::model::types::Stance;
+        use engine::model::types::TargetRule;
         let mut a = legal_army(&rs);
-        a.machines[0].dials.stance = Stance::Opportunist; // no Combat AI
+        a.machines[0].dials.target_rule = TargetRule::TargetAir; // no Sensor Suite
         validate_cases.push(validate_case(&rs, "v7:ungated-dial", &a));
     }
     {

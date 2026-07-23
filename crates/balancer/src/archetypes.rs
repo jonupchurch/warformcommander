@@ -382,15 +382,15 @@ pub fn combined_arms_field() -> Vec<Archetype> {
     ]
 }
 
-/// Assign a **role-based stance** to a placed machine (v2 stance diagnostic): front-zone units become
-/// Protectors that soak for the line, the fragile Rear backline goes Defensive to hide, and the middle
-/// holds Neutral. This is the deliberate, sensible use of the dial the balancer needs to *see* stance
-/// at all — every archetype otherwise carries stock `Neutral`, and a uniform-stance army is by design
-/// identical to all-Neutral (research R8), so without this the dial reads as inert no matter how well
-/// it works.
+/// Assign a **role-based stance** to a placed machine (v3 stance diagnostic): front-zone brawlers go
+/// Aggressive (trading survivability for output where they trade blows), the fragile Rear backline
+/// goes Defensive (less output, but harder to kill), and the middle holds Neutral. Stance is a
+/// two-sided magnitude axis now (US4), so — unlike the retired v2 fire-allocation model — a non-uniform
+/// stance field measurably differs from all-Neutral, which is exactly what this diagnostic needs to
+/// show (SC-006). Every archetype otherwise carries stock `Neutral`.
 fn stance_by_role(mut m: MachineInstance) -> MachineInstance {
     m.dials.stance = match m.zone {
-        ZoneId::Front => Stance::Protector,
+        ZoneId::Front => Stance::Aggressive,
         ZoneId::Rear => Stance::Defensive,
         ZoneId::Middle | ZoneId::Air => Stance::Neutral,
     };

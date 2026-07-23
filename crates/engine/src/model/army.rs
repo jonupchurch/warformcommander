@@ -532,7 +532,7 @@ mod tests {
                 }),
             },
         );
-        // Combat AI Core: +1 Plan-B slot, unlocks Adaptive + Opportunist.
+        // Combat AI Core: +1 Plan-B slot.
         equipment.insert(
             EquipmentId::new("CombatAI"),
             EquipmentModule {
@@ -540,10 +540,7 @@ mod tests {
                 name: "Combat AI Core".into(),
                 spec: EquipmentSpec::Utility(UtilitySpec {
                     stat_deltas: None,
-                    unlocks: vec![
-                        Capability::ExtraPlanBSlot,
-                        Capability::OpportunistStance,
-                    ],
+                    unlocks: vec![Capability::ExtraPlanBSlot],
                     cadence_shift: 0,
                 }),
             },
@@ -615,9 +612,7 @@ mod tests {
             role_damage_bonuses: BTreeMap::new(),
             ablative_mods: crate::model::ruleset::AblativeMods::default(),
             mount_scale: crate::model::ruleset::MountScale::default(),
-            stance_aggro: crate::model::ruleset::StanceAggro::default(),
-            execute_mods: crate::model::ruleset::ExecuteMods::default(),
-            empower_mods: crate::model::ruleset::EmpowerMods::default(),
+            stance_mods: crate::model::ruleset::StanceMods::default(),
             reactive_mods: crate::model::ruleset::ReactiveMods::default(),
             coordination: crate::model::ruleset::Coordination::default(),
         }
@@ -723,7 +718,7 @@ mod tests {
         assert_eq!(e.cadence, CadenceTier::Medium, "Autoloader: Slow → Medium");
         assert_eq!(e.move_speed, Some(3), "base 2, −1 composite, +2 servos");
         assert_eq!(e.plan_b_slots, 2, "Combat AI grants a 2nd slot");
-        assert!(e.capabilities.contains(&Capability::OpportunistStance));
+        assert!(e.capabilities.contains(&Capability::ExtraPlanBSlot));
     }
 
     /// A shield defense establishes a shield on a hull that had none.

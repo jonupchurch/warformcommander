@@ -15,8 +15,8 @@ use std::collections::BTreeMap;
 use crate::fixed::Fixed;
 use crate::model::army::MachineInstance;
 use crate::model::ruleset::{
-    AblativeMods, AirModifiers, CadenceTicks, Coordination, DamageMatrix, EmpowerMods,
-    ExecuteMods, GlobalConstants, LayerMultipliers, MountScale, ReactiveMods, Ruleset, StanceAggro,
+    AblativeMods, AirModifiers, CadenceTicks, Coordination, DamageMatrix,
+    GlobalConstants, LayerMultipliers, MountScale, ReactiveMods, Ruleset, StanceMods,
 };
 use crate::model::types::{
     AblativeDelta, AuraEffect, AuraKind, AuraScope, BaseStats, CadenceTier, Capability,
@@ -96,9 +96,7 @@ pub fn seed_ruleset() -> Ruleset {
         role_damage_bonuses: BTreeMap::new(),
         ablative_mods: AblativeMods::default(),
         mount_scale: MountScale::default(),
-        stance_aggro: StanceAggro::default(),
-        execute_mods: ExecuteMods::default(),
-        empower_mods: EmpowerMods::default(),
+        stance_mods: StanceMods::default(),
         reactive_mods: ReactiveMods::default(),
         coordination: Coordination::default(),
     }
@@ -998,10 +996,7 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
         "Combat AI Core",
         EquipmentSpec::Utility(crate::model::types::UtilitySpec {
             stat_deltas: None,
-            unlocks: vec![
-                Capability::ExtraPlanBSlot,
-                Capability::OpportunistStance,
-            ],
+            unlocks: vec![Capability::ExtraPlanBSlot],
             cadence_shift: 0,
         }),
     );

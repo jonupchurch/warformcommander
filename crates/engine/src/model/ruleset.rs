@@ -16,7 +16,7 @@ use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 
-use crate::fixed::Bp;
+use crate::fixed::{Bp, BP_ONE};
 use crate::model::types::{
     BaseStats, CadenceTier, ChassisVariant, DamageType, EquipmentId, EquipmentModule,
     MachineType, MachineTypeId, RoleDamageBonus, VariantId,
@@ -63,18 +63,10 @@ pub struct Ruleset {
     /// out of the same slot. Omitted from serialization at the default (hash-stable).
     #[serde(default, skip_serializing_if = "MountScale::is_default")]
     pub mount_scale: MountScale,
-    /// Stance fire-priority offsets (v2) — the aggro tiers that narrow the candidate row before the
-    /// Target Rule picks. An allocation axis, not a magnitude one. Omitted at the default (hash-stable).
-    #[serde(default, skip_serializing_if = "StanceAggro::is_default")]
-    pub stance_aggro: StanceAggro,
-    /// The Opportunist execute bonus (v2) — extra damage against targets below a hull threshold.
-    /// Omitted from serialization at the default (hash-stable).
-    #[serde(default, skip_serializing_if = "ExecuteMods::is_default")]
-    pub execute_mods: ExecuteMods,
-    /// The Empower support stance (v2) — the overshield ceiling a support machine can raise an ally to
-    /// instead of repairing it. Omitted from serialization at the default (hash-stable).
-    #[serde(default, skip_serializing_if = "EmpowerMods::is_default")]
-    pub empower_mods: EmpowerMods,
+    /// Stance output/resilience modifiers (v3, spec 015 US4) — the two-sided magnitude the stance dial
+    /// applies to a machine's output and incoming damage. Omitted at the default (hash-stable).
+    #[serde(default, skip_serializing_if = "StanceMods::is_default")]
+    pub stance_mods: StanceMods,
     /// Reactive plating (v2, Mech) — the mitigation rate applied to the dominant absorbed damage
     /// family. Omitted from serialization at the default (hash-stable).
     #[serde(default, skip_serializing_if = "ReactiveMods::is_default")]
@@ -308,121 +300,86 @@ impl Coordination {
     }
 }
 
-/// Stance fire-priority offsets (v2). **Lower is targeted first.** These are *relative* within a row:
-/// a uniform set of offsets is a no-op (FR-017), so the dial expresses a ranking of one's own units,
-/// not an acquired bonus. Combat stances (Aggressive/Defensive/Protector) carry real offsets; the
-/// support and gated stances sit at 0 (their behaviour lives elsewhere).
+/// Stance output/resilience modifiers (v3, spec 015 US4). Stance is a **two-sided magnitude** axis —
+/// not the v2 fire-allocation axis it replaced: an `Aggressive` machine trades survivability for
+/// output, a `Defensive` one trades output for survivability, `Neutral` is the identity baseline.
+/// "Output" is the machine's weapon damage *or* a support/Commander projection. The mods are read
+/// live from `dials.stance` on each hit (so a Plan-B stance flip takes effect at once) in
+/// `sim/damage.rs`. All magnitudes are start-values, tunable via the balancer (P4).
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct StanceAggro {
-    pub aggressive: i8,
-    pub neutral: i8,
-    pub defensive: i8,
-    pub protector: i8,
-    pub opportunist: i8,
-    pub triage: i8,
-    pub sustain: i8,
-    pub empower: i8,
+pub struct StanceMods {
+    /// Aggressive: outgoing damage/projection multiplier (bp). `10_500` = +5%.
+    pub aggressive_output: Bp,
+    /// Aggressive: additive accuracy (bp). `500` = +5%.
+    pub aggressive_accuracy: Bp,
+    /// Aggressive: incoming-damage multiplier (bp). `11_000` = +10% taken.
+    pub aggressive_taken: Bp,
+    /// Defensive: outgoing damage/projection multiplier (bp). `8_000` = −20%.
+    pub defensive_output: Bp,
+    /// Defensive: incoming-damage multiplier (bp). `9_500` = −5% taken. For now this single lever also
+    /// folds in the design's +5% armor / +5% shield resilience; the balance pass can split it into
+    /// per-layer scaling later (all start-values).
+    pub defensive_taken: Bp,
+    /// Defensive: additive evasion (bp). `500` = +5%.
+    pub defensive_evasion: Bp,
 }
 
-impl Default for StanceAggro {
-    /// Aggressive/Protector draw fire (−1), Defensive sheds it (+1), everything else is tier-neutral.
-    /// Protector shares Aggressive's tier; its distinction is cross-zone reach, not a deeper tier.
+impl Default for StanceMods {
     fn default() -> Self {
-        StanceAggro {
-            aggressive: -1,
-            neutral: 0,
-            defensive: 1,
-            protector: -1,
-            opportunist: 0,
-            triage: 0,
-            sustain: 0,
-            empower: 0,
+        StanceMods {
+            aggressive_output: 10_500,
+            aggressive_accuracy: 500,
+            aggressive_taken: 11_000,
+            defensive_output: 8_000,
+            defensive_taken: 9_500,
+            defensive_evasion: 500,
         }
     }
 }
 
-impl StanceAggro {
-    /// The fire-priority offset for a stance (lower is targeted first).
-    pub fn offset(&self, stance: crate::model::types::Stance) -> i8 {
+impl StanceMods {
+    /// Outgoing damage/projection multiplier for an attacker holding `stance` (`BP_ONE` for Neutral).
+    pub fn output_mult(&self, stance: crate::model::types::Stance) -> Bp {
         use crate::model::types::Stance;
         match stance {
-            Stance::Aggressive => self.aggressive,
-            Stance::Neutral => self.neutral,
-            Stance::Defensive => self.defensive,
-            Stance::Protector => self.protector,
-            Stance::Opportunist => self.opportunist,
-            Stance::Triage => self.triage,
-            Stance::Sustain => self.sustain,
-            Stance::Empower => self.empower,
+            Stance::Aggressive => self.aggressive_output,
+            Stance::Neutral => BP_ONE,
+            Stance::Defensive => self.defensive_output,
+        }
+    }
+
+    /// Additive accuracy for an attacker holding `stance` (0 for Neutral/Defensive).
+    pub fn accuracy_add(&self, stance: crate::model::types::Stance) -> Bp {
+        use crate::model::types::Stance;
+        match stance {
+            Stance::Aggressive => self.aggressive_accuracy,
+            _ => 0,
+        }
+    }
+
+    /// Incoming-damage multiplier for a target holding `stance` (`BP_ONE` for Neutral).
+    pub fn taken_mult(&self, stance: crate::model::types::Stance) -> Bp {
+        use crate::model::types::Stance;
+        match stance {
+            Stance::Aggressive => self.aggressive_taken,
+            Stance::Neutral => BP_ONE,
+            Stance::Defensive => self.defensive_taken,
+        }
+    }
+
+    /// Additive evasion for a target holding `stance` (0 for Neutral/Aggressive).
+    pub fn evasion_add(&self, stance: crate::model::types::Stance) -> Bp {
+        use crate::model::types::Stance;
+        match stance {
+            Stance::Defensive => self.defensive_evasion,
+            _ => 0,
         }
     }
 
     /// Serialization skip at the default (hash stability).
     pub fn is_default(&self) -> bool {
-        *self == StanceAggro::default()
-    }
-}
-
-/// The Opportunist execute bonus (v2). Extra damage against a target below `threshold` hull — the one
-/// stance that is a self-trade on the otherwise team-trade stance dial, which is why it is the gated,
-/// premium pick. Setting `bonus` to `0` disables the mechanic without a code change (individually
-/// reversible, like every v2 balance lever).
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ExecuteMods {
-    /// Hull fraction (bp) at or below which the bonus applies. `4_000` = 40%.
-    pub threshold: Bp,
-    /// Additive damage multiplier above `BP_ONE` against a target under the threshold. `3_000` = +30%.
-    pub bonus: Bp,
-}
-
-impl Default for ExecuteMods {
-    fn default() -> Self {
-        ExecuteMods {
-            threshold: 4_000,
-            bonus: 3_000,
-        }
-    }
-}
-
-impl ExecuteMods {
-    /// Serialization skip at the default (hash stability).
-    pub fn is_default(&self) -> bool {
-        *self == ExecuteMods::default()
-    }
-}
-
-/// The Empower support stance (v2). Instead of repairing hull, an Empower support raises each ally's
-/// shield toward a ceiling — a net effective-HP gain above the natural shield cap, refreshed each tick
-/// while the support lives and the ally stays in range. The rate is the support's own `support_power`
-/// (the amount it would otherwise have healed); this table only sets the ceiling. Setting the ceiling
-/// below every ally's natural shield cap disables the mechanic without a code change.
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct EmpowerMods {
-    /// Overshield ceiling as a fraction of the ally's max hull (bp). `3_000` = up to +30% max-hull
-    /// worth of shield. The pool is bounded here, so Empower can never run away.
-    pub shield_cap_bp: Bp,
-}
-
-impl Default for EmpowerMods {
-    fn default() -> Self {
-        EmpowerMods {
-            shield_cap_bp: 3_000,
-        }
-    }
-}
-
-impl EmpowerMods {
-    /// The overshield ceiling (Fixed) for a machine with `max_hull`.
-    pub fn ceiling(&self, max_hull: crate::fixed::Fixed) -> crate::fixed::Fixed {
-        max_hull.mul_bp(self.shield_cap_bp)
-    }
-
-    /// Serialization skip at the default (hash stability).
-    pub fn is_default(&self) -> bool {
-        *self == EmpowerMods::default()
+        *self == StanceMods::default()
     }
 }
 
@@ -728,9 +685,7 @@ mod tests {
             role_damage_bonuses: BTreeMap::new(),
             ablative_mods: AblativeMods::default(),
             mount_scale: MountScale::default(),
-            stance_aggro: StanceAggro::default(),
-            execute_mods: ExecuteMods::default(),
-            empower_mods: EmpowerMods::default(),
+            stance_mods: StanceMods::default(),
             reactive_mods: ReactiveMods::default(),
             coordination: Coordination::default(),
         }

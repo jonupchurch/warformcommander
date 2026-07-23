@@ -12,7 +12,7 @@ use crate::model::army::{derive_effective_stats, Army, DerivationError, MachineI
 use crate::model::ruleset::Ruleset;
 use crate::model::types::{
     Capability, EquipmentId, EquipmentSpec, MovementMode, PlanBSlot, SlotLayout,
-    Stance, TargetRule, ZoneId,
+    TargetRule, ZoneId,
 };
 
 /// Zone caps (game rules, not tunable balance): ground rows hold 3, Air holds 2.
@@ -283,9 +283,9 @@ fn validate_utilities(
     }
 }
 
-/// Gate the dial options that have a defined unlocking capability (Adaptive energy, Opportunist
-/// stance, Target-Air). Options without a defined capability gate are allowed (the gating table is
-/// data-driven and grows as capabilities are added).
+/// Gate the dial options that have a defined unlocking capability (currently the Target-Air rule).
+/// Options without a defined capability gate are allowed (the gating table is data-driven and grows
+/// as capabilities are added).
 fn check_dial_gating(
     m: &MachineInstance,
     caps: &std::collections::BTreeSet<Capability>,
@@ -301,11 +301,6 @@ fn check_dial_gating(
             ));
         }
     };
-    gate(
-        Capability::OpportunistStance,
-        m.dials.stance != Stance::Opportunist,
-        "Opportunist stance",
-    );
     gate(
         Capability::TargetAir,
         m.dials.target_rule != TargetRule::TargetAir,
@@ -332,7 +327,7 @@ mod tests {
     use super::*;
     use crate::content::{seed_ruleset, stock_instance};
     use crate::model::types::{
-        DialKey, DialValue, EquipmentId, MachineTypeId, MovementMode, PlanBTrigger,
+        DialKey, DialValue, EquipmentId, MachineTypeId, MovementMode, PlanBTrigger, Stance,
         TriggerCondition,
     };
 
@@ -451,8 +446,8 @@ mod tests {
     fn v7_rejects_ungated_dial_option() {
         let rs = seed_ruleset();
         let mut army = legal_army();
-        // Opportunist stance without Combat AI.
-        army.machines[0].dials.stance = Stance::Opportunist;
+        // Target-Air rule without the gating capability (no Sensor Suite equipped).
+        army.machines[0].dials.target_rule = TargetRule::TargetAir;
         let errs = validate(&army, &rs).unwrap_err();
         assert!(errs
             .iter()

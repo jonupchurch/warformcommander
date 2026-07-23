@@ -7,7 +7,7 @@
 use crate::fixed::{Bp, Fixed, BP_ONE};
 use crate::model::ruleset::Ruleset;
 use crate::model::types::{
-    Capability, DamageFamily, DamageType, MachineTypeId, ReachTag, Stance, ZoneId,
+    Capability, DamageFamily, DamageType, MachineTypeId, ReachTag, ZoneId,
 };
 use crate::replay::{DamageLayer, TickEvent, UnitRef};
 use crate::rng::Rng;
@@ -29,17 +29,6 @@ fn profile(att: &Combatant) -> AttackProfile {
         reach: att.stats.reach,
         anti_air: att.stats.capabilities.contains(&Capability::AntiAir),
         rocket_pack: att.stats.capabilities.contains(&Capability::RocketPack),
-    }
-}
-
-/// The Opportunist execute multiplier: bonus damage against a target at/below the hull threshold, and
-/// only for an attacker holding the Opportunist stance (v2). `BP_ONE` otherwise. Computed per victim so
-/// a splash into a healthy unit is not executed while the primary (a wounded one) is.
-fn execute_mult(att_stance: Stance, target: &Combatant, ruleset: &Ruleset) -> Bp {
-    if att_stance == Stance::Opportunist && target.hull_pct() <= ruleset.execute_mods.threshold {
-        BP_ONE + ruleset.execute_mods.bonus
-    } else {
-        BP_ONE
     }
 }
 
@@ -118,13 +107,17 @@ pub(crate) fn resolve_attack(
     // applied per target at impact so a splash into a different type is scaled by *its* type.
     let att_type = combatants[att_idx].type_id;
     let target_type = combatants[target_idx].type_id;
+    // Stance (v3, US4) is a two-sided magnitude read live from the current dials: the attacker's stance
+    // adjusts its outgoing output + accuracy, each target's stance its incoming damage + evasion.
+    let att_stance = combatants[att_idx].dials.stance;
+    let sm = &ruleset.stance_mods;
 
     // --- Hit chance: accuracy − evasion, with off-domain modifiers, clamped. ---
     // `domain_mult` scales damage for a weapon firing outside its element: AA vs air gets the bonus;
     // a non-AA weapon plinking air takes the `plink` penalty; a SAM bombarding ground once the skies
     // are clear takes the plink *accuracy* penalty but its own `sam_ground` damage multiplier — so
     // air-to-air lethality and ground suppression tune independently. Same-domain fire is BP_ONE.
-    let mut acc = prof.accuracy;
+    let mut acc = prof.accuracy + sm.accuracy_add(att_stance);
     let mut domain_mult = BP_ONE;
     if target_air {
         if prof.reach == ReachTag::Air {
@@ -151,8 +144,9 @@ pub(crate) fn resolve_attack(
         acc += ruleset.air_mods.plink_acc_penalty;
         domain_mult = ruleset.air_mods.sam_ground_dmg_mult;
     }
-    let hit_chance =
-        (acc - combatants[target_idx].stats.evasion).clamp(g.hit_clamp_min, g.hit_clamp_max);
+    let target_evasion = combatants[target_idx].stats.evasion
+        + sm.evasion_add(combatants[target_idx].dials.stance);
+    let hit_chance = (acc - target_evasion).clamp(g.hit_clamp_min, g.hit_clamp_max);
 
     let target_ref = combatants[target_idx].unit;
     if rng.roll_bp() >= hit_chance {
@@ -176,18 +170,19 @@ pub(crate) fn resolve_attack(
     }
     d0 = d0.mul_bp(domain_mult); // BP_ONE for ordinary same-domain fire
     d0 = d0.mul_bp(BP_ONE + variance);
+    d0 = d0.mul_bp(sm.output_mult(att_stance)); // stance output (applies to splash too, via d0)
 
     // --- Primary hit: shields then hull (role-counter bonus applied vs the primary target's type). ---
     let save = roll_ablative_save(&combatants[target_idx], ruleset, rng);
-    let att_stance = combatants[att_idx].dials.stance;
-    let execute = execute_mult(att_stance, &combatants[target_idx], ruleset);
+    // The target's stance scales the damage it takes (Aggressive +, Defensive −), computed per victim.
+    let taken = sm.taken_mult(combatants[target_idx].dials.stance);
     // Reactive plating reads the target's absorbed history *before* this hit, then the hull damage this
     // hit deals is folded back into that history below.
     let reactive = reactive_mult(&combatants[target_idx], prof.damage_type, ruleset);
     let (sh, ab, hu, died) = apply_damage(
         &mut combatants[target_idx],
         d0.mul_bp(role_mult(ruleset, att_type, target_type))
-            .mul_bp(execute)
+            .mul_bp(taken)
             .mul_bp(reactive),
         prof.damage_type,
         prof.penetration,
@@ -222,7 +217,7 @@ pub(crate) fn resolve_attack(
             // Blast Plating and friends reduce splash of a matching damage type taken.
             let mut sd0 = splash_d0
                 .mul_bp(role_mult(ruleset, att_type, combatants[j].type_id))
-                .mul_bp(execute_mult(att_stance, &combatants[j], ruleset));
+                .mul_bp(sm.taken_mult(combatants[j].dials.stance));
             if let Some(m) = combatants[j].stats.special_mitigation {
                 if m.against == prof.damage_type {
                     sd0 = sd0.mul_bp(m.splash_taken_mult);
