@@ -190,6 +190,7 @@ const CAPABILITY_COPY: Record<Capability, string> = {
   ExtendReach: 'Extended weapon reach',
   TargetAir: 'Can target aircraft, and unlocks the Target Air rule',
   AntiAir: 'Can target aircraft at the flak damage rate, with the anti-air accuracy bonus',
+  RocketPack: 'Full-rate anti-air (flak damage), but only against aircraft close to the front line',
 };
 
 // --- equipment -------------------------------------------------------------

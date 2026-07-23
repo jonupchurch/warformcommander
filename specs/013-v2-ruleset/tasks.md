@@ -179,7 +179,7 @@ layers are widespread enough for the matrix to discriminate. **Engine deploys be
 - [X] T053 [US3] Add `absorbed: [Fixed; 3]` and `reactive: bool` to `Combatant` and `EffectiveStats` in `crates/engine/src/sim/mod.rs` and `crates/engine/src/model/army.rs`
 - [X] T054 [US3] Accumulate absorbed damage per family in `crates/engine/src/sim/damage.rs` and apply the reactive mitigation bias when `stats.reactive` (depends on T053)
 - [X] T055 [US3] Add the Mech-exclusive reactive plating module to `crates/engine/src/content.rs`, gated on `mount_class == Mech`
-- [ ] T056 [US3] Add the Rocket Pack module and its anti-air capability to `crates/engine/src/content.rs`, differentiated from dedicated anti-air by reach rather than damage rate
+- [X] T056 [US3] Add the Rocket Pack module and its anti-air capability to `crates/engine/src/content.rs`, differentiated from dedicated anti-air by reach rather than damage rate
 - [X] T057 [US3] Grant the Mech its native behavioural flexibility in `crates/engine/src/content.rs` — the extra Plan-B slot other chassis buy with a utility slot (FR-025)
 - [X] T058 [P] [US3] Mirror the new capability and module in `sim/ruleset.ts` and `sim/legality.ts`, and gate the option in `components/garage/loadout-editor.tsx`
 - [X] T059 [US3] Explain reactive plating and the Rocket Pack from live values in `lib/garage/explain.ts`, with coverage in `tests/garage-explain.test.ts`
@@ -222,8 +222,8 @@ rates; dedicated anti-air alone reaches distant aircraft; aircraft stay viable a
 
 - [X] T069 [US4] Stage 5a — ship the Heli rebase alone (already in US1), measure the field, and record aircraft viability in `specs/013-v2-ruleset/baseline/air-staging.md`
 - [X] T070 [US4] Stage 5b — ship laser air-engagement alone, re-measure, and append to `specs/013-v2-ruleset/baseline/air-staging.md`
-- [ ] T071 [US4] Stage 5c — ship the Rocket Pack alone (from US3), re-measure, and append
-- [ ] T072 [US4] Stage 5d — evaluate whether `aaFocusPerAir` still needs adjusting given the first three stages, and only then change it; record the decision either way
+- [X] T071 [US4] Stage 5c — ship the Rocket Pack alone (from US3), re-measure, and append
+- [X] T072 [US4] Stage 5d — evaluate whether `aaFocusPerAir` still needs adjusting given the first three stages, and only then change it; record the decision either way
 - [X] T073 [US4] Confirm SC-009 (dedicated anti-air no longer last) and SC-010 (aircraft inside the viability band at *every* stage) from `specs/013-v2-ruleset/baseline/air-staging.md`
 
 **Checkpoint**: US4 complete across four versions. Any single stage is independently revertible.

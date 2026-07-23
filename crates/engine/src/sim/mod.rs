@@ -92,6 +92,9 @@ pub(crate) struct AttackProfile {
     /// A flak platform (the `AntiAir` capability): fires on air at `flak_dmg_mult` instead of taking
     /// the plink penalty — so a ground unit with a Flak Battery is a real anti-air weapon.
     pub anti_air: bool,
+    /// The Mech's Rocket Pack (v2, US4): full-rate anti-air (the flak damage rate), but reach-limited to
+    /// the front line (enforced in `target::reach_zones`), so it never gains the SAM's whole-field reach.
+    pub rocket_pack: bool,
     /// Outgoing-damage multiplier from the active energy dial (bp).
     pub energy_mult: Bp,
 }

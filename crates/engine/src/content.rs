@@ -1022,6 +1022,18 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
             cadence_shift: 0,
         }),
     );
+    // Rocket Pack (v2, US4): the Mech's air answer — full-rate anti-air (flak damage), but reach-limited
+    // to the front line so dedicated AA keeps its whole-field reach advantage (FR-026/029). A utility, so
+    // it costs a slot; a Mech that wants to answer aircraft trades a utility for the capability.
+    add(
+        "RocketPack",
+        "Rocket Pack",
+        EquipmentSpec::Utility(crate::model::types::UtilitySpec {
+            stat_deltas: None,
+            unlocks: vec![Capability::RocketPack],
+            cadence_shift: 0,
+        }),
+    );
 }
 
 fn util_deltas(d: StatDeltas) -> EquipmentSpec {

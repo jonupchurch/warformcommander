@@ -50,7 +50,8 @@ export type Capability =
   | 'OpportunistStance'
   | 'ExtendReach'
   | 'TargetAir'
-  | 'AntiAir';
+  | 'AntiAir'
+  | 'RocketPack';
 
 /** The canonical `Capability` sort order (the Rust enum's `Ord` / declaration order). */
 export const CAPABILITY_ORDER: readonly Capability[] = [
@@ -60,6 +61,7 @@ export const CAPABILITY_ORDER: readonly Capability[] = [
   'ExtendReach',
   'TargetAir',
   'AntiAir',
+  'RocketPack',
 ];
 
 /** Which equipment kind a slot expects (`SlotKind`) — carried on a `WrongSlotKind` derivation error. */

@@ -112,10 +112,11 @@ fn reach_zones(att: &Combatant, occupied: &Occupancy, air_allowed: bool) -> (Vec
     let can_air = att.stats.can_target_air && air_allowed;
     // The reach advantage (v2, FR-029): a dedicated AA platform (a SAM's `Air` reach, the `AntiAir`
     // capability, or an innately air-capable chassis) reaches enemy air from anywhere on the field; an
-    // IMPROVISED energy weapon contesting air only reaches it at close range — from the Front row. So
-    // an energy laser in the Front can shoot down a heli, but one in the Rear cannot, while dedicated
-    // AA reaches it from either. `can_air` alone gates every non-energy path, unchanged.
-    let improvised_air = att.stats.family == DamageFamily::Energy
+    // IMPROVISED air answer — an energy weapon contesting air, or the Mech's Rocket Pack — only reaches
+    // it at close range, from the Front row. So a Front laser or Rocket-Pack Mech can shoot down a heli
+    // but the same off the front line cannot, while dedicated AA reaches it from any row.
+    let improvised_air = (att.stats.family == DamageFamily::Energy
+        || att.stats.capabilities.contains(&Capability::RocketPack))
         && att.stats.reach != ReachTag::Air
         && !att.stats.capabilities.contains(&Capability::AntiAir);
     let air_reachable = can_air && (!improvised_air || att.zone == ZoneId::Front);

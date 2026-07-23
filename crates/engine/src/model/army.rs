@@ -306,6 +306,7 @@ pub fn derive_effective_stats(
     let can_target_air = mtype.air_capable_by_default
         || caps.contains(&Capability::TargetAir)
         || caps.contains(&Capability::AntiAir)
+        || caps.contains(&Capability::RocketPack) // the Mech's Rocket Pack (v2, US4)
         || reach == ReachTag::Air
         // Energy weapons contest air (v2, staged US4) — but only when the ruleset enables the mechanic
         // (`energy_air_dmg_mult > 0`). Off by default, so this adds nothing to the pre-v2 field.

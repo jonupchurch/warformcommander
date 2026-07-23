@@ -243,6 +243,7 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
     mtype.airCapableByDefault ||
     caps.has('TargetAir') ||
     caps.has('AntiAir') ||
+    caps.has('RocketPack') || // the Mech's Rocket Pack (v2, US4)
     reach === 'Air' ||
     // Energy weapons contest air (v2, staged US4) only when the ruleset enables it. Mirrors the engine.
     (family === 'Energy' && (ruleset.airMods.energyAirDmgMult ?? 0) > 0);

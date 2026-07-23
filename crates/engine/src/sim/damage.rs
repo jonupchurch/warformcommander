@@ -28,6 +28,7 @@ fn profile(att: &Combatant, ruleset: &Ruleset) -> AttackProfile {
         splash: att.stats.splash,
         reach: att.stats.reach,
         anti_air: att.stats.capabilities.contains(&Capability::AntiAir),
+        rocket_pack: att.stats.capabilities.contains(&Capability::RocketPack),
         energy_mult: behavior::energy_damage_mult(att.dials.energy, ruleset),
     }
 }
@@ -130,8 +131,10 @@ pub(crate) fn resolve_attack(
         if prof.reach == ReachTag::Air {
             acc += ruleset.air_mods.aa_acc_bonus; // AA bonus
             domain_mult = ruleset.air_mods.aa_dmg_mult;
-        } else if prof.anti_air {
-            // Flak platform: engages air at the tunable flak rate, accurate (no plink penalty).
+        } else if prof.anti_air || prof.rocket_pack {
+            // Flak platform (Flak Battery) OR the Mech's Rocket Pack: full anti-air firepower — the flak
+            // damage rate, accurate (no plink penalty). They differ only in reach (the Rocket Pack is
+            // front-line-only, enforced in targeting), not in damage rate (FR-026/029).
             acc += ruleset.air_mods.aa_acc_bonus;
             domain_mult = ruleset.air_mods.flak_dmg_mult;
         } else if prof.damage_type == DamageType::Energy && ruleset.air_mods.energy_air_dmg_mult > 0

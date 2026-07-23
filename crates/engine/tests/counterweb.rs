@@ -238,6 +238,53 @@ fn energy_weapons_contest_air_up_close_only_when_enabled() {
     );
 }
 
+/// The Mech's Rocket Pack (v2, US4, FR-026): full-rate anti-air (flak damage) but reach-limited to the
+/// front line (FR-029). A Rocket-Pack Mech in the FRONT shoots at the helicopters; the same Mech in the
+/// MIDDLE cannot reach air at all (dedicated AA keeps the whole-field reach advantage); a stock Mech
+/// never can. The Rocket Pack is a utility, so it trades a slot for the capability.
+#[test]
+fn rocket_pack_gives_the_mech_front_line_anti_air() {
+    let rs = seed_ruleset();
+    let company = |zone: ZoneId, rocket: bool| {
+        let mut mech = stock_instance(&rs, MachineTypeId::Mech, "Vanguard", zone, 0);
+        if rocket {
+            mech.loadout.utilities[0] = EquipmentId::new("RocketPack");
+        }
+        Army {
+            machines: vec![
+                mech,
+                stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 1),
+                stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 2),
+                stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Middle, 3),
+                stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Middle, 4),
+            ],
+        }
+    };
+    let mech = UnitRef {
+        side: Side::A,
+        instance_id: 0,
+    };
+
+    // A stock Mech (no Rocket Pack) on the front line cannot touch air.
+    let stock = run(&rs, company(ZoneId::Front, false), air_squad(&rs), 0x5A11);
+    assert!(
+        !actor_hit_air(&stock.replay, mech),
+        "a stock Mech cannot engage air"
+    );
+    // A Rocket-Pack Mech on the FRONT engages the helicopters.
+    let front = run(&rs, company(ZoneId::Front, true), air_squad(&rs), 0x5A11);
+    assert!(
+        actor_hit_air(&front.replay, mech),
+        "a Rocket-Pack Mech on the front line must engage air"
+    );
+    // A Rocket-Pack Mech in the MIDDLE cannot reach air — the reach advantage of dedicated AA.
+    let mid = run(&rs, company(ZoneId::Middle, true), air_squad(&rs), 0x5A11);
+    assert!(
+        !actor_hit_air(&mid.replay, mech),
+        "a Rocket-Pack Mech off the front line must not reach air (dedicated AA keeps the reach advantage)"
+    );
+}
+
 /// Anti-air **fire discipline**: one cheap aircraft must not be able to soak an entire army's air
 /// defence. Air-first targeting is right, but uncapped it made a SAM wall *anti-synergistic* — every
 /// launcher locked onto a single Gunship (`ReachTag::Air` engages air exclusively) while the enemy

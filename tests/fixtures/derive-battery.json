@@ -2816,6 +2816,15 @@
           "splash": 0
         }
       },
+      "RocketPack": {
+        "cadenceShift": 0,
+        "id": "RocketPack",
+        "kind": "Utility",
+        "name": "Rocket Pack",
+        "unlocks": [
+          "RocketPack"
+        ]
+      },
       "RocketPods": {
         "family": "Explosive",
         "id": "RocketPods",

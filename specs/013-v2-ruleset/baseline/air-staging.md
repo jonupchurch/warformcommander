@@ -57,9 +57,30 @@ Degenerate sweeps (0/100 matchups): **123 → 123** — unchanged.
   viability band. The risk the spec worried about (deleting air) did not materialise because the lever
   is too weak to move air at all.
 
+## Stage 5c — Rocket Pack (the Mech's air answer)
+
+A `RocketPack` utility grants the Mech full-rate anti-air (the `flak_dmg_mult` damage rate), but
+**reach-limited to the front line** — it never gains a SAM's whole-field reach, so dedicated AA keeps
+its reach advantage (FR-026/029). Proven by test: a Rocket-Pack Mech in the Front engages the
+helicopters; the same Mech in the Middle cannot reach air; a stock Mech never can.
+
+It is an **opt-in utility that costs a slot**, and no balancer archetype equips it, so the stock field
+is unchanged by construction (the golden tick streams are byte-identical; only the seed hash shifts from
+the new catalog entry, `e9150f41…` → `503e5b42…`). Like reactive plating and the support stances, it is
+real content whose value is the *player option*, not a field move — the field it would enter is the same
+wall the energy-air measurement could not budge.
+
+## Stage 5d — `aa_focus_per_air` (NOT pursued)
+
+The final planned lever, tuning how many attackers may engage each aircraft, is a **pure balance knob**.
+The energy-air measurement already showed the air matchup is a wall that numeric air tuning does not
+move (consistent with the standing finding that damage tuning cannot move a wall). Per the user's
+scope call, this stage is **deliberately skipped** rather than shipped as a measured no-op. Named here
+so the omission is explicit, not silent (constitution rule 4).
+
 ## Decision
 
-Per FR-030 the change is **shipped off by default** (`energy_air_dmg_mult = 0`) — implemented, tested,
+Per FR-030 the energy-air change is **shipped off by default** (`energy_air_dmg_mult = 0`) — implemented, tested,
 and independently reversible, but not activated on the stock field. Turning it on is balance-inert for
 US4's goals (air unmoved, dedicated AA unmoved) while shifting 9 points laterally, so **it is not worth
 activating on its own**, and the later stages (5c Rocket Pack, 5d `aa_focus_per_air`) target the same

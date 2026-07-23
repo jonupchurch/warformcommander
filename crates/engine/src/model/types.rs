@@ -507,6 +507,11 @@ pub enum Capability {
     /// `flak_dmg_mult` rate instead of the plink penalty — a real anti-air platform, not a spotter.
     /// Added last to keep the enum's `Ord`/serialization stable for the pre-existing variants.
     AntiAir,
+    /// **Rocket Pack** (v2, the Mech's air answer, FR-026): full-rate anti-air (the same `flak_dmg_mult`
+    /// as a Flak Battery) but **reach-limited** — it only engages air from the front line, so a
+    /// dedicated SAM keeps its whole-field reach advantage (FR-029). Added last to keep the enum's
+    /// `Ord`/serialization stable; a re-seed introducing it requires the variant-aware engine first.
+    RocketPack,
 }
 
 // ---------------------------------------------------------------------------
