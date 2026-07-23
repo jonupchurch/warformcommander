@@ -16,8 +16,10 @@ pub mod target;
 use std::collections::BTreeSet;
 
 use crate::fixed::{Bp, Fixed};
-use crate::model::army::{derive_effective_stats, Army, DerivationError, EffectiveStats};
-use crate::model::ruleset::Ruleset;
+use crate::model::army::{
+    derive_effective_stats, Army, DerivationError, EffectiveStats, MachineInstance,
+};
+use crate::model::ruleset::{CoordinationGrain, CoordinationScales, Ruleset};
 use crate::model::types::{
     AuraKind, AuraScope, BehaviorDials, DamageType, MachineTypeId, PlanBSlot, PlanBTrigger,
     ReachTag, SupportRange, VariantId, ZoneId,
@@ -104,16 +106,41 @@ fn cooldown_ticks(stats: &EffectiveStats, ruleset: &Ruleset) -> u16 {
     ruleset.cadence_ticks.ticks(stats.cadence)
 }
 
+/// Whether two machines count as "the same" for coordination (spec 014), under the ruleset's grain —
+/// same machine type, or same type **and** variant.
+fn coord_same_unit(a: &MachineInstance, b: &MachineInstance, grain: CoordinationGrain) -> bool {
+    match grain {
+        CoordinationGrain::Type => a.type_id == b.type_id,
+        CoordinationGrain::TypeVariant => a.type_id == b.type_id && a.variant_id == b.variant_id,
+    }
+}
+
 /// Build the 10 combatants (side A then B, in instance order) from the two armies + ruleset.
 pub(crate) fn build_combatants(
     armies: &[Army; 2],
     ruleset: &Ruleset,
 ) -> Result<Vec<Combatant>, DerivationError> {
     let mut out = Vec::with_capacity(10);
+    let coord = &ruleset.coordination;
     for (side_idx, army) in armies.iter().enumerate() {
         let side = if side_idx == 0 { Side::A } else { Side::B };
-        for m in &army.machines {
-            let stats = derive_effective_stats(m, ruleset)?;
+        for (i, m) in army.machines.iter().enumerate() {
+            let mut stats = derive_effective_stats(m, ruleset)?;
+            // Coordination (spec 014): tax the Nth identical unit in this army. The duplicate rank is
+            // the count of earlier same-grain machines (instance order → deterministic). The identity
+            // curve leaves `factor == BP_ONE`, so a stock battle is byte-identical (no golden re-bless).
+            let rank = army.machines[..i]
+                .iter()
+                .filter(|prev| coord_same_unit(prev, m, coord.grain))
+                .count();
+            let factor = coord.factor(rank);
+            if factor != crate::fixed::BP_ONE {
+                stats.damage = stats.damage.mul_bp(factor);
+                if matches!(coord.scales, CoordinationScales::OffenseAndSurvivability) {
+                    stats.hull = stats.hull.mul_bp(factor);
+                    stats.shield_cap = stats.shield_cap.mul_bp(factor);
+                }
+            }
             let mtype = ruleset.machine_type(m.type_id);
             let can_fire_from_rear = mtype.map(|t| t.can_fire_from_rear).unwrap_or(false);
             out.push(Combatant {

@@ -86,6 +86,11 @@ pub struct Ruleset {
     /// family. Omitted from serialization at the default (hash-stable).
     #[serde(default, skip_serializing_if = "ReactiveMods::is_default")]
     pub reactive_mods: ReactiveMods,
+    /// Coordination (v3, spec 014) — diminishing returns on stacking identical units, the direct
+    /// flattener for the field's super-linear composition power. Omitted from serialization at the
+    /// identity curve (hash-stable), so the stock field is unchanged until the seed opts in.
+    #[serde(default, skip_serializing_if = "Coordination::is_default")]
+    pub coordination: Coordination,
 }
 
 impl Ruleset {
@@ -320,6 +325,70 @@ impl MountScale {
     /// Serialization skip at the default (hash stability).
     pub fn is_default(&self) -> bool {
         *self == MountScale::default()
+    }
+}
+
+/// What counts as "identical" for coordination (spec 014): same machine **type**, or same
+/// type **and** variant. `Type` is the default — the super-linearity is role redundancy (three
+/// HeavyTanks step on each other's supply) regardless of exact stat line.
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum CoordinationGrain {
+    Type,
+    TypeVariant,
+}
+
+/// Which derived stats the coordination factor scales (spec 014). `Offense` (default) is the most
+/// legible — the Nth copy hits softer; `OffenseAndSurvivability` also thins its hull/shield.
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum CoordinationScales {
+    Offense,
+    OffenseAndSurvivability,
+}
+
+/// **Coordination** (spec 014, the counter-web pass) — diminishing returns on stacking identical
+/// units. The diagnosis found the field was a near-total power order because composition power is
+/// **super-linear in unit count** (the 2nd copy of a specialist crosses a rank boundary). This taxes
+/// the Nth identical unit so mono-stacks fall off and combined-arms diversity is rewarded (P2/P3),
+/// flattening the ladder so matchups land near parity. Applied at **army-build time**
+/// (`sim::build_combatants`), never in per-machine derive, so the derive-parity fixture is untouched.
+/// The default (identity) scales everything ×1.0 — no behavioural change — and is omitted from
+/// serialization, so the stock field stays byte-identical until the seed sets a real curve.
+#[derive(Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Coordination {
+    /// Effectiveness (bp) of the 1st, 2nd, … Nth identical unit in an army. `returns[0]` is `10_000`
+    /// (×1.0 — the first copy is always full); index past the end clamps to the last entry.
+    pub returns: Vec<Bp>,
+    pub grain: CoordinationGrain,
+    pub scales: CoordinationScales,
+}
+
+impl Default for Coordination {
+    /// Identity: one full-effectiveness entry → every unit ×1.0 → exactly current behaviour.
+    fn default() -> Self {
+        Coordination {
+            returns: vec![10_000],
+            grain: CoordinationGrain::Type,
+            scales: CoordinationScales::Offense,
+        }
+    }
+}
+
+impl Coordination {
+    /// The effectiveness factor (bp) for a unit at duplicate `rank` (0 = the first copy).
+    pub fn factor(&self, rank: usize) -> Bp {
+        let last = self.returns.len().saturating_sub(1);
+        self.returns.get(rank.min(last)).copied().unwrap_or(10_000)
+    }
+
+    /// Serialization skip at the identity curve (hash stability): default grain/scales and every
+    /// entry `10_000`. Any all-full curve is treated as identity so a no-op never re-blesses goldens.
+    pub fn is_default(&self) -> bool {
+        self.grain == CoordinationGrain::Type
+            && self.scales == CoordinationScales::Offense
+            && self.returns.iter().all(|&r| r == 10_000)
     }
 }
 
@@ -748,6 +817,7 @@ mod tests {
             execute_mods: ExecuteMods::default(),
             empower_mods: EmpowerMods::default(),
             reactive_mods: ReactiveMods::default(),
+            coordination: Coordination::default(),
         }
     }
 }

@@ -621,6 +621,7 @@ mod tests {
             execute_mods: crate::model::ruleset::ExecuteMods::default(),
             empower_mods: crate::model::ruleset::EmpowerMods::default(),
             reactive_mods: crate::model::ruleset::ReactiveMods::default(),
+            coordination: crate::model::ruleset::Coordination::default(),
         }
     }
 
