@@ -267,9 +267,9 @@ state; Empower strengthens instead of repairing; role filtering hides out-of-rol
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
-- [ ] T086 [P] Update the wiki — `Defenses.md`, `Behavior-Dials.md`, `Machine-Types.md`, `Air-Combat.md`, and `Combat-Mechanics.md` in `d:/Codelib/warformcommander.wiki/` for every shipped mechanic
-- [ ] T087 [P] Update `Balance-State.md` and `Design-Notes.md` in the wiki to retire the resolved items and record the new measured field state
-- [ ] T088 Record the final measured outcome for all twelve success criteria in `specs/013-v2-ruleset/baseline/outcome.md`, including any criterion that was not met and why
+- [X] T086 [P] Update the wiki — `Defenses.md`, `Behavior-Dials.md`, `Machine-Types.md`, `Air-Combat.md`, and `Combat-Mechanics.md` in `d:/Codelib/warformcommander.wiki/` for every shipped mechanic
+- [X] T087 [P] Update `Balance-State.md` and `Design-Notes.md` in the wiki to retire the resolved items and record the new measured field state
+- [X] T088 Record the final measured outcome for all twelve success criteria in `specs/013-v2-ruleset/baseline/outcome.md`, including any criterion that was not met and why
 - [ ] T089 [P] Verify the Customize screen reads correctly in both mobile portrait and desktop landscape (P7)
 - [ ] T090 Run the full [quickstart.md](./quickstart.md) final gate for the last shipped slice, including the production differential with its deploy-lag re-poll
 
