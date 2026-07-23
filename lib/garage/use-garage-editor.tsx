@@ -12,6 +12,7 @@
  * inside the Feature 7 action is the sole authority (Principle II) — a server rejection surfaces back.
  */
 
+import { useRouter } from 'next/navigation';
 import {
   createContext,
   useCallback,
@@ -116,6 +117,7 @@ export function GarageEditorProvider({
     (init) => init ?? freshSession(),
   );
   const [saving, setSaving] = useState(false);
+  const router = useRouter();
 
   const validation = useMemo(
     () => computeValidationView(session.draft, ruleset),
@@ -185,9 +187,16 @@ export function GarageEditorProvider({
         dials: machine.dials,
         planB: machine.planB,
       };
-      return savePresetAction({ name, machineTypeId: machine.typeId, config });
+      const res = await savePresetAction({ name, machineTypeId: machine.typeId, config });
+      // Unlike a squad save (which reflects into client state via `markSaved`), the custom-preset
+      // list is a Server Component prop (`listPresets`) with no client-side mirror — so the new row
+      // is invisible until the route's RSC re-runs. `revalidatePath` in the action does not refresh
+      // this already-rendered client tree on its own, so force a refetch of the `presets` prop. The
+      // reducer draft is client state and survives the refresh.
+      if (res.ok) router.refresh();
+      return res;
     },
-    [session.draft, session.selection.selectedSlot],
+    [session.draft, session.selection.selectedSlot, router],
   );
 
   const applyStock = useCallback<GarageEditorContextValue['applyStock']>(

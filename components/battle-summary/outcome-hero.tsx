@@ -73,7 +73,7 @@ export function OutcomeHero({ outcome, series, watchReplayHref, backHref, childr
             <Button asChild size="lg" className="w-full sm:w-auto">
               <Link href={watchReplayHref}>► Watch Full Replay</Link>
             </Button>
-            <Button asChild variant="ghost" size="lg" className="w-full sm:w-auto">
+            <Button asChild variant="secondary" size="lg" className="w-full sm:w-auto">
               <Link href={backHref}>Back to Arena</Link>
             </Button>
           </div>
