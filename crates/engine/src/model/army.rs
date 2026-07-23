@@ -403,10 +403,10 @@ fn lookup_utility<'r>(
 mod tests {
     use super::*;
     use crate::model::ruleset::{
-        AirModifiers, CadenceTicks, DamageMatrix, EnergyModes, GlobalConstants, LayerMultipliers,
+        AirModifiers, CadenceTicks, DamageMatrix, GlobalConstants, LayerMultipliers,
     };
     use crate::model::types::{
-        BaseStats, BehaviorDials, ChassisVariant, DefenseSpec, EnergyMode, EquipmentModule,
+        BaseStats, BehaviorDials, ChassisVariant, DefenseSpec, EquipmentModule,
         MachineType, MountClass, MovementMode, ShieldDelta, SlotLayout, Stance, StatDeltas,
         TargetRow, TargetRule, UtilitySpec, WeaponSpec,
     };
@@ -542,7 +542,6 @@ mod tests {
                     stat_deltas: None,
                     unlocks: vec![
                         Capability::ExtraPlanBSlot,
-                        Capability::AdaptiveEnergy,
                         Capability::OpportunistStance,
                     ],
                     cadence_shift: 0,
@@ -614,7 +613,6 @@ mod tests {
                 hit_clamp_max: 9_500,
             },
             role_damage_bonuses: BTreeMap::new(),
-            energy_modes: EnergyModes::default(),
             ablative_mods: crate::model::ruleset::AblativeMods::default(),
             mount_scale: crate::model::ruleset::MountScale::default(),
             stance_aggro: crate::model::ruleset::StanceAggro::default(),
@@ -653,7 +651,6 @@ mod tests {
         BehaviorDials {
             target_row: TargetRow::FrontReachable,
             target_rule: TargetRule::FocusFire,
-            energy: EnergyMode::Balanced,
             movement: MovementMode::Advance,
             stance: Stance::Aggressive,
         }
@@ -726,7 +723,7 @@ mod tests {
         assert_eq!(e.cadence, CadenceTier::Medium, "Autoloader: Slow → Medium");
         assert_eq!(e.move_speed, Some(3), "base 2, −1 composite, +2 servos");
         assert_eq!(e.plan_b_slots, 2, "Combat AI grants a 2nd slot");
-        assert!(e.capabilities.contains(&Capability::AdaptiveEnergy));
+        assert!(e.capabilities.contains(&Capability::OpportunistStance));
     }
 
     /// A shield defense establishes a shield on a hull that had none.

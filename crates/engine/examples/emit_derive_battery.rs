@@ -317,7 +317,7 @@ fn main() {
     }
     {
         use engine::model::types::{
-            DialKey, DialValue, EnergyMode, MovementMode, PlanBSlot, PlanBTrigger, TriggerCondition,
+            DialKey, DialValue, MovementMode, PlanBSlot, PlanBTrigger, Stance, TriggerCondition,
         };
         let mut a = legal_army(&rs);
         // Scout (no Combat AI) with two Plan-B triggers → only 1 slot.
@@ -331,16 +331,16 @@ fn main() {
             PlanBTrigger {
                 slot: PlanBSlot::Slot2,
                 condition: TriggerCondition::AfterTick(100),
-                dial: DialKey::Energy,
-                plan_b_value: DialValue::Energy(EnergyMode::Offense),
+                dial: DialKey::Stance,
+                plan_b_value: DialValue::Stance(Stance::Aggressive),
             },
         ];
         validate_cases.push(validate_case(&rs, "v6:ungated-2nd-planb", &a));
     }
     {
-        use engine::model::types::EnergyMode;
+        use engine::model::types::Stance;
         let mut a = legal_army(&rs);
-        a.machines[0].dials.energy = EnergyMode::Adaptive; // no Combat AI
+        a.machines[0].dials.stance = Stance::Opportunist; // no Combat AI
         validate_cases.push(validate_case(&rs, "v7:ungated-dial", &a));
     }
     {

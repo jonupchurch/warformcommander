@@ -12,10 +12,10 @@ use crate::model::types::{
 use crate::replay::{DamageLayer, TickEvent, UnitRef};
 use crate::rng::Rng;
 
-use super::{behavior, AttackProfile, Combatant};
+use super::{AttackProfile, Combatant};
 
-/// Build the `Copy` attack profile from the attacker's current effective stats + active energy dial.
-fn profile(att: &Combatant, ruleset: &Ruleset) -> AttackProfile {
+/// Build the `Copy` attack profile from the attacker's current effective stats.
+fn profile(att: &Combatant) -> AttackProfile {
     AttackProfile {
         actor: att.unit,
         damage: att.stats.damage,
@@ -29,7 +29,6 @@ fn profile(att: &Combatant, ruleset: &Ruleset) -> AttackProfile {
         reach: att.stats.reach,
         anti_air: att.stats.capabilities.contains(&Capability::AntiAir),
         rocket_pack: att.stats.capabilities.contains(&Capability::RocketPack),
-        energy_mult: behavior::energy_damage_mult(att.dials.energy, ruleset),
     }
 }
 
@@ -112,7 +111,7 @@ pub(crate) fn resolve_attack(
     rng: &mut Rng,
     events: &mut Vec<TickEvent>,
 ) {
-    let prof = profile(&combatants[att_idx], ruleset);
+    let prof = profile(&combatants[att_idx]);
     let g = &ruleset.globals;
     let target_air = combatants[target_idx].zone == ZoneId::Air;
     // Attacker/target classes drive the "role counter" bonus (e.g. light tanks vs the backline),
@@ -175,14 +174,10 @@ pub(crate) fn resolve_attack(
     if crit {
         d0 = d0.mul_bp(prof.crit_mult);
     }
-    d0 = d0.mul_bp(prof.energy_mult);
     d0 = d0.mul_bp(domain_mult); // BP_ONE for ordinary same-domain fire
     d0 = d0.mul_bp(BP_ONE + variance);
 
-    // --- Primary hit: shields then hull (role-counter bonus applied vs the primary target's type,
-    // and the *target's* energy posture scaling what it takes). ---
-    let target_posture =
-        behavior::energy_damage_taken_mult(combatants[target_idx].dials.energy, ruleset);
+    // --- Primary hit: shields then hull (role-counter bonus applied vs the primary target's type). ---
     let save = roll_ablative_save(&combatants[target_idx], ruleset, rng);
     let att_stance = combatants[att_idx].dials.stance;
     let execute = execute_mult(att_stance, &combatants[target_idx], ruleset);
@@ -192,7 +187,6 @@ pub(crate) fn resolve_attack(
     let (sh, ab, hu, died) = apply_damage(
         &mut combatants[target_idx],
         d0.mul_bp(role_mult(ruleset, att_type, target_type))
-            .mul_bp(target_posture)
             .mul_bp(execute)
             .mul_bp(reactive),
         prof.damage_type,
@@ -225,14 +219,9 @@ pub(crate) fn resolve_attack(
             })
             .collect();
         for j in splash_targets {
-            // Blast Plating and friends reduce splash of a matching damage type taken; each splash
-            // victim's own energy posture applies to what it takes, exactly as for a direct hit.
+            // Blast Plating and friends reduce splash of a matching damage type taken.
             let mut sd0 = splash_d0
                 .mul_bp(role_mult(ruleset, att_type, combatants[j].type_id))
-                .mul_bp(behavior::energy_damage_taken_mult(
-                    combatants[j].dials.energy,
-                    ruleset,
-                ))
                 .mul_bp(execute_mult(att_stance, &combatants[j], ruleset));
             if let Some(m) = combatants[j].stats.special_mitigation {
                 if m.against == prof.damage_type {

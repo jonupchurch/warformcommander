@@ -495,8 +495,6 @@ pub struct UtilitySpec {
 pub enum Capability {
     /// +1 Plan-B slot (Combat AI Core) — the only way to a 2nd Plan-B (V6).
     ExtraPlanBSlot,
-    /// Unlocks the `Adaptive` energy mode.
-    AdaptiveEnergy,
     /// Unlocks the `Opportunist` stance.
     OpportunistStance,
     /// +1 zone of reach (Rangefinder).
@@ -518,13 +516,13 @@ pub enum Capability {
 // Behavior dials + Plan-B
 // ---------------------------------------------------------------------------
 
-/// The four always-present dials (Target Priority is the `target_row` + `target_rule` pair).
+/// The always-present dials (Target Priority is the `target_row` + `target_rule` pair). The energy
+/// dial was removed in v3 (spec 015 US4) — it duplicated the stance posture (research D5).
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BehaviorDials {
     pub target_row: TargetRow,
     pub target_rule: TargetRule,
-    pub energy: EnergyMode,
     pub movement: MovementMode,
     pub stance: Stance,
 }
@@ -549,17 +547,6 @@ pub enum TargetRule {
     TargetSupport,
     TargetAir,
     SmartCounter,
-}
-
-/// Energy allocation dial. `Overdrive`/`Fortify`/`Adaptive` are capability-gated.
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Serialize, Deserialize)]
-pub enum EnergyMode {
-    Offense,
-    Balanced,
-    Defense,
-    Overdrive,
-    Fortify,
-    Adaptive,
 }
 
 /// Movement dial. `Kite`/`Reposition`/`Escort` are capability-gated.
@@ -621,7 +608,6 @@ impl Stance {
 pub enum DialKey {
     TargetRow,
     TargetRule,
-    Energy,
     Movement,
     Stance,
 }
@@ -631,7 +617,6 @@ pub enum DialKey {
 pub enum DialValue {
     TargetRow(TargetRow),
     TargetRule(TargetRule),
-    Energy(EnergyMode),
     Movement(MovementMode),
     Stance(Stance),
 }
@@ -642,7 +627,6 @@ impl DialValue {
         match self {
             DialValue::TargetRow(_) => DialKey::TargetRow,
             DialValue::TargetRule(_) => DialKey::TargetRule,
-            DialValue::Energy(_) => DialKey::Energy,
             DialValue::Movement(_) => DialKey::Movement,
             DialValue::Stance(_) => DialKey::Stance,
         }
@@ -812,10 +796,10 @@ mod tests {
     #[test]
     fn dial_value_reports_its_key() {
         assert_eq!(
-            DialValue::Energy(EnergyMode::Overdrive).dial(),
-            DialKey::Energy
+            DialValue::Movement(MovementMode::FallBack).dial(),
+            DialKey::Movement
         );
-        assert_eq!(DialValue::Stance(Stance::Protector).dial(), DialKey::Stance);
+        assert_eq!(DialValue::Stance(Stance::Defensive).dial(), DialKey::Stance);
     }
 
     /// Cadence shifts saturate at the ends (Autoloader "min Fast"; Siege never faster than Slow-1).
@@ -880,7 +864,6 @@ mod tests {
             dials: BehaviorDials {
                 target_row: TargetRow::FrontReachable,
                 target_rule: TargetRule::FocusFire,
-                energy: EnergyMode::Balanced,
                 movement: MovementMode::Advance,
                 stance: Stance::Aggressive,
             },

@@ -97,8 +97,6 @@ pub(crate) struct AttackProfile {
     /// The Mech's Rocket Pack (v2, US4): full-rate anti-air (the flak damage rate), but reach-limited to
     /// the front line (enforced in `target::reach_zones`), so it never gains the SAM's whole-field reach.
     pub rocket_pack: bool,
-    /// Outgoing-damage multiplier from the active energy dial (bp).
-    pub energy_mult: Bp,
 }
 
 /// Cadence tier → cooldown ticks, via the ruleset table.

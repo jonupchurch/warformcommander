@@ -15,7 +15,7 @@ use std::collections::BTreeMap;
 use crate::fixed::Fixed;
 use crate::model::army::MachineInstance;
 use crate::model::ruleset::{
-    AblativeMods, AirModifiers, CadenceTicks, Coordination, DamageMatrix, EmpowerMods, EnergyModes,
+    AblativeMods, AirModifiers, CadenceTicks, Coordination, DamageMatrix, EmpowerMods,
     ExecuteMods, GlobalConstants, LayerMultipliers, MountScale, ReactiveMods, Ruleset, StanceAggro,
 };
 use crate::model::types::{
@@ -25,7 +25,7 @@ use crate::model::types::{
     ShieldDelta, SlotLayout, StatDeltas, SupportRange, VariantId, WeaponSpec,
 };
 use crate::model::types::{
-    BehaviorDials, EnergyMode, MovementMode, Stance, TargetRow, TargetRule, ZoneId,
+    BehaviorDials, MovementMode, Stance, TargetRow, TargetRule, ZoneId,
 };
 
 /// Shorthand: a whole-unit [`Fixed`] quantity.
@@ -94,7 +94,6 @@ pub fn seed_ruleset() -> Ruleset {
             hit_clamp_max: 9_500,    // 95%
         },
         role_damage_bonuses: BTreeMap::new(),
-        energy_modes: EnergyModes::default(),
         ablative_mods: AblativeMods::default(),
         mount_scale: MountScale::default(),
         stance_aggro: StanceAggro::default(),
@@ -1001,7 +1000,6 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
             stat_deltas: None,
             unlocks: vec![
                 Capability::ExtraPlanBSlot,
-                Capability::AdaptiveEnergy,
                 Capability::OpportunistStance,
             ],
             cadence_shift: 0,
@@ -1089,7 +1087,6 @@ pub fn stock_dials() -> BehaviorDials {
     BehaviorDials {
         target_row: TargetRow::FrontReachable,
         target_rule: TargetRule::FocusFire,
-        energy: EnergyMode::Balanced,
         movement: MovementMode::Hold,
         stance: Stance::Neutral,
     }

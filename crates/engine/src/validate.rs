@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 use crate::model::army::{derive_effective_stats, Army, DerivationError, MachineInstance};
 use crate::model::ruleset::Ruleset;
 use crate::model::types::{
-    Capability, EnergyMode, EquipmentId, EquipmentSpec, MovementMode, PlanBSlot, SlotLayout,
+    Capability, EquipmentId, EquipmentSpec, MovementMode, PlanBSlot, SlotLayout,
     Stance, TargetRule, ZoneId,
 };
 
@@ -302,11 +302,6 @@ fn check_dial_gating(
         }
     };
     gate(
-        Capability::AdaptiveEnergy,
-        m.dials.energy != EnergyMode::Adaptive,
-        "Adaptive energy",
-    );
-    gate(
         Capability::OpportunistStance,
         m.dials.stance != Stance::Opportunist,
         "Opportunist stance",
@@ -442,8 +437,8 @@ mod tests {
             PlanBTrigger {
                 slot: PlanBSlot::Slot2,
                 condition: TriggerCondition::AfterTick(100),
-                dial: DialKey::Energy,
-                plan_b_value: DialValue::Energy(EnergyMode::Offense),
+                dial: DialKey::Stance,
+                plan_b_value: DialValue::Stance(Stance::Aggressive),
             },
         ];
         let errs = validate(&army, &rs).unwrap_err();
@@ -456,8 +451,8 @@ mod tests {
     fn v7_rejects_ungated_dial_option() {
         let rs = seed_ruleset();
         let mut army = legal_army();
-        // Adaptive energy without Combat AI.
-        army.machines[0].dials.energy = EnergyMode::Adaptive;
+        // Opportunist stance without Combat AI.
+        army.machines[0].dials.stance = Stance::Opportunist;
         let errs = validate(&army, &rs).unwrap_err();
         assert!(errs
             .iter()

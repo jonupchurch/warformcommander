@@ -8,7 +8,7 @@
 //! offsetting trade-off (GDD §8.2). Flags sort **worst-first** by severity (FR-010).
 
 use engine::model::army::Army;
-use engine::model::types::{DialValue, EnergyMode, MovementMode, Stance};
+use engine::model::types::{DialValue, MovementMode, Stance};
 
 use crate::report::model::{ComboRef, FairBand, FlagKind, FlaggedCombo};
 use crate::sweep::{CandidateResult, SweepResult};
@@ -17,10 +17,7 @@ use crate::sweep::{CandidateResult, SweepResult};
 fn is_defensive_value(v: DialValue) -> bool {
     matches!(
         v,
-        DialValue::Movement(MovementMode::FallBack)
-            | DialValue::Energy(EnergyMode::Defense)
-            | DialValue::Energy(EnergyMode::Fortify)
-            | DialValue::Stance(Stance::Defensive)
+        DialValue::Movement(MovementMode::FallBack) | DialValue::Stance(Stance::Defensive)
     )
 }
 
