@@ -514,37 +514,71 @@ pub enum Capability {
 // Behavior dials + Plan-B
 // ---------------------------------------------------------------------------
 
-/// The always-present dials (Target Priority is the `target_row` + `target_rule` pair). The energy
-/// dial was removed in v3 (spec 015 US4) — it duplicated the stance posture (research D5).
+/// The always-present dials. Targeting is now the priority-score chain (v3 US2), replacing the v2
+/// `target_row` + `target_rule` two-dial pair; the energy dial was removed in US4 (research D5).
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BehaviorDials {
-    pub target_row: TargetRow,
-    pub target_rule: TargetRule,
+    pub targeting: TargetingChain,
     pub movement: MovementMode,
     pub stance: Stance,
 }
 
-/// Target-row sub-pick (a). Starter: `FrontReachable`/`LastReachable`; unlockable: `Fullest`/`Weakest`.
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Serialize, Deserialize)]
-pub enum TargetRow {
-    FrontReachable,
-    LastReachable,
-    FullestRow,
-    WeakestRow,
+/// The targeting **priority-score chain** (v3 US2, design §12) — two ordered class **filters** (either
+/// may be empty) plus a positional **fallback selector**. Reachable enemies are scored per shot: a
+/// Priority-1 match scores highest, a Priority-2 match next, an unmatched candidate lowest; the
+/// target's own draw offset (Decoy +2 / ECM −2, from equipment) adjusts the score; the highest score
+/// wins, and the fallback selector breaks ties. Declarative only — no auto-optimizing selectors (§12.7).
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TargetingChain {
+    /// What to hunt first (highest base score). `None` = tier unused.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub priority1: Option<TargetFilter>,
+    /// What to hunt next if the first isn't present. `None` = tier unused.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub priority2: Option<TargetFilter>,
+    /// How to pick among the survivors / break score ties (always resolves).
+    pub fallback: TargetSelector,
 }
 
-/// Target-rule sub-pick (b). Advanced options (`TargetSupport`/`TargetAir`/`SmartCounter`) are gated.
+impl TargetingChain {
+    /// The broad default doctrine: no class filters, sweep from the near end (≈ the v2 stock pick).
+    pub const DEFAULT: TargetingChain = TargetingChain {
+        priority1: None,
+        priority2: None,
+        fallback: TargetSelector::Closest,
+    };
+
+    /// Whether either priority tier is the dynamic `Follow` filter (focus-fire on an ally's target).
+    pub fn is_following(&self) -> bool {
+        self.priority1 == Some(TargetFilter::Follow) || self.priority2 == Some(TargetFilter::Follow)
+    }
+}
+
+/// A declarative class filter (design §12.2) — *what to hunt*, never an auto-optimizer. `Follow` is
+/// dynamic: it anchors to a non-following zone ally's pick (focus fire, non-chaining, §12.6 Q2).
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Serialize, Deserialize)]
-pub enum TargetRule {
-    FocusFire,
-    DisperseFire,
-    Nearest,
-    Weakest,
-    BiggestThreat,
-    TargetSupport,
+pub enum TargetFilter {
+    /// Enemy air (inert for a unit with no air reach — the pool simply never contains air for it).
     TargetAir,
-    SmartCounter,
+    /// High-armour enemies (the energy-weapon partner) — by `armor_pct` above the filter threshold.
+    TargetArmor,
+    /// Support machines (kill the healer).
+    TargetSupport,
+    /// Indirect-fire enemies (counter-battery) — artillery / rocket-artillery that fire from the rear.
+    TargetIndirect,
+    /// Focus-fire on a zone ally's independently-chosen target (dynamic, non-chaining).
+    Follow,
+}
+
+/// The positional fallback selector (design §12.1) — always resolves, so a chain can never find
+/// nothing. `Closest` sweeps from the contact line (air first, then front→rear); `Furthest` from the
+/// enemy backline. No enemy-state "smart" selectors (Most/Least HP, threat) — those were retired (§12.7).
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Serialize, Deserialize)]
+pub enum TargetSelector {
+    Closest,
+    Furthest,
 }
 
 /// Movement dial (v3, spec 015 US2) — four **self-terminating** modes. `Hold` never steps; `Advance`
@@ -570,20 +604,17 @@ pub enum Stance {
     Defensive,
 }
 
-/// Which dial a Plan-B trigger flips.
+/// Which dial a Plan-B trigger flips (v3 US4/US2: Movement or Stance only — targeting is self-reactive
+/// via the priority chain, so Plan-B no longer sets it, design §12.3/§15.4).
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Serialize, Deserialize)]
 pub enum DialKey {
-    TargetRow,
-    TargetRule,
     Movement,
     Stance,
 }
 
-/// A dial-typed value a Plan-B trigger latches (externally tagged: `{ "Energy": "Overdrive" }`).
+/// A dial-typed value a Plan-B trigger latches (externally tagged: `{ "Movement": "FallBack" }`).
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub enum DialValue {
-    TargetRow(TargetRow),
-    TargetRule(TargetRule),
     Movement(MovementMode),
     Stance(Stance),
 }
@@ -592,8 +623,6 @@ impl DialValue {
     /// The [`DialKey`] this value belongs to — used to check `dial == plan_b_value`'s dial.
     pub fn dial(self) -> DialKey {
         match self {
-            DialValue::TargetRow(_) => DialKey::TargetRow,
-            DialValue::TargetRule(_) => DialKey::TargetRule,
             DialValue::Movement(_) => DialKey::Movement,
             DialValue::Stance(_) => DialKey::Stance,
         }
@@ -829,8 +858,7 @@ mod tests {
                 ],
             },
             dials: BehaviorDials {
-                target_row: TargetRow::FrontReachable,
-                target_rule: TargetRule::FocusFire,
+                targeting: TargetingChain::DEFAULT,
                 movement: MovementMode::Advance,
                 stance: Stance::Aggressive,
             },

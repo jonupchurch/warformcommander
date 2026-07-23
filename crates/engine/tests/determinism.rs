@@ -17,7 +17,7 @@ use engine::content::{seed_ruleset, stock_instance};
 use engine::fixed::Fixed;
 use engine::model::army::Army;
 use engine::model::ruleset::RulesetHash;
-use engine::model::types::{MachineTypeId, TargetRule, ZoneId};
+use engine::model::types::{MachineTypeId, Stance, ZoneId};
 use engine::replay::{
     Adaptation, DamageLayer, Fate, GameReplay, GameResult, MachineFate, MachineSnapshot,
     MatchConfig, MatchResult, Replay, RewardTier, Side, SideSummary, Tick, TickEvent, UnitRef,
@@ -304,9 +304,9 @@ fn input_changes_change_the_hash() {
     let h_seed = resolve(&fixed_battle_input(2)).unwrap().replay.digest();
     assert_ne!(h0, h_seed, "seed change must change the outcome");
 
-    // (b) a dial change on one machine.
+    // (b) a dial change on one machine (stance is a two-sided damage magnitude, so it moves outcomes).
     let mut dial = fixed_battle_input(1);
-    dial.armies[0].machines[0].dials.target_rule = TargetRule::DisperseFire;
+    dial.armies[0].machines[0].dials.stance = Stance::Aggressive;
     assert_ne!(
         h0,
         resolve(&dial).unwrap().replay.digest(),

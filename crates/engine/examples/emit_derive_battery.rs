@@ -338,10 +338,17 @@ fn main() {
         validate_cases.push(validate_case(&rs, "v6:ungated-2nd-planb", &a));
     }
     {
-        use engine::model::types::TargetRule;
+        // v3 US2: no dial option is capability-gated any more (a TargetAir filter without air reach is
+        // simply inert). A chain listing a class filter is always a legal build; kept as a legality
+        // smoke case. (The fixture is regenerated in the batched TS/parity pass.)
+        use engine::model::types::{TargetFilter, TargetSelector, TargetingChain};
         let mut a = legal_army(&rs);
-        a.machines[0].dials.target_rule = TargetRule::TargetAir; // no Sensor Suite
-        validate_cases.push(validate_case(&rs, "v7:ungated-dial", &a));
+        a.machines[0].dials.targeting = TargetingChain {
+            priority1: Some(TargetFilter::TargetSupport),
+            priority2: None,
+            fallback: TargetSelector::Closest,
+        };
+        validate_cases.push(validate_case(&rs, "targeting:support-filter-legal", &a));
     }
     {
         use engine::model::types::MovementMode;

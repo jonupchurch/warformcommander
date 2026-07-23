@@ -24,9 +24,7 @@ use crate::model::types::{
     EquipmentSpec, Loadout, MachineType, MachineTypeId, MitigationMod, MountClass, ReachTag,
     ShieldDelta, SlotLayout, StatDeltas, SupportRange, VariantId, WeaponSpec,
 };
-use crate::model::types::{
-    BehaviorDials, MovementMode, Stance, TargetRow, TargetRule, ZoneId,
-};
+use crate::model::types::{BehaviorDials, MovementMode, Stance, TargetingChain, ZoneId};
 
 /// Shorthand: a whole-unit [`Fixed`] quantity.
 fn q(n: i64) -> Fixed {
@@ -1080,8 +1078,7 @@ fn base_weapon_for(type_id: MachineTypeId, variant: &VariantId) -> (&'static str
 /// Default behavior dials (all starter options) — the stock setup.
 pub fn stock_dials() -> BehaviorDials {
     BehaviorDials {
-        target_row: TargetRow::FrontReachable,
-        target_rule: TargetRule::FocusFire,
+        targeting: TargetingChain::DEFAULT,
         movement: MovementMode::Hold,
         stance: Stance::Neutral,
     }

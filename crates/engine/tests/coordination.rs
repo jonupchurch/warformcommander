@@ -7,7 +7,7 @@
 use engine::content::{seed_ruleset, stock_instance};
 use engine::model::army::Army;
 use engine::model::ruleset::{Coordination, CoordinationGrain, CoordinationScales, Ruleset};
-use engine::model::types::{MachineTypeId, TargetRule, ZoneId};
+use engine::model::types::{MachineTypeId, ZoneId};
 use engine::replay::{Adaptation, MatchConfig, Side, TickEvent};
 use engine::{resolve, BattleInput, BattleOutput};
 
@@ -68,11 +68,9 @@ fn total_damage(out: &BattleOutput) -> i64 {
 fn stacked_heavies(rs: &Ruleset, variant: &str, n: u8) -> Army {
     Army {
         machines: (0..n)
-            .map(|i| {
-                let mut m = stock_instance(rs, MachineTypeId::HeavyTank, variant, zone(i), i);
-                m.dials.target_rule = TargetRule::FocusFire;
-                m
-            })
+            // The v3 default targeting chain (Closest) already concentrates same-zone fire on the
+            // frontmost enemy, so the stock dials suffice for this coordination measurement.
+            .map(|i| stock_instance(rs, MachineTypeId::HeavyTank, variant, zone(i), i))
             .collect(),
     }
 }
@@ -210,11 +208,8 @@ fn type_variant_grain_taxes_less_than_type_grain() {
         grain: CoordinationGrain::TypeVariant,
         scales: CoordinationScales::Offense,
     };
-    let heavy = |rs: &Ruleset, v: &str, i: u8| {
-        let mut m = stock_instance(rs, MachineTypeId::HeavyTank, v, zone(i), i);
-        m.dials.target_rule = TargetRule::FocusFire;
-        m
-    };
+    let heavy =
+        |rs: &Ruleset, v: &str, i: u8| stock_instance(rs, MachineTypeId::HeavyTank, v, zone(i), i);
     let army = |rs: &Ruleset| Army {
         machines: vec![
             heavy(rs, "Grizzly", 0),

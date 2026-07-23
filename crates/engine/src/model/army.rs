@@ -121,6 +121,10 @@ pub struct EffectiveStats {
     pub move_speed: Option<u8>,
     pub evasion: Bp,
     pub threat: Fixed,
+    /// Targeting draw offset (v3 US2, design §12.4): added to this machine's priority score in every
+    /// enemy's chain — **Decoy/Taunt +2** pulls fire, **ECM −2** sheds it. `0` until an equipment module
+    /// sets it (US3); the field is here now so the priority-score chain can read it uniformly.
+    pub target_draw: i8,
     // Support
     pub support_power: Option<Fixed>,
     pub support_range: Option<SupportRange>,
@@ -336,6 +340,7 @@ pub fn derive_effective_stats(
         move_speed,
         evasion,
         threat: base.threat,
+        target_draw: 0, // US3 equipment (Decoy/ECM) will set this; 0 = no draw offset
         support_power: base.support_power,
         support_range: base.support_range,
         special_mitigation,
@@ -408,7 +413,7 @@ mod tests {
     use crate::model::types::{
         BaseStats, BehaviorDials, ChassisVariant, DefenseSpec, EquipmentModule,
         MachineType, MountClass, MovementMode, ShieldDelta, SlotLayout, Stance, StatDeltas,
-        TargetRow, TargetRule, UtilitySpec, WeaponSpec,
+        TargetingChain, UtilitySpec, WeaponSpec,
     };
     use std::collections::BTreeMap;
 
@@ -644,8 +649,7 @@ mod tests {
 
     fn dials() -> BehaviorDials {
         BehaviorDials {
-            target_row: TargetRow::FrontReachable,
-            target_rule: TargetRule::FocusFire,
+            targeting: TargetingChain::DEFAULT,
             movement: MovementMode::Advance,
             stance: Stance::Aggressive,
         }

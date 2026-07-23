@@ -11,8 +11,7 @@ use serde::{Deserialize, Serialize};
 use crate::model::army::{derive_effective_stats, Army, DerivationError, MachineInstance};
 use crate::model::ruleset::Ruleset;
 use crate::model::types::{
-    Capability, EquipmentId, EquipmentSpec, MovementMode, PlanBSlot, SlotLayout,
-    TargetRule, ZoneId,
+    EquipmentId, EquipmentSpec, MovementMode, PlanBSlot, SlotLayout, ZoneId,
 };
 
 /// Zone caps (game rules, not tunable balance): ground rows hold 3, Air holds 2.
@@ -177,8 +176,10 @@ fn validate_machine(m: &MachineInstance, ruleset: &Ruleset, errors: &mut Vec<Val
                 ));
             }
 
-            // V7 — capability-gated dial options.
-            check_dial_gating(m, &stats.capabilities, id, errors);
+            // V7 retired (v3 US2): no dial option is capability-gated any more. A `TargetAir` filter on
+            // a unit with no air reach is simply *inert* — air never enters its reachable pool, so the
+            // filter falls through — rather than an illegal build (design §12 Q5). Movement/Stance are
+            // ungated (the v2 Reposition/Escort/Opportunist options are gone).
 
             // V8 — movement order feasible for the machine's mobility.
             let moving = !matches!(m.dials.movement, MovementMode::Hold);
@@ -281,31 +282,6 @@ fn validate_utilities(
             )),
         }
     }
-}
-
-/// Gate the dial options that have a defined unlocking capability (currently the Target-Air rule).
-/// Options without a defined capability gate are allowed (the gating table is data-driven and grows
-/// as capabilities are added).
-fn check_dial_gating(
-    m: &MachineInstance,
-    caps: &std::collections::BTreeSet<Capability>,
-    id: u8,
-    errors: &mut Vec<ValidationError>,
-) {
-    let mut gate = |needs: Capability, ok: bool, what: &str| {
-        if !ok && !caps.contains(&needs) {
-            errors.push(ValidationError::machine(
-                ValidationCode::DialGating,
-                id,
-                format!("dial option '{what}' requires the {needs:?} capability"),
-            ));
-        }
-    };
-    gate(
-        Capability::TargetAir,
-        m.dials.target_rule != TargetRule::TargetAir,
-        "Target-Air rule",
-    );
 }
 
 fn structural_from_derivation(e: DerivationError, id: u8) -> ValidationError {
@@ -440,18 +416,6 @@ mod tests {
         assert!(errs
             .iter()
             .any(|e| e.code == ValidationCode::PlanB && e.instance_id == Some(1)));
-    }
-
-    #[test]
-    fn v7_rejects_ungated_dial_option() {
-        let rs = seed_ruleset();
-        let mut army = legal_army();
-        // Target-Air rule without the gating capability (no Sensor Suite equipped).
-        army.machines[0].dials.target_rule = TargetRule::TargetAir;
-        let errs = validate(&army, &rs).unwrap_err();
-        assert!(errs
-            .iter()
-            .any(|e| e.code == ValidationCode::DialGating && e.instance_id == Some(0)));
     }
 
     #[test]

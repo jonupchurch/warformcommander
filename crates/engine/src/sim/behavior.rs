@@ -84,8 +84,6 @@ fn active_dials(
 
 fn apply_dial(dials: &mut BehaviorDials, value: DialValue) {
     match value {
-        DialValue::TargetRow(v) => dials.target_row = v,
-        DialValue::TargetRule(v) => dials.target_rule = v,
         DialValue::Movement(v) => dials.movement = v,
         DialValue::Stance(v) => dials.stance = v,
     }

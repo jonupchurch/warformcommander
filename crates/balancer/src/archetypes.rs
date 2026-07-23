@@ -7,7 +7,7 @@
 use engine::content::stock_instance;
 use engine::model::army::{Army, MachineInstance};
 use engine::model::ruleset::Ruleset;
-use engine::model::types::{EquipmentId, MachineTypeId, Stance, TargetRow, ZoneId};
+use engine::model::types::{EquipmentId, MachineTypeId, Stance, TargetSelector, ZoneId};
 
 /// A labeled army builder — a candidate combo / field opponent (data-model MatchupSpec source).
 #[derive(Clone, Copy)]
@@ -27,9 +27,10 @@ fn with_weapon(mut m: MachineInstance, weapon: &str) -> MachineInstance {
     m
 }
 
-/// Override a machine's Target Row dial (e.g. `LastReachable` for a backline raider).
-fn with_target_row(mut m: MachineInstance, row: TargetRow) -> MachineInstance {
-    m.dials.target_row = row;
+/// Override a machine's targeting fallback selector (e.g. `Furthest` for a backline raider that sweeps
+/// from the enemy rear rather than the contact line).
+fn with_fallback(mut m: MachineInstance, sel: TargetSelector) -> MachineInstance {
+    m.dials.targeting.fallback = sel;
     m
 }
 
@@ -64,7 +65,7 @@ pub fn kinetic_tanks(rs: &Ruleset) -> Army {
             .equipment
             .contains_key(&EquipmentId::new("SkirmishCannon"))
         {
-            with_target_row(with_weapon(m, "SkirmishCannon"), TargetRow::LastReachable)
+            with_fallback(with_weapon(m, "SkirmishCannon"), TargetSelector::Furthest)
         } else {
             m
         }
@@ -239,7 +240,7 @@ fn raider(rs: &Ruleset, v: &str, z: ZoneId, i: u8) -> MachineInstance {
         .equipment
         .contains_key(&EquipmentId::new("SkirmishCannon"))
     {
-        with_target_row(with_weapon(m, "SkirmishCannon"), TargetRow::LastReachable)
+        with_fallback(with_weapon(m, "SkirmishCannon"), TargetSelector::Furthest)
     } else {
         m
     }

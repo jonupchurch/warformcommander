@@ -12,7 +12,7 @@
 //! (air-first — clear the skies, then bomb) — a non-AA weapon hitting air only at the plink rate.
 
 use crate::model::ruleset::Ruleset;
-use crate::model::types::{Capability, DamageFamily, ReachTag, TargetRow, TargetRule, ZoneId};
+use crate::model::types::{Capability, DamageFamily, ReachTag, TargetFilter, TargetSelector, ZoneId};
 use crate::replay::Side;
 
 use super::Combatant;
@@ -66,8 +66,7 @@ impl AirFocus {
 pub(crate) fn select_target(
     combatants: &[Combatant],
     att_idx: usize,
-    // Retained in the signature for the US2 priority-score chain (Decoy/ECM offsets); unused this slice.
-    _ruleset: &Ruleset,
+    ruleset: &Ruleset,
     focus: Option<&mut AirFocus>,
 ) -> Option<usize> {
     let att = &combatants[att_idx];
@@ -79,26 +78,142 @@ pub(crate) fn select_target(
         None => true,
     };
 
-    // 1. Reachable living enemies (by reach rules, and the air budget).
+    // 1. Reachable living enemies (by reach rules, and the air budget) — the priority chain's pool.
     let reachable = reachable_enemies(combatants, att_idx, enemy_side, air_allowed);
     if reachable.is_empty() {
         return None;
     }
 
-    // 2. Target Row (a): narrow to one row. (v3 US4: stance no longer steers targeting — it is a
-    // magnitude axis now; the priority-score chain replaces the aggro narrowing in US2.)
-    let row = pick_row(combatants, &reachable, att.dials.target_row);
+    // 2. Priority-score chain (design §12): score each reachable enemy, highest wins, fallback breaks ties.
+    let chosen = pick_by_priority(combatants, att_idx, ruleset, &reachable);
 
-    // 3. Target Rule (b): pick the unit within that row.
-    let chosen = pick_unit(combatants, &row, att);
-
-    // 4. Spend a slot of the air budget if this attacker actually engaged the skies.
+    // 3. Spend a slot of the air budget if this attacker actually engaged the skies.
     if combatants[chosen].zone == ZoneId::Air {
         if let Some(f) = focus {
             f.commit(side);
         }
     }
     Some(chosen)
+}
+
+/// Armour fraction (bp) at or above which a target counts as "armoured" for the `TargetArmor` filter
+/// (design §12.6 Q1 — the energy-weapon partner). A start-value line, tunable in the balance pass.
+const TARGET_ARMOR_THRESHOLD_BP: crate::fixed::Bp = 2_500; // 25%
+
+/// Base priority scores by tier (design §12.8): a Priority-1 match scores 5, a Priority-2 match 3, an
+/// unmatched candidate 0. The ±2 draw offsets stay strictly inside this spread, so declared priorities
+/// dominate — a dedicated hunter (5) still shoots through an ECM'd target (3), while a Decoy (0+2=2)
+/// beats only unranked fire. Start-values.
+const SCORE_PRIORITY_1: i32 = 5;
+const SCORE_PRIORITY_2: i32 = 3;
+
+/// Resolve the priority-score chain to one target index among the (non-empty) `reachable` pool.
+fn pick_by_priority(
+    combatants: &[Combatant],
+    att_idx: usize,
+    ruleset: &Ruleset,
+    reachable: &[usize],
+) -> usize {
+    let chain = combatants[att_idx].dials.targeting;
+    // Follow is dynamic: resolve the anchor's target once (a non-following zone ally's pick), then a
+    // Follow tier matches only that one index. `None` if there is no valid anchor → the tier is inert.
+    let follow_target = if chain.is_following() {
+        resolve_follow_anchor(combatants, att_idx, ruleset, reachable)
+    } else {
+        None
+    };
+
+    let score = |j: usize| -> i32 {
+        let base = if filter_matches(combatants, j, chain.priority1, follow_target) {
+            SCORE_PRIORITY_1
+        } else if filter_matches(combatants, j, chain.priority2, follow_target) {
+            SCORE_PRIORITY_2
+        } else {
+            0
+        };
+        base + combatants[j].stats.target_draw as i32
+    };
+
+    let best = reachable.iter().map(|&j| score(j)).max().unwrap();
+    // Break score ties with the positional fallback selector, then the fully-deterministic
+    // (zone, instance_id) order so selection is reproducible on replay (FR-014).
+    reachable
+        .iter()
+        .copied()
+        .filter(|&j| score(j) == best)
+        .min_by_key(|&j| selector_key(combatants, j, chain.fallback))
+        .unwrap()
+}
+
+/// The sort key that realises a [`TargetSelector`] among equally-scored candidates. `Closest` sweeps
+/// from the contact line (air sorts frontmost, then Front→Rear); `Furthest` sweeps from the backline.
+/// The trailing `instance_id` is the final deterministic tiebreak in both directions.
+fn selector_key(combatants: &[Combatant], j: usize, sel: TargetSelector) -> (i32, u8) {
+    // Zone order: Air(0) < Front(1) < Middle(2) < Rear(3) — the enemy-facing distance from contact.
+    let zrank = match combatants[j].zone {
+        ZoneId::Air => 0,
+        ZoneId::Front => 1,
+        ZoneId::Middle => 2,
+        ZoneId::Rear => 3,
+    };
+    let id = combatants[j].unit.instance_id;
+    match sel {
+        TargetSelector::Closest => (zrank, id),
+        TargetSelector::Furthest => (-zrank, id),
+    }
+}
+
+/// Whether candidate `j` matches `filter`. `Follow` matches only the pre-resolved anchor target.
+fn filter_matches(
+    combatants: &[Combatant],
+    j: usize,
+    filter: Option<TargetFilter>,
+    follow_target: Option<usize>,
+) -> bool {
+    match filter {
+        None => false,
+        Some(TargetFilter::TargetAir) => combatants[j].zone == ZoneId::Air,
+        Some(TargetFilter::TargetArmor) => combatants[j].stats.armor_pct >= TARGET_ARMOR_THRESHOLD_BP,
+        Some(TargetFilter::TargetSupport) => combatants[j]
+            .stats
+            .support_power
+            .is_some_and(|p| p.milli() > 0),
+        // Indirect-fire enemies (counter-battery): artillery / rocket-artillery fire from the rear.
+        Some(TargetFilter::TargetIndirect) => combatants[j].can_fire_from_rear,
+        Some(TargetFilter::Follow) => follow_target == Some(j),
+    }
+}
+
+/// Resolve a `Follow` unit's anchor target (design §12.6 Q2): the target chosen by an **independently
+/// choosing** (non-following) zone ally, so followers focus-fire without chaining or circularity. Picks
+/// the lowest-instance-id such ally whose own pick is also reachable by the follower; `None` if none.
+fn resolve_follow_anchor(
+    combatants: &[Combatant],
+    att_idx: usize,
+    ruleset: &Ruleset,
+    reachable: &[usize],
+) -> Option<usize> {
+    let side = combatants[att_idx].unit.side;
+    let zone = combatants[att_idx].zone;
+    let mut anchors: Vec<usize> = (0..combatants.len())
+        .filter(|&k| {
+            k != att_idx
+                && combatants[k].alive
+                && combatants[k].unit.side == side
+                && combatants[k].zone == zone
+                && !combatants[k].dials.targeting.is_following() // independent only → no chaining
+        })
+        .collect();
+    anchors.sort_by_key(|&k| combatants[k].unit.instance_id);
+    for k in anchors {
+        // The anchor is non-following, so this recursion terminates without re-entering Follow.
+        if let Some(t) = select_target(combatants, k, ruleset, None) {
+            if reachable.contains(&t) {
+                return Some(t);
+            }
+        }
+    }
+    None
 }
 
 /// Which enemy ground zones (and whether air) this attacker can reach from its current row.
@@ -233,121 +348,4 @@ fn reachable_enemies(
             }
         })
         .collect()
-}
-
-/// Narrow the reachable set to one row per the Target Row sub-pick.
-fn pick_row(combatants: &[Combatant], reachable: &[usize], row: TargetRow) -> Vec<usize> {
-    // The distinct zones present among reachable enemies, in zone order.
-    let mut zones: Vec<ZoneId> = reachable.iter().map(|&j| combatants[j].zone).collect();
-    zones.sort();
-    zones.dedup();
-    if zones.is_empty() {
-        return vec![];
-    }
-
-    let chosen = match row {
-        TargetRow::FrontReachable => *zones.first().unwrap(), // frontmost (lowest zone order)
-        TargetRow::LastReachable => *zones.last().unwrap(),   // deepest
-        TargetRow::FullestRow => *zones
-            .iter()
-            .max_by_key(|&&z| {
-                (
-                    reachable
-                        .iter()
-                        .filter(|&&j| combatants[j].zone == z)
-                        .count(),
-                    // tie-break: prefer the frontmost row (smaller zone order wins → negate)
-                    std::cmp::Reverse(z),
-                )
-            })
-            .unwrap(),
-        TargetRow::WeakestRow => *zones
-            .iter()
-            .min_by_key(|&&z| {
-                let total: i128 = reachable
-                    .iter()
-                    .filter(|&&j| combatants[j].zone == z)
-                    .map(|&j| combatants[j].hull.milli() as i128)
-                    .sum();
-                (total, z)
-            })
-            .unwrap(),
-    };
-
-    reachable
-        .iter()
-        .copied()
-        .filter(|&j| combatants[j].zone == chosen)
-        .collect()
-}
-
-/// Pick the single target within the chosen row per the Target Rule sub-pick.
-fn pick_unit(combatants: &[Combatant], row: &[usize], att: &Combatant) -> usize {
-    let tiebreak = |j: usize| (combatants[j].zone, combatants[j].unit.instance_id);
-
-    match att.dials.target_rule {
-        // Concentrate fire to secure a kill → the lowest current hull.
-        TargetRule::FocusFire | TargetRule::Weakest => *row
-            .iter()
-            .min_by_key(|&&j| (combatants[j].hull.milli(), tiebreak(j)))
-            .unwrap(),
-        // Spread damage → the freshest (highest hull) target.
-        TargetRule::DisperseFire => *row
-            .iter()
-            .max_by_key(|&&j| (combatants[j].hull.milli(), std::cmp::Reverse(tiebreak(j))))
-            .unwrap(),
-        // Nearest by zone, then placement.
-        TargetRule::Nearest => *row.iter().min_by_key(|&&j| tiebreak(j)).unwrap(),
-        // Highest aggro weight.
-        TargetRule::BiggestThreat => *row
-            .iter()
-            .max_by_key(|&&j| {
-                (
-                    combatants[j].stats.threat.milli(),
-                    std::cmp::Reverse(tiebreak(j)),
-                )
-            })
-            .unwrap(),
-        // Prefer support machines; else fall back to weakest.
-        TargetRule::TargetSupport => row
-            .iter()
-            .filter(|&&j| combatants[j].stats.support_power.is_some())
-            .min_by_key(|&&j| (combatants[j].hull.milli(), tiebreak(j)))
-            .copied()
-            .unwrap_or_else(|| {
-                *row.iter()
-                    .min_by_key(|&&j| (combatants[j].hull.milli(), tiebreak(j)))
-                    .unwrap()
-            }),
-        // Prefer air targets; else weakest.
-        TargetRule::TargetAir => row
-            .iter()
-            .filter(|&&j| combatants[j].zone == ZoneId::Air)
-            .min_by_key(|&&j| (combatants[j].hull.milli(), tiebreak(j)))
-            .copied()
-            .unwrap_or_else(|| {
-                *row.iter()
-                    .min_by_key(|&&j| (combatants[j].hull.milli(), tiebreak(j)))
-                    .unwrap()
-            }),
-        // First-pass: pick the target our damage type most punishes (highest matrix multiplier),
-        // approximated by whether the target relies on shields vs armor. Falls back to weakest.
-        TargetRule::SmartCounter => *row
-            .iter()
-            .max_by_key(|&&j| {
-                // Prefer targets whose surviving layer we counter: shields up → kinetic-favored, etc.
-                let has_shield = combatants[j].shield.milli() > 0;
-                let counter_score = match (att.stats.damage_type, has_shield) {
-                    (crate::model::types::DamageType::Kinetic, true) => 2,
-                    (crate::model::types::DamageType::Energy, false) => 2,
-                    _ => 1,
-                };
-                (
-                    counter_score,
-                    std::cmp::Reverse(combatants[j].hull.milli()),
-                    std::cmp::Reverse(tiebreak(j)),
-                )
-            })
-            .unwrap(),
-    }
 }

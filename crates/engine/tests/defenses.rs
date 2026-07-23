@@ -267,9 +267,7 @@ fn reactive_probe(rs: &Ruleset, mech_defense: &str) -> BattleOutput {
         machines: (0..5)
             .map(|i| {
                 let zone = if i < 3 { ZoneId::Front } else { ZoneId::Middle };
-                let mut m = stock_instance(rs, MachineTypeId::HeavyTank, "Grizzly", zone, i);
-                m.dials.target_rule = engine::model::types::TargetRule::FocusFire;
-                m
+                stock_instance(rs, MachineTypeId::HeavyTank, "Grizzly", zone, i)
             })
             .collect(),
     };
