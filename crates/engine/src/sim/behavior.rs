@@ -28,7 +28,7 @@ pub(crate) fn apply_behavior(
     ruleset: &Ruleset,
     events: &mut Vec<TickEvent>,
 ) {
-    latch_plan_b(combatants, tick, events);
+    latch_plan_b(combatants, tick, ruleset, events);
     resolve_movement(combatants, ruleset, events);
 }
 
@@ -36,7 +36,12 @@ pub(crate) fn apply_behavior(
 // Plan-B
 // ---------------------------------------------------------------------------
 
-fn latch_plan_b(combatants: &mut [Combatant], tick: u16, events: &mut Vec<TickEvent>) {
+fn latch_plan_b(
+    combatants: &mut [Combatant],
+    tick: u16,
+    ruleset: &Ruleset,
+    events: &mut Vec<TickEvent>,
+) {
     let n = combatants.len();
     for i in 0..n {
         if !combatants[i].alive || combatants[i].plan_b.is_empty() {
@@ -48,7 +53,7 @@ fn latch_plan_b(combatants: &mut [Combatant], tick: u16, events: &mut Vec<TickEv
             if combatants[i].fired.contains(&trig.slot) {
                 continue;
             }
-            if condition_met(combatants, i, trig.condition, tick) {
+            if condition_met(combatants, i, trig.condition, tick, ruleset) {
                 combatants[i].fired.insert(trig.slot);
                 events.push(TickEvent::PlanB {
                     unit: combatants[i].unit,
@@ -89,7 +94,13 @@ fn apply_dial(dials: &mut BehaviorDials, value: DialValue) {
     }
 }
 
-fn condition_met(combatants: &[Combatant], i: usize, cond: TriggerCondition, tick: u16) -> bool {
+fn condition_met(
+    combatants: &[Combatant],
+    i: usize,
+    cond: TriggerCondition,
+    tick: u16,
+    ruleset: &Ruleset,
+) -> bool {
     let c = &combatants[i];
     match cond {
         TriggerCondition::HullBelowPct(bp) => c.hull_pct() < bp,
@@ -101,12 +112,11 @@ fn condition_met(combatants: &[Combatant], i: usize, cond: TriggerCondition, tic
                 && a.destroyed_at.is_some()
                 && a.unit != c.unit
         }),
-        TriggerCondition::AirEnemyExists => combatants
-            .iter()
-            .any(|e| e.unit.side != c.unit.side && e.alive && e.zone == ZoneId::Air),
-        TriggerCondition::EnemyInZone(z) => combatants
-            .iter()
-            .any(|e| e.unit.side != c.unit.side && e.alive && e.zone == z),
+        // Own-state (v3 §15.4): no enemy is reachable by this machine right now (read-only probe, so it
+        // neither consumes the air budget nor draws RNG). Replaces the dropped enemy-reactive triggers.
+        TriggerCondition::NoTargetsReachable => {
+            target::select_target(combatants, i, ruleset, None).is_none()
+        }
     }
 }
 

@@ -8,8 +8,11 @@
 use engine::content::{seed_ruleset, stock_instance};
 use engine::model::army::{Army, MachineInstance};
 use engine::model::ruleset::Ruleset;
-use engine::model::types::{MachineTypeId, MovementMode, VariantId, ZoneId};
-use engine::replay::{Adaptation, MatchConfig, Side, UnitRef};
+use engine::model::types::{
+    DialKey, DialValue, MachineTypeId, MovementMode, PlanBSlot, PlanBTrigger, TriggerCondition,
+    VariantId, ZoneId,
+};
+use engine::replay::{Adaptation, MatchConfig, Side, TickEvent, UnitRef};
 use engine::{resolve, BattleInput, BattleOutput};
 
 fn config() -> MatchConfig {
@@ -72,6 +75,57 @@ fn anvils(rs: &Ruleset) -> Army {
             })
             .collect(),
     }
+}
+
+/// Whether a Plan-B trigger latched for side-A unit `id` anywhere in the battle.
+fn plan_b_fired(out: &BattleOutput, id: u8) -> bool {
+    let u = UnitRef {
+        side: Side::A,
+        instance_id: id,
+    };
+    out.replay.games[0]
+        .ticks
+        .iter()
+        .flat_map(|t| &t.events)
+        .any(|e| matches!(e, TickEvent::PlanB { unit, .. } if *unit == u))
+}
+
+/// The `NoTargetsReachable` Plan-B trigger (v3 §15.4, own-state): a Rear tank on `Hold` that can reach
+/// nobody latches its "advance when cut off" order and starts closing — proof the trigger reads the
+/// unit's own reachability, replacing the dropped enemy-reactive triggers.
+#[test]
+fn no_targets_reachable_latches_the_advance_order() {
+    let rs = anvil_rs();
+    // id0: Rear, Hold, with a Plan-B that flips to Advance when it has no reachable target.
+    let mut cutoff = tank(&rs, "Grizzly", ZoneId::Rear, 0);
+    cutoff.dials.movement = MovementMode::Hold;
+    cutoff.plan_b = vec![PlanBTrigger {
+        slot: PlanBSlot::Slot1,
+        condition: TriggerCondition::NoTargetsReachable,
+        dial: DialKey::Movement,
+        plan_b_value: DialValue::Movement(MovementMode::Advance),
+    }];
+    let attacker = Army {
+        machines: vec![
+            cutoff,
+            tank(&rs, "Grizzly", ZoneId::Rear, 1),
+            tank(&rs, "Grizzly", ZoneId::Rear, 2),
+            tank(&rs, "Grizzly", ZoneId::Middle, 3),
+            tank(&rs, "Grizzly", ZoneId::Middle, 4),
+        ],
+    };
+    // Enemies only up front → the Rear tank reaches nothing, so the trigger must fire and it advances.
+    let enemy = anvils(&rs);
+    let out = run(&rs, attacker, enemy, 0x0C07);
+    assert!(
+        plan_b_fired(&out, 0),
+        "NoTargetsReachable must latch for a cut-off Rear unit"
+    );
+    let zones = zones_over_time(&out, 0);
+    assert!(
+        zones.iter().any(|&z| z == ZoneId::Middle || z == ZoneId::Front),
+        "after latching Advance the cut-off unit must close toward contact: {zones:?}"
+    );
 }
 
 /// Advance **self-terminates**: a unit that already has a target in reach holds its ground instead of

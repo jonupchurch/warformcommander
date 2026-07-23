@@ -647,8 +647,10 @@ pub struct PlanBTrigger {
     pub plan_b_value: DialValue,
 }
 
-/// The §8.2 trigger menu (Self / Allies / Enemy / Position / Time), a representative subset for v1.
-/// Externally tagged so payloads serialize cleanly (`{ "HullBelowPct": 5000 }`).
+/// The Plan-B trigger menu (v3, design §15.4). **Every trigger reads own-state** — enemy-reactive
+/// conditions were dropped because the priority-score targeting chain is already enemy-reactive per
+/// shot, so Plan-B only handles what the chain can't express (Movement/Stance flips). Externally
+/// tagged so payloads serialize cleanly (`{ "HullBelowPct": 5000 }`).
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub enum TriggerCondition {
     /// Self hull dropped below X% (bp) — e.g. `7_500`/`5_000`/`2_500`.
@@ -659,10 +661,9 @@ pub enum TriggerCondition {
     AfterTick(u16),
     /// An allied unit in this machine's zone was destroyed.
     AllyLostInZone,
-    /// Any air enemy is present on the field.
-    AirEnemyExists,
-    /// An enemy occupies the given zone.
-    EnemyInZone(ZoneId),
+    /// This machine has no reachable enemy this tick (v3, §15.4) — e.g. stranded, or its front melted
+    /// away — so a "hold until engaged, then advance" or "fall back when cut off" order can latch.
+    NoTargetsReachable,
 }
 
 // ---------------------------------------------------------------------------
