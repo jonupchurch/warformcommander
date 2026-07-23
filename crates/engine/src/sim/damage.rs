@@ -7,12 +7,35 @@
 use crate::fixed::{Bp, Fixed, BP_ONE};
 use crate::model::ruleset::Ruleset;
 use crate::model::types::{
-    Capability, DamageFamily, DamageType, MachineTypeId, ReachTag, ZoneId,
+    AuraKind, AuraScope, Capability, DamageFamily, DamageType, MachineTypeId, ReachTag, ZoneId,
 };
 use crate::replay::{DamageLayer, TickEvent, UnitRef};
 use crate::rng::Rng;
 
 use super::{AttackProfile, Combatant};
+
+/// Product of the `(BP_ONE + magnitude)` multipliers from every **living** same-side machine whose
+/// passive aura matches one of `kinds` and whose scope reaches `subject_idx`'s zone (v3 US5). Because
+/// only living sources count, an aura vanishes the tick its source dies — so a Commander's army-wide
+/// boost is revoked on assassination with no extra bookkeeping.
+fn aura_mult(combatants: &[Combatant], subject_idx: usize, kinds: &[AuraKind]) -> Bp {
+    let side = combatants[subject_idx].unit.side;
+    let zone = combatants[subject_idx].zone;
+    let mut mult = BP_ONE;
+    for c in combatants.iter().filter(|c| c.alive && c.unit.side == side) {
+        if let Some(a) = c.passive_aura {
+            let in_scope = match a.scope {
+                AuraScope::AllAllies => true,
+                AuraScope::ZoneAllies => c.zone == zone,
+            };
+            if in_scope && kinds.contains(&a.kind) {
+                // Compose bp multipliers: (mult × (1 + magnitude)) at bp scale, widened to avoid overflow.
+                mult = ((mult as i128 * (BP_ONE + a.magnitude) as i128) / BP_ONE as i128) as Bp;
+            }
+        }
+    }
+    mult
+}
 
 /// Build the `Copy` attack profile from the attacker's current effective stats.
 fn profile(att: &Combatant) -> AttackProfile {
@@ -171,11 +194,20 @@ pub(crate) fn resolve_attack(
     d0 = d0.mul_bp(domain_mult); // BP_ONE for ordinary same-domain fire
     d0 = d0.mul_bp(BP_ONE + variance);
     d0 = d0.mul_bp(sm.output_mult(att_stance)); // stance output (applies to splash too, via d0)
+    // Army C2 boost (US5): a living Commander lifts every ally's outgoing damage; folded into d0 so it
+    // reaches splash too, and gone the tick the Commander dies (aura reads only living sources).
+    d0 = d0.mul_bp(aura_mult(
+        combatants,
+        att_idx,
+        &[AuraKind::DamageDealt, AuraKind::CommandBoost],
+    ));
 
     // --- Primary hit: shields then hull (role-counter bonus applied vs the primary target's type). ---
     let save = roll_ablative_save(&combatants[target_idx], ruleset, rng);
     // The target's stance scales the damage it takes (Aggressive +, Defensive −), computed per victim.
     let taken = sm.taken_mult(combatants[target_idx].dials.stance);
+    // A living protector/Commander projection on the target's side reduces the damage it takes (US5).
+    let taken_aura = aura_mult(combatants, target_idx, &[AuraKind::DamageTaken]);
     // Reactive plating reads the target's absorbed history *before* this hit, then the hull damage this
     // hit deals is folded back into that history below.
     let reactive = reactive_mult(&combatants[target_idx], prof.damage_type, ruleset);
@@ -183,6 +215,7 @@ pub(crate) fn resolve_attack(
         &mut combatants[target_idx],
         d0.mul_bp(role_mult(ruleset, att_type, target_type))
             .mul_bp(taken)
+            .mul_bp(taken_aura)
             .mul_bp(reactive),
         prof.damage_type,
         prof.penetration,
@@ -217,7 +250,8 @@ pub(crate) fn resolve_attack(
             // Blast Plating and friends reduce splash of a matching damage type taken.
             let mut sd0 = splash_d0
                 .mul_bp(role_mult(ruleset, att_type, combatants[j].type_id))
-                .mul_bp(sm.taken_mult(combatants[j].dials.stance));
+                .mul_bp(sm.taken_mult(combatants[j].dials.stance))
+                .mul_bp(aura_mult(combatants, j, &[AuraKind::DamageTaken]));
             if let Some(m) = combatants[j].stats.special_mitigation {
                 if m.against == prof.damage_type {
                     sd0 = sd0.mul_bp(m.splash_taken_mult);

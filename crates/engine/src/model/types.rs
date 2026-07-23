@@ -290,17 +290,24 @@ pub struct AuraEffect {
     pub scope: AuraScope,
 }
 
-/// What an [`AuraEffect`] modifies.
+/// What an [`AuraEffect`] modifies. The per-tick offensive/defensive auras (`DamageDealt`,
+/// `CommandBoost`, `DamageTaken`) apply **only while the source lives** — so killing an aura source
+/// (a Commander) revokes its army-wide buff on the spot (v3 US5, the assassination mechanic).
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub enum AuraKind {
-    /// Scales allies' outgoing/dealt damage.
+    /// Scales allies' outgoing/dealt damage (`magnitude` bp above `BP_ONE`, e.g. `+1_000` = +10%).
     DamageDealt,
-    /// Command-and-control boost (Command Post) — reserved for support-flavor resolution.
+    /// The Commander's army-wide command-and-control damage boost — an alias of `DamageDealt` in the
+    /// engine, kept distinct so the UI/roster can label the Commander's signature aura (v3 US5).
     CommandBoost,
     /// At **match start**, confer a one-time shield to allies in scope, sized by [`AuraEffect::magnitude`]
     /// as a fraction (bp) of each recipient's max hull (a rear-support role feature). Applied once, at
     /// setup — the shield sits above the recipient's cap and depletes without regenerating.
     StartShield,
+    /// Scales allies' **incoming** damage (`magnitude` bp above `BP_ONE`; negative = protection, e.g.
+    /// `-800` = −8% damage taken) — the Commander's Shield/Ablation projection expressed as mitigation
+    /// (v3 US5). Added last to keep the enum's serialized names stable for the pre-existing variants.
+    DamageTaken,
 }
 
 /// Who an [`AuraEffect`] reaches.

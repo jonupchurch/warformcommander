@@ -39,6 +39,9 @@ pub(crate) struct Combatant {
     pub type_id: MachineTypeId,
     /// The chassis variant — read at setup to apply its passive aura (`grant_start_shields`).
     pub variant_id: VariantId,
+    /// The chassis's passive aura (v3 US5), cached off the ruleset so the per-hit aura pass (Command
+    /// boost / protector projection) needn't re-look it up. `None` for the ordinary chassis.
+    pub passive_aura: Option<crate::model::types::AuraEffect>,
     pub stats: EffectiveStats,
     /// Active dials (mutated by Plan-B latches); recomputed from `base_dials` + `fired` each tick.
     pub base_dials: BehaviorDials,
@@ -170,6 +173,7 @@ pub(crate) fn build_combatants(
                     instance_id: m.instance_id,
                 },
                 type_id: m.type_id,
+                passive_aura: ruleset.chassis.get(&m.variant_id).and_then(|c| c.passive_aura),
                 variant_id: m.variant_id.clone(),
                 base_dials: m.dials,
                 dials: m.dials,

@@ -276,8 +276,10 @@ fn seed_variants(
         },
         None,
         Some(AuraEffect {
-            kind: AuraKind::DamageDealt,
-            magnitude: -800, // −8% to zone allies
+            // A protector projection (v3 US5): the Bulwark shaves damage off its zone allies while it
+            // lives — start-value, now that the per-tick aura pass is active.
+            kind: AuraKind::DamageTaken,
+            magnitude: -800, // −8% damage taken by zone allies
             scope: AuraScope::ZoneAllies,
         }),
     );
@@ -571,9 +573,12 @@ fn seed_variants(
         },
         Some(SlotLayout::FOUR_UTILITY),
         Some(AuraEffect {
+            // The Commander's innate Command (v3 US5): an army-wide C2 boost to every ally's outgoing
+            // damage, live only while the Commander survives — so its death lifts the buff, making it
+            // the #1 assassination target. Start-value magnitude, tunable in the balance pass.
             kind: AuraKind::CommandBoost,
-            magnitude: 0,
-            scope: AuraScope::ZoneAllies,
+            magnitude: 1_000, // +10% army-wide damage while the Commander lives
+            scope: AuraScope::AllAllies,
         }),
     );
 }
