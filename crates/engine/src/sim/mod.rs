@@ -60,9 +60,32 @@ pub(crate) struct Combatant {
     pub cooldown: u16,
     pub move_cooldown: u16,
     pub zone: ZoneId,
+    /// The zone this machine was placed in (v3 US2). `FallBack` returns here after its duck; the field
+    /// never changes, so a machine's "home" is always its start position regardless of how it has moved.
+    pub home_zone: ZoneId,
+    /// `FallBack` state machine (v3 US2): where the machine is in its duck-then-return cycle. Only ever
+    /// leaves `Inactive` while the active movement dial is `FallBack`.
+    pub fallback: FallbackPhase,
+    /// Ticks left in the `FallBack` duck before the machine turns for home (counts down every tick).
+    pub fallback_timer: u16,
     pub alive: bool,
     pub damage_dealt: Fixed,
     pub destroyed_at: Option<u16>,
+}
+
+/// The `FallBack` duck-then-return state (v3 US2). A machine ordered to fall back steps one zone back,
+/// holds there for `FALLBACK_DUCK_TICKS`, then returns to its home zone and holds — so a fall-back is a
+/// bounded reposition, never the "flee and rot" of an open-ended retreat.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub(crate) enum FallbackPhase {
+    /// Not currently falling back (the machine has some other movement order, or never fell back).
+    Inactive,
+    /// Ducked one zone back, waiting out `fallback_timer`.
+    Ducking,
+    /// Duck over — stepping back toward the home zone.
+    Returning,
+    /// Home again (or as close as it could get) — holds until ordered otherwise.
+    Home,
 }
 
 impl Combatant {
@@ -162,6 +185,9 @@ pub(crate) fn build_combatants(
                 cooldown: 0,
                 move_cooldown: 0,
                 zone: m.zone,
+                home_zone: m.zone,
+                fallback: FallbackPhase::Inactive,
+                fallback_timer: 0,
                 alive: true,
                 damage_dealt: Fixed::ZERO,
                 destroyed_at: None,
@@ -331,7 +357,7 @@ pub(crate) fn run_game(
         }
 
         // 2. Behavior: Plan-B latches, then movement (both deterministic, no RNG).
-        behavior::apply_behavior(combatants, tick, &mut events);
+        behavior::apply_behavior(combatants, tick, ruleset, &mut events);
 
         // 3. Support heals (no RNG; before offense so a heal can save a unit this tick).
         resolve_support(combatants, ruleset, &mut events);

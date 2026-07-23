@@ -547,15 +547,16 @@ pub enum TargetRule {
     SmartCounter,
 }
 
-/// Movement dial. `Kite`/`Reposition`/`Escort` are capability-gated.
+/// Movement dial (v3, spec 015 US2) — four **self-terminating** modes. `Hold` never steps; `Advance`
+/// closes to contact then idles once a target is in reach (re-closing if stranded); `Kite` oscillates
+/// (retreat while it can shoot, re-close when it cannot); `FallBack` ducks one zone back for a fixed
+/// spell, then returns to its home zone. No capability gates (the v2 `Reposition`/`Escort` are gone).
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Serialize, Deserialize)]
 pub enum MovementMode {
     Hold,
     Advance,
     FallBack,
     Kite,
-    Reposition,
-    Escort,
 }
 
 /// Stance dial (v3, spec 015 US4). The three **universal** postures — every machine may hold any of
