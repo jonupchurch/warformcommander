@@ -404,6 +404,8 @@ Tracking every open decision here so nothing is lost across the many interdepend
 | P20 | Cadence tradeoff + chassis mod | fast +slight DPS/low alpha, slow −DPS/high alpha; **Heavy+Mech +1 tick & +10% dmg** all types | **DECIDED (D6)** |
 | P21 | Movement value | does positioning change outcomes? mobility kit (§14.2) + MovementMode dials depend on it | **PARKED → behaviors surface**; measure |
 | P22 | Spotter Network — innate vs slot | **innate** (free zone-accuracy aura, Light's namesake) | **DECIDED** |
+| P23 | Commander baseline | innate Command (unlock advanced behaviors + Plan-B); weapon = Heal/Shield/Ablation projector; **5 slots** | **DECIDED (§14.6)** |
+| P24 | Aura-stacking | multiplicative buff stacking may run hot | **watch — measure**; cap/diminishing if needed |
 
 **Surfaces DONE:** targeting · primary weapons (incl. cadence) · armor.
 **Open:** secondary-weapon menu (P4/P5) · stances · equipment prune · support-mode numbers ·
@@ -601,7 +603,7 @@ them). Resolves the "when/what target" problem that killed secondary weapons.
   live here, already chassis-gated.
 - **Utility slots** (variable pool, per-chassis budget, per-item cost): the common/specific split (13.6).
 
-**Budgets [DECIDED]:** Mech **4** · Commander 4 · Heavy 3 · Light 3 · Heli/RktArty/Artillery 2.
+**Budgets [DECIDED]:** Commander **5** (no damage → all utility) · Mech 4 · Heavy 3 · Light 3 · Heli/RktArty/Artillery 2.
 **Cost tiers:** **1** = stat · **2** = capability/counter-defining · **3** = build-defining ability (Jump Jets).
 
 ### 13.6 Common vs specific utilities **[DRAFT]**
@@ -693,6 +695,79 @@ Theme: no native type = the flex-picker; **equip toward your army's *gap*.** The
 Air gradient: **SAM** (Rocket Arty ×1.5, whole-field, hard) > **Jump-Jet Mech** (×1.0 full, risky/flexible)
 > **soft front-AA** (plink). Jump Jets = air answer **+** self-serve backline striker; balanced by
 airborne-exposure + a recharge cooldown.
+
+### 14.4 Attack Heli — fragile air alpha-striker **[LOCKED — 6 items + 1 innate · 2 utility slots]**
+Theme: win the air lane / alpha-strike ground; survive the AA long enough to matter. Hard-commits (2 slots).
+**Innate — Coordinated Strike:** +10% accuracy when targeting something an **ally is also targeting**
+(self-only; rewards focus fire — pairs with **Follow**). Mirror of the Light's Spotter Network, but
+self-scoped not zone.
+| Equipment | Effect | Slots |
+|---|---|--:|
+| **SEAD** *(signature)* | on-hit: bonus vs AA + suppress their AA (hunt the flak) | 2 |
+| **Air Superiority** | bonus damage vs enemy air (own the dogfight lane) | 2 |
+| **Alpha Strike** | big burst on the first pass (front-load value before AA ramps) | 2 |
+| **Napalm / Cluster** | heavy AoE ground strike (anti-swarm, ignores evasion) | 2 |
+| **Flares** | +evasion vs AA (survival, stacks with Chaff) | 1 |
+| **Stealth Coating** | ECM (−2 draw — AA deprioritizes it) | 1 |
+
+### 14.5 Backline: Artillery + Rocket Arty (AA) **[LOCKED · 2 utility slots each]**
+Twins on defense (fragile backline, survive by not-being-hit), split on offense. Both draw a **shared
+pool** + their own specialist tools. Reach is a non-issue (Artillery = AnyGround; SAM = Air whole-field).
+
+**Shared backline pool:** ECM (2) · Smoke (+evasion, 1) · **EMP Ammo** (2 — anti-heal; *deadly on
+Artillery's long reach = a shut-down sniper on the enemy healer*) · **Entrench** (+mitigation while
+stationary, 1) · Relocate (reposition, 1, *P21-caveat*).
+
+**Artillery-specific (bombardment):**
+| Equipment | Effect | Slots |
+|---|---|--:|
+| **Saturation** *(signature)* | max splash — anti-stack, punishes clustered armies | 2 |
+| **Bunker Buster** | penetration — bypass armor (anti-tank / fortified) | 2 |
+| **Counter-Battery** | bonus vs enemy indirect + auto-prioritizes their artillery | 2 |
+
+**Rocket Arty / AA-specific:** *(innate: SAM = hard, whole-field AA — the chassis's defining role)*
+| Equipment | Effect | Slots |
+|---|---|--:|
+| **Flak Screen** | AoE anti-air — hits *multiple* aircraft / a whole air zone | 2 |
+| **Radar Lock** | +accuracy vs air (land reliably on evasive helis) | 1 |
+| **Interceptor Missiles** | bonus vs air + engage air at extended range | 2 |
+
+### 14.6 Commander — the tactical brain / support hub **[LOCKED — 5 utility slots · no damage]**
+Does no damage; its **slots ARE its contribution.** Fragile backline; the army's coordination keystone
+and the **#1 assassination target.**
+
+**Innate — Command:** while it lives, army-wide → **+1 Plan-B slot per unit** and the **gated stances /
+energy modes unlock** (Protector/Opportunist/Overdrive/…). Kill it and the enemy army loses its advanced
+tactics *mid-battle* — which is *why* Target Radar / Jump Mech / assassins exist. Counter-cycle: bring a
+Commander for depth → enemy brings backline-reach to kill it → you screen + protect it.
+
+**Weapon — pick one *support projector*** (fires sustain at allies, not damage at enemies). Itself a
+counter-pick:
+| Projector | Restores | Countered by |
+|---|---|---|
+| **Heal Gun** | ally hull over time | burst · **EMP Ammo** (stops healing) |
+| **Shield Gun** | regenerating shield pool | kinetic ×1.6 · pierce · **EMP Ammo** (stops regen) |
+| **Ablation Gun** | one-time ablative plate | sustained **attrition** — **EMP-proof** (no regen to stop) |
+
+*(EMP-heavy enemy → run Ablation; but Ablation folds to a grind army. The projector is a live counter-pick.)*
+
+**Defense slot:** §10 armor (light+ECM / light+shield / medium armor).
+
+**Equipment (5 slots) — augment the gun + auras:**
+| Equipment | Effect | Slots |
+|---|---|--:|
+| **Amplifier** | +projector output | 1 |
+| **Coordination Net** | army-wide accuracy aura | 1 |
+| **Recon** | armor vis + army-wide +5% on matrix-advantaged hits | 1 |
+| **Broadcast Array** | projector reaches the whole army (not just zone) | 2 |
+| **Multi-Targeting** | projector hits multiple allies per tick | 2 |
+| **Damage Boost** | allies deal more | 2 |
+| **Damage Reduction** | allies take less | 2 |
+| **Rally** | cleanse control (EMP / Suppress / Snare) off allies — the anti-control counter | 2 |
+| **Comms Jammer** | enemy-wide −accuracy / disrupt Plan-B | 2 |
+
+**⚠ Aura-stacking watch (P24):** Boost/Reduction/Recon/Coordination stacking multiplicatively can run
+hot; measure, and put diminishing returns on stacked auras if needed.
 
 Note: **Lure = the Heavy's Decoy signature; Guardian + Lure + shield = the true anchor** (Lure pulls
 targeting, Guardian eats leak-through). Overlaps with the common pool (Improved Tread, Smoke) are
