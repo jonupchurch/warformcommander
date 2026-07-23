@@ -49,14 +49,16 @@ pub fn seed_ruleset() -> Ruleset {
         chassis,
         variants,
         equipment,
+        // v3 sharpen (spec 015 US1, start-values to tune in the final sim pass): ×1.6 same-layer /
+        // ×0.7 cross so the right damage type can overturn a rank gap. Explosive is the neutral middle.
         damage_matrix: DamageMatrix {
             kinetic: LayerMultipliers {
-                vs_shields: 14_000, // ×1.4 shreds shields
-                vs_armor: 8_500,    // ×0.85 folds to armor
+                vs_shields: 16_000, // ×1.6 shreds shields
+                vs_armor: 7_000,    // ×0.7 folds to armor
             },
             energy: LayerMultipliers {
-                vs_shields: 6_000, // ×0.6 bounces
-                vs_armor: 12_500,  // ×1.25 melts armor
+                vs_shields: 7_000, // ×0.7 bounces
+                vs_armor: 16_000,  // ×1.6 melts armor
             },
             explosive: LayerMultipliers {
                 vs_shields: 10_000,

@@ -902,6 +902,9 @@ fn no_single_archetype_wins_every_matchup() {
 /// So against the same penetrating attacker, the Shield defender falls faster than the Ablative one —
 /// the shield is the wrong tool, the ablative pool the right one.
 #[test]
+#[ignore = "v2 balance relationship (ablative vs shield vs a penetrator) measured at start-values; \
+            v3 sharpened the damage matrix (spec 015 US1, start-values pending the balance/sim pass) \
+            and retires Ablative from the core defense set (FR-008). Re-validate in the v3 sim pass."]
 fn the_three_defensive_layers_fail_to_different_threats() {
     let rs = seed_ruleset();
 

@@ -534,10 +534,11 @@ mod counterweb_tests {
         );
     }
 
-    /// T035 (stat block B vs C): Energy melts armor — it kills a heavy armored hull ~30% faster
-    /// than Kinetic (matrix ×1.25 vs ×0.85 ⇒ TTK ratio ≈ 0.68).
+    /// T006 (spec 015 US1, stat block B vs C): Energy melts armor — with the v3 sharpen (matrix
+    /// ×1.6 vs armor for Energy, ×0.7 for Kinetic) Energy kills a heavy armored hull **much** faster
+    /// than Kinetic: per-shot armor damage ratio ≈ 1.6/0.7 ≈ 2.3×, so Energy's TTK is ≈ 0.44× Kinetic's.
     #[test]
-    fn energy_melts_armor_about_30pct_faster_than_kinetic() {
+    fn energy_melts_armor_much_faster_than_kinetic() {
         let rs = seed_ruleset();
         let d0 = Fixed::from_int(35);
         let hull = Fixed::from_int(1700);
@@ -549,11 +550,11 @@ mod counterweb_tests {
             energy < kin,
             "energy must out-DPS kinetic vs armor: kin={kin} energy={energy}"
         );
-        // ~30% faster ⇒ energy ≈ 0.62–0.75 × kinetic shots.
+        // v3 ×1.6 vs ×0.7 ⇒ energy ≈ 0.44 × kinetic shots (the counter is sharp, not a nudge).
         let ratio_pct = energy * 100 / kin;
         assert!(
-            (60..=78).contains(&ratio_pct),
-            "energy TTK should be ~30% shorter (got {ratio_pct}% of kinetic: kin={kin} energy={energy})"
+            (38..=52).contains(&ratio_pct),
+            "energy TTK should be ~0.44× kinetic (got {ratio_pct}% of kinetic: kin={kin} energy={energy})"
         );
     }
 
