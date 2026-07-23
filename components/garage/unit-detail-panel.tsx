@@ -109,7 +109,7 @@ export function UnitDetailPanel() {
 
       <div className="mt-auto flex flex-col gap-2">
         <CustomizeSurface />
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button
             type="button"
             variant="secondary"
@@ -117,6 +117,15 @@ export function UnitDetailPanel() {
             onClick={() => dispatch({ type: 'pickUpForPlacement', slot })}
           >
             MOVE
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => dispatch({ type: 'duplicateMachine', from: slot })}
+            disabled={session.draft.machines.every((m) => m !== null)}
+          >
+            DUPLICATE
           </Button>
           <Button
             type="button"

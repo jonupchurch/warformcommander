@@ -24,6 +24,7 @@ import type {
 } from '@/sim/model';
 
 import type {
+  DraftMachine,
   DraftSquad,
   EditorPane,
   EditorSession,
@@ -63,6 +64,7 @@ export type EditorAction =
   | { type: 'setPlanB'; slot: SlotIndex; trigger: PlanBTrigger }
   | { type: 'removePlanB'; slot: SlotIndex; planBSlot: PlanBSlot }
   | { type: 'clearSlot'; slot: SlotIndex }
+  | { type: 'duplicateMachine'; from: SlotIndex }
   | { type: 'selectMachine'; slot: SlotIndex | null }
   | { type: 'pickUpForPlacement'; slot: SlotIndex | null }
   | { type: 'placeInZone'; slot: SlotIndex; zone: ZoneId }
@@ -269,6 +271,20 @@ export function garageReducer(session: EditorSession, action: EditorAction): Edi
             if (d.selection.selectedSlot === action.slot) d.selection.selectedSlot = null;
             if (d.selection.placingSlot === action.slot) d.selection.placingSlot = null;
             break;
+
+          case 'duplicateMachine': {
+            // Clone a fully-configured machine (loadout + dials + planB + zone + preset origin) into
+            // the first free slot, exactly as-is, and select the copy. No-op if the source is empty
+            // or the squad is already full. The copy keeps the source's zone (an *exact* duplicate);
+            // if that overfills the zone, validation flags it and the player can MOVE it.
+            const src = d.draft.machines[action.from];
+            if (src === null) break;
+            const target = d.draft.machines.findIndex((m) => m === null);
+            if (target === -1) break; // squad full — nothing free to clone into
+            d.draft.machines[target] = JSON.parse(JSON.stringify(src)) as DraftMachine;
+            d.selection.selectedSlot = target as SlotIndex;
+            break;
+          }
 
           case 'selectMachine':
             d.selection.selectedSlot = action.slot;

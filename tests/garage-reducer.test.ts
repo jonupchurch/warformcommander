@@ -185,6 +185,47 @@ describe('duplicateSquad', () => {
   });
 });
 
+describe('duplicateMachine', () => {
+  it('clones a filled slot into the first free slot and selects the copy', () => {
+    const s = run(
+      { type: 'setType', slot: 0, typeId: 'HeavyTank', seed: seedFor('Grizzly'), zone: 'Front' },
+      { type: 'duplicateMachine', from: 0 },
+    );
+    // Source unchanged; an exact copy lands in the first free slot and becomes selected.
+    expect(s.draft.machines[0]).toMatchObject({ typeId: 'HeavyTank', variantId: 'Grizzly', zone: 'Front' });
+    expect(s.draft.machines[1]).toEqual(s.draft.machines[0]);
+    expect(s.selection.selectedSlot).toBe(1);
+  });
+
+  it('deep-clones — editing the copy does not touch the source', () => {
+    const s = run(
+      { type: 'setType', slot: 0, typeId: 'HeavyTank', seed: seedFor('Grizzly'), zone: 'Front' },
+      { type: 'duplicateMachine', from: 0 },
+      { type: 'setVariant', slot: 1, seed: seedFor('Bulwark') },
+    );
+    expect(s.draft.machines[1]?.variantId).toBe('Bulwark');
+    expect(s.draft.machines[0]?.variantId).toBe('Grizzly');
+  });
+
+  it('is a no-op on an empty source slot', () => {
+    const s = run({ type: 'duplicateMachine', from: 2 });
+    expect(s.draft.machines).toEqual([null, null, null, null, null]);
+  });
+
+  it('is a no-op when the squad is full (no free slot)', () => {
+    const seed: MachineSeed = seedFor('Grizzly');
+    const full = run(
+      ...[0, 1, 2, 3, 4].map(
+        (slot) =>
+          ({ type: 'setType', slot, typeId: 'HeavyTank', seed, zone: 'Front' }) as EditorAction,
+      ),
+    );
+    const after = garageReducer(full, { type: 'duplicateMachine', from: 0 });
+    expect(after.draft.machines.filter((m) => m !== null)).toHaveLength(5);
+    expect(after).toBe(full); // an early-break Immer produce returns the same reference
+  });
+});
+
 describe('defaultVariantFor', () => {
   it('returns a variant belonging to the requested type', () => {
     const v = defaultVariantFor('AttackHeli', rs);
