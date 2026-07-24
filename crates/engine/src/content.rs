@@ -1062,6 +1062,61 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
         ),
     );
 
+    // --- Defenses: the §10 avoidance axis (v3 US1d) — survive by not-being-hit, not by mitigation.
+    // Each is "light armor + an avoidance stat", mount-gated to the chassis the §10 table assigns it.
+    // Camo = flat evasion (dodges everything, beaten by accuracy/volume/splash); Chaff = evasion vs
+    // AA/flak only (the aircraft's built-in AA answer); ECM = −2 target draw (shed fire, not dodge it).
+    // Magnitudes are start-values (tuned later). Ablative is being retired from the *offered* set at the
+    // garage-curation layer; the module + mechanic stay for back-compat and the Commander's Ablation gun.
+    let camo = |mount: MountClass| {
+        defense(
+            mount,
+            500,
+            None,
+            None,
+            StatDeltas {
+                evasion: 2_000, // +20% evasion (start-value)
+                ..Default::default()
+            },
+        )
+    };
+    let ecm_defense = |mount: MountClass| {
+        defense(
+            mount,
+            500,
+            None,
+            None,
+            StatDeltas {
+                target_draw: -2, // shed fire (mirrors the ECM utility, but in the defense slot)
+                ..Default::default()
+            },
+        )
+    };
+    // Camo net — Light Tank + the fragile backline (Rocket-Arty / Artillery), per §10.
+    add("LightCamo", "Camo Netting", camo(MountClass::Light));
+    add("RktArtyCamo", "Camo Netting", camo(MountClass::RktArty));
+    add("ArtilleryCamo", "Camo Netting", camo(MountClass::Artillery));
+    // Chaff — Attack Heli only: evasion vs AA/flak fire (design §10.1, the new conditional mechanic).
+    add(
+        "HeliChaff",
+        "Chaff Dispenser",
+        defense(
+            MountClass::Heli,
+            500,
+            None,
+            None,
+            StatDeltas {
+                evasion_vs_air: 2_500, // +25% evasion, but only vs air-directed fire
+                ..Default::default()
+            },
+        ),
+    );
+    // ECM defense — the fragile backline (AA/Artillery), Attack Heli, and the Commander/Support, per §10.
+    add("RktArtyECM", "ECM Screen", ecm_defense(MountClass::RktArty));
+    add("ArtilleryECM", "ECM Screen", ecm_defense(MountClass::Artillery));
+    add("HeliECM", "ECM Screen", ecm_defense(MountClass::Heli));
+    add("SupportECM", "ECM Screen", ecm_defense(MountClass::Support));
+
     // --- Utilities (ungated) ---
     add(
         "Autoloader",

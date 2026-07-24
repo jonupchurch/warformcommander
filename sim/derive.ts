@@ -106,6 +106,7 @@ interface Accum {
   damage: number;
   accuracy: number;
   evasion: number;
+  evasionVsAir: number;
   armorPct: number;
   critChance: number;
   splash: number;
@@ -121,6 +122,7 @@ function applyDeltas(acc: Accum, d: StatDeltas): void {
   acc.damage += d.damage;
   acc.accuracy += d.accuracy;
   acc.evasion += d.evasion;
+  acc.evasionVsAir += d.evasionVsAir ?? 0;
   acc.armorPct += d.armorPct;
   acc.critChance += d.critChance;
   acc.splash += d.splash;
@@ -177,6 +179,7 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
     damage: base.damage,
     accuracy: base.accuracy,
     evasion: base.evasion,
+    evasionVsAir: 0, // equipment-only (Chaff); no chassis carries innate air-evasion
     armorPct: base.armorPct,
     critChance: base.critChance,
     splash: base.splash,
@@ -259,6 +262,7 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
   const penetration = clamp(acc.penetration, 0, BP_ONE);
   const armorPct = clamp(acc.armorPct, 0, BP_ONE);
   const evasion = clamp(acc.evasion, 0, BP_ONE);
+  const evasionVsAir = clamp(acc.evasionVsAir, 0, BP_ONE);
 
   // Mobility: air-locked (base null) stays null; otherwise clamp the delta at zero.
   const moveSpeed = base.moveSpeed === null ? null : clamp(base.moveSpeed + acc.moveDelta, 0, U8_MAX);
@@ -299,6 +303,7 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
       canTargetAir,
       moveSpeed,
       evasion,
+      evasionVsAir,
       threat: base.threat,
       targetDraw: clamp(acc.targetDraw, -128, 127),
       supportPower: base.supportPower ?? null,

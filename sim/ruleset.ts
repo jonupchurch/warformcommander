@@ -91,6 +91,8 @@ export interface StatDeltas {
   splash: number; // bp
   penetration: number; // bp
   evasion: number; // bp
+  /** Evasion that applies only vs air/flak fire (v3 US1d Chaff); omitted when zero. */
+  evasionVsAir?: number; // bp
   armorPct: number; // bp
   critChance: number; // bp
   moveSpeed: number; // zone-transition steps (may be negative)
@@ -476,6 +478,7 @@ export interface EffectiveStats {
   canTargetAir: boolean;
   moveSpeed: number | null;
   evasion: number; // bp
+  evasionVsAir: number; // bp — extra evasion vs air/flak fire only (v3 US1d Chaff)
   threat: number; // milli
   targetDraw: number; // i8 — v3 US2/US3 priority-score draw offset (Decoy +2 / ECM −2)
   supportPower: number | null;

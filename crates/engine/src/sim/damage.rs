@@ -201,8 +201,14 @@ pub(crate) fn resolve_attack(
         acc += ruleset.air_mods.plink_acc_penalty;
         domain_mult = ruleset.air_mods.sam_ground_dmg_mult;
     }
-    let target_evasion = combatants[target_idx].stats.evasion
+    let mut target_evasion = combatants[target_idx].stats.evasion
         + sm.evasion_add(combatants[target_idx].dials.stance);
+    if target_air {
+        // Chaff (v3 US1d): the aircraft's air-only evasion counts vs this air-directed shot (AA / flak /
+        // plink) — never vs ground fire, so it is dead weight the instant the unit isn't being shot at
+        // as air. A dedicated high-accuracy AA (SAM) still connects; casual flak whiffs (accuracy math).
+        target_evasion += combatants[target_idx].stats.evasion_vs_air;
+    }
     let hit_chance = (acc - target_evasion).clamp(g.hit_clamp_min, g.hit_clamp_max);
 
     let target_ref = combatants[target_idx].unit;

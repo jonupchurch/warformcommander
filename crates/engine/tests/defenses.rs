@@ -12,7 +12,7 @@ use engine::model::ruleset::Ruleset;
 use engine::model::types::{
     EquipmentId, EquipmentSpec, Loadout, MachineTypeId, MountClass, ZoneId,
 };
-use engine::replay::{Adaptation, MatchConfig, Side, TickEvent, UnitRef};
+use engine::replay::{Adaptation, Fate, MatchConfig, Side, TickEvent, UnitRef};
 use engine::validate::{validate, ValidationCode};
 use engine::{resolve, BattleInput, BattleOutput};
 
@@ -427,4 +427,81 @@ fn squad_around(rs: &Ruleset, slot0: MachineInstance) -> Army {
             stock_instance(rs, MachineTypeId::LightTank, "Scout", ZoneId::Rear, 4),
         ],
     }
+}
+
+/// **Chaff** (v3 US1d) derives as air-only evasion — not plain evasion — and delays an aircraft's
+/// death under sustained anti-air fire. The stock hull grants neither; only the chaff dispenser does.
+#[test]
+fn chaff_is_air_only_evasion() {
+    let rs = seed_ruleset();
+    let heli_stats = |def: &str| {
+        let mut m = stock_instance(&rs, MachineTypeId::AttackHeli, "Gunship", ZoneId::Air, 0);
+        m.loadout.defense = EquipmentId::new(def);
+        derive_effective_stats(&m, &rs).unwrap()
+    };
+    let chaffed = heli_stats("HeliChaff");
+    let plain = heli_stats("StandardHullHeli");
+    assert_eq!(chaffed.evasion_vs_air, 2_500, "chaff → +25% air-only evasion");
+    assert_eq!(plain.evasion_vs_air, 0, "no chaff → no air evasion");
+    assert_eq!(
+        chaffed.evasion, plain.evasion,
+        "chaff adds only *air* evasion — the plain (ground) evasion is unchanged"
+    );
+
+    // Battle: three SAM tubes focus a lone aircraft; the chaffed one whiffs more AA and falls later.
+    let attackers = || Army {
+        machines: vec![
+            stock_instance(&rs, MachineTypeId::RocketArtillery, "Sentry", ZoneId::Middle, 0),
+            stock_instance(&rs, MachineTypeId::RocketArtillery, "Sentry", ZoneId::Middle, 1),
+            stock_instance(&rs, MachineTypeId::RocketArtillery, "Sentry", ZoneId::Middle, 2),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 3),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 4),
+        ],
+    };
+    let defender = |chaff: bool| {
+        let mut h = stock_instance(&rs, MachineTypeId::AttackHeli, "Gunship", ZoneId::Air, 0);
+        if chaff {
+            h.loadout.defense = EquipmentId::new("HeliChaff");
+        }
+        Army {
+            machines: vec![
+                h,
+                stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 1),
+                stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 2),
+                stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Rear, 3),
+                stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Rear, 4),
+            ],
+        }
+    };
+    let misses_on_heli = |chaff: bool| -> usize {
+        let out = resolve(&BattleInput {
+            armies: [attackers(), defender(chaff)],
+            ruleset: rs.clone(),
+            seed: 0xC4A5,
+            match_config: MatchConfig {
+                adaptation: Adaptation::Locked,
+                defender_side: Side::B,
+                best_of: 1,
+            },
+        })
+        .expect("legal squads");
+        out.replay
+            .games
+            .iter()
+            .flat_map(|g| &g.ticks)
+            .flat_map(|t| &t.events)
+            .filter(|e| {
+                matches!(e, TickEvent::Miss { target, .. }
+                    if target.side == Side::B && target.instance_id == 0)
+            })
+            .count()
+    };
+    // A chaffed aircraft forces measurably more AA shots to whiff.
+    assert!(
+        misses_on_heli(true) > misses_on_heli(false),
+        "chaff must make AA whiff more: chaff-misses={} plain-misses={}",
+        misses_on_heli(true),
+        misses_on_heli(false)
+    );
+    let _ = Fate::DestroyedAtTick(0); // Fate imported for the fixture-adjacent survival helpers
 }

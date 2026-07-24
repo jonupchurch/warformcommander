@@ -237,6 +237,11 @@ pub struct StatDeltas {
     pub penetration: Bp,
     /// Additive evasion delta (bp).
     pub evasion: Bp,
+    /// Additive evasion that applies **only vs air/flak fire** (v3 US1d **Chaff**): dodges AA / missiles
+    /// but not ground fire — air's built-in answer to secondary flak. Skipped when zero, so the field is
+    /// hash-stable for every non-chaff module (only the chaff defenses carry it).
+    #[serde(default, skip_serializing_if = "is_zero_bp")]
+    pub evasion_vs_air: Bp,
     /// Additive armor-percentage delta (bp), e.g. Composite Armor `+1200`.
     pub armor_pct: Bp,
     /// Additive crit-chance delta (bp).
@@ -484,6 +489,11 @@ pub struct DefenseSpec {
 /// serde skip predicate — a plain `bool` field omitted when `false` (hash-stable additive default).
 fn is_false(b: &bool) -> bool {
     !*b
+}
+
+/// serde skip-when-zero for the additive bp deltas that were added after the fact (hash-stable).
+fn is_zero_bp(v: &Bp) -> bool {
+    *v == 0
 }
 
 /// A utility — ungated, **no duplicates on one machine**; may unlock capabilities.

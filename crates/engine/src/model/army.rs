@@ -120,6 +120,9 @@ pub struct EffectiveStats {
     /// `None` = air-locked (heli); `Some(0)` = immobile; `Some(n)` = mobile.
     pub move_speed: Option<u8>,
     pub evasion: Bp,
+    /// Extra evasion that applies **only vs air/flak fire** (v3 US1d Chaff). `0` unless a chaff defense
+    /// is mounted; added to `evasion` inside the AA/flak branch of `sim::damage` (never vs ground fire).
+    pub evasion_vs_air: Bp,
     pub threat: Fixed,
     /// Targeting draw offset (v3 US2, design §12.4): added to this machine's priority score in every
     /// enemy's chain — **Decoy/Taunt +2** pulls fire, **ECM −2** sheds it. `0` until an equipment module
@@ -164,6 +167,7 @@ struct Accum {
     damage: Fixed,
     accuracy: Bp,
     evasion: Bp,
+    evasion_vs_air: Bp,
     armor_pct: Bp,
     crit_chance: Bp,
     splash: Bp,
@@ -180,6 +184,7 @@ impl Accum {
         self.damage = self.damage.saturating_add(d.damage);
         self.accuracy += d.accuracy;
         self.evasion += d.evasion;
+        self.evasion_vs_air += d.evasion_vs_air;
         self.armor_pct += d.armor_pct;
         self.crit_chance += d.crit_chance;
         self.splash += d.splash;
@@ -224,6 +229,7 @@ pub fn derive_effective_stats(
         damage: base.damage,
         accuracy: base.accuracy,
         evasion: base.evasion,
+        evasion_vs_air: 0, // equipment-only (Chaff); no chassis carries innate air-evasion
         armor_pct: base.armor_pct,
         crit_chance: base.crit_chance,
         splash: base.splash,
@@ -323,6 +329,7 @@ pub fn derive_effective_stats(
     let penetration = acc.penetration.clamp(0, BP_ONE);
     let armor_pct = acc.armor_pct.clamp(0, BP_ONE);
     let evasion = acc.evasion.clamp(0, BP_ONE);
+    let evasion_vs_air = acc.evasion_vs_air.clamp(0, BP_ONE);
 
     // Mobility: air-locked (base None) stays None; otherwise clamp the delta at zero.
     let move_speed = base
@@ -363,6 +370,7 @@ pub fn derive_effective_stats(
         can_target_air,
         move_speed,
         evasion,
+        evasion_vs_air,
         threat: base.threat,
         // Clamped to the ±2-per-source design range even if several draw modules stack (start-value).
         target_draw: acc.target_draw.clamp(i8::MIN as i32, i8::MAX as i32) as i8,
