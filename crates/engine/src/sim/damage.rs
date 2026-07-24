@@ -33,6 +33,15 @@ const SNARE_DURATION_TICKS: u16 = 30;
 /// an AA target. Start-value const (moves to the ruleset in the balance pass).
 const JUMP_AIR_EXPOSURE_BONUS: Bp = 5_000; // +50% damage taken while airborne (×1.5)
 
+/// Stationary brace (v3 US3, Siege / Bulwark / Entrench): ticks a machine must hold its position before
+/// the brace engages, and the incoming-damage multiplier it then enjoys. Start-values (→ ruleset later).
+const BRACE_SETTLE_TICKS: u16 = 5;
+const BRACE_TAKEN_MULT: Bp = 8_000; // ×0.8 damage taken (−20%) while braced
+
+/// Ambush (v3 US3): extra damage a **full-health** target takes from an ambush attacker — the alpha
+/// bonus that fades the instant the target is dented. Start-value.
+const AMBUSH_FULL_HP_BONUS: Bp = 5_000; // +50% vs a target still at full hull
+
 /// The incoming-damage multiplier from an active Paint mark (`BP_ONE` when the target is not painted).
 fn paint_mult(target: &Combatant, tick: u16) -> Bp {
     if target.painted_until > tick {
@@ -63,6 +72,44 @@ fn aura_mult(combatants: &[Combatant], subject_idx: usize, kinds: &[AuraKind]) -
         }
     }
     mult
+}
+
+/// Sum of the `magnitude`s (bp) from every **living** same-side machine whose passive aura matches
+/// `kind` and whose scope reaches `subject_idx`'s zone (v3). Additive companion to [`aura_mult`] — for
+/// auras applied as a flat delta (the Spotter Network accuracy aura) rather than a multiplier. `0` when
+/// no such aura is in scope, so it is inert for a field with no accuracy aura.
+fn aura_add(combatants: &[Combatant], subject_idx: usize, kind: AuraKind) -> Bp {
+    let side = combatants[subject_idx].unit.side;
+    let zone = combatants[subject_idx].zone;
+    let mut total = 0;
+    for c in combatants.iter().filter(|c| c.alive && c.unit.side == side) {
+        if let Some(a) = c.passive_aura {
+            let in_scope = match a.scope {
+                AuraScope::AllAllies => true,
+                AuraScope::ZoneAllies => c.zone == zone,
+            };
+            if in_scope && a.kind == kind {
+                total += a.magnitude;
+            }
+        }
+    }
+    total
+}
+
+/// The incoming-damage multiplier from a **settled stationary brace** (v3 US3): a `StationaryBrace`
+/// machine that has held its position past the settle threshold takes reduced damage. `BP_ONE` for
+/// anything not bracing (or not yet settled) — so it is inert for the stock field.
+fn brace_mult(target: &Combatant) -> Bp {
+    if target
+        .stats
+        .capabilities
+        .contains(&Capability::StationaryBrace)
+        && target.ticks_since_move >= BRACE_SETTLE_TICKS
+    {
+        BRACE_TAKEN_MULT
+    } else {
+        BP_ONE
+    }
 }
 
 /// Build the `Copy` attack profile from the attacker's current effective stats.
@@ -180,6 +227,7 @@ pub(crate) fn resolve_attack(
     let att_emps = caps.contains(&Capability::OnHitEmp);
     let att_suppresses = caps.contains(&Capability::OnHitSuppress);
     let att_snares = caps.contains(&Capability::OnHitSnare);
+    let att_ambushes = caps.contains(&Capability::Ambush); // +damage vs a full-health target (US3)
     // Is THIS attacker itself currently suppressed? (a Suppress rider cut its own output + accuracy).
     let att_suppressed = combatants[att_idx].suppressed_until > tick;
 
@@ -192,6 +240,8 @@ pub(crate) fn resolve_attack(
     if att_suppressed {
         acc -= SUPPRESS_ACC_PENALTY; // Suppress rider (US3): the suppressed attacker aims worse
     }
+    // Spotter Network (US3): a same-zone/army accuracy aura lifts this attacker's to-hit (inert with none).
+    acc += aura_add(combatants, att_idx, AuraKind::Accuracy);
     let mut domain_mult = BP_ONE;
     if target_air {
         if prof.jumped {
@@ -281,6 +331,13 @@ pub(crate) fn resolve_attack(
     let reactive = reactive_mult(&combatants[target_idx], prof.damage_type, ruleset);
     // A Jump-Jet target caught airborne takes extra damage — the exposure that pays for its reach (US3-C).
     let exposure = jump_exposure(&combatants[target_idx]);
+    // A settled stationary-brace target takes less (US3); an Ambush attacker hits a full-HP target harder.
+    let brace = brace_mult(&combatants[target_idx]);
+    let ambush = if att_ambushes && combatants[target_idx].hull >= combatants[target_idx].max_hull {
+        BP_ONE + AMBUSH_FULL_HP_BONUS
+    } else {
+        BP_ONE
+    };
     let (sh, ab, hu, died) = apply_damage(
         &mut combatants[target_idx],
         d0.mul_bp(role_mult(ruleset, att_type, target_type))
@@ -288,7 +345,9 @@ pub(crate) fn resolve_attack(
             .mul_bp(taken_aura)
             .mul_bp(paint)
             .mul_bp(reactive)
-            .mul_bp(exposure),
+            .mul_bp(exposure)
+            .mul_bp(brace)
+            .mul_bp(ambush),
         prof.damage_type,
         prof.penetration,
         save,
@@ -341,7 +400,8 @@ pub(crate) fn resolve_attack(
                 .mul_bp(sm.taken_mult(combatants[j].dials.stance))
                 .mul_bp(aura_mult(combatants, j, &[AuraKind::DamageTaken]))
                 .mul_bp(paint_mult(&combatants[j], tick))
-                .mul_bp(jump_exposure(&combatants[j]));
+                .mul_bp(jump_exposure(&combatants[j]))
+                .mul_bp(brace_mult(&combatants[j]));
             if let Some(m) = combatants[j].stats.special_mitigation {
                 if m.against == prof.damage_type {
                     sd0 = sd0.mul_bp(m.splash_taken_mult);

@@ -2166,6 +2166,16 @@
           "range": "WholeArmy"
         }
       },
+      "Ambush": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "Ambush",
+        "kind": "Utility",
+        "name": "Ambush",
+        "unlocks": [
+          "Ambush"
+        ]
+      },
       "ArcRepeater": {
         "family": "Energy",
         "id": "ArcRepeater",
@@ -2385,6 +2395,15 @@
           "targetDraw": 0
         }
       },
+      "BulwarkMode": {
+        "cadenceShift": 0,
+        "id": "BulwarkMode",
+        "kind": "Utility",
+        "name": "Bulwark Mode",
+        "unlocks": [
+          "StationaryBrace"
+        ]
+      },
       "ChainGun": {
         "family": "Kinetic",
         "id": "ChainGun",
@@ -2546,6 +2565,15 @@
         "name": "EMP Ammo",
         "unlocks": [
           "OnHitEmp"
+        ]
+      },
+      "Entrench": {
+        "cadenceShift": 0,
+        "id": "Entrench",
+        "kind": "Utility",
+        "name": "Entrench",
+        "unlocks": [
+          "StationaryBrace"
         ]
       },
       "FastCycleShield": {
@@ -3207,6 +3235,16 @@
           "targetDraw": 0
         }
       },
+      "Rally": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "Rally",
+        "kind": "Utility",
+        "name": "Rally",
+        "unlocks": [
+          "Rally"
+        ]
+      },
       "Rangefinder": {
         "cadenceShift": 0,
         "id": "Rangefinder",
@@ -3466,6 +3504,15 @@
           "splash": 0,
           "targetDraw": 0
         }
+      },
+      "SiegeMode": {
+        "cadenceShift": 0,
+        "id": "SiegeMode",
+        "kind": "Utility",
+        "name": "Siege Mode",
+        "unlocks": [
+          "StationaryBrace"
+        ]
       },
       "SnareShot": {
         "cadenceShift": 0,

@@ -58,7 +58,10 @@ export type Capability =
   | 'OnHitEmp'
   | 'OnHitSuppress'
   | 'OnHitSnare'
-  | 'JumpJets';
+  | 'JumpJets'
+  | 'StationaryBrace'
+  | 'Rally'
+  | 'Ambush';
 
 /** The canonical `Capability` sort order (the Rust enum's `Ord` / declaration order). */
 export const CAPABILITY_ORDER: readonly Capability[] = [
@@ -72,6 +75,9 @@ export const CAPABILITY_ORDER: readonly Capability[] = [
   'OnHitSuppress',
   'OnHitSnare',
   'JumpJets',
+  'StationaryBrace',
+  'Rally',
+  'Ambush',
 ];
 
 /** Which equipment kind a slot expects (`SlotKind`) — carried on a `WrongSlotKind` derivation error. */
@@ -121,7 +127,12 @@ export interface MitigationMod {
 }
 
 /** What a passive aura modifies (`AuraKind`). The per-tick auras apply only while the source lives. */
-export type AuraKind = 'DamageDealt' | 'CommandBoost' | 'StartShield' | 'DamageTaken';
+export type AuraKind =
+  | 'DamageDealt'
+  | 'CommandBoost'
+  | 'StartShield'
+  | 'DamageTaken'
+  | 'Accuracy'; // Spotter Network zone-accuracy aura (v3 US3)
 
 /** Who an aura reaches (`AuraScope`). */
 export type AuraScope = 'ZoneAllies' | 'AllAllies';

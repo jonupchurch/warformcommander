@@ -294,6 +294,7 @@ fn resolve_jump_jets(c: &mut Combatant, events: &mut Vec<TickEvent>) -> bool {
                 c.zone = ZoneId::Air;
                 c.jump = JumpJetPhase::Airborne;
                 c.jump_timer = JUMP_AIR_TICKS;
+                c.ticks_since_move = 0; // the leap counts as a move (brace lapses)
                 if from != ZoneId::Air {
                     events.push(TickEvent::Move {
                         unit: c.unit,
@@ -314,6 +315,7 @@ fn resolve_jump_jets(c: &mut Combatant, events: &mut Vec<TickEvent>) -> bool {
                 c.zone = c.home_zone;
                 c.jump = JumpJetPhase::Grounded;
                 c.jump_timer = JUMP_COOLDOWN_TICKS;
+                c.ticks_since_move = 0; // the landing counts as a move (brace lapses)
                 if from != c.home_zone {
                     events.push(TickEvent::Move {
                         unit: c.unit,
@@ -344,6 +346,9 @@ fn resolve_movement(
         if !combatants[i].alive {
             continue;
         }
+        // Stationary brace (v3 US3): age the "held position" counter every tick; a move (below, or a
+        // jump excursion) resets it. Only read for a `StationaryBrace` machine, so it is inert otherwise.
+        combatants[i].ticks_since_move = combatants[i].ticks_since_move.saturating_add(1);
         // Jump-Jet duty cycle (v3 US3-C): a jumper's airborne excursion owns its zone, so while airborne
         // (and on the takeoff / landing tick) it skips normal ground movement entirely. When grounded and
         // cooling down it falls through to move as usual. Non-jumpers skip this and behave as before.
@@ -401,6 +406,7 @@ fn resolve_movement(
         if to != from {
             combatants[i].zone = to;
             combatants[i].move_cooldown = move_interval(speed);
+            combatants[i].ticks_since_move = 0; // moved → the stationary brace lapses
             events.push(TickEvent::Move {
                 unit: combatants[i].unit,
                 from,

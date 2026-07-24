@@ -82,12 +82,16 @@ function defaultDefense(mount: MountClass, ruleset: Ruleset): EquipmentId {
   return pick.id;
 }
 
-/** The first `count` distinct utilities (ungated) — a legal fill for the slot layout. */
+/** The first `count` distinct **cost-1** utilities — a guaranteed-legal fill for the slot layout. Only
+ * cost-1 items are used so the utility cost-sum is exactly `count` (= the slot budget, v3 US3-A economy);
+ * a costlier kit item (Rally, Ambush, …) picked into a default fill would overflow the budget (V5). */
 function defaultUtilities(count: number, ruleset: Ruleset): EquipmentId[] {
   const utils = equipmentList(ruleset)
-    .filter((m) => m.kind === 'Utility')
+    .filter((m) => m.kind === 'Utility' && (m.cost ?? 1) === 1)
     .map((u) => u.id);
-  if (utils.length < count) throw new Error(`ruleset has ${utils.length} utilities; need ${count}`);
+  if (utils.length < count) {
+    throw new Error(`ruleset has ${utils.length} cost-1 utilities; need ${count}`);
+  }
   return utils.slice(0, count);
 }
 

@@ -196,6 +196,9 @@ const CAPABILITY_COPY: Record<Capability, string> = {
   OnHitSnare: 'Snares on hit — cuts the target’s move speed',
   JumpJets:
     'Periodically leaps into the air for full air-to-air fire and whole-battlefield reach, then lands and cools down — but is an exposed AA target while airborne',
+  StationaryBrace: 'Takes less damage while it holds its position — the reward for staying put',
+  Rally: 'Each tick, cleanses EMP / Suppress / Snare off allies — the answer to control riders',
+  Ambush: 'Hits land harder against a full-health target — an alpha bonus that fades once it is dented',
 };
 
 // --- equipment -------------------------------------------------------------

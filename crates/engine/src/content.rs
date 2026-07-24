@@ -1328,6 +1328,26 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
             cadence_shift: 0,
         }),
     );
+    // Stationary brace (§14): hold position → take less damage. Siege Mode (the artillery/heavy commit),
+    // Bulwark Mode (the Mech's lighter brace), Entrench (Artillery). All grant `StationaryBrace`; the
+    // magnitude difference the design pins is a balance-pass concern (one shared mechanic for now).
+    add("SiegeMode", "Siege Mode", cap_util(1, Capability::StationaryBrace));
+    add("BulwarkMode", "Bulwark Mode", cap_util(1, Capability::StationaryBrace));
+    add("Entrench", "Entrench", cap_util(1, Capability::StationaryBrace));
+    // Rally (§14.7): the anti-control counter — cleanse EMP/Suppress/Snare off allies each tick.
+    add("Rally", "Rally", cap_util(2, Capability::Rally));
+    // Ambush (§14): this machine's hits land harder against a full-health target (the alpha bonus).
+    add("Ambush", "Ambush", cap_util(2, Capability::Ambush));
+}
+
+/// A capability-unlock utility with no stat deltas — the common shape for the v3 kit items.
+fn cap_util(cost: u8, cap: Capability) -> EquipmentSpec {
+    EquipmentSpec::Utility(crate::model::types::UtilitySpec {
+        stat_deltas: None,
+        unlocks: vec![cap],
+        cadence_shift: 0,
+        cost,
+    })
 }
 
 fn util_deltas(d: StatDeltas) -> EquipmentSpec {

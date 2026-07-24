@@ -326,6 +326,10 @@ pub enum AuraKind {
     /// `-800` = −8% damage taken) — the Commander's Shield/Ablation projection expressed as mitigation
     /// (v3 US5). Added last to keep the enum's serialized names stable for the pre-existing variants.
     DamageTaken,
+    /// Adds to allies' **accuracy** (`magnitude` bp, added not multiplied — e.g. `+1_000` = +10% to-hit)
+    /// — the Light Tank's innate **Spotter Network** scouting aura (v3, design §14.2). Added last to keep
+    /// the enum's serialized names stable for the pre-existing variants.
+    Accuracy,
 }
 
 /// Who an [`AuraEffect`] reaches.
@@ -591,6 +595,18 @@ pub enum Capability {
     /// lands home and cools down on the ground (~50% duty cycle). Airborne it is an exposed AA target and
     /// takes extra damage. Added last to keep the enum's `Ord`/serialization stable.
     JumpJets,
+    /// **Stationary brace** (v3 US3, design §14: Siege Mode / Bulwark Mode / Entrench): while the machine
+    /// has held its position for a spell it takes less damage — the reward for committing to immobility.
+    /// Added last to keep the enum's `Ord`/serialization stable.
+    StationaryBrace,
+    /// **Rally** (v3 US3, design §14.7: the anti-control counter): each tick, cleanses the EMP / Suppress
+    /// / Snare timers off friendly machines in range — the answer to the on-hit riders (§13.2).
+    /// Added last to keep the enum's `Ord`/serialization stable.
+    Rally,
+    /// **Ambush** (v3 US3, design §14: Light/Heavy alpha): this machine's hits land **harder against a
+    /// full-health target** — a first-strike/alpha bonus that fades once the target has been dented.
+    /// Added last to keep the enum's `Ord`/serialization stable.
+    Ambush,
 }
 
 // ---------------------------------------------------------------------------

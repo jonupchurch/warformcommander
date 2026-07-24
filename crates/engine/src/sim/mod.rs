@@ -60,6 +60,10 @@ pub(crate) struct Combatant {
     /// when `stats.reactive`. Starts `[0, 0, 0]`, so a reactive Mech opens exactly as its Balanced twin.
     pub absorbed: [Fixed; 3],
     pub ticks_since_hit: u16,
+    /// Ticks since this machine last changed zone (v3 US3 stationary brace). Increments every tick,
+    /// resets to `0` on a move; a `StationaryBrace` machine takes less damage once it exceeds the settle
+    /// threshold. Tracked for every combatant (cheap) but only *read* for a bracing machine.
+    pub ticks_since_move: u16,
     pub cooldown: u16,
     pub move_cooldown: u16,
     /// Tick until which this machine is **painted** (v3 US3) — a Paint on-hit rider marked it, so it
@@ -223,6 +227,7 @@ pub(crate) fn build_combatants(
                 ablative: stats.ablative_cap,
                 absorbed: [Fixed::ZERO; 3],
                 ticks_since_hit: 0,
+                ticks_since_move: 0,
                 cooldown: 0,
                 move_cooldown: 0,
                 painted_until: 0,
@@ -407,6 +412,10 @@ pub(crate) fn run_game(
         // 2. Behavior: Plan-B latches, then movement (both deterministic, no RNG).
         behavior::apply_behavior(combatants, tick, ruleset, &mut events);
 
+        // 2b. Rally (US3, anti-control): cleanse the EMP/Suppress/Snare riders off allies before support
+        //     and offense, so a cleansed ally can be healed and fires unhindered this tick.
+        resolve_rally(combatants);
+
         // 3. Support heals (no RNG; before offense so a heal can save a unit this tick).
         resolve_support(combatants, tick, ruleset, &mut events);
 
@@ -562,6 +571,33 @@ fn apply_projection(c: &mut Combatant, kind: SupportKind, power: Fixed) -> Fixed
         SupportKind::Aura => {}
     }
     amount
+}
+
+/// Rally (v3 US3, the anti-control counter): every living machine carrying the `Rally` capability
+/// cleanses the on-hit **control** riders — EMP, Suppress, Snare — off every friendly machine each tick,
+/// so a Rally unit hard-counters the rider kits while it lives. Paint is deliberately left untouched: it
+/// is a focus-fire mark, not control, and Rally answers control. Inert when no machine carries Rally.
+fn resolve_rally(combatants: &mut [Combatant]) {
+    let rallied_sides: Vec<Side> = combatants
+        .iter()
+        .filter(|c| {
+            c.alive
+                && c.stats
+                    .capabilities
+                    .contains(&crate::model::types::Capability::Rally)
+        })
+        .map(|c| c.unit.side)
+        .collect();
+    if rallied_sides.is_empty() {
+        return;
+    }
+    for c in combatants.iter_mut() {
+        if c.alive && rallied_sides.contains(&c.unit.side) {
+            c.emp_until = 0;
+            c.suppressed_until = 0;
+            c.snared_until = 0;
+        }
+    }
 }
 
 /// Whether ally `j` can be serviced by support `i`: a living same-side machine other than the support
