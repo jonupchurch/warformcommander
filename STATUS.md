@@ -12,7 +12,26 @@
 > bake it in, and the secret gate is verified live: bad/absent secret → 401, valid secret +
 > bad body → 400 (no write). The authed prod loop and the code-push→news pipeline are ARMED.
 
-## Current phase
+## Current work (2026-07-24) — v3 Counter-Web (specs 013→015)
+
+**Post-v1, the active frontier is the v3 counter-web rewrite** — a ground-up redesign of the engine's
+weapon / defense / behavior vocabulary to break the degenerate ~94% total-order field the v2 balance
+passes could never move (see `balance.md`, `specs/014-counter-web/weapons-design.md`).
+
+**State: v3 is mechanics-complete, content-incomplete — deployed to prod but UNTUNED.**
+The *behavioral spine* shipped and is tested: the sharpened damage matrix + native bonus (US1a), the
+priority-score targeting chain + 4 movement modes (US2), the 3-stance collapse + energy-cut + Plan-B
+rewrite (US4). The *content that makes counters bite* mostly did not: per-chassis defense identities
+(US1d), the full weapon roster baked+tuned (US1b/c), the equipment/slot economy (US3), and the distinct
+Commander (US5). Live ruleset `0b4cd0f2…` +10 hot-added `damage:0` weapons; field still ~90% walls.
+
+**→ Authoritative status + correction plan: `specs/015-v3-counter-web/gap-analysis.md`.**
+Locked plan: docs-first → defenses §10 + weapon tuning (wake the matrix) → equipment economy →
+Commander; content-first, measure each slice, open a super-linearity engine pass only if walls persist.
+
+---
+
+## Current phase (v1 feature set — all built/deployed)
 
 **Feature 1 (sim core) — COMPLETE, MERGED to `main`, and LIVE in production
 (prod-verified).** All 12 v1 features are specced, planned, and tasked (Spec-Kit `spec` +

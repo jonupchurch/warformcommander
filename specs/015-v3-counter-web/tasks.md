@@ -4,6 +4,25 @@ description: "Task list for the v3 Counter-Web systems rewrite (spec 015)"
 
 # Tasks: v3 Counter-Web — a ground-up systems rewrite
 
+> ⚠️ **Checkbox state below is STALE and NOT maintained** (all boxes read `[ ]` even though several
+> slices shipped and deployed). The **authoritative build status is `gap-analysis.md`** in this
+> directory. Real state as of 2026-07-24, per a six-domain code audit:
+>
+> | Slice | Status |
+> |---|---|
+> | Setup / S0 (T001–T005) | measurement baselines captured; `SkillBeatsGear` re-fixture not confirmed |
+> | **US1a** matrix + native bonus (T006, T008, T011, T013) | ✅ **BUILT + tested** |
+> | **US1b** 18-weapon roster (T008 roster) | 🟡 PARTIAL — 8/18 in `content.rs`; 10 live-DB-only, `damage:0`, untuned |
+> | **US1c** cadence-weld / non-flat throughput / Heavy+Mech mod (T010, T012) | 🔴 MISSING |
+> | **US1d** defenses §10 (T007, T009) | 🔴 mostly MISSING — Camo/Chaff/§10 identities unbuilt; ablative not retired |
+> | **US2** targeting + movement (T015–T024) | ✅ **BUILT + tested** (⚠ Kite has no engine test) |
+> | **US3** equipment / slot economy (T025–T034) | 🔴 mostly MISSING — 10/~60 items, flat 3-slot, no cost tiers |
+> | **US4** stances + energy-cut + Plan-B (T035–T042) | ✅ **BUILT + tested** |
+> | **US5** Commander (T043–T049) | 🟡 PARTIAL — auras built; no distinct Commander chassis, no Shield/Ablation projector, §14.6 kit absent |
+> | Polish (T050–T053) | TS parity maintained; whole-feature acceptance (T053, counter-web) **NOT met** — field still ~90% walls |
+>
+> Correction plan: `gap-analysis.md` (docs-first → defenses/matrix → equipment → Commander).
+
 **Input**: Design documents from `/specs/015-v3-counter-web/` (plan.md, spec.md, research.md,
 data-model.md, contracts/, quickstart.md) + authoritative design `../014-counter-web/weapons-design.md`.
 
