@@ -67,6 +67,17 @@ fn with_flak(mut m: MachineInstance, rs: &Ruleset) -> MachineInstance {
     m
 }
 
+/// Fit an on-hit rider utility (`EMPAmmo` / `SuppressingFire` / `SnareShot`, v3 US3-B) into a unit's
+/// first utility slot when the ruleset carries it — the graded-soft-counter instrument. A no-op (stock
+/// unit) when absent, so the archetype stays legal against `seed_ruleset()` and rider-on/off is a pure
+/// ruleset presence check. Like `with_flak`, but for the on-hit riders. See [`control_field`].
+fn with_rider(mut m: MachineInstance, rider: &str, rs: &Ruleset) -> MachineInstance {
+    if rs.equipment.contains_key(&EquipmentId::new(rider)) && !m.loadout.utilities.is_empty() {
+        m.loadout.utilities[0] = EquipmentId::new(rider);
+    }
+    m
+}
+
 // ---------------------------------------------------------------------------
 // The reference field / candidate pool (a bounded, counter-web-spanning set)
 // ---------------------------------------------------------------------------
@@ -454,6 +465,106 @@ pub fn reach_field() -> Vec<Archetype> {
     f
 }
 
+// ---------------------------------------------------------------------------
+// Control field (US3-B rider measurement, 2026-07-24)
+// ---------------------------------------------------------------------------
+//
+// The graded soft counters (on-hit riders) are the one lever aimed at the diagnosed super-linearity
+// root cause that hasn't already measured wall-neutral. But the stock/combined/reach fields never
+// EQUIP a rider, so the sweep is blind to them (the same instrument gap the `reach` field fixed for
+// targeting). This is a clean A/B: one anti-turtle list built twice — riders ON vs OFF — swept against
+// the six combined-arms turtles. If graded counters can crack the durability/sustain walls at all,
+// `control-riders` contests turtle matchups that its identical rider-less twin `control-plain` loses
+// 0/100. Falsifiable: no delta ⇒ riders are another over-determined-wall confirmation (see
+// specs/015-v3-counter-web/us3-equipment-plan.md).
+
+/// A kinetic heavy company (the same skeleton as `kinetic_tanks`, which loses **0/100** to the sustain
+/// turtles support-ball / ca-attrition / ca-siege on the baseline). Built twice via `riders`: OFF = the
+/// plain build that loses those walls; ON = EMP on the front screen (the enemy line it hits cannot be
+/// healed or regen shields → the turtle's front-line sustain is denied) + Suppress on the raiders (cut
+/// the turtle's return fire). The A/B directly asks: does anti-sustain EMP flip a **sustain-decided**
+/// wall, where the rider's counter has real headroom (unlike a support-less mirror)?
+/// Which riders the control build carries — lets the sweep isolate the driver (EMP vs Suppress).
+#[derive(Clone, Copy)]
+enum Riders {
+    None,
+    Emp,
+    Suppress,
+    Both,
+}
+
+fn control_build(rs: &Ruleset, riders: Riders) -> Army {
+    // EMP rides the three front heavies (they hit the enemy line → deny its sustain); Suppress rides
+    // the two mid raiders (cut the turtle's return fire).
+    let front = |m: MachineInstance| match riders {
+        Riders::Emp | Riders::Both => with_rider(m, "EMPAmmo", rs),
+        _ => m,
+    };
+    let mid = |m: MachineInstance| match riders {
+        Riders::Suppress | Riders::Both => with_rider(m, "SuppressingFire", rs),
+        _ => m,
+    };
+    Army {
+        machines: vec![
+            front(place(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 0)),
+            front(place(rs, MachineTypeId::HeavyTank, "Cavalier", ZoneId::Front, 1)),
+            front(place(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 2)),
+            mid(place(rs, MachineTypeId::LightTank, "Scout", ZoneId::Middle, 3)),
+            mid(place(rs, MachineTypeId::LightTank, "Hunter", ZoneId::Middle, 4)),
+        ],
+    }
+}
+
+/// The rider-stacked build (EMP front + Suppress mid) — the US3-B measurement A side.
+pub fn control_riders(rs: &Ruleset) -> Army {
+    control_build(rs, Riders::Both)
+}
+
+/// The identical rider-less twin (US3-B measurement B side / control).
+pub fn control_plain(rs: &Ruleset) -> Army {
+    control_build(rs, Riders::None)
+}
+
+/// EMP-only variant — isolates the anti-sustain rider as the driver.
+pub fn control_emp(rs: &Ruleset) -> Army {
+    control_build(rs, Riders::Emp)
+}
+
+/// Suppress-only variant — isolates the output-cut rider as the driver.
+pub fn control_suppress(rs: &Ruleset) -> Army {
+    control_build(rs, Riders::Suppress)
+}
+
+/// The control field: the six combined-arms turtles + the pure healer turtle + the rider A/B set
+/// (plain / EMP-only / Suppress-only / both). Sweep `verify --field control`; watch whether a rider
+/// variant flips a turtle matchup its rider-less twin `control-plain` loses 0/100 — the measurable
+/// signal that graded soft counters move the walls, and which rider drives it.
+pub fn control_field() -> Vec<Archetype> {
+    let mut f = combined_arms_field();
+    // The pure healer turtle (mono field) — a clean anti-sustain target for EMP.
+    f.push(Archetype {
+        label: "support-ball",
+        build: support_ball,
+    });
+    f.push(Archetype {
+        label: "control-plain",
+        build: control_plain,
+    });
+    f.push(Archetype {
+        label: "control-emp",
+        build: control_emp,
+    });
+    f.push(Archetype {
+        label: "control-suppress",
+        build: control_suppress,
+    });
+    f.push(Archetype {
+        label: "control-riders",
+        build: control_riders,
+    });
+    f
+}
+
 /// Assign a **role-based stance** to a placed machine (v3 stance diagnostic): front-zone brawlers go
 /// Aggressive (trading survivability for output where they trade blows), the fragile Rear backline
 /// goes Defensive (less output, but harder to kill), and the middle holds Neutral. Stance is a
@@ -517,6 +628,7 @@ pub fn field_by_name(name: &str) -> Vec<Archetype> {
         "combined" => combined_arms_field(),
         "stance" => stance_field(),
         "reach" => reach_field(),
+        "control" => control_field(),
         "all" => default_field()
             .into_iter()
             .chain(combined_arms_field())
@@ -649,6 +761,10 @@ mod tests {
         builds.push(("skilled-base-gear", skilled_base_gear(&rs)));
         builds.push(("sloppy-max-gear", sloppy_max_gear(&rs)));
         builds.push(("reach-raider", reach_raider(&rs)));
+        builds.push(("control-plain", control_plain(&rs)));
+        builds.push(("control-emp", control_emp(&rs)));
+        builds.push(("control-suppress", control_suppress(&rs)));
+        builds.push(("control-riders", control_riders(&rs)));
         for (label, army) in builds {
             assert_eq!(validate(&army, &rs), Ok(()), "{label} must be a legal army");
         }
