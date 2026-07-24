@@ -78,6 +78,46 @@ it — same instrument gap the `reach` field fixed).
 - Confirms the `damage:0` bake was field-inert (matches the pre-bake 94.7%). This is the "before"
   every US3 sub-slice is measured against. **Target: walls < 125 / contested > 7.**
 
+## US3-B RESULT (2026-07-24) — riders DO move walls (targeted, not broad)
+
+Clean A/B on `verify --field control`: one kinetic-heavy company built four ways, swept vs the six
+combined-arms turtles + the pure healer turtle. Only the rider utilities differ.
+
+```
+win% vs ->       ca-line ca-mobile ca-air ca-siege ca-aa ca-attrition support-ball
+control-plain          0        0      0        0     0            0            0
+control-emp            0        0      0        0     0          100          100   <- EMP flips both sustain walls
+control-suppress       0        0      0        0     0            0            0    <- Suppress inert
+control-riders         0        0      0        0     0          100          100
+```
+
+**Acceptance MET — and then some.** The plain build loses **0/100 to all 7** turtles; adding **EMP**
+(anti-sustain) flips the two **sustain-decided** walls (`ca-attrition` double-support, `support-ball`
+pure healer) clean to **100/0**. The isolation is decisive: **EMP alone** does it; **Suppress alone
+moves nothing** (a soft output debuff behaves like damage tuning — the lever we already know can't move
+a wall). This is the **first lever this session that moves a wall.**
+
+**What it means — the over-determined story is refined, not overturned:**
+- Walls are over-determined against **broad** levers (defense reshaping, damage tuning, reach, and
+  Suppress here) — none move them.
+- But a **targeted counter to the deciding pillar** *can* decisively flip a wall: EMP vs a sustain
+  turtle. The counter-web is achievable **through equipment counters aimed at the right pillar**, which
+  is exactly the §13.2 design intent (each rider counters a specific archetype).
+- Not every pillar has a working counter yet: the air (`ca-air`,`ca-aa`) and reach/line
+  (`ca-line`,`ca-mobile`,`ca-siege`) walls need air/reach answers (Jump Jets = US3-C, Flak, SAM), not
+  these riders.
+
+**Tuning caveat:** 0→100 is a *total* flip — EMP at current start-values (30t no-sustain, refreshed
+every hit ⇒ near-permanent denial once in contact) is likely **over-strong**. A real counter-web
+probably wants EMP to make a sustain matchup *contested* (~60/40), not a wipe. Knob: `EMP_DURATION_TICKS`
+or narrow EMP to shield-regen-only / partial heal-cut. This is a balance-pass tuning call, not a
+correctness issue.
+
+**Instrument:** `crates/balancer/src/archetypes.rs` gains a `control` field + `with_rider` helper +
+`control_{plain,emp,suppress,riders}` (the clean A/B). `NoDominantUnit` fails on `--field control` by
+construction (lopsided diagnostic field: 4 near-identical control variants); it PASSES on canonical
+`all` — not a balance regression.
+
 ## Open decisions to confirm with the user
 1. **Snare P21 risk** — build it anyway (shares the mechanism, cheap) or skip until movement is shown
    to matter? (Recommend: build all 3; it's the same code path, and Snare's data can stay dormant.)
