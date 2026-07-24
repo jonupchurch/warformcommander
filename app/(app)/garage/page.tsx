@@ -4,13 +4,14 @@ import { GarageEditorProvider } from '@/lib/garage/use-garage-editor';
 import { AuthError } from '@/server/authz';
 import { listDefense, type DefenseSnapshot } from '@/server/defense';
 import { listPresets, type Preset } from '@/server/presets';
+import { getCurrentRuleset } from '@/server/ruleset';
 import { requireSession } from '@/server/session';
 import { BASELINE_SLOTS, listSquads, type Squad } from '@/server/squads';
-import { loadDefaultRuleset } from '@/sim/validate';
 
 /**
  * The Garage (Feature 4, T001). A Server Component that loads the two inputs the client editor needs
- * — the engine's default `Ruleset` (derived once via the wasm engine, server-only per P6) and the
+ * — the **live** current `Ruleset` (the same DB-backed balance table battles resolve against, so the
+ * pickers/previews reflect admin edits + hot-added equipment, not the frozen engine default) and the
  * player's saved roster (Feature 7 `listSquads`) — and hands them to the client
  * {@link GarageEditorProvider}. An anonymous visitor still gets the builder (an empty roster); the
  * Save action is where the server enforces the session (A1).
@@ -18,7 +19,7 @@ import { loadDefaultRuleset } from '@/sim/validate';
 export const dynamic = 'force-dynamic';
 
 export default async function GaragePage() {
-  const ruleset = loadDefaultRuleset();
+  const { ruleset } = await getCurrentRuleset();
 
   let roster: Squad[] = [];
   let presets: Preset[] = [];

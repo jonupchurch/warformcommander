@@ -17,6 +17,7 @@ import { validateSquad } from "@/sim/validate";
 
 import { type SessionUser } from "./authz";
 import { err, ok, type Result } from "./result";
+import { getCurrentRuleset } from "./ruleset";
 
 export type Squad = typeof squads.$inferSelect;
 
@@ -31,7 +32,10 @@ export async function saveSquad(
   if (input.slotIndex < 0 || input.slotIndex >= BASELINE_SLOTS) {
     return err("SLOT_CAP_EXCEEDED", `slot ${input.slotIndex} is beyond the ${BASELINE_SLOTS}-slot baseline`);
   }
-  const v = validateSquad(input.config);
+  // Validate against the LIVE ruleset (what battles resolve against), so a build using hot-added
+  // equipment is accepted here iff it would be legal in battle — never the frozen engine default.
+  const { ruleset } = await getCurrentRuleset();
+  const v = validateSquad(input.config, ruleset);
   if (!v.ok) return err("VALIDATION_FAILED", v.errors.map((e) => `${e.code}: ${e.reason}`).join("; "));
 
   const db = getDb();
@@ -97,7 +101,8 @@ export async function updateSquad(
   const set: Partial<typeof squads.$inferInsert> = { updatedAt: new Date() };
   if (patch.name !== undefined) set.name = patch.name;
   if (patch.config !== undefined) {
-    const v = validateSquad(patch.config);
+    const { ruleset } = await getCurrentRuleset();
+    const v = validateSquad(patch.config, ruleset);
     if (!v.ok) return err("VALIDATION_FAILED", v.errors.map((e) => `${e.code}: ${e.reason}`).join("; "));
     set.config = patch.config;
     set.powerRating = v.powerRating;
