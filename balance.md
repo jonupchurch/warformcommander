@@ -57,6 +57,19 @@ couldn't crack the toughest backlines. A real fix is bigger than one localised c
 overkill-avoidance (to auto-spill fire) + stronger/tunable magnitude + **new measurement fixtures that
 field reach-counter builds**. Experiment reverted; findings kept here.
 
+**Instrument fixed + trustworthy re-test (kept):** added the `reach` field + a `reach-raider` archetype
+(a holding screen + short-reach back-snipers on Target Support/Indirect + Furthest + an artillery tube)
+to `crates/balancer/src/archetypes.rs` (committed) — the field can now *express* reach counter-play,
+which the mono/combined fields structurally could not. Baseline `reach-raider` beats the double-support
+turtle `ca-attrition` 99.2% (its **artillery**'s real reach), loses the other five combined builds 0/100.
+Re-ran leak-through (×0.8) against this trustworthy field: `reach-raider`'s turtle matchups **did not
+move** (still 0/100 vs ca-line/ca-mobile/ca-air/ca-siege/ca-aa; ca-attrition 100%) — though battle
+**durations dropped** (ca-line 552→434 ticks), so leak-through IS chipping the backlines, just nowhere
+near enough to flip an outcome. **Conclusion: the walls are over-determined** — power gaps + durability +
+sustain all reinforce the total order, so no single lever (defense content OR graded reach) moves it.
+The counter-web needs a coordinated multi-lever redesign measured against the now-fixed `reach` field, or
+the field is accepted as a documented limitation.
+
 ---
 
 ## Investigation — the counter-web is made of walls (2026-07-22, nothing shipped)
