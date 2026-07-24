@@ -557,6 +557,11 @@ pub enum Capability {
     /// spell — pins a kiter / backline-diver. (Inert where movement does not change outcomes — P21.)
     /// Added last to keep the enum's `Ord`/serialization stable.
     OnHitSnare,
+    /// **Jump Jets** (v3 US3-C, design §14.3, the Mech signature): the machine periodically leaps into
+    /// [`ZoneId::Air`] for a window — gaining full air-to-air fire **and** whole-battlefield reach — then
+    /// lands home and cools down on the ground (~50% duty cycle). Airborne it is an exposed AA target and
+    /// takes extra damage. Added last to keep the enum's `Ord`/serialization stable.
+    JumpJets,
 }
 
 // ---------------------------------------------------------------------------

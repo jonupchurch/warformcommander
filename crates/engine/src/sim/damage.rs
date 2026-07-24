@@ -12,7 +12,7 @@ use crate::model::types::{
 use crate::replay::{DamageLayer, TickEvent, UnitRef};
 use crate::rng::Rng;
 
-use super::{AttackProfile, Combatant};
+use super::{AttackProfile, Combatant, JumpJetPhase};
 
 /// Paint on-hit rider (v3 US3, design §13.2): extra incoming damage a **painted** target takes, and
 /// how long the mark lasts. Start-values held as consts here (like the targeting armour threshold);
@@ -27,6 +27,11 @@ const SUPPRESS_OUTPUT_MULT: Bp = 7_500; // a suppressed unit deals ×0.75 damage
 const SUPPRESS_ACC_PENALTY: Bp = 1_000; // ...and −10% accuracy (bp, subtracted)
 const SUPPRESS_DURATION_TICKS: u16 = 30;
 const SNARE_DURATION_TICKS: u16 = 30;
+
+/// Extra incoming damage a **Jump-Jet machine takes while airborne** (v3 US3-C, design §14.3): the risk
+/// half of the graded-reach leap — whole-battlefield reach + full air-to-air is paid for by exposure as
+/// an AA target. Start-value const (moves to the ruleset in the balance pass).
+const JUMP_AIR_EXPOSURE_BONUS: Bp = 5_000; // +50% damage taken while airborne (×1.5)
 
 /// The incoming-damage multiplier from an active Paint mark (`BP_ONE` when the target is not painted).
 fn paint_mult(target: &Combatant, tick: u16) -> Bp {
@@ -75,6 +80,18 @@ fn profile(att: &Combatant) -> AttackProfile {
         reach: att.stats.reach,
         anti_air: att.stats.capabilities.contains(&Capability::AntiAir),
         rocket_pack: att.stats.capabilities.contains(&Capability::RocketPack),
+        jumped: att.jump == JumpJetPhase::Airborne,
+    }
+}
+
+/// The incoming-damage multiplier for a **Jump-Jet machine airborne** (v3 US3-C): it is an exposed AA
+/// target and takes extra damage until it lands. `BP_ONE` for anything grounded or not jumping — so a
+/// stock target's damage math is byte-identical.
+fn jump_exposure(target: &Combatant) -> Bp {
+    if target.jump == JumpJetPhase::Airborne {
+        BP_ONE + JUMP_AIR_EXPOSURE_BONUS
+    } else {
+        BP_ONE
     }
 }
 
@@ -177,7 +194,13 @@ pub(crate) fn resolve_attack(
     }
     let mut domain_mult = BP_ONE;
     if target_air {
-        if prof.reach == ReachTag::Air {
+        if prof.jumped {
+            // Jump-Jet attacker fighting from the air (v3 US3-C): full air-to-air — no plink penalty,
+            // its own damage rate (neither the SAM's flak bonus nor the plink cut), accurate enough to be
+            // a real air answer. Checked first so a jumped Mech dogfights regardless of its weapon family.
+            acc += ruleset.air_mods.aa_acc_bonus;
+            domain_mult = BP_ONE;
+        } else if prof.reach == ReachTag::Air {
             acc += ruleset.air_mods.aa_acc_bonus; // AA bonus
             domain_mult = ruleset.air_mods.aa_dmg_mult;
         } else if prof.anti_air || prof.rocket_pack {
@@ -256,13 +279,16 @@ pub(crate) fn resolve_attack(
     // Reactive plating reads the target's absorbed history *before* this hit, then the hull damage this
     // hit deals is folded back into that history below.
     let reactive = reactive_mult(&combatants[target_idx], prof.damage_type, ruleset);
+    // A Jump-Jet target caught airborne takes extra damage — the exposure that pays for its reach (US3-C).
+    let exposure = jump_exposure(&combatants[target_idx]);
     let (sh, ab, hu, died) = apply_damage(
         &mut combatants[target_idx],
         d0.mul_bp(role_mult(ruleset, att_type, target_type))
             .mul_bp(taken)
             .mul_bp(taken_aura)
             .mul_bp(paint)
-            .mul_bp(reactive),
+            .mul_bp(reactive)
+            .mul_bp(exposure),
         prof.damage_type,
         prof.penetration,
         save,
@@ -314,7 +340,8 @@ pub(crate) fn resolve_attack(
                 .mul_bp(role_mult(ruleset, att_type, combatants[j].type_id))
                 .mul_bp(sm.taken_mult(combatants[j].dials.stance))
                 .mul_bp(aura_mult(combatants, j, &[AuraKind::DamageTaken]))
-                .mul_bp(paint_mult(&combatants[j], tick));
+                .mul_bp(paint_mult(&combatants[j], tick))
+                .mul_bp(jump_exposure(&combatants[j]));
             if let Some(m) = combatants[j].stats.special_mitigation {
                 if m.against == prof.damage_type {
                     sd0 = sd0.mul_bp(m.splash_taken_mult);

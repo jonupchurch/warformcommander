@@ -83,6 +83,12 @@ pub(crate) struct Combatant {
     pub fallback: FallbackPhase,
     /// Ticks left in the `FallBack` duck before the machine turns for home (counts down every tick).
     pub fallback_timer: u16,
+    /// `JumpJets` duty-cycle phase (v3 US3-C): ground ⇄ airborne. Only ever leaves `Grounded` for a
+    /// machine that carries the `JumpJets` capability (non-jumpers stay `Grounded` forever, untouched).
+    pub jump: JumpJetPhase,
+    /// Ticks left in the current jump phase — the airborne window while `Airborne`, the ground cooldown
+    /// while `Grounded`. Counts down every tick for a jumper; inert (stays `0`) for a non-jumper.
+    pub jump_timer: u16,
     pub alive: bool,
     pub damage_dealt: Fixed,
     pub destroyed_at: Option<u16>,
@@ -101,6 +107,21 @@ pub(crate) enum FallbackPhase {
     Returning,
     /// Home again (or as close as it could get) — holds until ordered otherwise.
     Home,
+}
+
+/// The `JumpJets` duty cycle (v3 US3-C, design §14.3). A machine carrying the capability alternates a
+/// grounded window and an airborne excursion: it leaps into [`ZoneId::Air`] for the air window (full
+/// air-to-air fire + whole-battlefield reach, but exposed to AA), then lands back at its home zone and
+/// cools down on the ground before it can leap again (~50% duty cycle). A non-jumper never leaves
+/// `Grounded`, so its `zone` is governed entirely by the ordinary movement modes.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub(crate) enum JumpJetPhase {
+    /// On the ground — either cooling down between leaps, or (for a non-jumper) permanently. Ground
+    /// movement resolves normally while `Grounded`.
+    Grounded,
+    /// Airborne in [`ZoneId::Air`] for the leap window; the jump owns the machine's zone (normal
+    /// movement is suspended) and the machine takes extra incoming damage as an exposed AA target.
+    Airborne,
 }
 
 impl Combatant {
@@ -135,6 +156,10 @@ pub(crate) struct AttackProfile {
     /// The Mech's Rocket Pack (v2, US4): full-rate anti-air (the flak damage rate), but reach-limited to
     /// the front line (enforced in `target::reach_zones`), so it never gains the SAM's whole-field reach.
     pub rocket_pack: bool,
+    /// The attacker is **airborne on jump jets** this shot (v3 US3-C): it fights air at full rate (no
+    /// plink penalty) and reaches the whole battlefield on the ground. `false` for anything not currently
+    /// leaping — so a stock attacker's damage math is byte-identical.
+    pub jumped: bool,
 }
 
 /// Cadence tier → cooldown ticks, via the ruleset table.
@@ -208,6 +233,8 @@ pub(crate) fn build_combatants(
                 home_zone: m.zone,
                 fallback: FallbackPhase::Inactive,
                 fallback_timer: 0,
+                jump: JumpJetPhase::Grounded,
+                jump_timer: 0,
                 alive: true,
                 damage_dealt: Fixed::ZERO,
                 destroyed_at: None,

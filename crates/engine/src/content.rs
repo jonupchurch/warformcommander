@@ -1257,6 +1257,21 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
             cadence_shift: 0,
         }),
     );
+    // Jump Jets (§14.3, the Mech signature): the machine periodically leaps into the Air for a window —
+    // full air-to-air fire + whole-battlefield reach — then lands and cools down (~50% duty). The
+    // airborne exposure (extra AA damage taken) balances the graded reach. A build-definer, so it is the
+    // cost-3 tier (design §14). The duty-cycle mechanic lives in the sim (`behavior.rs` + `damage.rs`);
+    // this item is the pure capability unlock.
+    add(
+        "JumpJets",
+        "Jump Jets",
+        EquipmentSpec::Utility(crate::model::types::UtilitySpec {
+            stat_deltas: None,
+            cost: 3,
+            unlocks: vec![Capability::JumpJets],
+            cadence_shift: 0,
+        }),
+    );
 }
 
 fn util_deltas(d: StatDeltas) -> EquipmentSpec {

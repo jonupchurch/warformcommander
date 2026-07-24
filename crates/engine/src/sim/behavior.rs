@@ -8,14 +8,20 @@
 
 use crate::model::ruleset::Ruleset;
 use crate::model::types::{
-    BehaviorDials, DialValue, MovementMode, PlanBSlot, TriggerCondition, ZoneId,
+    BehaviorDials, Capability, DialValue, MovementMode, PlanBSlot, TriggerCondition, ZoneId,
 };
 use crate::replay::TickEvent;
 
-use super::{target, Combatant, FallbackPhase};
+use super::{target, Combatant, FallbackPhase, JumpJetPhase};
 
 /// Ticks a machine holds its ducked position before turning for home (v3 US2, start-value).
 const FALLBACK_DUCK_TICKS: u16 = 10;
+
+/// Ticks a Jump-Jet machine stays airborne per leap (v3 US3-C, design §14.3 = 10). Start-values held
+/// here as consts (like `FALLBACK_DUCK_TICKS`); they move to the ruleset in the balance pass.
+const JUMP_AIR_TICKS: u16 = 10;
+/// Ticks a Jump-Jet machine cools down on the ground between leaps (design §14.3 = 10 → ~50% duty).
+const JUMP_COOLDOWN_TICKS: u16 = 10;
 
 /// The most ground machines one side may hold in a single zone (mirrors the `validate.rs` cap). A
 /// `FallBack` return only re-enters the home zone while it is below this, so a return never overfills.
@@ -149,7 +155,7 @@ fn toward(z: ZoneId, home: ZoneId) -> ZoneId {
         Front => 2,
         Middle => 1,
         Rear => 0,
-        ZoneId::Air => return 3, // air never steps toward a ground home
+        ZoneId::Air => 3, // air never steps toward a ground home
     };
     match rank(z).cmp(&rank(home)) {
         std::cmp::Ordering::Less => forward(z),
@@ -240,6 +246,56 @@ fn fallback_intent(c: &mut Combatant, home_has_room: bool) -> ZoneId {
     }
 }
 
+/// Advance one machine's Jump-Jet duty cycle (v3 US3-C), mutating its `zone`/`jump`/`jump_timer`
+/// directly. Returns `true` when the jump owns the machine's zone this tick — it is airborne, or just
+/// took off / landed — so the caller **skips** normal ground movement for it. Returns `false` only when
+/// the machine is grounded and cooling down, in which case it moves as usual. Runs before the move
+/// cooldown gate so a scheduled leap is never dropped; non-jumpers never reach here (gated at the call
+/// site by the `JumpJets` capability). The airborne window is fixed (`JUMP_AIR_TICKS`) and the ground
+/// cooldown (`JUMP_COOLDOWN_TICKS`) begins on landing, giving the ~50% duty cycle the design pins.
+fn resolve_jump_jets(c: &mut Combatant, events: &mut Vec<TickEvent>) -> bool {
+    match c.jump {
+        JumpJetPhase::Grounded => {
+            // Count the ground cooldown down; the tick it reaches zero, leap into the air.
+            c.jump_timer = c.jump_timer.saturating_sub(1);
+            if c.jump_timer == 0 {
+                let from = c.zone;
+                c.zone = ZoneId::Air;
+                c.jump = JumpJetPhase::Airborne;
+                c.jump_timer = JUMP_AIR_TICKS;
+                if from != ZoneId::Air {
+                    events.push(TickEvent::Move {
+                        unit: c.unit,
+                        from,
+                        to: ZoneId::Air,
+                    });
+                }
+                true
+            } else {
+                false // still grounded — resolve normal movement this tick
+            }
+        }
+        JumpJetPhase::Airborne => {
+            // Ride out the airborne window; the tick it expires, land back home and start the cooldown.
+            c.jump_timer = c.jump_timer.saturating_sub(1);
+            if c.jump_timer == 0 {
+                let from = c.zone;
+                c.zone = c.home_zone;
+                c.jump = JumpJetPhase::Grounded;
+                c.jump_timer = JUMP_COOLDOWN_TICKS;
+                if from != c.home_zone {
+                    events.push(TickEvent::Move {
+                        unit: c.unit,
+                        from,
+                        to: c.home_zone,
+                    });
+                }
+            }
+            true // airborne (or landing) — the jump owns the zone; no ordinary movement this tick
+        }
+    }
+}
+
 fn resolve_movement(
     combatants: &mut [Combatant],
     tick: u16,
@@ -255,6 +311,17 @@ fn resolve_movement(
 
     for i in 0..n {
         if !combatants[i].alive {
+            continue;
+        }
+        // Jump-Jet duty cycle (v3 US3-C): a jumper's airborne excursion owns its zone, so while airborne
+        // (and on the takeoff / landing tick) it skips normal ground movement entirely. When grounded and
+        // cooling down it falls through to move as usual. Non-jumpers skip this and behave as before.
+        if combatants[i]
+            .stats
+            .capabilities
+            .contains(&Capability::JumpJets)
+            && resolve_jump_jets(&mut combatants[i], events)
+        {
             continue;
         }
         // Air-locked (move_speed None) and immobile (Some(0)) never move — but a FallBack order still

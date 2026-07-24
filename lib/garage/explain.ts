@@ -191,6 +191,11 @@ const CAPABILITY_COPY: Record<Capability, string> = {
   AntiAir: 'Can target aircraft at the flak damage rate, with the anti-air accuracy bonus',
   RocketPack: 'Full-rate anti-air (flak damage), but only against aircraft close to the front line',
   OnHitPaint: 'Paints targets on hit — a painted enemy takes extra damage from all further fire',
+  OnHitEmp: 'EMP on hit — stops the target’s shield regen and blocks incoming heals (anti-sustain)',
+  OnHitSuppress: 'Suppresses on hit — cuts the target’s own outgoing damage and accuracy',
+  OnHitSnare: 'Snares on hit — cuts the target’s move speed',
+  JumpJets:
+    'Periodically leaps into the air for full air-to-air fire and whole-battlefield reach, then lands and cools down — but is an exposed AA target while airborne',
 };
 
 // --- equipment -------------------------------------------------------------

@@ -2840,6 +2840,16 @@
           "targetDraw": 0
         }
       },
+      "JumpJets": {
+        "cadenceShift": 0,
+        "cost": 3,
+        "id": "JumpJets",
+        "kind": "Utility",
+        "name": "Jump Jets",
+        "unlocks": [
+          "JumpJets"
+        ]
+      },
       "LaserBattery": {
         "family": "Energy",
         "id": "LaserBattery",
