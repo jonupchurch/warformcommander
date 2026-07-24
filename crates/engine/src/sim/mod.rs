@@ -65,6 +65,15 @@ pub(crate) struct Combatant {
     /// Tick until which this machine is **painted** (v3 US3) — a Paint on-hit rider marked it, so it
     /// takes extra damage from further fire until here. `0` = not painted (no tick 0 marking survives).
     pub painted_until: u16,
+    /// Tick until which this machine is **EMP'd** (v3 US3) — an EMP on-hit rider suppressed its sustain,
+    /// so its shields do not regen and it cannot be healed until here. `0` = clear.
+    pub emp_until: u16,
+    /// Tick until which this machine is **suppressed** (v3 US3) — a Suppress on-hit rider cut its own
+    /// outgoing damage + accuracy until here. `0` = clear.
+    pub suppressed_until: u16,
+    /// Tick until which this machine is **snared** (v3 US3) — a Snare on-hit rider cut its move speed
+    /// until here. `0` = clear.
+    pub snared_until: u16,
     pub zone: ZoneId,
     /// The zone this machine was placed in (v3 US2). `FallBack` returns here after its duck; the field
     /// never changes, so a machine's "home" is always its start position regardless of how it has moved.
@@ -192,6 +201,9 @@ pub(crate) fn build_combatants(
                 cooldown: 0,
                 move_cooldown: 0,
                 painted_until: 0,
+                emp_until: 0,
+                suppressed_until: 0,
+                snared_until: 0,
                 zone: m.zone,
                 home_zone: m.zone,
                 fallback: FallbackPhase::Inactive,
@@ -356,6 +368,7 @@ pub(crate) fn run_game(
             if c.shield < c.stats.shield_cap
                 && c.ticks_since_hit >= c.stats.shield_delay
                 && c.stats.shield_regen.milli() > 0
+                && c.emp_until <= tick // EMP (US3) freezes shield regen while active
             {
                 c.shield = c
                     .shield
@@ -368,7 +381,7 @@ pub(crate) fn run_game(
         behavior::apply_behavior(combatants, tick, ruleset, &mut events);
 
         // 3. Support heals (no RNG; before offense so a heal can save a unit this tick).
-        resolve_support(combatants, ruleset, &mut events);
+        resolve_support(combatants, tick, ruleset, &mut events);
 
         // 4. Offense: each ready combatant fires once, in acting order, using current state.
         // `air_focus` budgets anti-air engagements for this tick so one aircraft cannot soak an
@@ -429,7 +442,12 @@ pub(crate) fn run_game(
 /// stance is now a universal posture whose two-sided magnitude scales its heal **output** exactly like
 /// a weapon's (Defensive −20%, Aggressive +5%), matching "output = weapon damage OR projection". A
 /// Neutral support heals at its raw `support_power`, so the stock all-Neutral field is unchanged.
-fn resolve_support(combatants: &mut [Combatant], ruleset: &Ruleset, events: &mut Vec<TickEvent>) {
+fn resolve_support(
+    combatants: &mut [Combatant],
+    tick: u16,
+    ruleset: &Ruleset,
+    events: &mut Vec<TickEvent>,
+) {
     let n = combatants.len();
     for i in 0..n {
         let (power, range, side, zone, actor) = {
@@ -456,6 +474,9 @@ fn resolve_support(combatants: &mut [Combatant], ruleset: &Ruleset, events: &mut
             }
             if combatants[j].hull >= combatants[j].max_hull {
                 continue;
+            }
+            if combatants[j].emp_until > tick {
+                continue; // EMP (US3) blocks this ally's incoming heals while active
             }
             best = match best {
                 None => Some(j),

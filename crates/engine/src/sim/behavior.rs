@@ -29,7 +29,7 @@ pub(crate) fn apply_behavior(
     events: &mut Vec<TickEvent>,
 ) {
     latch_plan_b(combatants, tick, ruleset, events);
-    resolve_movement(combatants, ruleset, events);
+    resolve_movement(combatants, tick, ruleset, events);
 }
 
 // ---------------------------------------------------------------------------
@@ -240,7 +240,12 @@ fn fallback_intent(c: &mut Combatant, home_has_room: bool) -> ZoneId {
     }
 }
 
-fn resolve_movement(combatants: &mut [Combatant], ruleset: &Ruleset, events: &mut Vec<TickEvent>) {
+fn resolve_movement(
+    combatants: &mut [Combatant],
+    tick: u16,
+    ruleset: &Ruleset,
+    events: &mut Vec<TickEvent>,
+) {
     let n = combatants.len();
     // Reach probe (immutable): does each machine have an enemy in reach right now? Drives the
     // self-termination of Advance/Kite. Computed up front so the mutable step loop can borrow freely.
@@ -254,10 +259,14 @@ fn resolve_movement(combatants: &mut [Combatant], ruleset: &Ruleset, events: &mu
         }
         // Air-locked (move_speed None) and immobile (Some(0)) never move — but a FallBack order still
         // has no effect on them, so we simply skip: they cannot duck or return.
-        let speed = match combatants[i].stats.move_speed {
+        let mut speed = match combatants[i].stats.move_speed {
             Some(s) if s > 0 => s,
             _ => continue,
         };
+        if combatants[i].snared_until > tick {
+            // Snare rider (US3): halve movement while active (min 1 so it still crawls, never air-locks).
+            speed = (speed / 2).max(1);
+        }
 
         // Home-zone room for a FallBack return (own-side ground occupancy, excluding self).
         let home = combatants[i].home_zone;

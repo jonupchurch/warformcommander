@@ -522,6 +522,18 @@ pub enum Capability {
     /// marks the target so it takes extra damage from further fire for a spell — a focus-fire
     /// multiplier. Added last to keep the enum's `Ord`/serialization stable.
     OnHitPaint,
+    /// **EMP** on-hit rider (v3 US3, design §14.3): a landed hit suppresses the target's *sustain* — no
+    /// shield regen and no incoming heals — for a spell. Anti-sustain; the answer to healer / shield
+    /// builds. Added last to keep the enum's `Ord`/serialization stable.
+    OnHitEmp,
+    /// **Suppress** on-hit rider (v3 US3, design §13.2): a landed hit cuts the target's *own* outgoing
+    /// damage + accuracy for a spell — degrades an alpha / burst dealer instead of out-damaging it.
+    /// Added last to keep the enum's `Ord`/serialization stable.
+    OnHitSuppress,
+    /// **Snare** on-hit rider (v3 US3, design §13.2): a landed hit cuts the target's move speed for a
+    /// spell — pins a kiter / backline-diver. (Inert where movement does not change outcomes — P21.)
+    /// Added last to keep the enum's `Ord`/serialization stable.
+    OnHitSnare,
 }
 
 // ---------------------------------------------------------------------------

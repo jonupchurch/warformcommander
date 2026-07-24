@@ -50,7 +50,10 @@ export type Capability =
   | 'TargetAir'
   | 'AntiAir'
   | 'RocketPack'
-  | 'OnHitPaint';
+  | 'OnHitPaint'
+  | 'OnHitEmp'
+  | 'OnHitSuppress'
+  | 'OnHitSnare';
 
 /** The canonical `Capability` sort order (the Rust enum's `Ord` / declaration order). */
 export const CAPABILITY_ORDER: readonly Capability[] = [
@@ -60,6 +63,9 @@ export const CAPABILITY_ORDER: readonly Capability[] = [
   'AntiAir',
   'RocketPack',
   'OnHitPaint',
+  'OnHitEmp',
+  'OnHitSuppress',
+  'OnHitSnare',
 ];
 
 /** Which equipment kind a slot expects (`SlotKind`) — carried on a `WrongSlotKind` derivation error. */

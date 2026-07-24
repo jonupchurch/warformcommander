@@ -1158,6 +1158,40 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
             cadence_shift: 0,
         }),
     );
+    // The other three v3 US3 on-hit riders (design §13.2/§14.3). Like Spotter, each is a pure
+    // capability-unlock utility; the effect lives in the sim (`sim/damage.rs` + the sustain/movement
+    // gates). Untuned start-values (const magnitudes in `sim/damage.rs`) — to measure + tune.
+    // EMP Ammo (§14.3): anti-sustain — the target's shields stop regenerating and it cannot be healed.
+    add(
+        "EMPAmmo",
+        "EMP Ammo",
+        EquipmentSpec::Utility(crate::model::types::UtilitySpec {
+            stat_deltas: None,
+            unlocks: vec![Capability::OnHitEmp],
+            cadence_shift: 0,
+        }),
+    );
+    // Suppressing Fire (§13.2): the hit target's own outgoing damage + accuracy are cut — degrade an
+    // alpha/burst dealer rather than out-damage it.
+    add(
+        "SuppressingFire",
+        "Suppressing Fire",
+        EquipmentSpec::Utility(crate::model::types::UtilitySpec {
+            stat_deltas: None,
+            unlocks: vec![Capability::OnHitSuppress],
+            cadence_shift: 0,
+        }),
+    );
+    // Snare Shot (§13.2): the hit target's move speed is cut — pin a kiter / backline-diver.
+    add(
+        "SnareShot",
+        "Snare Shot",
+        EquipmentSpec::Utility(crate::model::types::UtilitySpec {
+            stat_deltas: None,
+            unlocks: vec![Capability::OnHitSnare],
+            cadence_shift: 0,
+        }),
+    );
 }
 
 fn util_deltas(d: StatDeltas) -> EquipmentSpec {

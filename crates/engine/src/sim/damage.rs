@@ -20,6 +20,14 @@ use super::{AttackProfile, Combatant};
 const PAINT_TAKEN_BONUS: Bp = 2_500; // +25% damage taken while painted
 const PAINT_DURATION_TICKS: u16 = 30;
 
+// The other three v3 US3 on-hit riders (design §13.2/§14.3). Start-values held as consts like Paint;
+// they move to the ruleset in the balance pass. Durations mirror Paint (30t) unless the design pins one.
+const EMP_DURATION_TICKS: u16 = 30; // anti-sustain: no shield regen / no heals while EMP'd (§14.3)
+const SUPPRESS_OUTPUT_MULT: Bp = 7_500; // a suppressed unit deals ×0.75 damage
+const SUPPRESS_ACC_PENALTY: Bp = 1_000; // ...and −10% accuracy (bp, subtracted)
+const SUPPRESS_DURATION_TICKS: u16 = 30;
+const SNARE_DURATION_TICKS: u16 = 30;
+
 /// The incoming-damage multiplier from an active Paint mark (`BP_ONE` when the target is not painted).
 fn paint_mult(target: &Combatant, tick: u16) -> Bp {
     if target.painted_until > tick {
@@ -149,11 +157,14 @@ pub(crate) fn resolve_attack(
     // adjusts its outgoing output + accuracy, each target's stance its incoming damage + evasion.
     let att_stance = combatants[att_idx].dials.stance;
     let sm = &ruleset.stance_mods;
-    // Whether this attacker carries the Paint on-hit rider (v3 US3) — captured before any mutation.
-    let att_paints = combatants[att_idx]
-        .stats
-        .capabilities
-        .contains(&Capability::OnHitPaint);
+    // Which on-hit riders this attacker carries (v3 US3) — captured before any mutation.
+    let caps = &combatants[att_idx].stats.capabilities;
+    let att_paints = caps.contains(&Capability::OnHitPaint);
+    let att_emps = caps.contains(&Capability::OnHitEmp);
+    let att_suppresses = caps.contains(&Capability::OnHitSuppress);
+    let att_snares = caps.contains(&Capability::OnHitSnare);
+    // Is THIS attacker itself currently suppressed? (a Suppress rider cut its own output + accuracy).
+    let att_suppressed = combatants[att_idx].suppressed_until > tick;
 
     // --- Hit chance: accuracy − evasion, with off-domain modifiers, clamped. ---
     // `domain_mult` scales damage for a weapon firing outside its element: AA vs air gets the bonus;
@@ -161,6 +172,9 @@ pub(crate) fn resolve_attack(
     // are clear takes the plink *accuracy* penalty but its own `sam_ground` damage multiplier — so
     // air-to-air lethality and ground suppression tune independently. Same-domain fire is BP_ONE.
     let mut acc = prof.accuracy + sm.accuracy_add(att_stance);
+    if att_suppressed {
+        acc -= SUPPRESS_ACC_PENALTY; // Suppress rider (US3): the suppressed attacker aims worse
+    }
     let mut domain_mult = BP_ONE;
     if target_air {
         if prof.reach == ReachTag::Air {
@@ -214,6 +228,9 @@ pub(crate) fn resolve_attack(
     d0 = d0.mul_bp(domain_mult); // BP_ONE for ordinary same-domain fire
     d0 = d0.mul_bp(BP_ONE + variance);
     d0 = d0.mul_bp(sm.output_mult(att_stance)); // stance output (applies to splash too, via d0)
+    if att_suppressed {
+        d0 = d0.mul_bp(SUPPRESS_OUTPUT_MULT); // Suppress rider (US3): the suppressed attacker hits softer
+    }
     // Army C2 boost (US5): a living Commander lifts every ally's outgoing damage; folded into d0 so it
     // reaches splash too, and gone the tick the Commander dies (aura reads only living sources).
     d0 = d0.mul_bp(aura_mult(
@@ -247,10 +264,21 @@ pub(crate) fn resolve_attack(
     );
     absorb_family(&mut combatants[target_idx], prof.damage_type, hu);
     emit_hit(events, prof.actor, target_ref, sh, ab, hu, crit, false);
-    // Paint the aimed target after this hit lands (so the painting shot itself doesn't self-benefit);
-    // the mark amplifies further fire on it until it expires.
-    if att_paints && !died {
-        combatants[target_idx].painted_until = tick.saturating_add(PAINT_DURATION_TICKS);
+    // Apply on-hit riders to the aimed target after this hit lands (so the applying shot itself doesn't
+    // self-benefit); each marks the target until its own rider expires. Skipped on a killing blow.
+    if !died {
+        if att_paints {
+            combatants[target_idx].painted_until = tick.saturating_add(PAINT_DURATION_TICKS);
+        }
+        if att_emps {
+            combatants[target_idx].emp_until = tick.saturating_add(EMP_DURATION_TICKS);
+        }
+        if att_suppresses {
+            combatants[target_idx].suppressed_until = tick.saturating_add(SUPPRESS_DURATION_TICKS);
+        }
+        if att_snares {
+            combatants[target_idx].snared_until = tick.saturating_add(SNARE_DURATION_TICKS);
+        }
     }
     let mut dealt = sh.saturating_add(ab).saturating_add(hu);
     if died {
