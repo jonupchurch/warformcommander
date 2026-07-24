@@ -208,6 +208,9 @@ export interface UtilitySpec {
   statDeltas?: StatDeltas;
   unlocks: Capability[];
   cadenceShift: number;
+  /** Slot cost (v3 US3-A): budget points this utility consumes (1/2/3). Omitted (⇒ 1) for single-cost
+   *  items, matching the Rust `#[serde(default, skip_serializing_if = 1)]`. */
+  cost?: number;
 }
 
 /**

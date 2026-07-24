@@ -197,12 +197,19 @@ function validateUtilities(
 ): void {
   const id = m.instanceId;
   const utils = m.loadout.utilities;
-  if (utils.length !== slots.utility) {
+  // v3 US3-A economy: sum each utility's slot cost (default 1); legal while it does not exceed the
+  // chassis's utility budget (`slots.utility`). Under-spending is allowed. Mirrors validate.rs.
+  let spent = 0;
+  for (const u of utils) {
+    const mod = ruleset.equipment[u];
+    if (mod && mod.kind === 'Utility') spent += mod.cost ?? 1;
+  }
+  if (spent > slots.utility) {
     errors.push(
       machineError(
         'Utilities',
         id,
-        `${utils.length} utilities equipped; the slot layout allows ${slots.utility}`,
+        `utilities cost ${spent} of a ${slots.utility}-point utility budget`,
       ),
     );
   }

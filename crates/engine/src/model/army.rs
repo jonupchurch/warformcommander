@@ -538,6 +538,7 @@ mod tests {
                     stat_deltas: None,
                     unlocks: vec![],
                     cadence_shift: 1,
+                    cost: 1,
                 }),
             },
         );
@@ -551,6 +552,7 @@ mod tests {
                     stat_deltas: None,
                     unlocks: vec![Capability::ExtraPlanBSlot],
                     cadence_shift: 0,
+                    cost: 1,
                 }),
             },
         );
@@ -567,6 +569,7 @@ mod tests {
                     }),
                     unlocks: vec![],
                     cadence_shift: 0,
+                    cost: 1,
                 }),
             },
         );

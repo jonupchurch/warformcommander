@@ -243,14 +243,24 @@ fn validate_utilities(
 ) {
     let id = m.instance_id;
     let utils = &m.loadout.utilities;
-    if utils.len() != slots.utility as usize {
+    // v3 US3-A economy: each utility costs a number of the chassis's utility *budget* (`slots.utility`);
+    // a loadout is legal while the summed cost does not EXCEED the budget (under-spending is allowed).
+    // Cost defaults to 1, so this reduces to the old "count == budget" for single-cost content except
+    // that a partly-filled loadout is now legal (unspent slots are fine).
+    let spent: u32 = utils
+        .iter()
+        .map(|u| match ruleset.equipment(u).map(|module| &module.spec) {
+            Some(EquipmentSpec::Utility(spec)) => spec.cost as u32,
+            _ => 0, // unknown / non-utility modules are reported below; they don't spend budget
+        })
+        .sum();
+    if spent > slots.utility as u32 {
         errors.push(ValidationError::machine(
             ValidationCode::Utilities,
             id,
             format!(
-                "{} utilities equipped; the slot layout allows {}",
-                utils.len(),
-                slots.utility
+                "utilities cost {} of a {}-point utility budget",
+                spent, slots.utility
             ),
         ));
     }
@@ -370,10 +380,10 @@ mod tests {
     }
 
     #[test]
-    fn v5_rejects_duplicate_and_wrong_count() {
+    fn v5_rejects_duplicate_and_over_budget() {
         let rs = seed_ruleset();
         let mut army = legal_army();
-        // Duplicate a utility.
+        // Duplicate a utility → error (unchanged by the v3 economy).
         army.machines[0].loadout.utilities = vec![
             EquipmentId::new("FireControl"),
             EquipmentId::new("FireControl"),
@@ -384,13 +394,28 @@ mod tests {
             .iter()
             .any(|e| e.code == ValidationCode::Utilities && e.instance_id == Some(0)));
 
-        // Wrong count (too few).
+        // Over budget (v3 US3-A): four cost-1 utilities exceed a 3-point utility budget → error.
         let mut army2 = legal_army();
-        army2.machines[1].loadout.utilities = vec![EquipmentId::new("FireControl")];
+        army2.machines[1].loadout.utilities = vec![
+            EquipmentId::new("FireControl"),
+            EquipmentId::new("DriveServos"),
+            EquipmentId::new("Autoloader"),
+            EquipmentId::new("ECMSuite"),
+        ];
         assert!(validate(&army2, &rs)
             .unwrap_err()
             .iter()
             .any(|e| e.code == ValidationCode::Utilities));
+
+        // Under budget is now LEGAL (v3 US3-A: unspent slots allowed) — this was an error under the
+        // old exact-count rule.
+        let mut army3 = legal_army();
+        army3.machines[1].loadout.utilities = vec![EquipmentId::new("FireControl")];
+        assert_eq!(
+            validate(&army3, &rs),
+            Ok(()),
+            "under-spending the utility budget must be legal (US3-A)"
+        );
     }
 
     #[test]

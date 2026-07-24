@@ -1069,6 +1069,7 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
             stat_deltas: None,
             unlocks: vec![],
             cadence_shift: 1,
+            cost: 1,
         }),
     );
     add(
@@ -1103,6 +1104,7 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
         "Combat AI Core",
         EquipmentSpec::Utility(crate::model::types::UtilitySpec {
             stat_deltas: None,
+            cost: 1,
             unlocks: vec![Capability::ExtraPlanBSlot],
             cadence_shift: 0,
         }),
@@ -1112,6 +1114,7 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
         "Sensor Suite",
         EquipmentSpec::Utility(crate::model::types::UtilitySpec {
             stat_deltas: None,
+            cost: 1,
             unlocks: vec![Capability::TargetAir],
             cadence_shift: 0,
         }),
@@ -1121,6 +1124,7 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
         "Rangefinder",
         EquipmentSpec::Utility(crate::model::types::UtilitySpec {
             stat_deltas: None,
+            cost: 1,
             unlocks: vec![Capability::ExtendReach],
             cadence_shift: 0,
         }),
@@ -1133,6 +1137,7 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
         "Rocket Pack",
         EquipmentSpec::Utility(crate::model::types::UtilitySpec {
             stat_deltas: None,
+            cost: 1,
             unlocks: vec![Capability::RocketPack],
             cadence_shift: 0,
         }),
@@ -1154,6 +1159,7 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
         "Spotter Array",
         EquipmentSpec::Utility(crate::model::types::UtilitySpec {
             stat_deltas: None,
+            cost: 1,
             unlocks: vec![Capability::OnHitPaint],
             cadence_shift: 0,
         }),
@@ -1167,6 +1173,7 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
         "EMP Ammo",
         EquipmentSpec::Utility(crate::model::types::UtilitySpec {
             stat_deltas: None,
+            cost: 1,
             unlocks: vec![Capability::OnHitEmp],
             cadence_shift: 0,
         }),
@@ -1178,6 +1185,7 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
         "Suppressing Fire",
         EquipmentSpec::Utility(crate::model::types::UtilitySpec {
             stat_deltas: None,
+            cost: 1,
             unlocks: vec![Capability::OnHitSuppress],
             cadence_shift: 0,
         }),
@@ -1188,6 +1196,7 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
         "Snare Shot",
         EquipmentSpec::Utility(crate::model::types::UtilitySpec {
             stat_deltas: None,
+            cost: 1,
             unlocks: vec![Capability::OnHitSnare],
             cadence_shift: 0,
         }),
@@ -1199,6 +1208,7 @@ fn util_deltas(d: StatDeltas) -> EquipmentSpec {
         stat_deltas: Some(d),
         unlocks: vec![],
         cadence_shift: 0,
+        cost: 1,
     })
 }
 

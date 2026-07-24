@@ -498,6 +498,19 @@ pub struct UtilitySpec {
     /// Cadence tiers to shift faster (positive = faster, min Fast); `0` = no shift.
     #[serde(default)]
     pub cadence_shift: i8,
+    /// Slot cost (v3 US3-A economy): how many of the chassis's utility **budget** this consumes
+    /// (design tiers 1 = stat · 2 = capability/counter · 3 = build-definer). Defaults to 1 and is
+    /// **skipped when 1**, so existing single-cost content serializes byte-identically (hash-stable).
+    #[serde(default = "one_u8", skip_serializing_if = "is_one_u8")]
+    pub cost: u8,
+}
+
+/// serde default/skip for `UtilitySpec::cost` — keeps cost-1 items hash-stable (see `cost`).
+fn one_u8() -> u8 {
+    1
+}
+fn is_one_u8(c: &u8) -> bool {
+    *c == 1
 }
 
 /// A capability an equipped utility can unlock (gates otherwise-illegal dials/options — V6/V7).

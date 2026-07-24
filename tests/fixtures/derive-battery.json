@@ -2085,6 +2085,26 @@
       }
     },
     "equipment": {
+      "ArcRepeater": {
+        "family": "Energy",
+        "id": "ArcRepeater",
+        "kind": "Weapon",
+        "mountClass": "Light",
+        "name": "Arc Repeater",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Fast",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "Nearest",
+          "splash": 0,
+          "targetDraw": 0
+        }
+      },
       "ArtilleryAblative": {
         "ablativeDelta": {
           "cap": 600000
@@ -2200,6 +2220,26 @@
         "name": "Autoloader",
         "unlocks": []
       },
+      "BeamProjector": {
+        "family": "Energy",
+        "id": "BeamProjector",
+        "kind": "Weapon",
+        "mountClass": "Heli",
+        "name": "Beam Projector",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Medium",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "AnyGround",
+          "splash": 0,
+          "targetDraw": 0
+        }
+      },
       "BlastPlating": {
         "armorPctDelta": 800,
         "id": "BlastPlating",
@@ -2220,6 +2260,26 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
+          "splash": 0,
+          "targetDraw": 0
+        }
+      },
+      "ChainGun": {
+        "family": "Kinetic",
+        "id": "ChainGun",
+        "kind": "Weapon",
+        "mountClass": "Heli",
+        "name": "Chain Gun",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Medium",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "AnyGround",
           "splash": 0,
           "targetDraw": 0
         }
@@ -2298,6 +2358,26 @@
           "targetDraw": 0
         }
       },
+      "DemolitionGun": {
+        "family": "Explosive",
+        "id": "DemolitionGun",
+        "kind": "Weapon",
+        "mountClass": "Heavy",
+        "name": "Demolition Gun",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Slow",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "Nearest",
+          "splash": 0,
+          "targetDraw": 0
+        }
+      },
       "DriveServos": {
         "cadenceShift": 0,
         "id": "DriveServos",
@@ -2337,6 +2417,15 @@
           "targetDraw": -2
         },
         "unlocks": []
+      },
+      "EMPAmmo": {
+        "cadenceShift": 0,
+        "id": "EMPAmmo",
+        "kind": "Utility",
+        "name": "EMP Ammo",
+        "unlocks": [
+          "OnHitEmp"
+        ]
       },
       "FastCycleShield": {
         "armorPctDelta": 0,
@@ -2383,6 +2472,26 @@
         },
         "unlocks": []
       },
+      "FlechetteBattery": {
+        "family": "Kinetic",
+        "id": "FlechetteBattery",
+        "kind": "Weapon",
+        "mountClass": "RktArty",
+        "name": "Flechette Battery",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Slow",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "AnyGround",
+          "splash": 0,
+          "targetDraw": 0
+        }
+      },
       "GaussRepeater": {
         "family": "Kinetic",
         "id": "GaussRepeater",
@@ -2395,6 +2504,26 @@
           "cadenceTier": "Fast",
           "critChance": 0,
           "damage": -1000,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "Nearest",
+          "splash": 0,
+          "targetDraw": 0
+        }
+      },
+      "GrenadeLauncher": {
+        "family": "Explosive",
+        "id": "GrenadeLauncher",
+        "kind": "Weapon",
+        "mountClass": "Light",
+        "name": "Grenade Launcher",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Fast",
+          "critChance": 0,
+          "damage": 0,
           "evasion": 0,
           "moveSpeed": 0,
           "penetration": 0,
@@ -2579,6 +2708,46 @@
           "targetDraw": 0
         }
       },
+      "IonCannon": {
+        "family": "Energy",
+        "id": "IonCannon",
+        "kind": "Weapon",
+        "mountClass": "Artillery",
+        "name": "Ion Cannon",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Siege",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "AnyGround",
+          "splash": 0,
+          "targetDraw": 0
+        }
+      },
+      "LaserBattery": {
+        "family": "Energy",
+        "id": "LaserBattery",
+        "kind": "Weapon",
+        "mountClass": "RktArty",
+        "name": "Laser Battery",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Slow",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "AnyGround",
+          "splash": 0,
+          "targetDraw": 0
+        }
+      },
       "LightAblative": {
         "ablativeDelta": {
           "cap": 600000
@@ -2741,6 +2910,26 @@
           "targetDraw": 0
         }
       },
+      "MissileRack": {
+        "family": "Explosive",
+        "id": "MissileRack",
+        "kind": "Weapon",
+        "mountClass": "Mech",
+        "name": "Missile Rack",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Medium",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "Nearest",
+          "splash": 0,
+          "targetDraw": 0
+        }
+      },
       "PulseLaser": {
         "family": "Energy",
         "id": "PulseLaser",
@@ -2757,6 +2946,26 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": "Nearest",
+          "splash": 0,
+          "targetDraw": 0
+        }
+      },
+      "RailHowitzer": {
+        "family": "Kinetic",
+        "id": "RailHowitzer",
+        "kind": "Weapon",
+        "mountClass": "Artillery",
+        "name": "Rail Howitzer",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Siege",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "AnyGround",
           "splash": 0,
           "targetDraw": 0
         }
@@ -2975,6 +3184,15 @@
           "splash": 0,
           "targetDraw": 0
         }
+      },
+      "SnareShot": {
+        "cadenceShift": 0,
+        "id": "SnareShot",
+        "kind": "Utility",
+        "name": "Snare Shot",
+        "unlocks": [
+          "OnHitSnare"
+        ]
       },
       "Spotter": {
         "cadenceShift": 0,
@@ -3227,6 +3445,15 @@
           "splash": 0,
           "targetDraw": 0
         }
+      },
+      "SuppressingFire": {
+        "cadenceShift": 0,
+        "id": "SuppressingFire",
+        "kind": "Utility",
+        "name": "Suppressing Fire",
+        "unlocks": [
+          "OnHitSuppress"
+        ]
       }
     },
     "globals": {
@@ -4650,14 +4877,8 @@
         ]
       },
       "expected": {
-        "errors": [
-          {
-            "code": "Utilities",
-            "instanceId": 1,
-            "reason": "1 utilities equipped; the slot layout allows 3"
-          }
-        ],
-        "status": "invalid"
+        "powerRating": 4704,
+        "status": "ok"
       },
       "label": "v5:wrong-utility-count"
     },
