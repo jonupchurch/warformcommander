@@ -337,6 +337,10 @@ pub enum AuraKind {
     /// — the Light Tank's innate **Spotter Network** scouting aura (v3, design §14.2). Added last to keep
     /// the enum's serialized names stable for the pre-existing variants.
     Accuracy,
+    /// Adds to allies' **evasion** (`magnitude` bp, added not multiplied — e.g. `+2_500` = +25% dodge) —
+    /// the Heavy's **Smoke Canisters** zone screen (v3, design §14.1). Added last to keep the enum's
+    /// serialized names stable for the pre-existing variants.
+    Evasion,
 }
 
 /// Who an [`AuraEffect`] reaches.
@@ -558,6 +562,12 @@ pub struct UtilitySpec {
     /// **skipped when 1**, so existing single-cost content serializes byte-identically (hash-stable).
     #[serde(default = "one_u8", skip_serializing_if = "is_one_u8")]
     pub cost: u8,
+    /// A **passive aura** this utility projects while equipped (v3 US3-D, §14: the Commander's
+    /// Coordination Net / Damage Boost / Damage Reduction, the Heavy's Smoke Canisters). Merged into the
+    /// carrier's live aura set alongside its chassis aura. `None` for ordinary utilities — skipped when
+    /// absent so they serialize byte-identically (hash-stable).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub aura: Option<AuraEffect>,
 }
 
 /// serde default/skip for `UtilitySpec::cost` — keeps cost-1 items hash-stable (see `cost`).

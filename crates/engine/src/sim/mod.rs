@@ -21,8 +21,8 @@ use crate::model::army::{
 };
 use crate::model::ruleset::{CoordinationGrain, CoordinationScales, Ruleset};
 use crate::model::types::{
-    AuraKind, AuraScope, BehaviorDials, DamageType, MachineTypeId, PlanBSlot, PlanBTrigger,
-    ReachTag, SupportRange, VariantId, ZoneId,
+    AuraEffect, AuraKind, AuraScope, BehaviorDials, DamageType, EquipmentSpec, MachineTypeId,
+    PlanBSlot, PlanBTrigger, ReachTag, SupportRange, ZoneId,
 };
 use crate::replay::{
     GameReplay, GameResult, MachineSnapshot, MatchConfig, Side, SupportKind, Tick, TickEvent,
@@ -37,11 +37,11 @@ pub(crate) struct Combatant {
     /// The machine class — read to exclude helis from heal targeting (`resolve_support`) and carried
     /// for the replay's `unitOrder` dictionary (populated in US5/T048).
     pub type_id: MachineTypeId,
-    /// The chassis variant — read at setup to apply its passive aura (`grant_start_shields`).
-    pub variant_id: VariantId,
-    /// The chassis's passive aura (v3 US5), cached off the ruleset so the per-hit aura pass (Command
-    /// boost / protector projection) needn't re-look it up. `None` for the ordinary chassis.
-    pub passive_aura: Option<crate::model::types::AuraEffect>,
+    /// The machine's live passive auras (v3 US5/US3-D) — its chassis aura (Command boost / Spotter /
+    /// protector) **plus** any auras its equipped utilities project (Coordination Net, Damage
+    /// Boost/Reduction, Smoke). Collected once at setup so the per-hit aura pass needn't re-look them up.
+    /// Empty for a machine with no chassis aura and no aura utilities.
+    pub auras: Vec<crate::model::types::AuraEffect>,
     pub stats: EffectiveStats,
     /// Active dials (mutated by Plan-B latches); recomputed from `base_dials` + `fired` each tick.
     pub base_dials: BehaviorDials,
@@ -185,6 +185,24 @@ fn coord_same_unit(a: &MachineInstance, b: &MachineInstance, grain: Coordination
     }
 }
 
+/// The machine's live passive auras (v3 US3-D): its chassis aura, then any auras its equipped utilities
+/// project (Coordination Net / Damage Boost/Reduction / Smoke). Order is chassis-then-loadout, but every
+/// consumer sums/products over the set, so order never affects a result.
+fn collect_auras(ruleset: &Ruleset, m: &MachineInstance) -> Vec<AuraEffect> {
+    let mut auras = Vec::new();
+    if let Some(a) = ruleset.chassis.get(&m.variant_id).and_then(|c| c.passive_aura) {
+        auras.push(a);
+    }
+    for uid in &m.loadout.utilities {
+        if let Some(EquipmentSpec::Utility(u)) = ruleset.equipment(uid).map(|e| &e.spec) {
+            if let Some(a) = u.aura {
+                auras.push(a);
+            }
+        }
+    }
+    auras
+}
+
 /// Build the 10 combatants (side A then B, in instance order) from the two armies + ruleset.
 pub(crate) fn build_combatants(
     armies: &[Army; 2],
@@ -219,8 +237,7 @@ pub(crate) fn build_combatants(
                     instance_id: m.instance_id,
                 },
                 type_id: m.type_id,
-                passive_aura: ruleset.chassis.get(&m.variant_id).and_then(|c| c.passive_aura),
-                variant_id: m.variant_id.clone(),
+                auras: collect_auras(ruleset, m),
                 base_dials: m.dials,
                 dials: m.dials,
                 plan_b: m.plan_b.clone(),
@@ -254,7 +271,7 @@ pub(crate) fn build_combatants(
             });
         }
     }
-    grant_start_shields(&mut out, ruleset);
+    grant_start_shields(&mut out);
     Ok(out)
 }
 
@@ -263,7 +280,7 @@ pub(crate) fn build_combatants(
 /// (bp) of the recipient's max hull. Stacks across multiple support sources. The barrier is added on
 /// top of the recipient's own shield — because it sits *above* the shield cap, the per-tick upkeep
 /// (which only regenerates while `shield < shield_cap`) never tops it back up: it depletes once.
-fn grant_start_shields(combatants: &mut [Combatant], ruleset: &Ruleset) {
+fn grant_start_shields(combatants: &mut [Combatant]) {
     struct Source {
         side: Side,
         zone: ZoneId,
@@ -272,13 +289,11 @@ fn grant_start_shields(combatants: &mut [Combatant], ruleset: &Ruleset) {
     }
     let sources: Vec<Source> = combatants
         .iter()
-        .filter_map(|c| {
-            ruleset
-                .chassis
-                .get(&c.variant_id)?
-                .passive_aura
+        .flat_map(|c| {
+            c.auras
+                .iter()
                 .filter(|a| a.kind == AuraKind::StartShield && a.magnitude > 0)
-                .map(|a| Source {
+                .map(move |a| Source {
                     side: c.unit.side,
                     zone: c.zone,
                     mag: a.magnitude,

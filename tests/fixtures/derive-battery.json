@@ -2519,6 +2519,44 @@
           "CoordinatedStrike"
         ]
       },
+      "CoordinationNet": {
+        "aura": {
+          "kind": "Accuracy",
+          "magnitude": 800,
+          "scope": "AllAllies"
+        },
+        "cadenceShift": 0,
+        "id": "CoordinationNet",
+        "kind": "Utility",
+        "name": "Coordination Net",
+        "unlocks": []
+      },
+      "DamageBoost": {
+        "aura": {
+          "kind": "DamageDealt",
+          "magnitude": 1000,
+          "scope": "AllAllies"
+        },
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "DamageBoost",
+        "kind": "Utility",
+        "name": "Damage Boost",
+        "unlocks": []
+      },
+      "DamageReduction": {
+        "aura": {
+          "kind": "DamageTaken",
+          "magnitude": -1000,
+          "scope": "AllAllies"
+        },
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "DamageReduction",
+        "kind": "Utility",
+        "name": "Damage Reduction",
+        "unlocks": []
+      },
       "Decoy": {
         "cadenceShift": 0,
         "id": "Decoy",
@@ -3663,6 +3701,19 @@
         "unlocks": [
           "StationaryBrace"
         ]
+      },
+      "SmokeCanisters": {
+        "aura": {
+          "kind": "Evasion",
+          "magnitude": 2000,
+          "scope": "ZoneAllies"
+        },
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "SmokeCanisters",
+        "kind": "Utility",
+        "name": "Smoke Canisters",
+        "unlocks": []
       },
       "SnareShot": {
         "cadenceShift": 0,

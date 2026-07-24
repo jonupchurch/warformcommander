@@ -75,7 +75,7 @@ fn aura_mult(combatants: &[Combatant], subject_idx: usize, kinds: &[AuraKind]) -
     let zone = combatants[subject_idx].zone;
     let mut mult = BP_ONE;
     for c in combatants.iter().filter(|c| c.alive && c.unit.side == side) {
-        if let Some(a) = c.passive_aura {
+        for a in &c.auras {
             let in_scope = match a.scope {
                 AuraScope::AllAllies => true,
                 AuraScope::ZoneAllies => c.zone == zone,
@@ -98,7 +98,7 @@ fn aura_add(combatants: &[Combatant], subject_idx: usize, kind: AuraKind) -> Bp 
     let zone = combatants[subject_idx].zone;
     let mut total = 0;
     for c in combatants.iter().filter(|c| c.alive && c.unit.side == side) {
-        if let Some(a) = c.passive_aura {
+        for a in &c.auras {
             let in_scope = match a.scope {
                 AuraScope::AllAllies => true,
                 AuraScope::ZoneAllies => c.zone == zone,
@@ -366,7 +366,9 @@ pub(crate) fn resolve_attack(
         domain_mult = ruleset.air_mods.sam_ground_dmg_mult;
     }
     let mut target_evasion = combatants[target_idx].stats.evasion
-        + sm.evasion_add(combatants[target_idx].dials.stance);
+        + sm.evasion_add(combatants[target_idx].dials.stance)
+        // Smoke Canisters (US3-D): a same-zone/army evasion aura raises this target's dodge (inert with none).
+        + aura_add(combatants, target_idx, AuraKind::Evasion);
     if target_air {
         // Chaff (v3 US1d): the aircraft's air-only evasion counts vs this air-directed shot (AA / flak /
         // plink) — never vs ground fire, so it is dead weight the instant the unit isn't being shot at

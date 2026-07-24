@@ -1204,6 +1204,7 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
             unlocks: vec![],
             cadence_shift: 1,
             cost: 1,
+            aura: None,
         }),
     );
     add(
@@ -1233,49 +1234,15 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
             ..Default::default()
         }),
     );
-    add(
-        "CombatAI",
-        "Combat AI Core",
-        EquipmentSpec::Utility(crate::model::types::UtilitySpec {
-            stat_deltas: None,
-            cost: 1,
-            unlocks: vec![Capability::ExtraPlanBSlot],
-            cadence_shift: 0,
-        }),
-    );
-    add(
-        "SensorSuite",
-        "Sensor Suite",
-        EquipmentSpec::Utility(crate::model::types::UtilitySpec {
-            stat_deltas: None,
-            cost: 1,
-            unlocks: vec![Capability::TargetAir],
-            cadence_shift: 0,
-        }),
-    );
-    add(
-        "Rangefinder",
-        "Rangefinder",
-        EquipmentSpec::Utility(crate::model::types::UtilitySpec {
-            stat_deltas: None,
-            cost: 1,
-            unlocks: vec![Capability::ExtendReach],
-            cadence_shift: 0,
-        }),
-    );
+    // Combat AI (§14.3 Mech signature): a bought extra Plan-B slot — the only path to a 2nd Plan-B for a
+    // non-Mech, non-Commander build (mirrors the Mech's innate ExtraPlanBSlot; validate V6). Cost 2 (§14).
+    add("CombatAI", "Combat AI Core", cap_util(2, Capability::ExtraPlanBSlot));
+    add("SensorSuite", "Sensor Suite", cap_util(1, Capability::TargetAir));
+    add("Rangefinder", "Rangefinder", cap_util(1, Capability::ExtendReach));
     // Rocket Pack (v2, US4): the Mech's air answer — full-rate anti-air (flak damage), but reach-limited
     // to the front line so dedicated AA keeps its whole-field reach advantage (FR-026/029). A utility, so
     // it costs a slot; a Mech that wants to answer aircraft trades a utility for the capability.
-    add(
-        "RocketPack",
-        "Rocket Pack",
-        EquipmentSpec::Utility(crate::model::types::UtilitySpec {
-            stat_deltas: None,
-            cost: 1,
-            unlocks: vec![Capability::RocketPack],
-            cadence_shift: 0,
-        }),
-    );
+    add("RocketPack", "Rocket Pack", cap_util(1, Capability::RocketPack));
     // Decoy / Lure (v3 US3, Heavy Tank signature, design §12.4): +2 targeting draw — pull enemy fire to
     // a durable front-line anchor so the fragile backline is screened (the matched opposite of ECM).
     add(
@@ -1288,68 +1255,27 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
     );
     // Spotter / Paint (v3 US3, Light Tank signature, design §13.2): this unit's landed hits mark the
     // target so the army's further fire lands harder — a focus-fire multiplier (the Paint on-hit rider).
-    add(
-        "Spotter",
-        "Spotter Array",
-        EquipmentSpec::Utility(crate::model::types::UtilitySpec {
-            stat_deltas: None,
-            cost: 1,
-            unlocks: vec![Capability::OnHitPaint],
-            cadence_shift: 0,
-        }),
-    );
+    add("Spotter", "Spotter Array", cap_util(1, Capability::OnHitPaint));
     // The other three v3 US3 on-hit riders (design §13.2/§14.3). Like Spotter, each is a pure
     // capability-unlock utility; the effect lives in the sim (`sim/damage.rs` + the sustain/movement
     // gates). Untuned start-values (const magnitudes in `sim/damage.rs`) — to measure + tune.
     // EMP Ammo (§14.3): anti-sustain — the target's shields stop regenerating and it cannot be healed.
-    add(
-        "EMPAmmo",
-        "EMP Ammo",
-        EquipmentSpec::Utility(crate::model::types::UtilitySpec {
-            stat_deltas: None,
-            cost: 1,
-            unlocks: vec![Capability::OnHitEmp],
-            cadence_shift: 0,
-        }),
-    );
+    add("EMPAmmo", "EMP Ammo", cap_util(1, Capability::OnHitEmp));
     // Suppressing Fire (§13.2): the hit target's own outgoing damage + accuracy are cut — degrade an
     // alpha/burst dealer rather than out-damage it.
-    add(
-        "SuppressingFire",
-        "Suppressing Fire",
-        EquipmentSpec::Utility(crate::model::types::UtilitySpec {
-            stat_deltas: None,
-            cost: 1,
-            unlocks: vec![Capability::OnHitSuppress],
-            cadence_shift: 0,
-        }),
-    );
+    add("SuppressingFire", "Suppressing Fire", cap_util(1, Capability::OnHitSuppress));
     // Snare Shot (§13.2): the hit target's move speed is cut — pin a kiter / backline-diver.
     add(
         "SnareShot",
         "Snare Shot",
-        EquipmentSpec::Utility(crate::model::types::UtilitySpec {
-            stat_deltas: None,
-            cost: 1,
-            unlocks: vec![Capability::OnHitSnare],
-            cadence_shift: 0,
-        }),
+        cap_util(1, Capability::OnHitSnare),
     );
     // Jump Jets (§14.3, the Mech signature): the machine periodically leaps into the Air for a window —
     // full air-to-air fire + whole-battlefield reach — then lands and cools down (~50% duty). The
     // airborne exposure (extra AA damage taken) balances the graded reach. A build-definer, so it is the
     // cost-3 tier (design §14). The duty-cycle mechanic lives in the sim (`behavior.rs` + `damage.rs`);
     // this item is the pure capability unlock.
-    add(
-        "JumpJets",
-        "Jump Jets",
-        EquipmentSpec::Utility(crate::model::types::UtilitySpec {
-            stat_deltas: None,
-            cost: 3,
-            unlocks: vec![Capability::JumpJets],
-            cadence_shift: 0,
-        }),
-    );
+    add("JumpJets", "Jump Jets", cap_util(3, Capability::JumpJets));
     // Stationary brace (§14): hold position → take less damage. Siege Mode (the artillery/heavy commit),
     // Bulwark Mode (the Mech's lighter brace), Entrench (Artillery). All grant `StationaryBrace`; the
     // magnitude difference the design pins is a balance-pass concern (one shared mechanic for now).
@@ -1434,9 +1360,63 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
             },
         ),
     );
-    // Combat AI (§14.3 Mech signature): a bought extra Plan-B slot + adaptivity — the only way a non-Mech,
-    // non-Commander build reaches a 2nd Plan-B (mirrors the Mech's innate ExtraPlanBSlot; validate V6).
-    add("CombatAI", "Combat AI Core", cap_util(2, Capability::ExtraPlanBSlot));
+    // --- v3 US3-D utility-projected auras (§14) — a utility carries a passive aura, merged with the
+    // carrier's chassis aura. All start-value magnitudes (tuned later). The Commander's aura kit + the
+    // Heavy's Smoke screen; enemy-debuff auras (Jammer/Comms Jammer) land in a later batch.
+    // Coordination Net (§14.6 Commander): army-wide accuracy aura.
+    add(
+        "CoordinationNet",
+        "Coordination Net",
+        aura_util(
+            1,
+            AuraEffect {
+                kind: AuraKind::Accuracy,
+                magnitude: 800, // +8% to-hit army-wide
+                scope: AuraScope::AllAllies,
+            },
+        ),
+    );
+    // Damage Boost (§14.6 Commander): allies deal more.
+    add(
+        "DamageBoost",
+        "Damage Boost",
+        aura_util(
+            2,
+            AuraEffect {
+                kind: AuraKind::DamageDealt,
+                magnitude: 1_000, // +10% army-wide outgoing damage
+                scope: AuraScope::AllAllies,
+            },
+        ),
+    );
+    // Damage Reduction (§14.6 Commander): allies take less (negative magnitude = protection, like the
+    // Commander's Shield/Ablation projection expressed as mitigation).
+    add(
+        "DamageReduction",
+        "Damage Reduction",
+        aura_util(
+            2,
+            AuraEffect {
+                kind: AuraKind::DamageTaken,
+                magnitude: -1_000, // −10% army-wide incoming damage
+                scope: AuraScope::AllAllies,
+            },
+        ),
+    );
+    // Smoke Canisters (§14.1 Heavy): a zone evasion screen for the tank + its zone allies (distinct from
+    // the common single-unit evasion — this reaches the whole row).
+    add(
+        "SmokeCanisters",
+        "Smoke Canisters",
+        aura_util(
+            2,
+            AuraEffect {
+                kind: AuraKind::Evasion,
+                magnitude: 2_000, // +20% evasion to the zone (start-value)
+                scope: AuraScope::ZoneAllies,
+            },
+        ),
+    );
 }
 
 /// A capability-unlock utility with no stat deltas — the common shape for the v3 kit items.
@@ -1446,6 +1426,7 @@ fn cap_util(cost: u8, cap: Capability) -> EquipmentSpec {
         unlocks: vec![cap],
         cadence_shift: 0,
         cost,
+        aura: None,
     })
 }
 
@@ -1455,6 +1436,7 @@ fn util_deltas(d: StatDeltas) -> EquipmentSpec {
         unlocks: vec![],
         cadence_shift: 0,
         cost: 1,
+        aura: None,
     })
 }
 
@@ -1465,6 +1447,19 @@ fn stat_util(cost: u8, d: StatDeltas) -> EquipmentSpec {
         unlocks: vec![],
         cadence_shift: 0,
         cost,
+        aura: None,
+    })
+}
+
+/// A utility that projects a passive **aura** while equipped (v3 US3-D, §14 — Coordination Net,
+/// Damage Boost/Reduction, Smoke Canisters). No stat deltas or unlocks of its own.
+fn aura_util(cost: u8, aura: AuraEffect) -> EquipmentSpec {
+    EquipmentSpec::Utility(crate::model::types::UtilitySpec {
+        stat_deltas: None,
+        unlocks: vec![],
+        cadence_shift: 0,
+        cost,
+        aura: Some(aura),
     })
 }
 

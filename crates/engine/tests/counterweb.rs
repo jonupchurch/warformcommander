@@ -175,6 +175,7 @@ fn flak_lets_ground_units_shoot_down_aircraft() {
                 unlocks: vec![Capability::AntiAir],
                 cadence_shift: 0,
                 cost: 1,
+                aura: None,
             }),
         },
     );

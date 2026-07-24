@@ -9,7 +9,7 @@ use engine::model::army::{derive_effective_stats, Army, MachineInstance};
 use engine::model::ruleset::Ruleset;
 use engine::model::types::{
     AuraEffect, AuraKind, AuraScope, Capability, DamageType, DialKey, DialValue, EquipmentId,
-    MachineTypeId, PlanBSlot, PlanBTrigger, TriggerCondition, VariantId, ZoneId,
+    EquipmentSpec, MachineTypeId, PlanBSlot, PlanBTrigger, TriggerCondition, VariantId, ZoneId,
 };
 use engine::replay::{Adaptation, DamageLayer, Fate, MatchConfig, Side, TickEvent, UnitRef};
 use engine::{resolve, BattleInput, BattleOutput};
@@ -261,6 +261,87 @@ fn ambush_hits_a_full_health_target_harder() {
         ambusher_first_hit(true),
         ambusher_first_hit(false)
     );
+}
+
+// ---------------------------------------------------------------------------
+// v3 US3-D utility-projected auras (§14) — Coordination Net / Damage Boost/Reduction / Smoke Canisters
+// ---------------------------------------------------------------------------
+
+/// The utility→aura plumbing: a **Damage Boost** utility on one ally lifts *another* ally's outgoing
+/// damage (the aura is army-wide). Against a target that outlasts the battle (so shot counts match), the
+/// plain front attacker deals strictly more total damage when a rear ally carries Damage Boost.
+#[test]
+fn utility_projected_damage_boost_lifts_an_allys_hit() {
+    let a0 = UnitRef {
+        side: Side::A,
+        instance_id: 0,
+    };
+    let a0_total = |with_boost: bool| -> i64 {
+        let mut rs = seed_ruleset();
+        // The focus target outlasts the battle → A0 fires the same number of times in both runs; the only
+        // difference is the per-hit ×(1 + boost) from the ally's aura.
+        rs.variants.get_mut(&VariantId::new("Cavalier")).unwrap().hull = Fixed::from_int(1_000_000);
+        let mut booster = tank(&rs, "Grizzly", ZoneId::Rear, 1);
+        if with_boost {
+            booster.loadout.utilities = vec![EquipmentId::new("DamageBoost")];
+        }
+        let attackers = Army {
+            machines: vec![
+                tank(&rs, "Grizzly", ZoneId::Front, 0), // the measured attacker (plain in both runs)
+                booster,
+                tank(&rs, "Grizzly", ZoneId::Rear, 2),
+                tank(&rs, "Grizzly", ZoneId::Rear, 3),
+                tank(&rs, "Grizzly", ZoneId::Middle, 4),
+            ],
+        };
+        let defenders = Army {
+            machines: (0..5).map(|i| tank(&rs, "Cavalier", ground_zone(i), i)).collect(),
+        };
+        run(&rs, attackers, defenders, 0xB005)
+            .replay
+            .games[0]
+            .ticks
+            .iter()
+            .flat_map(|t| &t.events)
+            .filter_map(|e| match e {
+                TickEvent::Hit { actor, dmg, .. } if *actor == a0 => Some(dmg.milli()),
+                _ => None,
+            })
+            .sum()
+    };
+    assert!(
+        a0_total(true) > a0_total(false),
+        "a Damage Boost ally must lift A0's total damage: boost={} none={}",
+        a0_total(true),
+        a0_total(false)
+    );
+}
+
+/// Each aura-kit utility carries the aura the §14 design names (kind / scope / magnitude sign) — a data
+/// check over the authored items (the aura *mechanics* are exercised by the sim + Spotter tests).
+#[test]
+fn aura_kit_items_carry_the_expected_aura() {
+    let rs = seed_ruleset();
+    let aura_of = |id: &str| -> AuraEffect {
+        match &rs.equipment.get(&EquipmentId::new(id)).expect("item exists").spec {
+            EquipmentSpec::Utility(u) => u.aura.expect("carries an aura"),
+            _ => panic!("{id} is not a utility"),
+        }
+    };
+    let cn = aura_of("CoordinationNet");
+    assert_eq!(cn.kind, AuraKind::Accuracy);
+    assert_eq!(cn.scope, AuraScope::AllAllies);
+    assert!(cn.magnitude > 0);
+    let db = aura_of("DamageBoost");
+    assert_eq!(db.kind, AuraKind::DamageDealt);
+    assert!(db.magnitude > 0);
+    let dr = aura_of("DamageReduction");
+    assert_eq!(dr.kind, AuraKind::DamageTaken);
+    assert!(dr.magnitude < 0, "damage reduction is a negative (protective) magnitude");
+    let sm = aura_of("SmokeCanisters");
+    assert_eq!(sm.kind, AuraKind::Evasion);
+    assert_eq!(sm.scope, AuraScope::ZoneAllies);
+    assert!(sm.magnitude > 0);
 }
 
 // ---------------------------------------------------------------------------

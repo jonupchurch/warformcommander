@@ -140,7 +140,8 @@ export type AuraKind =
   | 'CommandBoost'
   | 'StartShield'
   | 'DamageTaken'
-  | 'Accuracy'; // Spotter Network zone-accuracy aura (v3 US3)
+  | 'Accuracy' // Spotter Network / Coordination Net accuracy aura (v3 US3)
+  | 'Evasion'; // Smoke Canisters zone-evasion aura (v3 US3-D)
 
 /** Who an aura reaches (`AuraScope`). */
 export type AuraScope = 'ZoneAllies' | 'AllAllies';
@@ -251,6 +252,9 @@ export interface UtilitySpec {
   /** Slot cost (v3 US3-A): budget points this utility consumes (1/2/3). Omitted (⇒ 1) for single-cost
    *  items, matching the Rust `#[serde(default, skip_serializing_if = 1)]`. */
   cost?: number;
+  /** A passive aura this utility projects while equipped (v3 US3-D — Coordination Net, Damage
+   *  Boost/Reduction, Smoke). Sim-only (not part of the derived stats); absent for ordinary utilities. */
+  aura?: AuraEffect;
 }
 
 /**

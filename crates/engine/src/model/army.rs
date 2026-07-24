@@ -591,6 +591,7 @@ mod tests {
                     unlocks: vec![],
                     cadence_shift: 1,
                     cost: 1,
+                    aura: None,
                 }),
             },
         );
@@ -605,6 +606,7 @@ mod tests {
                     unlocks: vec![Capability::ExtraPlanBSlot],
                     cadence_shift: 0,
                     cost: 1,
+                    aura: None,
                 }),
             },
         );
@@ -622,6 +624,7 @@ mod tests {
                     unlocks: vec![],
                     cadence_shift: 0,
                     cost: 1,
+                    aura: None,
                 }),
             },
         );
