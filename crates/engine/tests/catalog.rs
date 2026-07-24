@@ -264,6 +264,42 @@ fn ambush_hits_a_full_health_target_harder() {
 }
 
 // ---------------------------------------------------------------------------
+// v3 US3-D pure stat-delta class kit (§14) — Saturation / Bunker Buster / Low-Heat Exhaust / Combat AI
+// ---------------------------------------------------------------------------
+
+/// Each stat-kit utility feeds the derived stat it names — a wiring check over the §14 pure-data items
+/// (the underlying stats are exercised by the sim tests; this pins the catalog → derive plumbing).
+#[test]
+fn stat_kit_applies_its_named_delta() {
+    let rs = seed_ruleset();
+    let derive_with = |util: &str| {
+        let mut m = tank(&rs, "Grizzly", ZoneId::Front, 0);
+        m.loadout.utilities = vec![EquipmentId::new(util)];
+        derive_effective_stats(&m, &rs).expect("legal single-utility Grizzly")
+    };
+    let base = {
+        let mut m = tank(&rs, "Grizzly", ZoneId::Front, 0);
+        m.loadout.utilities = vec![];
+        derive_effective_stats(&m, &rs).expect("bare Grizzly")
+    };
+    assert!(derive_with("Saturation").splash > base.splash, "Saturation raises splash");
+    assert!(
+        derive_with("BunkerBuster").penetration > base.penetration,
+        "Bunker Buster raises penetration"
+    );
+    assert!(
+        derive_with("LowHeatExhaust").evasion_vs_air > base.evasion_vs_air,
+        "Low-Heat Exhaust raises air-only evasion"
+    );
+    assert!(
+        derive_with("CombatAI")
+            .capabilities
+            .contains(&Capability::ExtraPlanBSlot),
+        "Combat AI grants the extra Plan-B slot"
+    );
+}
+
+// ---------------------------------------------------------------------------
 // Innate chassis signatures (v3 US3-D §14.2/§14.4) — Spotter Network + Coordinated Strike
 // ---------------------------------------------------------------------------
 

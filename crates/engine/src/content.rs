@@ -1383,6 +1383,60 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
         "Guardian Protocol",
         cap_util(2, Capability::Guardian),
     );
+
+    // --- v3 US3-D pure stat-delta class kit (§14) — counter tools that reuse existing derived stats.
+    // Saturation (§14.5 Artillery signature): max splash — punish clustered/stacked armies.
+    add(
+        "Saturation",
+        "Saturation",
+        stat_util(
+            2,
+            StatDeltas {
+                splash: 4_000, // +40% splash (start-value; clamps to the ruleset splash cap)
+                ..Default::default()
+            },
+        ),
+    );
+    // Bunker Buster (§14.5 Artillery): armor penetration — bypass armour (anti-tank / fortified).
+    add(
+        "BunkerBuster",
+        "Bunker Buster",
+        stat_util(
+            2,
+            StatDeltas {
+                penetration: 4_000, // +40% penetration (start-value)
+                ..Default::default()
+            },
+        ),
+    );
+    // Low-Heat Exhaust (§14.1 Heavy): dodge AA/missiles — evasion vs air-directed fire only, in a utility
+    // slot (distinct from the Chaff *defense*). Lets a ground platform shrug off secondary flak.
+    add(
+        "LowHeatExhaust",
+        "Low-Heat Exhaust",
+        stat_util(
+            2,
+            StatDeltas {
+                evasion_vs_air: 2_500, // +25% evasion vs air/flak (start-value)
+                ..Default::default()
+            },
+        ),
+    );
+    // Flares (§14.4 Heli): +evasion vs AA — survival kit (stacks with the Chaff defense). Cheaper, lighter.
+    add(
+        "Flares",
+        "Flares",
+        stat_util(
+            1,
+            StatDeltas {
+                evasion_vs_air: 1_500, // +15% evasion vs air/flak (start-value)
+                ..Default::default()
+            },
+        ),
+    );
+    // Combat AI (§14.3 Mech signature): a bought extra Plan-B slot + adaptivity — the only way a non-Mech,
+    // non-Commander build reaches a 2nd Plan-B (mirrors the Mech's innate ExtraPlanBSlot; validate V6).
+    add("CombatAI", "Combat AI Core", cap_util(2, Capability::ExtraPlanBSlot));
 }
 
 /// A capability-unlock utility with no stat deltas — the common shape for the v3 kit items.
@@ -1401,6 +1455,16 @@ fn util_deltas(d: StatDeltas) -> EquipmentSpec {
         unlocks: vec![],
         cadence_shift: 0,
         cost: 1,
+    })
+}
+
+/// A pure stat-delta utility at an explicit cost tier (v3 US3-D — the §14 items whose cost is 2/3).
+fn stat_util(cost: u8, d: StatDeltas) -> EquipmentSpec {
+    EquipmentSpec::Utility(crate::model::types::UtilitySpec {
+        stat_deltas: Some(d),
+        unlocks: vec![],
+        cadence_shift: 0,
+        cost,
     })
 }
 

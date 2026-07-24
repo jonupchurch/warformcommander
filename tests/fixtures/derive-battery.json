@@ -2438,6 +2438,27 @@
           "StationaryBrace"
         ]
       },
+      "BunkerBuster": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "BunkerBuster",
+        "kind": "Utility",
+        "name": "Bunker Buster",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 4000,
+          "reach": null,
+          "splash": 0,
+          "targetDraw": 0
+        },
+        "unlocks": []
+      },
       "ChainGun": {
         "family": "Kinetic",
         "id": "ChainGun",
@@ -2460,6 +2481,7 @@
       },
       "CombatAI": {
         "cadenceShift": 0,
+        "cost": 2,
         "id": "CombatAI",
         "kind": "Utility",
         "name": "Combat AI Core",
@@ -2667,6 +2689,27 @@
           "critChance": 0,
           "damage": 0,
           "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0,
+          "targetDraw": 0
+        },
+        "unlocks": []
+      },
+      "Flares": {
+        "cadenceShift": 0,
+        "id": "Flares",
+        "kind": "Utility",
+        "name": "Flares",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "evasionVsAir": 1500,
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
@@ -3125,6 +3168,28 @@
           "targetDraw": 0
         }
       },
+      "LowHeatExhaust": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "LowHeatExhaust",
+        "kind": "Utility",
+        "name": "Low-Heat Exhaust",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "evasionVsAir": 2500,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0,
+          "targetDraw": 0
+        },
+        "unlocks": []
+      },
       "MechAblative": {
         "ablativeDelta": {
           "cap": 600000
@@ -3514,6 +3579,27 @@
           "splash": 0,
           "targetDraw": 0
         }
+      },
+      "Saturation": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "Saturation",
+        "kind": "Utility",
+        "name": "Saturation",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 4000,
+          "targetDraw": 0
+        },
+        "unlocks": []
       },
       "SensorSuite": {
         "cadenceShift": 0,
