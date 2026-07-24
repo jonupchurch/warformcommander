@@ -39,6 +39,10 @@ export type CadenceTier = 'Fast' | 'Medium' | 'Slow' | 'Siege';
 /** A support unit's reach for heals/auras (`SupportRange`). `WholeArmy` reaches every zone. */
 export type SupportRange = 'OwnZone' | 'OwnPlusAdjacent' | 'WholeArmy';
 
+/** What a support action projects onto (`SupportKind`, replay/mod.rs) — `Heal` (hull), `ShieldBoost`
+ * (shield), the Commander's `Ablation` (a one-time ablative buffer, US5), or an `Aura` event. */
+export type SupportKind = 'Heal' | 'ShieldBoost' | 'Aura' | 'Ablation';
+
 /**
  * A capability an equipped utility unlocks (`Capability`) — gates advanced dials / Plan-B / reach /
  * air (V6/V7). **Declaration order is significant**: the engine emits `capabilities` as a sorted
@@ -187,6 +191,16 @@ export interface WeaponSpec {
   mountClass: MountClass;
   family: DamageFamily;
   statDeltas: StatDeltas;
+  /** Projector support (v3 US5): when present, this weapon projects support onto allies (the Commander's
+   * weapon-driven counter-pick) instead of dealing damage. Absent on every ordinary weapon. */
+  support?: SupportProjection;
+}
+
+/** A projector weapon's support payload (`SupportProjection`) — what a Commander projects and how far. */
+export interface SupportProjection {
+  power: number; // milli — per-tick hull healed / shield restored / ablative granted
+  range: SupportRange;
+  kind: SupportKind;
 }
 
 /** An ablative pool a defense grants (`AblativeDelta`) — one-time, non-regenerating absorption (v2). */
@@ -485,6 +499,9 @@ export interface EffectiveStats {
   targetDraw: number; // i8 — v3 US2/US3 priority-score draw offset (Decoy +2 / ECM −2)
   supportPower: number | null;
   supportRange: SupportRange | null;
+  /** What this machine projects (v3 US5): `Heal` for the medic, or the Commander's weapon-chosen
+   * `ShieldBoost` / `Ablation`. `Heal` whenever there is no support power (the harmless default). */
+  supportKind: SupportKind;
   specialMitigation: MitigationMod | null;
   capabilities: Capability[];
   planBSlots: number;

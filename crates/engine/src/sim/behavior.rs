@@ -8,9 +8,10 @@
 
 use crate::model::ruleset::Ruleset;
 use crate::model::types::{
-    BehaviorDials, Capability, DialValue, MovementMode, PlanBSlot, TriggerCondition, ZoneId,
+    BehaviorDials, Capability, DialValue, MachineTypeId, MovementMode, PlanBSlot, TriggerCondition,
+    ZoneId,
 };
-use crate::replay::TickEvent;
+use crate::replay::{Side, TickEvent};
 
 use super::{target, Combatant, FallbackPhase, JumpJetPhase};
 
@@ -53,10 +54,20 @@ fn latch_plan_b(
         if !combatants[i].alive || combatants[i].plan_b.is_empty() {
             continue;
         }
+        // Whether this machine's Slot-2 is live this tick (US5): its own extra slot (Combat AI / native
+        // Mech) always is; otherwise the Commander's Command grants it, but only while a friendly
+        // Commander survives. Computed each tick so a Commander's death revokes the bonus on the spot.
+        let slot2_active = combatants[i].stats.plan_b_slots >= 2
+            || commander_alive(combatants, combatants[i].unit.side);
         // Evaluate each not-yet-fired trigger against current state; latch those whose condition holds.
         let triggers = combatants[i].plan_b.clone();
         for trig in &triggers {
             if combatants[i].fired.contains(&trig.slot) {
+                continue;
+            }
+            // A Commander-granted Slot-2 can only latch while a Commander lives (its own extra slot is
+            // unconditional). Slot-1 is never gated.
+            if trig.slot == PlanBSlot::Slot2 && !slot2_active {
                 continue;
             }
             if condition_met(combatants, i, trig.condition, tick, ruleset) {
@@ -68,9 +79,14 @@ fn latch_plan_b(
                 });
             }
         }
-        // Recompute active dials from base + the fired set (Slot-2 then Slot-1 → Slot-1 wins).
-        combatants[i].dials =
-            active_dials(&combatants[i].base_dials, &triggers, &combatants[i].fired);
+        // Recompute active dials from base + the fired set (Slot-2 then Slot-1 → Slot-1 wins). A latched
+        // Slot-2 stops applying the instant its Commander dies (`slot2_active` false), reverting the dial.
+        combatants[i].dials = active_dials(
+            &combatants[i].base_dials,
+            &triggers,
+            &combatants[i].fired,
+            slot2_active,
+        );
     }
 }
 
@@ -80,9 +96,14 @@ fn active_dials(
     base: &BehaviorDials,
     triggers: &[crate::model::types::PlanBTrigger],
     fired: &std::collections::BTreeSet<PlanBSlot>,
+    slot2_active: bool,
 ) -> BehaviorDials {
     let mut dials = *base;
     for slot in [PlanBSlot::Slot2, PlanBSlot::Slot1] {
+        // A Commander-granted Slot-2 stops applying the moment its Commander dies (US5).
+        if slot == PlanBSlot::Slot2 && !slot2_active {
+            continue;
+        }
         if !fired.contains(&slot) {
             continue;
         }
@@ -91,6 +112,16 @@ fn active_dials(
         }
     }
     dials
+}
+
+/// Whether a living Commander (v3 US5) remains on `side`. Its **Command** grants every ally a
+/// survival-gated bonus Plan-B slot, so the extra Slot-2 latch/apply is live only while the Commander
+/// survives — assassinating it revokes the bonus on the spot, mirroring the `CommandBoost` aura. A
+/// machine with its own `ExtraPlanBSlot` (Combat AI / native Mech) never depends on this.
+fn commander_alive(combatants: &[Combatant], side: Side) -> bool {
+    combatants
+        .iter()
+        .any(|c| c.alive && c.unit.side == side && c.type_id == MachineTypeId::Commander)
 }
 
 fn apply_dial(dials: &mut BehaviorDials, value: DialValue) {

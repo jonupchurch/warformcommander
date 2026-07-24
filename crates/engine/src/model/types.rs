@@ -23,7 +23,7 @@ use crate::fixed::{Bp, Fixed};
 // Identifiers
 // ---------------------------------------------------------------------------
 
-/// The seven machine classes — a **closed** set (the roster is fixed; variants extend it).
+/// The eight machine classes — a **closed** set (the roster is fixed; variants extend it).
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Serialize, Deserialize)]
 pub enum MachineTypeId {
     HeavyTank,
@@ -33,6 +33,10 @@ pub enum MachineTypeId {
     RocketArtillery,
     Artillery,
     RearSupport,
+    /// The Commander (v3 US5): a no-offense projector chassis that grants its army the `CommandBoost`
+    /// aura + a survival-gated Plan-B slot while it lives, and projects Heal/Shield/Ablation support via
+    /// its weapon slot. Added last to keep the enum's `Ord`/serialization stable for the seven originals.
+    Commander,
 }
 
 macro_rules! string_id {
@@ -216,6 +220,12 @@ impl SlotLayout {
         weapon: 1,
         defense: 1,
         utility: 4,
+    };
+    /// The Commander's 1 / 1 / 5 layout (v3 US5, design §14.6 — the widest slot budget).
+    pub const COMMANDER: SlotLayout = SlotLayout {
+        weapon: 1,
+        defense: 1,
+        utility: 5,
     };
 }
 
@@ -460,6 +470,25 @@ pub struct WeaponSpec {
     pub mount_class: MountClass,
     pub family: DamageFamily,
     pub stat_deltas: StatDeltas,
+    /// **Projector** support (v3 US5, the Commander's weapon-driven counter-pick): when `Some`, this
+    /// weapon projects support onto allies (its `kind`/`power`/`range`) instead of dealing damage, and
+    /// the derive reads it into `EffectiveStats` in place of the chassis's base support. `None` for every
+    /// ordinary weapon — omitted from serialization so a pre-US5 ruleset hashes byte-identically.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub support: Option<SupportProjection>,
+}
+
+/// A projector weapon's support payload (v3 US5): what a Commander projects and how far, chosen by the
+/// weapon slot so the Commander counter-picks Heal / Shield / Ablation for its army's need.
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SupportProjection {
+    /// Per-tick projection magnitude (hull healed, shield restored, or ablative granted).
+    pub power: Fixed,
+    pub range: SupportRange,
+    /// Which layer this projects onto — `Heal` (hull), `ShieldBoost` (shield), or `Ablation` (a fresh
+    /// ablative buffer). `Aura` is not a projection and is treated as inert here.
+    pub kind: crate::replay::SupportKind,
 }
 
 /// A defense — sets the primary mitigation layer (armor and/or shield), gated by `mount_class`.
@@ -815,6 +844,7 @@ mod tests {
             spec: EquipmentSpec::Weapon(WeaponSpec {
                 mount_class: MountClass::Heavy,
                 family: DamageFamily::Kinetic,
+                support: None,
                 stat_deltas: StatDeltas {
                     damage: Fixed::from_int(35),
                     cadence_tier: Some(CadenceTier::Slow),

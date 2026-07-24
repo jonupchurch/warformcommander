@@ -28,6 +28,7 @@ const ICON_KEY: Record<string, MachineTypeKey> = {
   RocketArtillery: 'rocketarty',
   Artillery: 'artillery',
   RearSupport: 'support',
+  Commander: 'support', // US5 — promoted support chassis, shares the support silhouette
 };
 
 /** Faction-scoped classes for the icon frame + hull-bar fill (token-only; no raw hex). */

@@ -29,6 +29,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -89,6 +90,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -149,6 +151,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -209,6 +212,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -269,6 +273,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -329,6 +334,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -391,6 +397,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -453,6 +460,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -515,6 +523,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": -2,
@@ -576,6 +585,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 1500,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -636,6 +646,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 1500,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -696,6 +707,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 1500,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -756,6 +768,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 2000,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -816,6 +829,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 2000,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -876,6 +890,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 2400,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -936,6 +951,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 2500,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -996,6 +1012,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 2500,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -1056,6 +1073,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 1000,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -1116,6 +1134,7 @@
           "shieldRegen": 11000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": 5000,
           "supportRange": "WholeArmy",
           "targetDraw": 0,
@@ -1176,6 +1195,7 @@
           "shieldRegen": 11000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": 5000,
           "supportRange": "OwnZone",
           "targetDraw": 0,
@@ -1236,9 +1256,10 @@
           "shieldRegen": 11000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": 5000,
           "supportRange": "WholeArmy",
-          "targetDraw": -2,
+          "targetDraw": 0,
           "threat": 5000
         }
       },
@@ -1256,8 +1277,7 @@
           "utilities": [
             "FireControl",
             "DriveServos",
-            "Autoloader",
-            "ECMSuite"
+            "Autoloader"
           ],
           "weapon": "RepairBeam"
         },
@@ -1297,6 +1317,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -1357,6 +1378,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -1419,6 +1441,7 @@
           "shieldRegen": 0,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -1479,6 +1502,7 @@
           "shieldRegen": 6000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -1542,6 +1566,7 @@
             "splashTakenMult": 6000
           },
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -1604,6 +1629,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -1666,6 +1692,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -1726,6 +1753,7 @@
           "shieldRegen": 12000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": -2,
@@ -1788,6 +1816,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 1500,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -1848,6 +1877,7 @@
           "shieldRegen": 11000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": 5000,
           "supportRange": "WholeArmy",
           "targetDraw": -2,
@@ -2020,12 +2050,7 @@
           "magnitude": 1000,
           "scope": "AllAllies"
         },
-        "slotLayoutOverride": {
-          "defense": 1,
-          "utility": 4,
-          "weapon": 1
-        },
-        "typeId": "RearSupport"
+        "typeId": "Commander"
       },
       "Deluge": {
         "id": "Deluge",
@@ -2116,6 +2141,31 @@
       }
     },
     "equipment": {
+      "AblationProjector": {
+        "family": "Support",
+        "id": "AblationProjector",
+        "kind": "Weapon",
+        "mountClass": "Support",
+        "name": "Ablation Projector",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0,
+          "targetDraw": 0
+        },
+        "support": {
+          "kind": "Ablation",
+          "power": 5000,
+          "range": "WholeArmy"
+        }
+      },
       "ArcRepeater": {
         "family": "Energy",
         "id": "ArcRepeater",
@@ -2601,6 +2651,31 @@
           "reach": "Nearest",
           "splash": 0,
           "targetDraw": 0
+        }
+      },
+      "HealProjector": {
+        "family": "Support",
+        "id": "HealProjector",
+        "kind": "Weapon",
+        "mountClass": "Support",
+        "name": "Heal Projector",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0,
+          "targetDraw": 0
+        },
+        "support": {
+          "kind": "Heal",
+          "power": 5000,
+          "range": "WholeArmy"
         }
       },
       "HeavyAblative": {
@@ -3347,6 +3422,31 @@
           "TargetAir"
         ]
       },
+      "ShieldProjector": {
+        "family": "Support",
+        "id": "ShieldProjector",
+        "kind": "Weapon",
+        "mountClass": "Support",
+        "name": "Shield Projector",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0,
+          "targetDraw": 0
+        },
+        "support": {
+          "kind": "ShieldBoost",
+          "power": 5000,
+          "range": "WholeArmy"
+        }
+      },
       "SiegeLaser": {
         "family": "Energy",
         "id": "SiegeLaser",
@@ -3700,6 +3800,23 @@
         "slotLayout": {
           "defense": 1,
           "utility": 3,
+          "weapon": 1
+        }
+      },
+      "Commander": {
+        "airCapableByDefault": false,
+        "canFireFromRear": false,
+        "homeZones": [
+          "Front",
+          "Middle",
+          "Rear"
+        ],
+        "id": "Commander",
+        "mountClass": "Support",
+        "nativeFamily": "Support",
+        "slotLayout": {
+          "defense": 1,
+          "utility": 5,
           "weapon": 1
         }
       },
@@ -5230,12 +5347,12 @@
           {
             "code": "PlanB",
             "instanceId": 1,
-            "reason": "2 Plan-B triggers exceed the 1 available slots (Combat AI grants a 2nd)"
+            "reason": "2 Plan-B triggers exceed the 1 available slots (Combat AI or a Commander grants a 2nd)"
           },
           {
             "code": "PlanB",
             "instanceId": 1,
-            "reason": "a Slot-2 Plan-B trigger requires the Combat-AI capability"
+            "reason": "a Slot-2 Plan-B trigger requires the Combat-AI capability or a friendly Commander"
           }
         ],
         "status": "invalid"

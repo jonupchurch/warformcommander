@@ -748,6 +748,7 @@ fn energy_armed_heli_still_engages_air() {
             spec: EquipmentSpec::Weapon(WeaponSpec {
                 mount_class: MountClass::Heli,
                 family: DamageFamily::Energy,
+                support: None,
                 stat_deltas: StatDeltas {
                     cadence_tier: Some(CadenceTier::Medium),
                     reach: Some(ReachTag::AnyGround),

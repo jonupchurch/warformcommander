@@ -477,33 +477,35 @@ fn resolve_support(
 ) {
     let n = combatants.len();
     for i in 0..n {
-        let (power, range, side, zone, actor) = {
+        let (power, range, side, zone, actor, kind) = {
             let c = &combatants[i];
             match (c.alive, c.stats.support_power) {
                 (true, Some(p)) if p.milli() > 0 => (
-                    // The stance output multiplier scales the projected heal (Neutral = ×1, identity).
+                    // The stance output multiplier scales the projection (Neutral = ×1, identity).
                     p.mul_bp(ruleset.stance_mods.output_mult(c.dials.stance)),
                     c.stats.support_range.unwrap_or(SupportRange::OwnZone),
                     c.unit.side,
                     c.zone,
                     c.unit,
+                    c.stats.support_kind, // Heal (medic) or the Commander's projected Shield/Ablation (US5)
                 ),
                 _ => continue,
             }
         };
         let zones = support_zones(range, zone);
 
-        // Pick the most-damaged wounded ally in range (a full-hull ally is not a repair target).
+        // Pick the most-damaged serviceable ally in range that still has room for THIS projection layer
+        // (a full layer is not a target). EMP (US3) shuts down all projected sustain, not just heals.
         let mut best: Option<usize> = None;
         for j in 0..n {
             if !serviceable(combatants, i, j, side, &zones) {
                 continue;
             }
-            if combatants[j].hull >= combatants[j].max_hull {
-                continue;
-            }
             if combatants[j].emp_until > tick {
-                continue; // EMP (US3) blocks this ally's incoming heals while active
+                continue; // EMP (US3) blocks this ally's incoming heal / shield / ablation while active
+            }
+            if !projection_needed(&combatants[j], kind) {
+                continue;
             }
             best = match best {
                 None => Some(j),
@@ -514,17 +516,52 @@ fn resolve_support(
 
         if let Some(j) = best {
             let target = combatants[j].unit;
-            let missing = combatants[j].max_hull.saturating_sub(combatants[j].hull);
-            let heal = power.min(missing);
-            combatants[j].hull = combatants[j].hull.saturating_add(heal);
-            events.push(TickEvent::Support {
-                actor,
-                target,
-                amount: heal,
-                kind: SupportKind::Heal,
-            });
+            let amount = apply_projection(&mut combatants[j], kind, power);
+            if amount.milli() > 0 {
+                events.push(TickEvent::Support {
+                    actor,
+                    target,
+                    amount,
+                    kind,
+                });
+            }
         }
     }
+}
+
+/// Whether ally `c` still has headroom for a `kind` projection this tick — a full layer is skipped, so a
+/// projector never wastes a tick topping up something already at cap. `Heal` is the medic's hull repair
+/// (byte-identical to the pre-US5 `hull < max_hull` guard); `ShieldBoost`/`Ablation` are the Commander's
+/// (US5). `Aura` is never a per-tick projection target.
+fn projection_needed(c: &Combatant, kind: SupportKind) -> bool {
+    match kind {
+        SupportKind::Heal => c.hull < c.max_hull,
+        SupportKind::ShieldBoost => c.stats.shield_cap.milli() > 0 && c.shield < c.stats.shield_cap,
+        // A projected ablative buffer is bounded by the recipient's own hull size, so it can never make
+        // an ally unkillable — it grants a finite one-time cushion even to a chassis with no ablative kit.
+        SupportKind::Ablation => c.ablative < c.max_hull,
+        SupportKind::Aura => false,
+    }
+}
+
+/// Apply a `kind` projection of up to `power` onto ally `c`'s corresponding layer, capped at that layer's
+/// headroom; returns the amount actually applied (0 when the layer was already full). Heal → hull (the
+/// pre-US5 behaviour), ShieldBoost → shield (up to `shield_cap`), Ablation → the ablative pool.
+fn apply_projection(c: &mut Combatant, kind: SupportKind, power: Fixed) -> Fixed {
+    let (current, cap): (Fixed, Fixed) = match kind {
+        SupportKind::Heal => (c.hull, c.max_hull),
+        SupportKind::ShieldBoost => (c.shield, c.stats.shield_cap),
+        SupportKind::Ablation => (c.ablative, c.max_hull),
+        SupportKind::Aura => return Fixed::ZERO,
+    };
+    let amount = power.min(cap.saturating_sub(current));
+    match kind {
+        SupportKind::Heal => c.hull = c.hull.saturating_add(amount),
+        SupportKind::ShieldBoost => c.shield = c.shield.saturating_add(amount),
+        SupportKind::Ablation => c.ablative = c.ablative.saturating_add(amount),
+        SupportKind::Aura => {}
+    }
+    amount
 }
 
 /// Whether ally `j` can be serviced by support `i`: a living same-side machine other than the support

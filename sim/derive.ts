@@ -198,6 +198,14 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
   applyDeltas(acc, weapon.spec.statDeltas);
   const family = weapon.spec.family;
 
+  // --- Support (v3 US5): a projector weapon drives what this machine projects (its own power/range/kind);
+  // otherwise the chassis-native support applies (the medic — always Heal). Mirrors `derive_effective_stats`
+  // in crates/engine/src/model/army.rs. A non-support machine has no support power either way.
+  const proj = weapon.spec.support;
+  const supportPower = proj ? proj.power : (base.supportPower ?? null);
+  const supportRange = proj ? proj.range : (base.supportRange ?? null);
+  const supportKind = proj ? proj.kind : 'Heal';
+
   // --- Defense (armor/shield/ablative layer + its tradeoff cost) ---
   // Defensive magnitudes scale by mount class (v2): armor %, shield pool, and ablative pool alike, so
   // one mount-scale table redistributes how much each mount gets from the same module. Mirrors
@@ -306,8 +314,9 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
       evasionVsAir,
       threat: base.threat,
       targetDraw: clamp(acc.targetDraw, -128, 127),
-      supportPower: base.supportPower ?? null,
-      supportRange: base.supportRange ?? null,
+      supportPower,
+      supportRange,
+      supportKind,
       specialMitigation,
       capabilities: sortCapabilities(caps),
       planBSlots,

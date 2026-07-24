@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 use crate::model::army::{derive_effective_stats, Army, DerivationError, MachineInstance};
 use crate::model::ruleset::Ruleset;
 use crate::model::types::{
-    EquipmentId, EquipmentSpec, MovementMode, PlanBSlot, SlotLayout, ZoneId,
+    EquipmentId, EquipmentSpec, MachineTypeId, MovementMode, PlanBSlot, SlotLayout, ZoneId,
 };
 
 /// Zone caps (game rules, not tunable balance): ground rows hold 3, Air holds 2.
@@ -99,9 +99,15 @@ pub fn validate(army: &Army, ruleset: &Ruleset) -> Result<(), Vec<ValidationErro
         }
     }
 
-    // V3–V8 — per machine.
+    // V3–V8 — per machine. A living-Commander army grants every machine a survival-gated bonus Plan-B
+    // slot (US5): it is *allowed* at declaration here, and gated to Commander-survival at runtime
+    // (behavior.rs). So the presence of a Commander in the roster relaxes the Slot-2 requirement.
+    let has_commander = army
+        .machines
+        .iter()
+        .any(|m| m.type_id == MachineTypeId::Commander);
     for m in &army.machines {
-        validate_machine(m, ruleset, &mut errors);
+        validate_machine(m, ruleset, has_commander, &mut errors);
     }
 
     if errors.is_empty() {
@@ -111,7 +117,12 @@ pub fn validate(army: &Army, ruleset: &Ruleset) -> Result<(), Vec<ValidationErro
     }
 }
 
-fn validate_machine(m: &MachineInstance, ruleset: &Ruleset, errors: &mut Vec<ValidationError>) {
+fn validate_machine(
+    m: &MachineInstance,
+    ruleset: &Ruleset,
+    army_has_commander: bool,
+    errors: &mut Vec<ValidationError>,
+) {
     let id = m.instance_id;
     let Some(mtype) = ruleset.machine_type(m.type_id) else {
         errors.push(ValidationError::machine(
@@ -156,23 +167,30 @@ fn validate_machine(m: &MachineInstance, ruleset: &Ruleset, errors: &mut Vec<Val
     // Capability-dependent rules (V6–V8) need the derived stats.
     match derive_effective_stats(m, ruleset) {
         Ok(stats) => {
-            // V6 — Plan-B count + Slot-2 gating.
-            if m.plan_b.len() > stats.plan_b_slots as usize {
+            // V6 — Plan-B count + Slot-2 gating. A friendly Commander in the roster grants a survival-
+            // gated bonus slot (US5), allowed at declaration and capped at the two real slots; it only
+            // fires while the Commander lives (behavior.rs). Combat AI still grants its own 2nd slot.
+            let effective_slots = stats
+                .plan_b_slots
+                .saturating_add(u8::from(army_has_commander))
+                .min(2);
+            if m.plan_b.len() > effective_slots as usize {
                 errors.push(ValidationError::machine(
                     ValidationCode::PlanB,
                     id,
                     format!(
-                        "{} Plan-B triggers exceed the {} available slots (Combat AI grants a 2nd)",
+                        "{} Plan-B triggers exceed the {} available slots (Combat AI or a Commander grants a 2nd)",
                         m.plan_b.len(),
-                        stats.plan_b_slots
+                        effective_slots
                     ),
                 ));
             }
-            if stats.plan_b_slots < 2 && m.plan_b.iter().any(|t| t.slot == PlanBSlot::Slot2) {
+            if effective_slots < 2 && m.plan_b.iter().any(|t| t.slot == PlanBSlot::Slot2) {
                 errors.push(ValidationError::machine(
                     ValidationCode::PlanB,
                     id,
-                    "a Slot-2 Plan-B trigger requires the Combat-AI capability".to_string(),
+                    "a Slot-2 Plan-B trigger requires the Combat-AI capability or a friendly Commander"
+                        .to_string(),
                 ));
             }
 
@@ -441,6 +459,38 @@ mod tests {
         assert!(errs
             .iter()
             .any(|e| e.code == ValidationCode::PlanB && e.instance_id == Some(1)));
+    }
+
+    /// A friendly Commander in the roster grants every ally the bonus Plan-B slot at declaration (US5):
+    /// the exact Scout + Slot-2 trigger that `v6_rejects_ungated_second_plan_b` rejects becomes legal
+    /// once a Commander is fielded (survival-gating of the *firing* happens at runtime, not here).
+    #[test]
+    fn v6_commander_grants_the_second_plan_b_slot() {
+        let rs = seed_ruleset();
+        let mut army = legal_army();
+        // Field a Commander in place of the Artillery — still a legal 5-unit roster.
+        army.machines[4] =
+            stock_instance(&rs, MachineTypeId::Commander, "CommandPost", ZoneId::Rear, 4);
+        // The same Scout + ungated Slot-2 the rejection test uses — now legal thanks to the Commander.
+        army.machines[1].plan_b = vec![
+            PlanBTrigger {
+                slot: PlanBSlot::Slot1,
+                condition: TriggerCondition::HullBelowPct(5_000),
+                dial: DialKey::Movement,
+                plan_b_value: DialValue::Movement(MovementMode::FallBack),
+            },
+            PlanBTrigger {
+                slot: PlanBSlot::Slot2,
+                condition: TriggerCondition::AfterTick(100),
+                dial: DialKey::Stance,
+                plan_b_value: DialValue::Stance(Stance::Aggressive),
+            },
+        ];
+        assert_eq!(
+            validate(&army, &rs),
+            Ok(()),
+            "a Commander in the roster must grant the army a 2nd Plan-B slot"
+        );
     }
 
     #[test]

@@ -198,6 +198,22 @@ fn seed_machine_types(m: &mut BTreeMap<MachineTypeId, MachineType>) {
             air_capable_by_default: false,
         },
     );
+    // The Commander (v3 US5): a no-offense projector chassis. Reuses the Support mount (its projector
+    // weapon + defenses gate to Support), native Support family (so its projector is native — no bearing
+    // on damage, which is 0), and the widest utility budget (5). Grants its army the CommandBoost aura +
+    // a survival-gated Plan-B slot while it lives (behavior.rs / validate.rs).
+    insert(
+        m,
+        MachineType {
+            id: MachineTypeId::Commander,
+            native_family: Some(DamageFamily::Support),
+            home_zones: ground(),
+            mount_class: MountClass::Support,
+            slot_layout: SlotLayout::COMMANDER,
+            can_fire_from_rear: false,
+            air_capable_by_default: false,
+        },
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -564,15 +580,20 @@ fn seed_variants(
         None,
         None,
     );
+    // The Commander (v3 US5): promoted out of RearSupport into its own `MachineTypeId::Commander`
+    // chassis (design §14.6 — a distinct class, not a support variant). Its slot budget comes from the
+    // Commander type default (5 utility), so no per-variant override is needed. Its support is now
+    // weapon-driven (the projector); the base `support_power` (inherited from `medic`) is a fallback for
+    // a non-projector loadout. `move_speed 0` keeps it the immobile backline anchor.
     add(
         "CommandPost",
-        MachineTypeId::RearSupport,
+        MachineTypeId::Commander,
         BaseStats {
             hull: q(370),
             move_speed: Some(0), // immobile
             ..medic
         },
-        Some(SlotLayout::FOUR_UTILITY),
+        None,
         Some(AuraEffect {
             // The Commander's innate Command (v3 US5): an army-wide C2 boost to every ally's outgoing
             // damage, live only while the Commander survives — so its death lifts the buff, making it
@@ -593,6 +614,23 @@ fn weapon(mount: MountClass, family: DamageFamily, deltas: StatDeltas) -> Equipm
         mount_class: mount,
         family,
         stat_deltas: deltas,
+        support: None,
+    })
+}
+
+/// A Commander **projector** weapon (v3 US5): no offense, projects `kind` (Heal/Shield/Ablation) onto
+/// the whole army each tick. The weapon slot chooses what the Commander projects — the counter-pick.
+fn projector(kind: crate::replay::SupportKind) -> EquipmentSpec {
+    EquipmentSpec::Weapon(WeaponSpec {
+        mount_class: MountClass::Support,
+        family: DamageFamily::Support,
+        // No offense — a projector deals no damage; its reach/cadence are irrelevant to `resolve_support`.
+        stat_deltas: StatDeltas::default(),
+        support: Some(crate::model::types::SupportProjection {
+            power: q(5), // ~5/tick to the most-needful ally — start-value, tuned in the balance pass
+            range: SupportRange::WholeArmy,
+            kind,
+        }),
     })
 }
 
@@ -803,6 +841,24 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
             DamageFamily::Support,
             gun(CadenceTier::Medium, ReachTag::Nearest),
         ),
+    );
+    // Commander projectors (v3 US5): the weapon slot picks what the Commander projects onto its army —
+    // Heal (hull), Shield (shield pool), or Ablation (a one-time ablative buffer). The counter-pick lever
+    // — swap the projector to answer the army's need, the design's "live counter-pick" (§14.6).
+    add(
+        "HealProjector",
+        "Heal Projector",
+        projector(crate::replay::SupportKind::Heal),
+    );
+    add(
+        "ShieldProjector",
+        "Shield Projector",
+        projector(crate::replay::SupportKind::ShieldBoost),
+    );
+    add(
+        "AblationProjector",
+        "Ablation Projector",
+        projector(crate::replay::SupportKind::Ablation),
     );
 
     // --- v3 roster fill (design D1 / §9.1): every combat chassis fields one weapon of each damage
@@ -1317,6 +1373,9 @@ fn base_weapon_for(type_id: MachineTypeId, variant: &VariantId) -> (&'static str
         }
         MachineTypeId::Artillery => ("Howitzer", MountClass::Artillery),
         MachineTypeId::RearSupport => ("RepairBeam", MountClass::Support),
+        // The Commander's stock weapon is the Heal projector (US5); swap it for Shield/Ablation to
+        // counter-pick what the army needs.
+        MachineTypeId::Commander => ("HealProjector", MountClass::Support),
     }
 }
 
@@ -1381,8 +1440,8 @@ mod tests {
     #[test]
     fn seed_has_all_types_and_variants() {
         let rs = seed_ruleset();
-        assert_eq!(rs.machine_types.len(), 7, "seven machine types");
-        assert_eq!(rs.variants.len(), 21, "7 types × 3 variants");
+        assert_eq!(rs.machine_types.len(), 8, "eight machine types (Commander added, US5)");
+        assert_eq!(rs.variants.len(), 21, "21 variants across the 8 types");
         assert_eq!(rs.chassis.len(), 21);
     }
 
@@ -1437,7 +1496,7 @@ mod tests {
             (MachineTypeId::Artillery, "Marksman"),
             (MachineTypeId::RearSupport, "Medic"),
             (MachineTypeId::RearSupport, "Warden"),
-            (MachineTypeId::RearSupport, "CommandPost"),
+            (MachineTypeId::Commander, "CommandPost"), // promoted out of RearSupport (US5)
         ];
         assert_eq!(cases.len(), 21);
         for (type_id, variant) in cases {
@@ -1449,7 +1508,8 @@ mod tests {
             let m = stock_instance(&rs, type_id, variant, zone, 0);
             let e = derive_effective_stats(&m, &rs)
                 .unwrap_or_else(|err| panic!("{variant} stock build failed: {err:?}"));
-            // Sanity: a 4-utility variant actually gets 4 utilities.
+            // Sanity: a wide-utility variant fills as many utilities as the stock pool holds. Sentinel's
+            // 4 slots and the Commander's 5 (CommandPost) both cap at the 4-item stock utility pool.
             let expected_utils = if matches!(variant, "Sentinel" | "CommandPost") {
                 4
             } else {

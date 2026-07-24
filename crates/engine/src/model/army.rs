@@ -27,6 +27,7 @@ use crate::model::types::{
     BehaviorDials, CadenceTier, Capability, DamageFamily, DamageType, EquipmentId, EquipmentSpec,
     Loadout, MachineTypeId, MitigationMod, PlanBTrigger, ReachTag, SupportRange, VariantId, ZoneId,
 };
+use crate::replay::SupportKind;
 
 /// A battle is 5v5 (FR-009, V1).
 pub const SQUAD_SIZE: usize = 5;
@@ -131,6 +132,10 @@ pub struct EffectiveStats {
     // Support
     pub support_power: Option<Fixed>,
     pub support_range: Option<SupportRange>,
+    /// What this machine's support projects onto (v3 US5): `Heal` for the chassis-native medic (hull),
+    /// or the Commander's weapon-chosen `ShieldBoost` / `Ablation`. `Heal` whenever `support_power` is
+    /// `None`, so a non-support machine carries the harmless default.
+    pub support_kind: SupportKind,
     // Derived extras
     pub special_mitigation: Option<MitigationMod>,
     pub capabilities: BTreeSet<Capability>,
@@ -336,6 +341,14 @@ pub fn derive_effective_stats(
         .move_speed
         .map(|m| (m as i32 + acc.move_delta).clamp(0, u8::MAX as i32) as u8);
 
+    // Support (v3 US5): a projector weapon drives what this machine projects (its own power/range/kind);
+    // otherwise the chassis's native support applies (the medic — always Heal). A non-support machine has
+    // no support either way (base `support_power` None → None), so its kind is the harmless Heal default.
+    let (support_power, support_range, support_kind) = match weapon.support {
+        Some(proj) => (Some(proj.power), Some(proj.range), proj.kind),
+        None => (base.support_power, base.support_range, SupportKind::Heal),
+    };
+
     let native_match = mtype.native_family == Some(family);
     let damage_type = family.as_damage_type().unwrap_or(base.damage_type);
     let can_target_air = mtype.air_capable_by_default
@@ -374,8 +387,9 @@ pub fn derive_effective_stats(
         threat: base.threat,
         // Clamped to the ±2-per-source design range even if several draw modules stack (start-value).
         target_draw: acc.target_draw.clamp(i8::MIN as i32, i8::MAX as i32) as i8,
-        support_power: base.support_power,
-        support_range: base.support_range,
+        support_power,
+        support_range,
+        support_kind,
         special_mitigation,
         capabilities: caps,
         plan_b_slots,
@@ -490,6 +504,7 @@ mod tests {
                 spec: EquipmentSpec::Weapon(WeaponSpec {
                     mount_class: MountClass::Heavy,
                     family: DamageFamily::Kinetic,
+                    support: None,
                     stat_deltas: StatDeltas {
                         cadence_tier: Some(CadenceTier::Slow),
                         reach: Some(ReachTag::Nearest),
@@ -507,6 +522,7 @@ mod tests {
                 spec: EquipmentSpec::Weapon(WeaponSpec {
                     mount_class: MountClass::Heavy,
                     family: DamageFamily::Energy,
+                    support: None,
                     stat_deltas: StatDeltas {
                         damage: Fixed::from_int(5),
                         cadence_tier: Some(CadenceTier::Slow),

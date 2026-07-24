@@ -12,7 +12,7 @@
 
 // --- Closed enums (bare-string serialization) ------------------------------
 
-/** The seven machine classes — a closed set (`MachineTypeId`, model/types.rs). */
+/** The eight machine classes — a closed set (`MachineTypeId`, model/types.rs). */
 export type MachineTypeId =
   | "HeavyTank"
   | "LightTank"
@@ -20,7 +20,8 @@ export type MachineTypeId =
   | "AttackHeli"
   | "RocketArtillery"
   | "Artillery"
-  | "RearSupport";
+  | "RearSupport"
+  | "Commander";
 
 /** The four battlefield rows (`ZoneId`). Air is separate from the ground rows. */
 export type ZoneId = "Air" | "Front" | "Middle" | "Rear";

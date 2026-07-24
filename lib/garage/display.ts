@@ -11,7 +11,8 @@ import type { DamageFamily, EffectiveStats } from '@/sim/ruleset';
 /** A `Chip` tone (subset of the primitive's tones the Garage uses). */
 export type ChipTone = 'kinetic' | 'energy' | 'explosive' | 'support' | 'air' | 'front' | 'middle' | 'rear';
 
-/** Machine type → the {@link UnitIcon} SVG key. */
+/** Machine type → the {@link UnitIcon} SVG key. The Commander (US5) reuses the support icon — it is a
+ * promoted support chassis, so it shares the support silhouette rather than carrying bespoke art. */
 export const UNIT_ICON_KEY: Record<MachineTypeId, MachineTypeKey> = {
   HeavyTank: 'heavytank',
   LightTank: 'lighttank',
@@ -20,6 +21,7 @@ export const UNIT_ICON_KEY: Record<MachineTypeId, MachineTypeKey> = {
   RocketArtillery: 'rocketarty',
   Artillery: 'artillery',
   RearSupport: 'support',
+  Commander: 'support',
 };
 
 /** Machine type → its human label. */
@@ -31,9 +33,10 @@ export const MACHINE_TYPE_LABEL: Record<MachineTypeId, string> = {
   RocketArtillery: 'Rocket Artillery',
   Artillery: 'Artillery',
   RearSupport: 'Rear Support',
+  Commander: 'Commander',
 };
 
-/** The seven machine types in a stable pick order. */
+/** The eight machine types in a stable pick order. */
 export const MACHINE_TYPES: MachineTypeId[] = [
   'HeavyTank',
   'LightTank',
@@ -42,6 +45,7 @@ export const MACHINE_TYPES: MachineTypeId[] = [
   'RocketArtillery',
   'Artillery',
   'RearSupport',
+  'Commander',
 ];
 
 /** Zones top-to-bottom as the formation renders them (Air, then Front → Rear). */
