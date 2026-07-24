@@ -1,0 +1,4436 @@
+[
+  {
+    "name": "STEEL_LINE_01",
+    "blurb": "Combined line — armor wall, SAM screen, twin indirect.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "Artillery",
+          "variantId": "Longbow",
+          "loadout": {
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Furthest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "RearSupport",
+          "variantId": "Medic",
+          "loadout": {
+            "weapon": "RepairBeam",
+            "defense": "StandardHullSupport",
+            "utilities": [
+              "FireControl",
+              "DriveServos",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SKY_CAVALRY_01",
+    "blurb": "Air cavalry — gunships aloft, a SAM, an anchor, support.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "AttackHeli",
+          "variantId": "Warhog",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "AttackHeli",
+          "variantId": "Gunship",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "Artillery",
+          "variantId": "Longbow",
+          "loadout": {
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Furthest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "IRON_SPEAR_01",
+    "blurb": "Armored spearhead — three-wide front, SAM, an air flank.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "HeavyTank",
+          "variantId": "Cavalier",
+          "loadout": {
+            "weapon": "SiegeLaser",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Advance",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "AttackHeli",
+          "variantId": "Warhog",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        }
+      ]
+    }
+  },
+  {
+    "name": "AEGIS_WALL_01",
+    "blurb": "Shield bastion — a front pair, a twin mid battery, one support.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "RocketArtillery",
+          "variantId": "Aegis",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "Artillery",
+          "variantId": "Longbow",
+          "loadout": {
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Furthest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "STEEL_LINE_02",
+    "blurb": "Combined line — armor wall, SAM screen, twin indirect.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "Artillery",
+          "variantId": "Longbow",
+          "loadout": {
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Furthest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "Artillery",
+          "variantId": "Siege",
+          "loadout": {
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Furthest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SKY_CAVALRY_02",
+    "blurb": "Air cavalry — gunships aloft, a SAM, an anchor, support.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "AttackHeli",
+          "variantId": "Warhog",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "AttackHeli",
+          "variantId": "Gunship",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "RearSupport",
+          "variantId": "Medic",
+          "loadout": {
+            "weapon": "RepairBeam",
+            "defense": "StandardHullSupport",
+            "utilities": [
+              "FireControl",
+              "DriveServos",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "IRON_SPEAR_02",
+    "blurb": "Armored spearhead — three-wide front, SAM, an air flank.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "HeavyTank",
+          "variantId": "Cavalier",
+          "loadout": {
+            "weapon": "SiegeLaser",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Advance",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "AttackHeli",
+          "variantId": "Gunship",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        }
+      ]
+    }
+  },
+  {
+    "name": "AEGIS_WALL_02",
+    "blurb": "Shield bastion — a front pair, a twin mid battery, one support.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "RocketArtillery",
+          "variantId": "Aegis",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "RearSupport",
+          "variantId": "Medic",
+          "loadout": {
+            "weapon": "RepairBeam",
+            "defense": "StandardHullSupport",
+            "utilities": [
+              "FireControl",
+              "DriveServos",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "STEEL_LINE_03",
+    "blurb": "Combined line — armor wall, SAM screen, twin indirect.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "Artillery",
+          "variantId": "Longbow",
+          "loadout": {
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Furthest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "RearSupport",
+          "variantId": "Warden",
+          "loadout": {
+            "weapon": "RepairBeam",
+            "defense": "StandardHullSupport",
+            "utilities": [
+              "FireControl",
+              "ECMSuite",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SKY_CAVALRY_03",
+    "blurb": "Air cavalry — gunships aloft, a SAM, an anchor, support.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "AttackHeli",
+          "variantId": "Warhog",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "AttackHeli",
+          "variantId": "Gunship",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "Artillery",
+          "variantId": "Siege",
+          "loadout": {
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Furthest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "IRON_SPEAR_03",
+    "blurb": "Armored spearhead — three-wide front, SAM, an air flank.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "HeavyTank",
+          "variantId": "Cavalier",
+          "loadout": {
+            "weapon": "SiegeLaser",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Advance",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "RocketArtillery",
+          "variantId": "Aegis",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "AttackHeli",
+          "variantId": "Warhog",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        }
+      ]
+    }
+  },
+  {
+    "name": "AEGIS_WALL_03",
+    "blurb": "Shield bastion — a front pair, a twin mid battery, one support.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "RocketArtillery",
+          "variantId": "Aegis",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "Artillery",
+          "variantId": "Siege",
+          "loadout": {
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Furthest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "STEEL_LINE_04",
+    "blurb": "Combined line — armor wall, SAM screen, twin indirect.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "Artillery",
+          "variantId": "Longbow",
+          "loadout": {
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Furthest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "Artillery",
+          "variantId": "Marksman",
+          "loadout": {
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Furthest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SKY_CAVALRY_04",
+    "blurb": "Air cavalry — gunships aloft, a SAM, an anchor, support.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "AttackHeli",
+          "variantId": "Warhog",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "AttackHeli",
+          "variantId": "Gunship",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "RearSupport",
+          "variantId": "Warden",
+          "loadout": {
+            "weapon": "RepairBeam",
+            "defense": "StandardHullSupport",
+            "utilities": [
+              "FireControl",
+              "ECMSuite",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "IRON_SPEAR_04",
+    "blurb": "Armored spearhead — three-wide front, SAM, an air flank.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "HeavyTank",
+          "variantId": "Cavalier",
+          "loadout": {
+            "weapon": "SiegeLaser",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Advance",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "RocketArtillery",
+          "variantId": "Aegis",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "AttackHeli",
+          "variantId": "Gunship",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        }
+      ]
+    }
+  },
+  {
+    "name": "AEGIS_WALL_04",
+    "blurb": "Shield bastion — a front pair, a twin mid battery, one support.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "RocketArtillery",
+          "variantId": "Aegis",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "RearSupport",
+          "variantId": "Warden",
+          "loadout": {
+            "weapon": "RepairBeam",
+            "defense": "StandardHullSupport",
+            "utilities": [
+              "FireControl",
+              "ECMSuite",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "STEEL_LINE_05",
+    "blurb": "Combined line — armor wall, SAM screen, twin indirect.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "RearSupport",
+          "variantId": "Medic",
+          "loadout": {
+            "weapon": "RepairBeam",
+            "defense": "StandardHullSupport",
+            "utilities": [
+              "FireControl",
+              "DriveServos",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Rear"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "Artillery",
+          "variantId": "Siege",
+          "loadout": {
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Furthest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SKY_CAVALRY_05",
+    "blurb": "Air cavalry — gunships aloft, a SAM, an anchor, support.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "AttackHeli",
+          "variantId": "Warhog",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "AttackHeli",
+          "variantId": "Gunship",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "Artillery",
+          "variantId": "Marksman",
+          "loadout": {
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Furthest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "IRON_SPEAR_05",
+    "blurb": "Armored spearhead — three-wide front, SAM, an air flank.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "HeavyTank",
+          "variantId": "Cavalier",
+          "loadout": {
+            "weapon": "SiegeLaser",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Advance",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "Mech",
+          "variantId": "Sentinel",
+          "loadout": {
+            "weapon": "PulseLaser",
+            "defense": "StandardHullMech",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Advance",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "AttackHeli",
+          "variantId": "Warhog",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        }
+      ]
+    }
+  },
+  {
+    "name": "AEGIS_WALL_05",
+    "blurb": "Shield bastion — a front pair, a twin mid battery, one support.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "RocketArtillery",
+          "variantId": "Aegis",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "Artillery",
+          "variantId": "Marksman",
+          "loadout": {
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Furthest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "STEEL_LINE_06",
+    "blurb": "Combined line — armor wall, SAM screen, twin indirect.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "RearSupport",
+          "variantId": "Medic",
+          "loadout": {
+            "weapon": "RepairBeam",
+            "defense": "StandardHullSupport",
+            "utilities": [
+              "FireControl",
+              "DriveServos",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Rear"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "RearSupport",
+          "variantId": "Warden",
+          "loadout": {
+            "weapon": "RepairBeam",
+            "defense": "StandardHullSupport",
+            "utilities": [
+              "FireControl",
+              "ECMSuite",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SKY_CAVALRY_06",
+    "blurb": "Air cavalry — gunships aloft, a SAM, an anchor, support.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "AttackHeli",
+          "variantId": "Warhog",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "AttackHeli",
+          "variantId": "Gunship",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "Artillery",
+          "variantId": "Longbow",
+          "loadout": {
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Furthest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "IRON_SPEAR_06",
+    "blurb": "Armored spearhead — three-wide front, SAM, an air flank.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "HeavyTank",
+          "variantId": "Cavalier",
+          "loadout": {
+            "weapon": "SiegeLaser",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Advance",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "Mech",
+          "variantId": "Sentinel",
+          "loadout": {
+            "weapon": "PulseLaser",
+            "defense": "StandardHullMech",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Advance",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "AttackHeli",
+          "variantId": "Gunship",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        }
+      ]
+    }
+  },
+  {
+    "name": "AEGIS_WALL_06",
+    "blurb": "Shield bastion — a front pair, a twin mid battery, one support.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "Mech",
+          "variantId": "Sentinel",
+          "loadout": {
+            "weapon": "PulseLaser",
+            "defense": "StandardHullMech",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Advance",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "Artillery",
+          "variantId": "Longbow",
+          "loadout": {
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Furthest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "STEEL_LINE_07",
+    "blurb": "Combined line — armor wall, SAM screen, twin indirect.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "RearSupport",
+          "variantId": "Medic",
+          "loadout": {
+            "weapon": "RepairBeam",
+            "defense": "StandardHullSupport",
+            "utilities": [
+              "FireControl",
+              "DriveServos",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Rear"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "Artillery",
+          "variantId": "Marksman",
+          "loadout": {
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Furthest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SKY_CAVALRY_07",
+    "blurb": "Air cavalry — gunships aloft, a SAM, an anchor, support.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "AttackHeli",
+          "variantId": "Warhog",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "AttackHeli",
+          "variantId": "Gunship",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "RearSupport",
+          "variantId": "Medic",
+          "loadout": {
+            "weapon": "RepairBeam",
+            "defense": "StandardHullSupport",
+            "utilities": [
+              "FireControl",
+              "DriveServos",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "IRON_SPEAR_07",
+    "blurb": "Armored spearhead — three-wide front, SAM, an air flank.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "Mech",
+          "variantId": "Vanguard",
+          "loadout": {
+            "weapon": "AssaultCannon",
+            "defense": "StandardHullMech",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Advance",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "AttackHeli",
+          "variantId": "Warhog",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        }
+      ]
+    }
+  },
+  {
+    "name": "AEGIS_WALL_07",
+    "blurb": "Shield bastion — a front pair, a twin mid battery, one support.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "Mech",
+          "variantId": "Sentinel",
+          "loadout": {
+            "weapon": "PulseLaser",
+            "defense": "StandardHullMech",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Advance",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "RearSupport",
+          "variantId": "Medic",
+          "loadout": {
+            "weapon": "RepairBeam",
+            "defense": "StandardHullSupport",
+            "utilities": [
+              "FireControl",
+              "DriveServos",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "STEEL_LINE_08",
+    "blurb": "Combined line — armor wall, SAM screen, twin indirect.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "Artillery",
+          "variantId": "Siege",
+          "loadout": {
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Furthest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "RearSupport",
+          "variantId": "Warden",
+          "loadout": {
+            "weapon": "RepairBeam",
+            "defense": "StandardHullSupport",
+            "utilities": [
+              "FireControl",
+              "ECMSuite",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SKY_CAVALRY_08",
+    "blurb": "Air cavalry — gunships aloft, a SAM, an anchor, support.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "AttackHeli",
+          "variantId": "Warhog",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "AttackHeli",
+          "variantId": "Gunship",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "Artillery",
+          "variantId": "Siege",
+          "loadout": {
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Furthest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "IRON_SPEAR_08",
+    "blurb": "Armored spearhead — three-wide front, SAM, an air flank.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "Mech",
+          "variantId": "Vanguard",
+          "loadout": {
+            "weapon": "AssaultCannon",
+            "defense": "StandardHullMech",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Advance",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "AttackHeli",
+          "variantId": "Gunship",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        }
+      ]
+    }
+  },
+  {
+    "name": "AEGIS_WALL_08",
+    "blurb": "Shield bastion — a front pair, a twin mid battery, one support.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "Mech",
+          "variantId": "Sentinel",
+          "loadout": {
+            "weapon": "PulseLaser",
+            "defense": "StandardHullMech",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Advance",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "Artillery",
+          "variantId": "Siege",
+          "loadout": {
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Furthest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "STEEL_LINE_09",
+    "blurb": "Combined line — armor wall, SAM screen, twin indirect.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "Artillery",
+          "variantId": "Siege",
+          "loadout": {
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Furthest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "Artillery",
+          "variantId": "Marksman",
+          "loadout": {
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Furthest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SKY_CAVALRY_09",
+    "blurb": "Air cavalry — gunships aloft, a SAM, an anchor, support.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "AttackHeli",
+          "variantId": "Warhog",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "AttackHeli",
+          "variantId": "Gunship",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "RearSupport",
+          "variantId": "Warden",
+          "loadout": {
+            "weapon": "RepairBeam",
+            "defense": "StandardHullSupport",
+            "utilities": [
+              "FireControl",
+              "ECMSuite",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  },
+  {
+    "name": "IRON_SPEAR_09",
+    "blurb": "Armored spearhead — three-wide front, SAM, an air flank.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "Mech",
+          "variantId": "Vanguard",
+          "loadout": {
+            "weapon": "AssaultCannon",
+            "defense": "StandardHullMech",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Advance",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "RocketArtillery",
+          "variantId": "Aegis",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "AttackHeli",
+          "variantId": "Warhog",
+          "loadout": {
+            "weapon": "RocketPods",
+            "defense": "StandardHullHeli",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Air"
+        }
+      ]
+    }
+  },
+  {
+    "name": "AEGIS_WALL_09",
+    "blurb": "Shield bastion — a front pair, a twin mid battery, one support.",
+    "config": {
+      "machines": [
+        {
+          "instanceId": 0,
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 1,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "loadout": {
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Rangefinder"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 2,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 3,
+          "typeId": "Mech",
+          "variantId": "Sentinel",
+          "loadout": {
+            "weapon": "PulseLaser",
+            "defense": "StandardHullMech",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "DriveServos",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Advance",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Middle"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "RearSupport",
+          "variantId": "Warden",
+          "loadout": {
+            "weapon": "RepairBeam",
+            "defense": "StandardHullSupport",
+            "utilities": [
+              "FireControl",
+              "ECMSuite",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        }
+      ]
+    }
+  }
+]
