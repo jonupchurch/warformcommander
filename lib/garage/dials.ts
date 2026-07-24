@@ -1,125 +1,75 @@
 /**
- * Pure dial + Plan-B option data (US3). The dial option lists, the **capability gate table** (which
- * mirrors the engine's `check_dial_gating` exactly — the only gated options are Adaptive energy,
- * Opportunist stance, and the Target-Air rule; everything else is freely selectable, P8), and a
- * representative Plan-B condition/response menu (§8.2). Unit-tested against `validateArmy`.
+ * Pure dial + Plan-B option data (v3). The targeting-chain filters + fallback selector, the three
+ * universal stances, the four movement modes, and the Plan-B condition/response menu (design §15.4).
+ *
+ * v3 removed **all** capability-gated dial options (the engine dropped V7 dial-gating), so every
+ * option here is freely selectable. Unit-tested against `validateArmy`.
  */
 
 import type {
-  BehaviorDials,
   DialKey,
   DialValue,
-  EnergyMode,
   MovementMode,
   PlanBTrigger,
   Stance,
-  TargetRow,
-  TargetRule,
+  TargetFilter,
+  TargetSelector,
   TriggerCondition,
 } from '@/sim/model';
-import type { Capability } from '@/sim/ruleset';
 
 import { humanize } from './display';
 
-export const TARGET_ROW_OPTIONS: TargetRow[] = [
-  'FrontReachable',
-  'LastReachable',
-  'FullestRow',
-  'WeakestRow',
-];
-export const TARGET_RULE_OPTIONS: TargetRule[] = [
-  'FocusFire',
-  'DisperseFire',
-  'Nearest',
-  'Weakest',
-  'BiggestThreat',
-  'TargetSupport',
+/** The targeting-chain class filters (a priority tier; an unset tier is "Any"). */
+export const TARGET_FILTER_OPTIONS: TargetFilter[] = [
   'TargetAir',
-  'SmartCounter',
-];
-export const ENERGY_OPTIONS: EnergyMode[] = [
-  'Offense',
-  'Balanced',
-  'Defense',
-  'Overdrive',
-  'Fortify',
-  'Adaptive',
-];
-export const MOVEMENT_OPTIONS: MovementMode[] = [
-  'Hold',
-  'Advance',
-  'FallBack',
-  'Kite',
-  'Reposition',
-  'Escort',
-];
-export const STANCE_OPTIONS: Stance[] = [
-  'Aggressive',
-  'Neutral',
-  'Defensive',
-  'Protector',
-  'Opportunist',
-  'Triage',
-  'Sustain',
-  'Empower',
+  'TargetArmor',
+  'TargetSupport',
+  'TargetIndirect',
+  'Follow',
 ];
 
-/**
- * Stance is **role-split** (v2, FR-019): combat machines hold combat stances, support machines the
- * support flavors, and `Neutral` is the universal fallback both share. These mirror the engine's
- * `Stance::COMBAT` / `Stance::SUPPORT` (plus Neutral), and are what the editor offers per machine —
- * an out-of-role stance on a *saved* army still loads and degrades to neutral behaviour (FR-022).
- */
-export const COMBAT_STANCES: Stance[] = [
-  'Aggressive',
-  'Neutral',
-  'Defensive',
-  'Protector',
-  'Opportunist',
-];
-export const SUPPORT_STANCES: Stance[] = ['Neutral', 'Triage', 'Sustain', 'Empower'];
+/** The positional fallback selectors (always resolves). */
+export const TARGET_SELECTOR_OPTIONS: TargetSelector[] = ['Closest', 'Furthest'];
 
-/** The stance options a machine of the given role may hold (`isSupportMachine` = has support power). */
-export function stanceOptionsForRole(isSupportMachine: boolean): Stance[] {
-  return isSupportMachine ? SUPPORT_STANCES : COMBAT_STANCES;
+/** Movement dial options (v3) — the four self-terminating modes, no gates. */
+export const MOVEMENT_OPTIONS: MovementMode[] = ['Hold', 'Advance', 'FallBack', 'Kite'];
+
+/** Stance dial options (v3) — the three universal postures (every machine may hold any). */
+export const STANCE_OPTIONS: Stance[] = ['Aggressive', 'Neutral', 'Defensive'];
+
+/** A short human label for a targeting filter (or "Any" for an unused priority tier). */
+export function describeFilter(f: TargetFilter | undefined): string {
+  if (!f) return 'Any (no filter)';
+  switch (f) {
+    case 'TargetAir':
+      return 'Aircraft';
+    case 'TargetArmor':
+      return 'Armored';
+    case 'TargetSupport':
+      return 'Support';
+    case 'TargetIndirect':
+      return 'Artillery';
+    case 'Follow':
+      return 'Follow ally';
+  }
 }
 
-/**
- * The dial options the engine gates behind a capability — **mirrors `validate.rs::check_dial_gating`
- * exactly**. Only these three are gated; any other option is legal (so the editor must not disable it,
- * or it would diverge from the engine, P8).
- */
-export const DIAL_GATE: Partial<Record<keyof BehaviorDials, Record<string, Capability>>> = {
-  energy: { Adaptive: 'AdaptiveEnergy' },
-  stance: { Opportunist: 'OpportunistStance' },
-  targetRule: { TargetAir: 'TargetAir' },
-};
-
-/** Whether a dial option is locked — gated by a capability the machine hasn't unlocked. */
-export function dialOptionLocked(
-  dial: keyof BehaviorDials,
-  option: string,
-  caps: readonly Capability[],
-): boolean {
-  const needs = DIAL_GATE[dial]?.[option];
-  return needs !== undefined && !caps.includes(needs);
-}
-
-/** A Plan-B trigger condition preset (a representative §8.2 subset with fixed payloads). */
+/** A Plan-B trigger condition preset (a representative §15.4 subset with fixed payloads). */
 export interface ConditionPreset {
   label: string;
   value: TriggerCondition;
 }
 
+/** The Plan-B condition menu — **own-state only** in v3 (enemy-reactive conditions were dropped). */
 export const PLANB_CONDITIONS: ConditionPreset[] = [
   { label: 'Hull below 50%', value: { HullBelowPct: 5000 } },
   { label: 'Hull below 25%', value: { HullBelowPct: 2500 } },
   { label: 'Shield down', value: 'ShieldDown' },
   { label: 'Ally lost in zone', value: 'AllyLostInZone' },
-  { label: 'Air enemy present', value: 'AirEnemyExists' },
+  { label: 'No targets reachable', value: 'NoTargetsReachable' },
 ];
 
-/** A Plan-B response preset — the (dial, value) pair a trigger latches. */
+/** A Plan-B response preset — the (dial, value) pair a trigger latches. Movement/Stance only (v3). */
 export interface ResponsePreset {
   label: string;
   dial: DialKey;
@@ -127,12 +77,13 @@ export interface ResponsePreset {
 }
 
 export const PLANB_RESPONSES: ResponsePreset[] = [
-  { label: 'Energy → Overdrive', dial: 'Energy', planBValue: { Energy: 'Overdrive' } },
-  { label: 'Energy → Fortify', dial: 'Energy', planBValue: { Energy: 'Fortify' } },
   { label: 'Position → Fall Back', dial: 'Movement', planBValue: { Movement: 'FallBack' } },
   { label: 'Position → Advance', dial: 'Movement', planBValue: { Movement: 'Advance' } },
+  { label: 'Position → Kite', dial: 'Movement', planBValue: { Movement: 'Kite' } },
+  { label: 'Position → Hold', dial: 'Movement', planBValue: { Movement: 'Hold' } },
   { label: 'Stance → Defensive', dial: 'Stance', planBValue: { Stance: 'Defensive' } },
   { label: 'Stance → Aggressive', dial: 'Stance', planBValue: { Stance: 'Aggressive' } },
+  { label: 'Stance → Balanced', dial: 'Stance', planBValue: { Stance: 'Neutral' } },
 ];
 
 /** A human description of a trigger condition (handles the tagged payload variants). */
@@ -140,7 +91,6 @@ export function describeCondition(c: TriggerCondition): string {
   if (typeof c === 'string') return humanize(c);
   if ('HullBelowPct' in c) return `Hull below ${c.HullBelowPct / 100}%`;
   if ('AfterTick' in c) return `After tick ${c.AfterTick}`;
-  if ('EnemyInZone' in c) return `Enemy in ${c.EnemyInZone}`;
   return 'condition';
 }
 

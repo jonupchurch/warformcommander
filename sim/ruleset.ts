@@ -46,22 +46,20 @@ export type SupportRange = 'OwnZone' | 'OwnPlusAdjacent' | 'WholeArmy';
  */
 export type Capability =
   | 'ExtraPlanBSlot'
-  | 'AdaptiveEnergy'
-  | 'OpportunistStance'
   | 'ExtendReach'
   | 'TargetAir'
   | 'AntiAir'
-  | 'RocketPack';
+  | 'RocketPack'
+  | 'OnHitPaint';
 
 /** The canonical `Capability` sort order (the Rust enum's `Ord` / declaration order). */
 export const CAPABILITY_ORDER: readonly Capability[] = [
   'ExtraPlanBSlot',
-  'AdaptiveEnergy',
-  'OpportunistStance',
   'ExtendReach',
   'TargetAir',
   'AntiAir',
   'RocketPack',
+  'OnHitPaint',
 ];
 
 /** Which equipment kind a slot expects (`SlotKind`) — carried on a `WrongSlotKind` derivation error. */
@@ -90,6 +88,7 @@ export interface StatDeltas {
   armorPct: number; // bp
   critChance: number; // bp
   moveSpeed: number; // zone-transition steps (may be negative)
+  targetDraw: number; // i8 — v3 US3: Decoy/Taunt +2 pulls fire, ECM −2 sheds it (feeds the priority chain)
   cadenceTier: CadenceTier | null;
   reach: ReachTag | null;
 }
@@ -105,6 +104,23 @@ export interface ShieldDelta {
 export interface MitigationMod {
   against: DamageType;
   splashTakenMult: number; // bp
+}
+
+/** What a passive aura modifies (`AuraKind`). The per-tick auras apply only while the source lives. */
+export type AuraKind = 'DamageDealt' | 'CommandBoost' | 'StartShield' | 'DamageTaken';
+
+/** Who an aura reaches (`AuraScope`). */
+export type AuraScope = 'ZoneAllies' | 'AllAllies';
+
+/**
+ * A passive zone/army aura a chassis projects (`AuraEffect`) — e.g. the Command Post's army-wide
+ * `CommandBoost`, Bulwark's `DamageTaken` protection. The offensive/defensive auras apply only while
+ * the source lives (v3 US5 — killing a Commander revokes its buff on the spot).
+ */
+export interface AuraEffect {
+  kind: AuraKind;
+  magnitude: number; // signed bp (e.g. -800 = −8%)
+  scope: AuraScope;
 }
 
 // --- Base stats + type/variant identity ------------------------------------
@@ -151,7 +167,7 @@ export interface ChassisVariant {
   typeId: MachineTypeId;
   /** Raises utility slots for the odd variant (Sentinel, Command Post → 4). */
   slotLayoutOverride?: SlotLayout;
-  passiveAura?: unknown;
+  passiveAura?: AuraEffect;
 }
 
 // --- Equipment (kind-tagged union, flattened id/name) ----------------------
@@ -251,38 +267,6 @@ export interface AirModifiers {
   energyAirDmgMult?: number;
 }
 
-/** One energy mode's two-sided trade (`EnergyProfile`, bp; `10000` = ×1.0). */
-export interface EnergyProfile {
-  /** Outgoing damage multiplier for a machine firing in this mode. */
-  damageDealt: number;
-  /** Incoming damage multiplier for a machine *being hit* while in this mode. */
-  damageTaken: number;
-}
-
-/** The energy dial's balance table (`EnergyModes`) — one profile per mode. */
-export interface EnergyModes {
-  overdrive: EnergyProfile;
-  offense: EnergyProfile;
-  balanced: EnergyProfile;
-  adaptive: EnergyProfile;
-  defense: EnergyProfile;
-  fortify: EnergyProfile;
-}
-
-/**
- * The engine's `EnergyModes::default()`, mirrored for display when a stored ruleset omits the field
- * (it is `skip_serializing_if` at the default, so rows saved before it existed carry no `energyModes`
- * and the engine fills these in). Keep in step with `crates/engine/src/model/ruleset.rs`.
- */
-export const DEFAULT_ENERGY_MODES: EnergyModes = {
-  overdrive: { damageDealt: 12000, damageTaken: 11000 },
-  offense: { damageDealt: 11000, damageTaken: 10500 },
-  balanced: { damageDealt: 10000, damageTaken: 10000 },
-  adaptive: { damageDealt: 10000, damageTaken: 10000 },
-  defense: { damageDealt: 9000, damageTaken: 9000 },
-  fortify: { damageDealt: 8500, damageTaken: 8000 },
-};
-
 /** Ablative-defense tuning (`AblativeMods`, v2). Only the save chance is a knob; sizing is per-module. */
 export interface AblativeMods {
   saveChance: number; // bp — chance a hit does NOT deplete the pool
@@ -306,46 +290,53 @@ export interface MountScale {
   support: number;
 }
 
-/** Stance fire-priority offsets (`StanceAggro`, v2). Lower is targeted first; relative within a row. */
-export interface StanceAggro {
-  aggressive: number;
-  neutral: number;
-  defensive: number;
-  protector: number;
-  opportunist: number;
-  triage: number;
-  sustain: number;
-  empower: number;
+/**
+ * Stance output/resilience modifiers (`StanceMods`, v3 US4) — the two-sided magnitude the stance dial
+ * applies. `Aggressive` trades survivability for output; `Defensive` the reverse; `Neutral` is
+ * identity. Read live on each hit in the engine, so a Plan-B stance flip takes effect at once.
+ */
+export interface StanceMods {
+  aggressiveOutput: number; // bp — outgoing damage/projection mult (10500 = +5%)
+  aggressiveAccuracy: number; // bp — additive accuracy (500 = +5%)
+  aggressiveTaken: number; // bp — incoming-damage mult (11000 = +10% taken)
+  defensiveOutput: number; // bp — outgoing damage/projection mult (8000 = −20%)
+  defensiveTaken: number; // bp — incoming-damage mult (9500 = −5% taken)
+  defensiveEvasion: number; // bp — additive evasion (500 = +5%)
 }
 
-/** The engine's `StanceAggro::default()`, mirrored for when a stored ruleset omits the field. */
-export const DEFAULT_STANCE_AGGRO: StanceAggro = {
-  aggressive: -1,
-  neutral: 0,
-  defensive: 1,
-  protector: -1,
-  opportunist: 0,
-  triage: 0,
-  sustain: 0,
-  empower: 0,
+/** The engine's `StanceMods::default()`, mirrored for when a stored ruleset omits the field. */
+export const DEFAULT_STANCE_MODS: StanceMods = {
+  aggressiveOutput: 10500,
+  aggressiveAccuracy: 500,
+  aggressiveTaken: 11000,
+  defensiveOutput: 8000,
+  defensiveTaken: 9500,
+  defensiveEvasion: 500,
 };
 
-/** The Opportunist execute bonus (`ExecuteMods`, v2) — extra damage below a hull threshold. */
-export interface ExecuteMods {
-  threshold: number; // bp — hull fraction at/below which the bonus applies
-  bonus: number; // bp — additive damage multiplier above 1.0
+/** What counts as "identical" for coordination (`CoordinationGrain`, spec 014). */
+export type CoordinationGrain = 'Type' | 'TypeVariant';
+
+/** Which derived stats the coordination factor scales (`CoordinationScales`, spec 014). */
+export type CoordinationScales = 'Offense' | 'OffenseAndSurvivability';
+
+/**
+ * Coordination (`Coordination`, spec 014) — diminishing returns on the Nth identical unit, applied at
+ * army-build time (never in per-machine derive). Identity by default (every unit ×1.0), omitted from
+ * serialization at the identity curve. `returns[0]` is always 10000; an index past the end clamps.
+ */
+export interface Coordination {
+  returns: number[]; // bp per duplicate rank
+  grain: CoordinationGrain;
+  scales: CoordinationScales;
 }
 
-/** The engine's `ExecuteMods::default()`, mirrored for when a stored ruleset omits the field. */
-export const DEFAULT_EXECUTE_MODS: ExecuteMods = { threshold: 4000, bonus: 3000 };
-
-/** The Empower support stance (`EmpowerMods`, v2) — the overshield ceiling it raises allies to. */
-export interface EmpowerMods {
-  shieldCapBp: number; // bp — overshield ceiling as a fraction of the ally's max hull
-}
-
-/** The engine's `EmpowerMods::default()`, mirrored for when a stored ruleset omits the field. */
-export const DEFAULT_EMPOWER_MODS: EmpowerMods = { shieldCapBp: 3000 };
+/** The engine's `Coordination::default()` (identity) — every unit at full effectiveness. */
+export const DEFAULT_COORDINATION: Coordination = {
+  returns: [10000],
+  grain: 'Type',
+  scales: 'Offense',
+};
 
 /** Reactive plating (`ReactiveMods`, v2, Mech) — the rate applied to the dominant absorbed family. */
 export interface ReactiveMods {
@@ -416,20 +407,16 @@ export interface Ruleset {
   globals: GlobalConstants;
   /** Per-attacker-type role-counter bonuses; omitted when empty. */
   roleDamageBonuses?: Record<string, RoleDamageBonus>;
-  /** The energy dial's dealt/taken table; omitted at the default ({@link DEFAULT_ENERGY_MODES}). */
-  energyModes?: EnergyModes;
   /** Ablative save chance; omitted at the default ({@link DEFAULT_ABLATIVE_MODS}). */
   ablativeMods?: AblativeMods;
   /** Per-mount defensive scaling; omitted at the default ({@link DEFAULT_MOUNT_SCALE}). */
   mountScale?: MountScale;
-  /** Stance fire-priority offsets; omitted at the default ({@link DEFAULT_STANCE_AGGRO}). */
-  stanceAggro?: StanceAggro;
-  /** The Opportunist execute bonus; omitted at the default ({@link DEFAULT_EXECUTE_MODS}). */
-  executeMods?: ExecuteMods;
-  /** The Empower overshield ceiling; omitted at the default ({@link DEFAULT_EMPOWER_MODS}). */
-  empowerMods?: EmpowerMods;
+  /** Stance output/resilience modifiers (v3); omitted at the default ({@link DEFAULT_STANCE_MODS}). */
+  stanceMods?: StanceMods;
   /** Reactive plating's mitigation rate; omitted at the default ({@link DEFAULT_REACTIVE_MODS}). */
   reactiveMods?: ReactiveMods;
+  /** Coordination diminishing-returns curve (spec 014); omitted at the identity default. */
+  coordination?: Coordination;
 }
 
 // --- Derived output --------------------------------------------------------
@@ -462,6 +449,7 @@ export interface EffectiveStats {
   moveSpeed: number | null;
   evasion: number; // bp
   threat: number; // milli
+  targetDraw: number; // i8 — v3 US2/US3 priority-score draw offset (Decoy +2 / ECM −2)
   supportPower: number | null;
   supportRange: SupportRange | null;
   specialMitigation: MitigationMod | null;

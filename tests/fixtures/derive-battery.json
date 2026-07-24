@@ -30,16 +30,17 @@
           "splash": 0,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 35000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -88,16 +89,17 @@
           "splash": 0,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 40000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -146,16 +148,17 @@
           "splash": 0,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 26000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -204,16 +207,17 @@
           "splash": 0,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 5000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -262,16 +266,17 @@
           "splash": 0,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 5000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -320,16 +325,17 @@
           "splash": 0,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 5000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -380,16 +386,17 @@
           "splash": 0,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 15000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -440,16 +447,17 @@
           "splash": 0,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 19000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -484,7 +492,7 @@
           "critMult": 15000,
           "damage": 12000,
           "damageType": "Kinetic",
-          "evasion": 1500,
+          "evasion": 1000,
           "family": "Kinetic",
           "hull": 1000000,
           "moveSpeed": 7,
@@ -500,16 +508,17 @@
           "splash": 0,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": -2,
           "threat": 12000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -559,16 +568,17 @@
           "splash": 1500,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 17000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -617,16 +627,17 @@
           "splash": 1500,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 14000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -675,16 +686,17 @@
           "splash": 1500,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 21000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -733,16 +745,17 @@
           "splash": 2000,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 30000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -791,16 +804,17 @@
           "splash": 2000,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 36000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -849,16 +863,17 @@
           "splash": 2400,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 34000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -907,16 +922,17 @@
           "splash": 2500,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 65000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -965,16 +981,17 @@
           "splash": 2500,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 82000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -1023,16 +1040,17 @@
           "splash": 1000,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 58000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -1081,16 +1099,17 @@
           "splash": 0,
           "supportPower": 5000,
           "supportRange": "WholeArmy",
+          "targetDraw": 0,
           "threat": 5000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -1139,16 +1158,17 @@
           "splash": 0,
           "supportPower": 5000,
           "supportRange": "OwnZone",
+          "targetDraw": 0,
           "threat": 5000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -1181,7 +1201,7 @@
           "critMult": 15000,
           "damage": 0,
           "damageType": "Kinetic",
-          "evasion": 1000,
+          "evasion": 500,
           "family": "Support",
           "hull": 370000,
           "moveSpeed": 2,
@@ -1197,16 +1217,17 @@
           "splash": 0,
           "supportPower": 5000,
           "supportRange": "WholeArmy",
+          "targetDraw": -2,
           "threat": 5000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -1256,16 +1277,17 @@
           "splash": 0,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 35000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -1314,16 +1336,17 @@
           "splash": 0,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 35000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -1352,9 +1375,7 @@
           "cadence": "Medium",
           "canTargetAir": false,
           "capabilities": [
-            "ExtraPlanBSlot",
-            "AdaptiveEnergy",
-            "OpportunistStance"
+            "ExtraPlanBSlot"
           ],
           "critChance": 500,
           "critMult": 15000,
@@ -1376,16 +1397,17 @@
           "splash": 0,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 35000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -1434,16 +1456,17 @@
           "splash": 0,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 35000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -1495,16 +1518,17 @@
           "splash": 0,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 35000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -1555,16 +1579,17 @@
           "splash": 0,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 35000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -1615,16 +1640,17 @@
           "splash": 0,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 35000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -1657,7 +1683,7 @@
           "critMult": 15000,
           "damage": 5000,
           "damageType": "Kinetic",
-          "evasion": 3000,
+          "evasion": 2500,
           "family": "Kinetic",
           "hull": 572000,
           "moveSpeed": 8,
@@ -1673,16 +1699,17 @@
           "splash": 0,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": -2,
           "threat": 5000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -1733,16 +1760,17 @@
           "splash": 1500,
           "supportPower": null,
           "supportRange": null,
+          "targetDraw": 0,
           "threat": 17000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -1775,7 +1803,7 @@
           "critMult": 15000,
           "damage": 0,
           "damageType": "Kinetic",
-          "evasion": 1000,
+          "evasion": 500,
           "family": "Support",
           "hull": 370000,
           "moveSpeed": 2,
@@ -1791,16 +1819,17 @@
           "splash": 0,
           "supportPower": 5000,
           "supportRange": "WholeArmy",
+          "targetDraw": -2,
           "threat": 5000
         }
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -1829,11 +1858,11 @@
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -1864,11 +1893,11 @@
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -1896,11 +1925,11 @@
       },
       "instance": {
         "dials": {
-          "energy": "Balanced",
           "movement": "Hold",
           "stance": "Neutral",
-          "targetRow": "FrontReachable",
-          "targetRule": "FocusFire"
+          "targeting": {
+            "fallback": "Closest"
+          }
         },
         "instanceId": 0,
         "loadout": {
@@ -1943,7 +1972,7 @@
       "Bulwark": {
         "id": "Bulwark",
         "passiveAura": {
-          "kind": "DamageDealt",
+          "kind": "DamageTaken",
           "magnitude": -800,
           "scope": "ZoneAllies"
         },
@@ -1957,8 +1986,8 @@
         "id": "CommandPost",
         "passiveAura": {
           "kind": "CommandBoost",
-          "magnitude": 0,
-          "scope": "ZoneAllies"
+          "magnitude": 1000,
+          "scope": "AllAllies"
         },
         "slotLayoutOverride": {
           "defense": 1,
@@ -2043,16 +2072,16 @@
     },
     "damageMatrix": {
       "energy": {
-        "vsArmor": 12500,
-        "vsShields": 6000
+        "vsArmor": 16000,
+        "vsShields": 7000
       },
       "explosive": {
         "vsArmor": 10000,
         "vsShields": 10000
       },
       "kinetic": {
-        "vsArmor": 8500,
-        "vsShields": 14000
+        "vsArmor": 7000,
+        "vsShields": 16000
       }
     },
     "equipment": {
@@ -2075,7 +2104,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "ArtilleryArmor": {
@@ -2094,7 +2124,8 @@
           "moveSpeed": -1,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "ArtilleryShield": {
@@ -2118,7 +2149,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "AssaultCannon": {
@@ -2137,7 +2169,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": "Nearest",
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "Autocannon": {
@@ -2156,7 +2189,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": "Nearest",
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "Autoloader": {
@@ -2186,7 +2220,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "CombatAI": {
@@ -2195,9 +2230,7 @@
         "kind": "Utility",
         "name": "Combat AI Core",
         "unlocks": [
-          "ExtraPlanBSlot",
-          "AdaptiveEnergy",
-          "OpportunistStance"
+          "ExtraPlanBSlot"
         ]
       },
       "CompositeArmor": {
@@ -2216,8 +2249,29 @@
           "moveSpeed": -1,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
+      },
+      "Decoy": {
+        "cadenceShift": 0,
+        "id": "Decoy",
+        "kind": "Utility",
+        "name": "Decoy Beacon",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0,
+          "targetDraw": 2
+        },
+        "unlocks": []
       },
       "DeflectorShield": {
         "armorPctDelta": 0,
@@ -2240,7 +2294,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "DriveServos": {
@@ -2258,7 +2313,8 @@
           "moveSpeed": 2,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         },
         "unlocks": []
       },
@@ -2273,11 +2329,12 @@
           "cadenceTier": null,
           "critChance": 0,
           "damage": 0,
-          "evasion": 500,
+          "evasion": 0,
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": -2
         },
         "unlocks": []
       },
@@ -2302,7 +2359,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "FireControl": {
@@ -2320,7 +2378,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         },
         "unlocks": []
       },
@@ -2340,7 +2399,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": "Nearest",
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "HeavyAblative": {
@@ -2362,7 +2422,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "HeavyArmor": {
@@ -2381,7 +2442,8 @@
           "moveSpeed": -1,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "HeavyCannon": {
@@ -2400,7 +2462,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": "Nearest",
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "HeavyShield": {
@@ -2424,7 +2487,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "HeliAblative": {
@@ -2446,7 +2510,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "HeliArmor": {
@@ -2465,7 +2530,8 @@
           "moveSpeed": -1,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "HeliShield": {
@@ -2489,7 +2555,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "Howitzer": {
@@ -2508,7 +2575,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": "AnyGround",
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "LightAblative": {
@@ -2530,7 +2598,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "LightArmor": {
@@ -2549,7 +2618,8 @@
           "moveSpeed": -1,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "LightShield": {
@@ -2573,7 +2643,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "MechAblative": {
@@ -2595,7 +2666,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "MechArmor": {
@@ -2614,7 +2686,8 @@
           "moveSpeed": -1,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "MechReactive": {
@@ -2639,7 +2712,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "MechShield": {
@@ -2663,7 +2737,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "PulseLaser": {
@@ -2682,7 +2757,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": "Nearest",
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "Railgun": {
@@ -2701,7 +2777,8 @@
           "moveSpeed": 0,
           "penetration": 5000,
           "reach": "Deep",
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "Rangefinder": {
@@ -2729,7 +2806,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": "Nearest",
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "RktArtyAblative": {
@@ -2751,7 +2829,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "RktArtyArmor": {
@@ -2770,7 +2849,8 @@
           "moveSpeed": -1,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "RktArtyShield": {
@@ -2794,7 +2874,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "RocketBarrage": {
@@ -2813,7 +2894,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": "AnyGround",
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "RocketPack": {
@@ -2841,7 +2923,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": "AnyGround",
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "SAMBattery": {
@@ -2860,7 +2943,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": "Air",
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "SensorSuite": {
@@ -2888,8 +2972,18 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": "Nearest",
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
+      },
+      "Spotter": {
+        "cadenceShift": 0,
+        "id": "Spotter",
+        "kind": "Utility",
+        "name": "Spotter Array",
+        "unlocks": [
+          "OnHitPaint"
+        ]
       },
       "StandardHullArtillery": {
         "armorPctDelta": 500,
@@ -2912,7 +3006,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "StandardHullHeavy": {
@@ -2936,7 +3031,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "StandardHullHeli": {
@@ -2960,7 +3056,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "StandardHullLight": {
@@ -2984,7 +3081,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "StandardHullMech": {
@@ -3008,7 +3106,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "StandardHullRktArty": {
@@ -3032,7 +3131,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "StandardHullSupport": {
@@ -3056,7 +3156,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "SupportAblative": {
@@ -3078,7 +3179,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "SupportArmor": {
@@ -3097,7 +3199,8 @@
           "moveSpeed": -1,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       },
       "SupportShield": {
@@ -3121,7 +3224,8 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": null,
-          "splash": 0
+          "splash": 0,
+          "targetDraw": 0
         }
       }
     },
@@ -3669,11 +3773,11 @@
         "machines": [
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 0,
             "loadout": {
@@ -3692,11 +3796,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 1,
             "loadout": {
@@ -3715,11 +3819,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 2,
             "loadout": {
@@ -3738,11 +3842,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 3,
             "loadout": {
@@ -3761,11 +3865,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 4,
             "loadout": {
@@ -3795,11 +3899,11 @@
         "machines": [
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 0,
             "loadout": {
@@ -3818,11 +3922,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 1,
             "loadout": {
@@ -3841,11 +3945,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 2,
             "loadout": {
@@ -3864,11 +3968,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 3,
             "loadout": {
@@ -3904,11 +4008,11 @@
         "machines": [
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 0,
             "loadout": {
@@ -3927,11 +4031,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 1,
             "loadout": {
@@ -3950,11 +4054,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 2,
             "loadout": {
@@ -3973,11 +4077,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 3,
             "loadout": {
@@ -3996,11 +4100,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 4,
             "loadout": {
@@ -4036,11 +4140,11 @@
         "machines": [
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 0,
             "loadout": {
@@ -4059,11 +4163,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 1,
             "loadout": {
@@ -4082,11 +4186,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 2,
             "loadout": {
@@ -4105,11 +4209,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 3,
             "loadout": {
@@ -4128,11 +4232,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 4,
             "loadout": {
@@ -4168,11 +4272,11 @@
         "machines": [
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 0,
             "loadout": {
@@ -4191,11 +4295,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 1,
             "loadout": {
@@ -4214,11 +4318,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 2,
             "loadout": {
@@ -4237,11 +4341,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 3,
             "loadout": {
@@ -4260,11 +4364,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 4,
             "loadout": {
@@ -4300,11 +4404,11 @@
         "machines": [
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 0,
             "loadout": {
@@ -4323,11 +4427,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 1,
             "loadout": {
@@ -4346,11 +4450,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 2,
             "loadout": {
@@ -4369,11 +4473,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 3,
             "loadout": {
@@ -4392,11 +4496,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 4,
             "loadout": {
@@ -4432,11 +4536,11 @@
         "machines": [
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 0,
             "loadout": {
@@ -4455,11 +4559,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 1,
             "loadout": {
@@ -4476,11 +4580,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 2,
             "loadout": {
@@ -4499,11 +4603,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 3,
             "loadout": {
@@ -4522,11 +4626,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 4,
             "loadout": {
@@ -4562,11 +4666,11 @@
         "machines": [
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 0,
             "loadout": {
@@ -4585,11 +4689,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 1,
             "loadout": {
@@ -4616,9 +4720,9 @@
                 "condition": {
                   "AfterTick": 100
                 },
-                "dial": "Energy",
+                "dial": "Stance",
                 "planBValue": {
-                  "Energy": "Offense"
+                  "Stance": "Aggressive"
                 },
                 "slot": "Slot2"
               }
@@ -4629,11 +4733,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 2,
             "loadout": {
@@ -4652,11 +4756,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 3,
             "loadout": {
@@ -4675,11 +4779,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 4,
             "loadout": {
@@ -4720,11 +4824,12 @@
         "machines": [
           {
             "dials": {
-              "energy": "Adaptive",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest",
+                "priority1": "TargetSupport"
+              }
             },
             "instanceId": 0,
             "loadout": {
@@ -4743,11 +4848,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 1,
             "loadout": {
@@ -4766,11 +4871,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 2,
             "loadout": {
@@ -4789,11 +4894,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 3,
             "loadout": {
@@ -4812,11 +4917,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 4,
             "loadout": {
@@ -4836,27 +4941,21 @@
         ]
       },
       "expected": {
-        "errors": [
-          {
-            "code": "DialGating",
-            "instanceId": 0,
-            "reason": "dial option 'Adaptive energy' requires the AdaptiveEnergy capability"
-          }
-        ],
-        "status": "invalid"
+        "powerRating": 4704,
+        "status": "ok"
       },
-      "label": "v7:ungated-dial"
+      "label": "targeting:support-filter-legal"
     },
     {
       "army": {
         "machines": [
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 0,
             "loadout": {
@@ -4875,11 +4974,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 1,
             "loadout": {
@@ -4898,11 +4997,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 2,
             "loadout": {
@@ -4921,11 +5020,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Advance",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 3,
             "loadout": {
@@ -4944,11 +5043,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 4,
             "loadout": {
@@ -4984,11 +5083,11 @@
         "machines": [
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 0,
             "loadout": {
@@ -5007,11 +5106,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 1,
             "loadout": {
@@ -5030,11 +5129,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 2,
             "loadout": {
@@ -5053,11 +5152,11 @@
           },
           {
             "dials": {
-              "energy": "Balanced",
               "movement": "Hold",
               "stance": "Neutral",
-              "targetRow": "FrontReachable",
-              "targetRule": "FocusFire"
+              "targeting": {
+                "fallback": "Closest"
+              }
             },
             "instanceId": 3,
             "loadout": {

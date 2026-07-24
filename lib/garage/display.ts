@@ -162,11 +162,17 @@ export interface DialTileSpec {
   value: string;
 }
 
-/** The 4 behavior-dial tiles: TARGET, ENERGY, POSITION, STANCE. */
+/** A one-line summary of a v3 targeting chain: its priority filters, else the fallback selector. */
+export function summarizeTargeting(t: BehaviorDials['targeting']): string {
+  const tiers = [t.priority1, t.priority2].filter(Boolean) as string[];
+  if (tiers.length === 0) return humanize(t.fallback);
+  return tiers.map(humanize).join(' › ');
+}
+
+/** The 3 behavior-dial tiles (v3): TARGET, POSITION, STANCE (the energy dial was removed). */
 export function dialTiles(dials: BehaviorDials): DialTileSpec[] {
   return [
-    { label: 'TARGET', value: humanize(dials.targetRule) },
-    { label: 'ENERGY', value: humanize(dials.energy) },
+    { label: 'TARGET', value: summarizeTargeting(dials.targeting) },
     { label: 'POSITION', value: humanize(dials.movement) },
     { label: 'STANCE', value: humanize(dials.stance) },
   ];

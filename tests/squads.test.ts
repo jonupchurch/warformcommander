@@ -92,8 +92,8 @@ describe("illegal armies are rejected before insert (SC-003, US2-AS3)", () => {
         {
           slot: "Slot2",
           condition: { AfterTick: 100 },
-          dial: "Energy",
-          planBValue: { Energy: "Offense" },
+          dial: "Stance",
+          planBValue: { Stance: "Aggressive" },
         },
       ];
       return c;

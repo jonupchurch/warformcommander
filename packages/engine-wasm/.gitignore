@@ -1,4 +1,1 @@
-# These artifacts are PREBUILT AND COMMITTED (research B3): the deterministic .wasm is
-# generated in CI (`wasm-pack build --target nodejs`) and checked in so Vercel's build never
-# needs a Rust toolchain. Do NOT ignore them — regenerate with:
-#   wasm-pack build crates/engine --target nodejs --out-dir ../../packages/engine-wasm --release
+*

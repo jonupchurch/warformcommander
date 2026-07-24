@@ -68,11 +68,12 @@ describe('dialTiles + humanize', () => {
     expect(humanize('FallBack')).toBe('Fall Back');
   });
 
-  it('projects the 4 behavior dials', () => {
+  it('projects the 3 behavior dials (v3 — the energy tile was removed)', () => {
     const seed = defaultFor('Grizzly', rs);
     const tiles = dialTiles(seed.dials);
-    expect(tiles.map((t) => t.label)).toEqual(['TARGET', 'ENERGY', 'POSITION', 'STANCE']);
-    expect(tiles[0].value).toBe('Focus Fire');
+    expect(tiles.map((t) => t.label)).toEqual(['TARGET', 'POSITION', 'STANCE']);
+    // STOCK_DIALS targeting is a bare chain, so the tile shows its fallback selector.
+    expect(tiles[0].value).toBe('Closest');
   });
 });
 

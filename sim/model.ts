@@ -25,65 +25,75 @@ export type MachineTypeId =
 /** The four battlefield rows (`ZoneId`). Air is separate from the ground rows. */
 export type ZoneId = "Air" | "Front" | "Middle" | "Rear";
 
-/** Target-row sub-pick (`TargetRow`). `Fullest`/`Weakest` are capability-gated. */
-export type TargetRow = "FrontReachable" | "LastReachable" | "FullestRow" | "WeakestRow";
-
-/** Target-rule sub-pick (`TargetRule`). `TargetSupport`/`TargetAir`/`SmartCounter` are gated. */
-export type TargetRule =
-  | "FocusFire"
-  | "DisperseFire"
-  | "Nearest"
-  | "Weakest"
-  | "BiggestThreat"
-  | "TargetSupport"
+/**
+ * A declarative targeting **class filter** (v3 US2, design §12.2) — *what to hunt*, never an
+ * auto-optimizer. `Follow` is dynamic: it focus-fires on a zone ally's independently-chosen target
+ * (non-chaining). Serializes as a bare PascalCase name.
+ */
+export type TargetFilter =
   | "TargetAir"
-  | "SmartCounter";
+  | "TargetArmor"
+  | "TargetSupport"
+  | "TargetIndirect"
+  | "Follow";
 
-/** Energy allocation dial (`EnergyMode`). `Overdrive`/`Fortify`/`Adaptive` are gated. */
-export type EnergyMode = "Offense" | "Balanced" | "Defense" | "Overdrive" | "Fortify" | "Adaptive";
+/**
+ * The positional **fallback selector** (v3 US2, design §12.1) — always resolves. `Closest` sweeps
+ * from the contact line (air first, then front→rear); `Furthest` from the enemy backline. No
+ * enemy-state "smart" selectors (Most/Least HP, threat) — those were retired (§12.7).
+ */
+export type TargetSelector = "Closest" | "Furthest";
 
-/** Movement dial (`MovementMode`). `Kite`/`Reposition`/`Escort` are gated. */
-export type MovementMode = "Hold" | "Advance" | "FallBack" | "Kite" | "Reposition" | "Escort";
+/**
+ * The targeting **priority-score chain** (`TargetingChain`, v3 US2) — two ordered class filters
+ * (either may be absent) plus a positional fallback. Reachable enemies are scored per shot: a
+ * Priority-1 match highest, a Priority-2 match next, an unmatched candidate lowest; the target's own
+ * draw offset (Decoy +2 / ECM −2) adjusts the score; the highest wins, the fallback breaks ties.
+ * Replaces the v2 target-row + target-rule pair. Fields are absent (not null) when a tier is unused.
+ */
+export interface TargetingChain {
+  priority1?: TargetFilter;
+  priority2?: TargetFilter;
+  fallback: TargetSelector;
+}
 
-/** Stance dial (`Stance`). `Protector`/`Opportunist` and support flavors are gated. */
-export type Stance =
-  | "Aggressive"
-  | "Neutral"
-  | "Defensive"
-  | "Protector"
-  | "Opportunist"
-  | "Triage"
-  | "Sustain"
-  | "Empower";
+/** Movement dial (`MovementMode`, v3 US2) — four self-terminating modes, no capability gates. */
+export type MovementMode = "Hold" | "Advance" | "FallBack" | "Kite";
 
-/** Which dial a Plan-B trigger flips (`DialKey`). */
-export type DialKey = "TargetRow" | "TargetRule" | "Energy" | "Movement" | "Stance";
+/**
+ * Stance dial (`Stance`, v3 US4) — three universal postures (every machine may hold any). A
+ * two-sided magnitude axis: `Aggressive` trades survivability for output, `Defensive` the reverse,
+ * `Neutral` (UI label "Balanced") is the identity baseline.
+ */
+export type Stance = "Aggressive" | "Neutral" | "Defensive";
+
+/**
+ * Which dial a Plan-B trigger flips (`DialKey`, v3) — Movement or Stance only. Targeting is
+ * self-reactive via the priority chain, so Plan-B no longer sets it (design §12.3/§15.4).
+ */
+export type DialKey = "Movement" | "Stance";
 
 /** Plan-B precedence slot (`PlanBSlot`). Slot 1 wins over Slot 2 on the same dial. */
 export type PlanBSlot = "Slot1" | "Slot2";
 
 /**
  * A dial-typed value a Plan-B trigger latches (`DialValue`, externally tagged — e.g.
- * `{ "Energy": "Overdrive" }`).
+ * `{ "Movement": "FallBack" }`).
  */
-export type DialValue =
-  | { TargetRow: TargetRow }
-  | { TargetRule: TargetRule }
-  | { Energy: EnergyMode }
-  | { Movement: MovementMode }
-  | { Stance: Stance };
+export type DialValue = { Movement: MovementMode } | { Stance: Stance };
 
 /**
- * The §8.2 Plan-B trigger menu (`TriggerCondition`). Unit variants serialize as bare strings; the
+ * The Plan-B trigger menu (`TriggerCondition`, v3 §15.4). **Every trigger reads own-state** — the
+ * enemy-reactive conditions (`AirEnemyExists`, `EnemyInZone`) were dropped because the priority-score
+ * targeting chain is already enemy-reactive per shot. Unit variants serialize as bare strings; the
  * data-carrying ones are externally tagged (e.g. `{ "HullBelowPct": 5000 }`, basis points).
  */
 export type TriggerCondition =
   | "ShieldDown"
   | "AllyLostInZone"
-  | "AirEnemyExists"
+  | "NoTargetsReachable"
   | { HullBelowPct: number } // basis points (bp)
-  | { AfterTick: number } // tick index
-  | { EnemyInZone: ZoneId };
+  | { AfterTick: number }; // tick index
 
 // --- String-id newtypes (serde `transparent` → bare strings) ---------------
 
@@ -111,11 +121,9 @@ export interface Loadout {
   utilities: EquipmentId[];
 }
 
-/** The five behavior dials a player sets per machine (`BehaviorDials`). */
+/** The behavior dials a player sets per machine (`BehaviorDials`, v3): targeting chain + movement + stance. */
 export interface BehaviorDials {
-  targetRow: TargetRow;
-  targetRule: TargetRule;
-  energy: EnergyMode;
+  targeting: TargetingChain;
   movement: MovementMode;
   stance: Stance;
 }

@@ -1,5 +1,5 @@
 {
-  "name": "@wfc/engine-wasm",
+  "name": "engine",
   "version": "0.1.0",
   "license": "UNLICENSED",
   "files": [

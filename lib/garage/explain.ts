@@ -16,29 +16,24 @@
  * Pure — no React, no state.
  */
 
-import type { BehaviorDials } from '@/sim/model';
+import type { BehaviorDials, TargetingChain } from '@/sim/model';
 import type { MachineTypeId } from '@/sim/model';
 import {
   DEFAULT_ABLATIVE_MODS,
-  DEFAULT_EMPOWER_MODS,
-  DEFAULT_ENERGY_MODES,
-  DEFAULT_EXECUTE_MODS,
   DEFAULT_MOUNT_SCALE,
   DEFAULT_REACTIVE_MODS,
-  DEFAULT_STANCE_AGGRO,
+  DEFAULT_STANCE_MODS,
   mountScaleFor,
 } from '@/sim/ruleset';
 import type {
   Capability,
   DamageFamily,
-  EnergyModes,
-  EnergyProfile,
   ReachTag,
   Ruleset,
   StatDeltas,
 } from '@/sim/ruleset';
 
-import { humanize } from './display';
+import { humanize, summarizeTargeting } from './display';
 import type { DefenseModule, UtilityModule, WeaponModule } from './loadout-options';
 
 /** One "what this does" line: a stat name and its formatted change. */
@@ -116,6 +111,12 @@ function statDeltaLines(d: StatDeltas, ruleset: Ruleset): EffectLine[] {
   push('Evasion', d.evasion, signedPct);
   push('Armor', d.armorPct, signedPct);
   push('Move speed', d.moveSpeed, (n) => `${n > 0 ? '+' : ''}${n}`);
+  if (d.targetDraw !== 0) {
+    out.push({
+      label: 'Target draw',
+      value: `${d.targetDraw > 0 ? '+' : ''}${d.targetDraw} (${d.targetDraw > 0 ? 'pulls fire' : 'sheds fire'})`,
+    });
+  }
   if (d.cadenceTier) out.push({ label: 'Fire rate', value: cadenceRate(d.cadenceTier, ruleset) });
   if (d.reach) {
     out.push({ label: 'Reach', value: `${humanize(d.reach)} — ${REACH_COPY[d.reach]}` });
@@ -185,12 +186,11 @@ const EQUIPMENT_CAVEAT: Record<string, string> = {
 /** What each capability actually grants. */
 const CAPABILITY_COPY: Record<Capability, string> = {
   ExtraPlanBSlot: 'A second Plan-B trigger slot',
-  AdaptiveEnergy: 'The Adaptive energy mode',
-  OpportunistStance: 'The Opportunist stance',
   ExtendReach: 'Extended weapon reach',
-  TargetAir: 'Can target aircraft, and unlocks the Target Air rule',
+  TargetAir: 'Can target aircraft, and unlocks the Target-Air priority filter',
   AntiAir: 'Can target aircraft at the flak damage rate, with the anti-air accuracy bonus',
   RocketPack: 'Full-rate anti-air (flak damage), but only against aircraft close to the front line',
+  OnHitPaint: 'Paints targets on hit — a painted enemy takes extra damage from all further fire',
 };
 
 // --- equipment -------------------------------------------------------------
@@ -352,162 +352,90 @@ export function explainUtility(utility: UtilityModule, ruleset: Ruleset): Explan
 
 // --- dials -----------------------------------------------------------------
 
-/** The energy dial's table for a ruleset, falling back to the engine default when omitted. */
-function energyProfile(value: string, ruleset: Ruleset): EnergyProfile | null {
-  const table = ruleset.energyModes ?? DEFAULT_ENERGY_MODES;
-  const key = value.toLowerCase() as keyof EnergyModes;
-  return table[key] ?? null;
+/** Per-stance prose (v3). Stance is a two-sided magnitude axis: output vs survivability. */
+const STANCE_BLURB: Record<string, string> = {
+  Aggressive:
+    'All-out: more damage and accuracy, but it takes more fire in return. "Output" is weapon damage — or, for a Commander, its heal/shield projection.',
+  Neutral: 'Balanced — the identity baseline, no trade either way.',
+  Defensive:
+    'Dug in: gives up a large slice of output for reduced incoming damage and extra evasion.',
+};
+
+/** Per-movement prose (v3) — four self-terminating modes. */
+const MOVEMENT_BLURB: Record<string, string> = {
+  Hold: 'Stays in its starting zone for the whole battle.',
+  Advance:
+    'Closes to contact one zone at a time, then idles once a target is in reach (re-closing if it is stranded).',
+  FallBack: 'Ducks one zone back for a short spell when pressed, then returns to its home zone.',
+  Kite: 'Oscillates — retreats while it can still shoot, re-closes when it cannot.',
+};
+
+/** Per-targeting-filter prose (v3, design §12.2). */
+const FILTER_BLURB: Record<string, string> = {
+  TargetAir: 'Hunts enemy aircraft first (inert if this machine has no air reach).',
+  TargetArmor: 'Hunts high-armor enemies first — the partner for an energy weapon.',
+  TargetSupport: 'Hunts enemy support machines first — kill the healer.',
+  TargetIndirect: 'Hunts enemy artillery / rocket-artillery first — counter-battery.',
+  Follow: 'Focus-fires on a zone ally’s independently-chosen target (non-chaining).',
+};
+
+/** Per-fallback-selector prose (v3, design §12.1). */
+const SELECTOR_BLURB: Record<string, string> = {
+  Closest: 'Sweeps from the contact line — air first, then front→rear.',
+  Furthest: 'Sweeps from the enemy backline inward.',
+};
+
+/** Explain the targeting priority-score chain (v3 US2) as one block. */
+export function explainTargeting(chain: TargetingChain): Explanation {
+  const effects: EffectLine[] = [];
+  const filters = [chain.priority1, chain.priority2].filter(Boolean) as string[];
+  if (filters.length === 0) {
+    effects.push({ label: 'Priority', value: 'None — pick purely by position', tone: 'none' });
+  } else {
+    filters.forEach((f, i) => {
+      effects.push({ label: `Priority ${i + 1}`, value: humanize(f), tone: 'gain' });
+    });
+  }
+  effects.push({ label: 'Fallback', value: humanize(chain.fallback) });
+  const blurb = [
+    ...filters.map((f) => FILTER_BLURB[f]).filter(Boolean),
+    SELECTOR_BLURB[chain.fallback],
+  ].join(' ');
+  return {
+    title: filters.length ? filters.map(humanize).join(' › ') : humanize(chain.fallback),
+    blurb,
+    effects,
+  };
 }
 
-const DIAL_BLURB: Record<string, string> = {
-  // Target row
-  FrontReachable:
-    'Shoots into the frontmost row this machine can reach. For a Nearest-reach weapon that is the only option anyway.',
-  LastReachable:
-    'Shoots into the deepest reachable row — the raider setting. Only does anything with indirect or deep reach.',
-  FullestRow: 'Shoots into the most crowded reachable row. Pairs with splash weapons.',
-  WeakestRow: 'Shoots into the reachable row with the least remaining hull.',
-  // Target rule
-  FocusFire:
-    'Concentrates on the most wounded target in the row. Killing a machine outright removes its damage from the battle permanently.',
-  DisperseFire: 'Spreads damage onto the freshest target instead of finishing wounded ones.',
-  Nearest: 'Picks the closest target by zone, then by placement order.',
-  Weakest: 'Picks the most wounded target — identical in effect to Focus Fire.',
-  BiggestThreat:
-    'Picks the highest-threat target. Will ignore a nearly-dead machine to keep hitting a healthy artillery piece.',
-  TargetSupport: 'Hunts enemy support machines first, falling back to the most wounded target.',
-  TargetAir: 'Hunts enemy aircraft first, falling back to the most wounded target.',
-  SmartCounter:
-    'Picks whichever target this machine’s damage family punishes most, falling back to the most wounded.',
-  // Movement
-  Hold: 'Stays in its starting zone for the whole battle.',
-  Advance: 'Steps forward one zone at a time — Rear to Middle to Front.',
-  FallBack: 'Steps back one zone at a time — Front to Middle to Rear.',
-  Kite: 'Intended to withdraw while firing.',
-  Reposition: 'Intended to move to a better firing position.',
-  Escort: 'Intended to follow and screen an ally.',
-};
-
-const DIAL_CAVEAT: Record<string, string> = {
-  Kite: 'No effect yet — this machine will hold position.',
-  Reposition: 'No effect yet — this machine will hold position.',
-  Escort: 'No effect yet — this machine will hold position.',
-  Adaptive: 'Currently identical to Balanced.',
-};
-
-/** Energy-mode prose. Each mode is a two-sided trade; the numbers come from the ruleset. */
-const ENERGY_BLURB: Record<string, string> = {
-  Overdrive: 'All-out attack. Hits hardest in the game, and takes the most in return.',
-  Offense: 'Leans into the attack, accepting a little more incoming damage.',
-  Balanced: 'No trade either way — the neutral posture.',
-  Adaptive: 'Intended to shift posture as the battle turns.',
-  Defense: 'An even trade: gives up damage for the same measure of protection.',
-  Fortify: 'The dug-in posture — gives up the most damage, and gains the most protection.',
-};
-
-/** Per-stance prose (v2). Stance is a fire-allocation axis: it decides which of your units gets shot. */
-const STANCE_BLURB: Record<string, string> = {
-  Aggressive: 'Draws enemy fire ahead of your other units in the same row — and its own targeting cannot be baited by an enemy taunt or hidden from by an enemy Defensive stance.',
-  Neutral: 'No fire-priority change. The baseline every other stance is measured against.',
-  Defensive: 'Targeted only when no other option remains in its row — hide a fragile, high-value unit behind its rowmates.',
-  Protector: 'Draws fire ahead of your other units, and extends that cover to allies in the adjacent ground zones an attacker can already reach — a bodyguard for the line.',
-  Opportunist: 'Deals bonus damage to any enemy already below the execute threshold — finishes off the wounded.',
-  Triage: 'Support: commits its repair to whichever ally is closest to dying.',
-  Sustain: 'Support: keeps still-effective allies topped up rather than chasing losses.',
-  Empower: 'Support: forgoes repair to strengthen nearby allies instead.',
-};
-
-/** The support-role stances — a repair-priority axis, explained by what they repair, not a tier. */
-const SUPPORT_STANCE_KEYS = ['Triage', 'Sustain', 'Empower'];
-
-/** The stance keys that carry a fire-priority tier, with the sign of their effect. */
-const STANCE_AGGRO_KEY: Record<string, keyof import('@/sim/ruleset').StanceAggro> = {
-  Aggressive: 'aggressive',
-  Neutral: 'neutral',
-  Defensive: 'defensive',
-  Protector: 'protector',
-  Opportunist: 'opportunist',
-  Triage: 'triage',
-  Sustain: 'sustain',
-  Empower: 'empower',
-};
-
-/** Explain one selected dial value. */
+/** Explain a scalar dial value — Position (movement) or Stance. Numbers come from the ruleset. */
 export function explainDial(
-  dial: keyof BehaviorDials,
+  dial: 'movement' | 'stance',
   value: string,
   ruleset: Ruleset,
 ): Explanation {
   const title = humanize(value);
+  const effects: EffectLine[] = [];
 
   if (dial === 'stance') {
-    const effects: EffectLine[] = [];
-    // Support stances (Triage/Sustain/Empower) are a repair-priority axis, not a fire-priority one —
-    // their aggro tier is always neutral, so show what they actually do instead of a blank tier.
-    if (SUPPORT_STANCE_KEYS.includes(value)) {
-      if (value === 'Empower') {
-        const emp = ruleset.empowerMods ?? DEFAULT_EMPOWER_MODS;
-        effects.push({ label: 'Overshield', value: `up to +${(emp.shieldCapBp / 100).toFixed(0)}% max hull as shield`, tone: 'gain' });
-      } else {
-        effects.push({
-          label: 'Repair priority',
-          value: value === 'Triage' ? 'Most-damaged ally' : 'Most-effective ally',
-          tone: 'none',
-        });
-      }
-      return { title, blurb: STANCE_BLURB[value] ?? '', effects };
-    }
-    const aggro = ruleset.stanceAggro ?? DEFAULT_STANCE_AGGRO;
-    const key = STANCE_AGGRO_KEY[value];
-    if (key) {
-      const offset = aggro[key];
-      // Lower offset = drawn first. Negative pulls fire in (a cost you take on), positive sheds it.
-      const label = offset < 0 ? 'Draws fire' : offset > 0 ? 'Sheds fire' : 'Fire priority';
-      const tone: EffectLine['tone'] = offset < 0 ? 'cost' : offset > 0 ? 'gain' : 'none';
-      effects.push({ label, value: offset === 0 ? 'Neutral' : `tier ${offset > 0 ? '+' : ''}${offset}`, tone });
-    }
-    if (value === 'Opportunist') {
-      const ex = ruleset.executeMods ?? DEFAULT_EXECUTE_MODS;
-      effects.push({ label: 'Execute', value: `+${(ex.bonus / 100).toFixed(0)}% damage vs targets under ${(ex.threshold / 100).toFixed(0)}% hull`, tone: 'gain' });
+    const sm = ruleset.stanceMods ?? DEFAULT_STANCE_MODS;
+    if (value === 'Aggressive') {
+      effects.push({ label: 'Output', value: mult(sm.aggressiveOutput), tone: 'gain' });
+      effects.push({ label: 'Accuracy', value: signedPct(sm.aggressiveAccuracy), tone: 'gain' });
+      effects.push({ label: 'Damage taken', value: mult(sm.aggressiveTaken), tone: 'cost' });
+    } else if (value === 'Defensive') {
+      effects.push({ label: 'Output', value: mult(sm.defensiveOutput), tone: 'cost' });
+      effects.push({ label: 'Damage taken', value: mult(sm.defensiveTaken), tone: 'gain' });
+      effects.push({ label: 'Evasion', value: signedPct(sm.defensiveEvasion), tone: 'gain' });
+    } else {
+      effects.push({ label: 'Effect', value: 'Neutral — no trade', tone: 'none' });
     }
     return { title, blurb: STANCE_BLURB[value] ?? '', effects };
   }
 
-  const effects: EffectLine[] = [];
-  let blurb = DIAL_BLURB[value] ?? '';
-
-  if (dial === 'energy') {
-    blurb = ENERGY_BLURB[value] ?? blurb;
-    const p = energyProfile(value, ruleset);
-    if (p) {
-      // Both halves, always — the point of the dial is that it is a trade, so showing only the
-      // side that favours the player would misrepresent the choice.
-      const tone = (bp: number, higherIsBetter: boolean): EffectLine['tone'] =>
-        bp === 10000 ? 'none' : bp > 10000 === higherIsBetter ? 'gain' : 'cost';
-      effects.push({
-        label: 'Damage dealt',
-        value: mult(p.damageDealt),
-        tone: tone(p.damageDealt, true),
-      });
-      effects.push({
-        label: 'Damage taken',
-        value: mult(p.damageTaken),
-        tone: tone(p.damageTaken, false),
-      });
-    }
-  }
-
-  return { title, blurb, effects, caveat: DIAL_CAVEAT[value] };
+  // movement
+  return { title, blurb: MOVEMENT_BLURB[value] ?? '', effects };
 }
-
-/** The five dials in display order, with the labels the Behavior tab uses. */
-export const DIAL_SECTIONS: { dial: keyof BehaviorDials; label: string }[] = [
-  { dial: 'targetRow', label: 'Target Row' },
-  { dial: 'targetRule', label: 'Target Rule' },
-  { dial: 'energy', label: 'Energy' },
-  { dial: 'movement', label: 'Position' },
-  { dial: 'stance', label: 'Stance' },
-];
 
 // --- whole-build summary ---------------------------------------------------
 
@@ -536,8 +464,8 @@ export function summarizeBuild(
   loadout.utilities.forEach((id, i) => {
     lines.push({ label: `Slot ${i + 1}`, value: name(id) });
   });
-  for (const { dial, label } of DIAL_SECTIONS) {
-    lines.push({ label, value: humanize(dials[dial]) });
-  }
+  lines.push({ label: 'Targeting', value: summarizeTargeting(dials.targeting) });
+  lines.push({ label: 'Position', value: humanize(dials.movement) });
+  lines.push({ label: 'Stance', value: humanize(dials.stance) });
   return lines;
 }

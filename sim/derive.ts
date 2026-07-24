@@ -110,6 +110,7 @@ interface Accum {
   splash: number;
   penetration: number;
   moveDelta: number;
+  targetDraw: number;
   cadence: CadenceTier;
   reach: ReachTag;
 }
@@ -124,6 +125,7 @@ function applyDeltas(acc: Accum, d: StatDeltas): void {
   acc.splash += d.splash;
   acc.penetration += d.penetration;
   acc.moveDelta += d.moveSpeed;
+  acc.targetDraw += d.targetDraw;
   if (d.cadenceTier !== null) acc.cadence = d.cadenceTier;
   if (d.reach !== null) acc.reach = d.reach;
 }
@@ -179,6 +181,7 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
     splash: base.splash,
     penetration: base.penetration,
     moveDelta: 0,
+    targetDraw: 0, // equipment-only (Decoy/ECM); no chassis carries an innate draw offset
     cadence: base.cadence,
     reach: base.reach,
   };
@@ -274,6 +277,7 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
       moveSpeed,
       evasion,
       threat: base.threat,
+      targetDraw: clamp(acc.targetDraw, -128, 127),
       supportPower: base.supportPower ?? null,
       supportRange: base.supportRange ?? null,
       specialMitigation,

@@ -14,9 +14,9 @@
         ]
       },
       "dials": {
-        "targetRow": "FrontReachable",
-        "targetRule": "FocusFire",
-        "energy": "Balanced",
+        "targeting": {
+          "fallback": "Closest"
+        },
         "movement": "Hold",
         "stance": "Neutral"
       },
@@ -37,9 +37,9 @@
         ]
       },
       "dials": {
-        "targetRow": "FrontReachable",
-        "targetRule": "FocusFire",
-        "energy": "Balanced",
+        "targeting": {
+          "fallback": "Closest"
+        },
         "movement": "Hold",
         "stance": "Neutral"
       },
@@ -60,9 +60,9 @@
         ]
       },
       "dials": {
-        "targetRow": "FrontReachable",
-        "targetRule": "FocusFire",
-        "energy": "Balanced",
+        "targeting": {
+          "fallback": "Closest"
+        },
         "movement": "Hold",
         "stance": "Neutral"
       },
@@ -83,9 +83,9 @@
         ]
       },
       "dials": {
-        "targetRow": "FrontReachable",
-        "targetRule": "FocusFire",
-        "energy": "Balanced",
+        "targeting": {
+          "fallback": "Closest"
+        },
         "movement": "Hold",
         "stance": "Neutral"
       },
@@ -106,9 +106,9 @@
         ]
       },
       "dials": {
-        "targetRow": "FrontReachable",
-        "targetRule": "FocusFire",
-        "energy": "Balanced",
+        "targeting": {
+          "fallback": "Closest"
+        },
         "movement": "Hold",
         "stance": "Neutral"
       },

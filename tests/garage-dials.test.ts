@@ -1,13 +1,13 @@
 /**
- * US3 dial + Plan-B gating (T026/T027). The client gate table mirrors the engine's V7 exactly (only
- * Adaptive energy / Opportunist stance / Target-Air are gated), and the Plan-B slot count is the
- * derived `planBSlots` (1 base, 2 with Combat AI, V6). Every claim is cross-checked against
+ * v3 dial + Plan-B behavior (garage). v3 removed **all** capability-gated dial options (the engine
+ * dropped V7 dial-gating) and collapsed stance to three universal postures, so the only remaining
+ * gate is the Plan-B slot count (1 base, 2 with Combat AI, V6). Every claim is cross-checked against
  * `validateArmy` — what the server re-runs — so the UI never diverges from the engine (P8).
  */
 
 import { describe, expect, it } from 'vitest';
 
-import { dialOptionLocked, stanceOptionsForRole } from '@/lib/garage/dials';
+import { MOVEMENT_OPTIONS, STANCE_OPTIONS } from '@/lib/garage/dials';
 import { garageReducer, freshSession, type EditorAction } from '@/lib/garage/editor-reducer';
 import { defaultFor } from '@/lib/garage/preset-catalog';
 import { toSquadConfig } from '@/lib/garage/to-squad-config';
@@ -60,78 +60,35 @@ function armyWith(slot0: DraftMachine) {
   return { name: 'x', machines };
 }
 
-describe('dialOptionLocked mirrors the engine V7 gate table (T026)', () => {
-  it('only the three engine-gated options lock without their capability', () => {
-    expect(dialOptionLocked('energy', 'Adaptive', [])).toBe(true);
-    expect(dialOptionLocked('stance', 'Opportunist', [])).toBe(true);
-    expect(dialOptionLocked('targetRule', 'TargetAir', [])).toBe(true);
-    // Everything else is ungated (the engine allows it → the UI must not disable it).
-    expect(dialOptionLocked('energy', 'Overdrive', [])).toBe(false);
-    expect(dialOptionLocked('movement', 'Kite', [])).toBe(false);
-    expect(dialOptionLocked('targetRule', 'FocusFire', [])).toBe(false);
+describe('v3 dial options are ungated (the engine dropped V7 dial-gating)', () => {
+  it('offers three universal stances and four movement modes', () => {
+    expect(STANCE_OPTIONS).toEqual(['Aggressive', 'Neutral', 'Defensive']);
+    expect(MOVEMENT_OPTIONS).toEqual(['Hold', 'Advance', 'FallBack', 'Kite']);
   });
 
-  it('the required capability unlocks the option', () => {
-    expect(dialOptionLocked('energy', 'Adaptive', ['AdaptiveEnergy'])).toBe(false);
-    expect(dialOptionLocked('stance', 'Opportunist', ['OpportunistStance'])).toBe(false);
+  it('any stance / movement / targeting-chain choice on a legal build never trips a DialGating error', () => {
+    for (const stance of STANCE_OPTIONS) {
+      for (const movement of MOVEMENT_OPTIONS) {
+        const m = heavy(NO_AI, {
+          dials: { targeting: { priority1: 'TargetArmor', fallback: 'Furthest' }, movement, stance },
+        });
+        const errs = validateArmy(toSquadConfig(armyWith(m)), rs);
+        expect(errs.some((e) => e.code === 'DialGating')).toBe(false);
+      }
+    }
   });
 });
 
-describe('unlockedCapabilities drives the gate (T026)', () => {
-  it('Combat AI unlocks Adaptive + Opportunist; a plain utility set unlocks nothing', () => {
+describe('Combat AI unlocks the extra Plan-B slot (V6)', () => {
+  it('a plain utility set unlocks nothing; Combat AI unlocks the extra slot', () => {
     expect(unlockedCapabilities({ weapon: 'x', defense: 'y', utilities: NO_AI }, rs)).toEqual([]);
-    const caps = unlockedCapabilities({ weapon: 'x', defense: 'y', utilities: WITH_AI }, rs);
-    expect(caps).toContain('AdaptiveEnergy');
-    expect(caps).toContain('OpportunistStance');
-    expect(caps).toContain('ExtraPlanBSlot');
-  });
-});
-
-describe('gated dial choices agree with the engine V7', () => {
-  it('Adaptive energy is illegal without Combat AI and legal with it', () => {
-    const locked = armyWith(heavy(NO_AI, { dials: { ...defaultFor('Grizzly', rs).dials, energy: 'Adaptive' } }));
-    expect(validateArmy(toSquadConfig(locked), rs).some((e) => e.code === 'DialGating' && e.instanceId === 0)).toBe(true);
-
-    const unlocked = armyWith(heavy(WITH_AI, { dials: { ...defaultFor('Grizzly', rs).dials, energy: 'Adaptive' } }));
-    expect(validateArmy(toSquadConfig(unlocked), rs).some((e) => e.code === 'DialGating')).toBe(false);
-  });
-});
-
-describe('stance is role-split (v2, FR-019/FR-022)', () => {
-  it('offers support flavors to support machines and combat stances to everything else', () => {
-    const combat = stanceOptionsForRole(false);
-    const support = stanceOptionsForRole(true);
-    expect(combat).toContain('Aggressive');
-    expect(combat).not.toContain('Triage');
-    expect(support).toEqual(expect.arrayContaining(['Triage', 'Sustain', 'Empower']));
-    expect(support).not.toContain('Aggressive');
-    // Neutral is the universal fallback both roles share.
-    expect(combat).toContain('Neutral');
-    expect(support).toContain('Neutral');
-  });
-
-  it('does not reject a saved out-of-role stance (it degrades, FR-022)', () => {
-    // A combat machine holding a support stance and a support machine holding a (non-gated) combat
-    // stance both still validate — the engine degrades them at runtime rather than rejecting.
-    const combatWithSupportStance = armyWith(
-      heavy(NO_AI, { dials: { ...defaultFor('Grizzly', rs).dials, stance: 'Triage' } }),
+    expect(unlockedCapabilities({ weapon: 'x', defense: 'y', utilities: WITH_AI }, rs)).toContain(
+      'ExtraPlanBSlot',
     );
-    expect(validateArmy(toSquadConfig(combatWithSupportStance), rs).some((e) => e.code === 'DialGating')).toBe(false);
-
-    const medicSeed = defaultFor('Medic', rs);
-    const supportWithCombatStance = armyWith({
-      typeId: 'RearSupport',
-      variantId: 'Medic',
-      loadout: medicSeed.loadout,
-      dials: { ...medicSeed.dials, stance: 'Aggressive' },
-      planB: medicSeed.planB,
-      zone: 'Rear',
-    });
-    expect(validateArmy(toSquadConfig(supportWithCombatStance), rs).some((e) => e.code === 'DialGating')).toBe(false);
   });
 });
 
-describe('Plan-B slot count = derived planBSlots (T027, V6)', () => {
+describe('Plan-B slot count = derived planBSlots (V6)', () => {
   const t1: PlanBTrigger = {
     slot: 'Slot1',
     condition: { HullBelowPct: 5000 },
@@ -141,8 +98,8 @@ describe('Plan-B slot count = derived planBSlots (T027, V6)', () => {
   const t2: PlanBTrigger = {
     slot: 'Slot2',
     condition: 'ShieldDown',
-    dial: 'Energy',
-    planBValue: { Energy: 'Overdrive' },
+    dial: 'Stance',
+    planBValue: { Stance: 'Aggressive' },
   };
 
   it('1 slot without Combat AI, 2 with it', () => {
@@ -154,14 +111,16 @@ describe('Plan-B slot count = derived planBSlots (T027, V6)', () => {
 
   it('a 2nd trigger is illegal without Combat AI and legal with it', () => {
     const over = armyWith(heavy(NO_AI, { planB: [t1, t2] }));
-    expect(validateArmy(toSquadConfig(over), rs).some((e) => e.code === 'PlanB' && e.instanceId === 0)).toBe(true);
+    expect(
+      validateArmy(toSquadConfig(over), rs).some((e) => e.code === 'PlanB' && e.instanceId === 0),
+    ).toBe(true);
 
     const ok = armyWith(heavy(WITH_AI, { planB: [t1, t2] }));
     expect(validateArmy(toSquadConfig(ok), rs).some((e) => e.code === 'PlanB')).toBe(false);
   });
 });
 
-describe('reducer dial + Plan-B actions', () => {
+describe('reducer dial + Plan-B actions (v3)', () => {
   function base() {
     return garageReducer(freshSession(), {
       type: 'setType',
@@ -173,25 +132,31 @@ describe('reducer dial + Plan-B actions', () => {
   }
   const run = (s: ReturnType<typeof base>, ...a: EditorAction[]) => a.reduce(garageReducer, s);
 
-  it('setDial patches the dials; addPlanB / setPlanB / removePlanB manage triggers', () => {
+  it('setDial patches a scalar dial and the targeting chain; addPlanB / setPlanB / removePlanB manage triggers', () => {
     const t: PlanBTrigger = {
       slot: 'Slot1',
       condition: 'ShieldDown',
-      dial: 'Energy',
-      planBValue: { Energy: 'Overdrive' },
+      dial: 'Stance',
+      planBValue: { Stance: 'Defensive' },
     };
     let s = run(base(), { type: 'setDial', slot: 0, patch: { stance: 'Defensive' } });
     expect(s.draft.machines[0]!.dials.stance).toBe('Defensive');
 
+    s = run(s, {
+      type: 'setDial',
+      slot: 0,
+      patch: { targeting: { priority1: 'TargetSupport', fallback: 'Furthest' } },
+    });
+    expect(s.draft.machines[0]!.dials.targeting).toEqual({
+      priority1: 'TargetSupport',
+      fallback: 'Furthest',
+    });
+
     s = run(s, { type: 'addPlanB', slot: 0, trigger: t });
     expect(s.draft.machines[0]!.planB).toHaveLength(1);
 
-    s = run(s, {
-      type: 'setPlanB',
-      slot: 0,
-      trigger: { ...t, planBValue: { Energy: 'Fortify' } },
-    });
-    expect(s.draft.machines[0]!.planB[0].planBValue).toEqual({ Energy: 'Fortify' });
+    s = run(s, { type: 'setPlanB', slot: 0, trigger: { ...t, planBValue: { Stance: 'Aggressive' } } });
+    expect(s.draft.machines[0]!.planB[0].planBValue).toEqual({ Stance: 'Aggressive' });
 
     s = run(s, { type: 'removePlanB', slot: 0, planBSlot: 'Slot1' });
     expect(s.draft.machines[0]!.planB).toHaveLength(0);

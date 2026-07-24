@@ -144,9 +144,6 @@ function validateMachine(m: MachineInstance, ruleset: Ruleset, errors: Validatio
     );
   }
 
-  // V7 — capability-gated dial options.
-  checkDialGating(m, stats.capabilities, id, errors);
-
   // V8 — movement order feasible for the machine's mobility.
   const moving = m.dials.movement !== 'Hold';
   const immobile = stats.moveSpeed === null || stats.moveSpeed === 0;
@@ -226,26 +223,6 @@ function validateUtilities(
       errors.push(machineError('Utilities', id, `'${u}' is not a utility module`));
     }
   }
-}
-
-/**
- * Gate the dial options with a defined unlocking capability (Adaptive energy, Opportunist stance,
- * Target-Air). Options without a defined gate are allowed (the table grows as capabilities are added).
- */
-function checkDialGating(
-  m: MachineInstance,
-  caps: readonly string[],
-  id: number,
-  errors: ValidationError[],
-): void {
-  const gate = (needs: string, ok: boolean, what: string): void => {
-    if (!ok && !caps.includes(needs)) {
-      errors.push(machineError('DialGating', id, `dial option '${what}' requires the ${needs} capability`));
-    }
-  };
-  gate('AdaptiveEnergy', m.dials.energy !== 'Adaptive', 'Adaptive energy');
-  gate('OpportunistStance', m.dials.stance !== 'Opportunist', 'Opportunist stance');
-  gate('TargetAir', m.dials.targetRule !== 'TargetAir', 'Target-Air rule');
 }
 
 /** The variant's slot-layout override, if any (else the caller falls back to the type default). */

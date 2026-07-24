@@ -15,11 +15,10 @@ import type { EquipmentModule, MountClass, Ruleset } from '@/sim/ruleset';
 
 import type { MachineSeed } from './editor-reducer';
 
-/** The canonical starter dials — all **starter** options, so no capability gate is tripped (V7/V8). */
+/** The canonical starter dials (v3): the broad default targeting chain (no filters, sweep from the
+ *  contact line), hold position, balanced stance — always legal for any machine. */
 export const STOCK_DIALS: BehaviorDials = {
-  targetRow: 'FrontReachable',
-  targetRule: 'FocusFire',
-  energy: 'Balanced',
+  targeting: { fallback: 'Closest' },
   movement: 'Hold',
   stance: 'Neutral',
 };

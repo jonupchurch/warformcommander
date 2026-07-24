@@ -9,16 +9,16 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  DIAL_SECTIONS,
   explainDefense,
   explainDial,
+  explainTargeting,
   explainUtility,
   explainWeapon,
   summarizeBuild,
 } from '@/lib/garage/explain';
 import type { DefenseModule, UtilityModule, WeaponModule } from '@/lib/garage/loadout-options';
 import type { BehaviorDials } from '@/sim/model';
-import { DEFAULT_ENERGY_MODES } from '@/sim/ruleset';
+import { DEFAULT_STANCE_MODS } from '@/sim/ruleset';
 import type { Ruleset } from '@/sim/ruleset';
 
 import { defaultRuleset } from './ruleset-fixture';
@@ -53,7 +53,7 @@ describe('weapons', () => {
 
   it('reads the damage matrix live', () => {
     const ex = explainWeapon(weapon('PulseLaser'), 'Mech', rs);
-    expect(values(ex, 'Damage family')[0]).toBe('Energy — ×0.60 vs shields, ×1.25 vs armour');
+    expect(values(ex, 'Damage family')[0]).toBe('Energy — ×0.70 vs shields, ×1.60 vs armour');
 
     const flipped: Ruleset = {
       ...rs,
@@ -192,6 +192,7 @@ describe('utilities', () => {
         armorPct: 0,
         critChance: 0,
         moveSpeed: 0,
+        targetDraw: 0,
         cadenceTier: null,
         reach: null,
       },
@@ -203,135 +204,60 @@ describe('utilities', () => {
 });
 
 describe('dials', () => {
-  it('always shows BOTH halves of the energy trade', () => {
-    // Showing only the favourable side would misrepresent the choice.
-    for (const mode of ['Overdrive', 'Offense', 'Balanced', 'Defense', 'Fortify']) {
-      const ex = explainDial('energy', mode, rs);
-      expect(values(ex, 'Damage dealt'), `${mode} dealt`).toHaveLength(1);
-      expect(values(ex, 'Damage taken'), `${mode} taken`).toHaveLength(1);
-    }
+  it('explains stance as a two-sided magnitude trade, toned by side', () => {
+    const agg = explainDial('stance', 'Aggressive', rs);
+    expect(agg.effects.find((e) => e.label === 'Output')?.tone).toBe('gain');
+    expect(agg.effects.find((e) => e.label === 'Damage taken')?.tone).toBe('cost');
+
+    const def = explainDial('stance', 'Defensive', rs);
+    expect(def.effects.find((e) => e.label === 'Output')?.tone).toBe('cost');
+    expect(def.effects.find((e) => e.label === 'Damage taken')?.tone).toBe('gain');
+
+    // Neutral is the identity baseline — no trade.
+    expect(explainDial('stance', 'Neutral', rs).effects.some((e) => e.value.includes('Neutral'))).toBe(
+      true,
+    );
   });
 
-  it('tones each half by whether it helps or hurts', () => {
-    const over = explainDial('energy', 'Overdrive', rs);
-    expect(values(over, 'Damage dealt')[0]).toBe('×1.20');
-    expect(values(over, 'Damage taken')[0]).toBe('×1.10');
-    expect(over.effects.find((e) => e.label === 'Damage dealt')?.tone).toBe('gain');
-    expect(over.effects.find((e) => e.label === 'Damage taken')?.tone).toBe('cost');
-
-    const fort = explainDial('energy', 'Fortify', rs);
-    expect(values(fort, 'Damage dealt')[0]).toBe('×0.85');
-    expect(values(fort, 'Damage taken')[0]).toBe('×0.80');
-    expect(fort.effects.find((e) => e.label === 'Damage dealt')?.tone).toBe('cost');
-    expect(fort.effects.find((e) => e.label === 'Damage taken')?.tone).toBe('gain');
-  });
-
-  it('reads the energy table from the ruleset when it carries one', () => {
+  it('reads the stance magnitudes live from the ruleset', () => {
     const tuned: Ruleset = {
       ...rs,
-      energyModes: {
-        ...DEFAULT_ENERGY_MODES,
-        fortify: { damageDealt: 7000, damageTaken: 5000 },
-      },
+      stanceMods: { ...DEFAULT_STANCE_MODS, aggressiveOutput: 13000, defensiveTaken: 7000 },
     };
-    const ex = explainDial('energy', 'Fortify', tuned);
-    expect(values(ex, 'Damage dealt')[0]).toBe('×0.70');
-    expect(values(ex, 'Damage taken')[0]).toBe('×0.50');
+    expect(
+      explainDial('stance', 'Aggressive', tuned).effects.find((e) => e.label === 'Output')?.value,
+    ).toBe('×1.30');
+    expect(
+      explainDial('stance', 'Defensive', tuned).effects.find((e) => e.label === 'Damage taken')?.value,
+    ).toBe('×0.70');
   });
 
-  it('no longer claims the defensive modes give nothing back', () => {
-    for (const mode of ['Defense', 'Fortify']) {
-      expect(explainDial('energy', mode, rs).caveat).toBeUndefined();
+  it('gives every stance and movement mode a blurb', () => {
+    for (const stance of ['Aggressive', 'Neutral', 'Defensive']) {
+      expect(explainDial('stance', stance, rs).blurb, `${stance} blurb`).not.toBe('');
+    }
+    for (const move of ['Hold', 'Advance', 'FallBack', 'Kite']) {
+      expect(explainDial('movement', move, rs).blurb, `${move} blurb`).not.toBe('');
     }
   });
 
-  it('explains stance as a fire-allocation dial (v2 — no longer inert)', () => {
-    // Every combat stance now has a blurb and no "not wired" caveat.
-    for (const stance of ['Aggressive', 'Neutral', 'Defensive', 'Protector', 'Opportunist']) {
-      const ex = explainDial('stance', stance, rs);
-      expect(ex.blurb, `${stance} blurb`).not.toBe('');
-      expect(ex.caveat).toBeUndefined();
-    }
-    // Aggressive draws fire (a cost); Defensive sheds it (a gain).
-    expect(explainDial('stance', 'Aggressive', rs).effects.find((e) => e.label === 'Draws fire')?.tone).toBe('cost');
-    expect(explainDial('stance', 'Defensive', rs).effects.find((e) => e.label === 'Sheds fire')?.tone).toBe('gain');
-  });
+  it('explains a targeting chain by its priority filters then fallback', () => {
+    const chain = explainTargeting({ priority1: 'TargetSupport', fallback: 'Furthest' });
+    expect(values(chain, 'Priority 1')[0]).toBe('Target Support');
+    expect(values(chain, 'Fallback')[0]).toBe('Furthest');
+    expect(chain.blurb).not.toBe('');
 
-  it('shows the Opportunist execute bonus from the ruleset', () => {
-    const ex = explainDial('stance', 'Opportunist', rs);
-    expect(ex.effects.find((e) => e.label === 'Execute')?.value).toBe('+30% damage vs targets under 40% hull');
-    const tuned: Ruleset = { ...rs, executeMods: { threshold: 5000, bonus: 5000 } };
-    expect(explainDial('stance', 'Opportunist', tuned).effects.find((e) => e.label === 'Execute')?.value).toBe(
-      '+50% damage vs targets under 50% hull',
-    );
-  });
-
-  it('explains the three support stances by repair priority (v2 role split)', () => {
-    for (const stance of ['Triage', 'Sustain', 'Empower']) {
-      const ex = explainDial('stance', stance, rs);
-      expect(ex.blurb, `${stance} blurb`).not.toBe('');
-      expect(ex.caveat).toBeUndefined();
-      // A support stance is a repair-priority axis, so it must NOT show a fire-priority tier line.
-      expect(ex.effects.find((e) => e.label === 'Draws fire' || e.label === 'Sheds fire')).toBeUndefined();
-    }
-    // Triage and Sustain repair different allies.
-    expect(explainDial('stance', 'Triage', rs).effects.find((e) => e.label === 'Repair priority')?.value).toBe(
-      'Most-damaged ally',
-    );
-    expect(explainDial('stance', 'Sustain', rs).effects.find((e) => e.label === 'Repair priority')?.value).toBe(
-      'Most-effective ally',
-    );
-  });
-
-  it('shows the Empower overshield ceiling from the ruleset', () => {
-    expect(explainDial('stance', 'Empower', rs).effects.find((e) => e.label === 'Overshield')?.value).toBe(
-      'up to +30% max hull as shield',
-    );
-    const tuned: Ruleset = { ...rs, empowerMods: { shieldCapBp: 5000 } };
-    expect(explainDial('stance', 'Empower', tuned).effects.find((e) => e.label === 'Overshield')?.value).toBe(
-      'up to +50% max hull as shield',
-    );
-  });
-
-  it('warns that the unimplemented movement modes do not move', () => {
-    for (const mode of ['Kite', 'Reposition', 'Escort']) {
-      expect(explainDial('movement', mode, rs).caveat).toMatch(/No effect yet/);
-    }
-    expect(explainDial('movement', 'Advance', rs).caveat).toBeUndefined();
-  });
-
-  it('describes every option offered by every dial', () => {
-    // Guards against adding a dial option without copy for it.
-    const byDial: Record<string, string[]> = {
-      targetRow: ['FrontReachable', 'LastReachable', 'FullestRow', 'WeakestRow'],
-      targetRule: [
-        'FocusFire',
-        'DisperseFire',
-        'Nearest',
-        'Weakest',
-        'BiggestThreat',
-        'TargetSupport',
-        'TargetAir',
-        'SmartCounter',
-      ],
-      energy: ['Overdrive', 'Offense', 'Balanced', 'Adaptive', 'Defense', 'Fortify'],
-      movement: ['Hold', 'Advance', 'FallBack', 'Kite', 'Reposition', 'Escort'],
-    };
-    for (const [dial, opts] of Object.entries(byDial)) {
-      for (const opt of opts) {
-        const ex = explainDial(dial as keyof BehaviorDials, opt, rs);
-        expect(ex.blurb, `${dial}=${opt} needs a blurb`).not.toBe('');
-      }
-    }
+    // A bare chain (no filters) explains purely by position.
+    const bare = explainTargeting({ fallback: 'Closest' });
+    expect(values(bare, 'Priority')[0]).toContain('None');
+    expect(bare.blurb).not.toBe('');
   });
 });
 
 describe('build summary', () => {
-  it('lists equipment by name and every dial', () => {
+  it('lists equipment by name and every v3 dial', () => {
     const dials: BehaviorDials = {
-      targetRow: 'FrontReachable',
-      targetRule: 'FocusFire',
-      energy: 'Balanced',
+      targeting: { priority1: 'TargetArmor', fallback: 'Closest' },
       movement: 'Hold',
       stance: 'Neutral',
     };
@@ -342,14 +268,14 @@ describe('build summary', () => {
     );
     expect(lines.find((l) => l.label === 'Weapon')?.value).toBe('Heavy Cannon');
     expect(lines.find((l) => l.label === 'Slot 2')?.value).toBe('Autoloader');
-    expect(lines.filter((l) => DIAL_SECTIONS.some((d) => d.label === l.label))).toHaveLength(5);
+    expect(lines.find((l) => l.label === 'Targeting')?.value).toBe('Target Armor');
+    expect(lines.find((l) => l.label === 'Position')?.value).toBe('Hold');
+    expect(lines.find((l) => l.label === 'Stance')?.value).toBe('Neutral');
   });
 
   it('falls back to the raw id for equipment missing from the ruleset', () => {
     const dials: BehaviorDials = {
-      targetRow: 'FrontReachable',
-      targetRule: 'FocusFire',
-      energy: 'Balanced',
+      targeting: { fallback: 'Closest' },
       movement: 'Hold',
       stance: 'Neutral',
     };

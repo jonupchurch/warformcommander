@@ -18,9 +18,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "BiggestThreat",
-            "energy": "Defense",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Hold",
             "stance": "Defensive"
           },
@@ -41,9 +41,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "FocusFire",
-            "energy": "Defense",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Hold",
             "stance": "Defensive"
           },
@@ -64,9 +64,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "FocusFire",
-            "energy": "Balanced",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Hold",
             "stance": "Neutral"
           },
@@ -87,9 +87,9 @@
             ]
           },
           "dials": {
-            "targetRow": "LastReachable",
-            "targetRule": "FocusFire",
-            "energy": "Offense",
+            "targeting": {
+              "fallback": "Furthest"
+            },
             "movement": "Hold",
             "stance": "Aggressive"
           },
@@ -110,9 +110,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "FocusFire",
-            "energy": "Balanced",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Hold",
             "stance": "Neutral"
           },
@@ -141,9 +141,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "FocusFire",
-            "energy": "Offense",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Advance",
             "stance": "Aggressive"
           },
@@ -164,9 +164,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "FocusFire",
-            "energy": "Offense",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Advance",
             "stance": "Aggressive"
           },
@@ -187,9 +187,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "FocusFire",
-            "energy": "Balanced",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Hold",
             "stance": "Neutral"
           },
@@ -210,9 +210,9 @@
             ]
           },
           "dials": {
-            "targetRow": "LastReachable",
-            "targetRule": "FocusFire",
-            "energy": "Offense",
+            "targeting": {
+              "fallback": "Furthest"
+            },
             "movement": "Hold",
             "stance": "Aggressive"
           },
@@ -233,9 +233,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "FocusFire",
-            "energy": "Defense",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Hold",
             "stance": "Defensive"
           },
@@ -264,9 +264,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "BiggestThreat",
-            "energy": "Offense",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Hold",
             "stance": "Aggressive"
           },
@@ -287,9 +287,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "BiggestThreat",
-            "energy": "Offense",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Hold",
             "stance": "Aggressive"
           },
@@ -310,9 +310,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "FocusFire",
-            "energy": "Balanced",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Hold",
             "stance": "Neutral"
           },
@@ -333,9 +333,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "BiggestThreat",
-            "energy": "Defense",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Hold",
             "stance": "Defensive"
           },
@@ -356,9 +356,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "FocusFire",
-            "energy": "Balanced",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Hold",
             "stance": "Neutral"
           },
@@ -387,9 +387,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "BiggestThreat",
-            "energy": "Defense",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Hold",
             "stance": "Defensive"
           },
@@ -410,9 +410,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "BiggestThreat",
-            "energy": "Defense",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Hold",
             "stance": "Defensive"
           },
@@ -433,9 +433,9 @@
             ]
           },
           "dials": {
-            "targetRow": "LastReachable",
-            "targetRule": "FocusFire",
-            "energy": "Offense",
+            "targeting": {
+              "fallback": "Furthest"
+            },
             "movement": "Hold",
             "stance": "Aggressive"
           },
@@ -456,9 +456,9 @@
             ]
           },
           "dials": {
-            "targetRow": "LastReachable",
-            "targetRule": "FocusFire",
-            "energy": "Offense",
+            "targeting": {
+              "fallback": "Furthest"
+            },
             "movement": "Hold",
             "stance": "Aggressive"
           },
@@ -479,9 +479,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "FocusFire",
-            "energy": "Balanced",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Hold",
             "stance": "Neutral"
           },
@@ -510,9 +510,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "FocusFire",
-            "energy": "Offense",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Advance",
             "stance": "Aggressive"
           },
@@ -533,9 +533,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "FocusFire",
-            "energy": "Offense",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Advance",
             "stance": "Aggressive"
           },
@@ -556,9 +556,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "Weakest",
-            "energy": "Offense",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Advance",
             "stance": "Aggressive"
           },
@@ -579,9 +579,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "FocusFire",
-            "energy": "Balanced",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Hold",
             "stance": "Neutral"
           },
@@ -602,9 +602,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "BiggestThreat",
-            "energy": "Offense",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Hold",
             "stance": "Aggressive"
           },
@@ -633,9 +633,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "FocusFire",
-            "energy": "Defense",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Hold",
             "stance": "Defensive"
           },
@@ -656,9 +656,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "FocusFire",
-            "energy": "Defense",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Hold",
             "stance": "Defensive"
           },
@@ -680,9 +680,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "FocusFire",
-            "energy": "Offense",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Advance",
             "stance": "Aggressive"
           },
@@ -703,9 +703,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "FocusFire",
-            "energy": "Balanced",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Hold",
             "stance": "Neutral"
           },
@@ -726,9 +726,9 @@
             ]
           },
           "dials": {
-            "targetRow": "FrontReachable",
-            "targetRule": "FocusFire",
-            "energy": "Defense",
+            "targeting": {
+              "fallback": "Closest"
+            },
             "movement": "Hold",
             "stance": "Defensive"
           },

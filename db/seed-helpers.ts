@@ -21,6 +21,7 @@ export function configSignature(config: SquadConfig): string {
   return config.machines
     .map((m) => {
       const d = m.dials;
+      const t = d.targeting;
       return [
         m.typeId,
         m.variantId,
@@ -28,7 +29,7 @@ export function configSignature(config: SquadConfig): string {
         m.loadout.weapon,
         m.loadout.defense,
         [...m.loadout.utilities].sort().join("+"),
-        [d.targetRow, d.targetRule, d.energy, d.movement, d.stance].join(","),
+        [t.priority1 ?? "", t.priority2 ?? "", t.fallback, d.movement, d.stance].join(","),
       ].join("/");
     })
     .join("|");
