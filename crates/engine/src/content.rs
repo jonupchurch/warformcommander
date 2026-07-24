@@ -1362,7 +1362,7 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
     );
     // --- v3 US3-D utility-projected auras (§14) — a utility carries a passive aura, merged with the
     // carrier's chassis aura. All start-value magnitudes (tuned later). The Commander's aura kit + the
-    // Heavy's Smoke screen; enemy-debuff auras (Jammer/Comms Jammer) land in a later batch.
+    // Heavy's Smoke screen; the enemy-debuff auras (Jammer / Comms Jammer) follow in the next section.
     // Coordination Net (§14.6 Commander): army-wide accuracy aura.
     add(
         "CoordinationNet",
@@ -1414,6 +1414,86 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
                 kind: AuraKind::Evasion,
                 magnitude: 2_000, // +20% evasion to the zone (start-value)
                 scope: AuraScope::ZoneAllies,
+            },
+        ),
+    );
+
+    // --- v3 US3-D enemy-debuff auras (§14) — the EW screens: an accuracy aura with a NEGATIVE magnitude
+    // and an ENEMY scope, so it degrades the opposing side's to-hit (read by the enemy-scope aura path).
+    // Jammer (§14.2 Light): enemies fighting in the Light's zone aim worse — an EW screen for it + allies.
+    add(
+        "Jammer",
+        "Jammer",
+        aura_util(
+            2,
+            AuraEffect {
+                kind: AuraKind::Accuracy,
+                magnitude: -1_000, // −10% to-hit to enemies in the Light's zone (start-value)
+                scope: AuraScope::ZoneEnemies,
+            },
+        ),
+    );
+    // Comms Jammer (§14.6 Commander): army-wide enemy −accuracy (disrupt their fire) — the Commander's EW.
+    add(
+        "CommsJammer",
+        "Comms Jammer",
+        aura_util(
+            2,
+            AuraEffect {
+                kind: AuraKind::Accuracy,
+                magnitude: -800, // −8% to-hit to the whole enemy army (start-value; wider scope, softer)
+                scope: AuraScope::AllEnemies,
+            },
+        ),
+    );
+
+    // --- v3 US3-D conditional-damage counters (§14) — a role counter carried as equipment: +damage vs a
+    // target category (folded into the primary hit in `damage.rs::conditional_mult`). Inert vs other roles.
+    // Air Superiority (§14.4 Heli): bonus damage vs enemy air — own the dogfight lane.
+    add(
+        "AirSuperiority",
+        "Air Superiority",
+        cap_util(2, Capability::AirSuperiority),
+    );
+    // Flanking Package (§14.2 Light): bonus damage vs the enemy rear zone — the Light's own reach.
+    add(
+        "FlankingPackage",
+        "Flanking Package",
+        cap_util(2, Capability::Flanking),
+    );
+    // Counter-Battery (§14.5 Artillery): bonus damage vs indirect-fire units (enemy artillery / rocket-arty).
+    add(
+        "CounterBattery",
+        "Counter-Battery",
+        cap_util(2, Capability::CounterBattery),
+    );
+    // SEAD (§14.4 Heli signature): bonus damage vs AA carriers — hunt the flak that answers air.
+    add("SEAD", "SEAD", cap_util(2, Capability::Sead));
+
+    // --- v3 US3-D AoE ground/air strikes (§14) — heavy splash. Splash never rolls to-hit (it auto-applies
+    // to every other in-zone enemy), so these "ignore evasion" for free; they are pure splash stat-kit.
+    // Napalm / Cluster (§14.4 Heli): heavy AoE ground strike — anti-swarm, ignores evasion.
+    add(
+        "Napalm",
+        "Napalm / Cluster",
+        stat_util(
+            2,
+            StatDeltas {
+                splash: 4_000, // +40% splash (start-value; clamps to the ruleset splash cap)
+                ..Default::default()
+            },
+        ),
+    );
+    // Flak Screen (§14.5 Rocket Arty): AoE anti-air — when the SAM targets air, its splash hits the other
+    // aircraft sharing the Air zone (same splash mechanic, contextualised by an air target).
+    add(
+        "FlakScreen",
+        "Flak Screen",
+        stat_util(
+            2,
+            StatDeltas {
+                splash: 4_000, // +40% splash (start-value)
+                ..Default::default()
             },
         ),
     );

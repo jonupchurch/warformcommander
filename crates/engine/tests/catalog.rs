@@ -651,3 +651,160 @@ fn guardian_redirect_extends_a_zone_allys_life() {
         protected_death(false)
     );
 }
+
+// ---------------------------------------------------------------------------
+// v3 US3-D conditional-damage counters (§14) — Air Superiority / Flanking / Counter-Battery / SEAD
+// ---------------------------------------------------------------------------
+
+/// An air-locked attack heli, in the Air zone (the only zone it can occupy; the Air zone caps at 2).
+fn heli(rs: &Ruleset, id: u8) -> MachineInstance {
+    stock_instance(rs, MachineTypeId::AttackHeli, "Gunship", ZoneId::Air, id)
+}
+
+/// **Air Superiority** adds primary-hit damage vs an air target. A0 is a SAM (reach Air) firing at two
+/// deep-hulled helis that never die, so it fires an identical number of times in both runs (the counter
+/// touches damage, not accuracy/targeting) — the only difference is the +bonus on each landed hit vs the
+/// (air) enemy. So A0's summed damage is strictly higher when it carries the counter.
+#[test]
+fn air_superiority_lifts_damage_vs_air() {
+    let a0 = UnitRef {
+        side: Side::A,
+        instance_id: 0,
+    };
+    let a0_total = |with_counter: bool| -> i64 {
+        let mut rs = seed_ruleset();
+        rs.variants.get_mut(&VariantId::new("Gunship")).unwrap().hull = Fixed::from_int(1_000_000);
+        let mut sam = stock_instance(&rs, MachineTypeId::RocketArtillery, "Sentry", ZoneId::Rear, 0);
+        sam.loadout.utilities = if with_counter {
+            vec![EquipmentId::new("AirSuperiority")]
+        } else {
+            vec![]
+        };
+        let attackers = Army {
+            machines: vec![
+                sam, // A0: the measured SAM, fires at air
+                tank(&rs, "Grizzly", ZoneId::Front, 1),
+                tank(&rs, "Grizzly", ZoneId::Front, 2),
+                tank(&rs, "Grizzly", ZoneId::Middle, 3),
+                tank(&rs, "Grizzly", ZoneId::Middle, 4),
+            ],
+        };
+        let defenders = Army {
+            machines: vec![
+                heli(&rs, 0), // two immortal air targets (Air zone caps at 2)
+                heli(&rs, 1),
+                tank(&rs, "Cavalier", ZoneId::Front, 2),
+                tank(&rs, "Cavalier", ZoneId::Middle, 3),
+                tank(&rs, "Cavalier", ZoneId::Rear, 4),
+            ],
+        };
+        run(&rs, attackers, defenders, 0xA1520)
+            .replay
+            .games[0]
+            .ticks
+            .iter()
+            .flat_map(|t| &t.events)
+            .filter_map(|e| match e {
+                TickEvent::Hit { actor, dmg, .. } if *actor == a0 => Some(dmg.milli()),
+                _ => None,
+            })
+            .sum()
+    };
+    assert!(
+        a0_total(true) > a0_total(false),
+        "Air Superiority must lift A0's damage vs air: with={} none={}",
+        a0_total(true),
+        a0_total(false)
+    );
+}
+
+/// The four conditional counters are pure capability unlocks — each grants exactly the capability the
+/// §14 design names (utilities are ungated by mount, so a Grizzly can carry them for this wiring check).
+#[test]
+fn conditional_counters_grant_their_capability() {
+    let rs = seed_ruleset();
+    let has = |util: &str, cap: Capability| -> bool {
+        let mut m = tank(&rs, "Grizzly", ZoneId::Front, 0);
+        m.loadout.utilities = vec![EquipmentId::new(util)];
+        derive_effective_stats(&m, &rs)
+            .expect("legal single-utility Grizzly")
+            .capabilities
+            .contains(&cap)
+    };
+    assert!(has("AirSuperiority", Capability::AirSuperiority));
+    assert!(has("FlankingPackage", Capability::Flanking));
+    assert!(has("CounterBattery", Capability::CounterBattery));
+    assert!(has("SEAD", Capability::Sead));
+}
+
+// ---------------------------------------------------------------------------
+// v3 US3-D enemy-debuff auras (§14) — Jammer / Comms Jammer (enemy-scope −accuracy)
+// ---------------------------------------------------------------------------
+
+/// A **Jammer** is an enemy-scope accuracy aura (negative magnitude): enemies fighting in the jammer's
+/// zone aim worse. Mirror of `accuracy_aura_reduces_misses`, inverted — with the enemy carrying the
+/// jammer, the attacking army whiffs measurably *more*. (Injected as a chassis aura so the only variable
+/// is the aura itself, not a loadout swap.)
+#[test]
+fn jammer_raises_enemy_misses_in_zone() {
+    let attacker_misses = |with_jammer: bool| -> usize {
+        let mut rs = seed_ruleset();
+        if with_jammer {
+            rs.chassis.get_mut(&VariantId::new("Cavalier")).unwrap().passive_aura = Some(AuraEffect {
+                kind: AuraKind::Accuracy,
+                magnitude: -6_000, // −60% to-hit to enemies in the Cavalier's zone
+                scope: AuraScope::ZoneEnemies,
+            });
+        }
+        let squad = |v: &str| Army {
+            machines: (0..5).map(|i| tank(&rs, v, ground_zone(i), i)).collect(),
+        };
+        run(&rs, squad("Grizzly"), squad("Cavalier"), 0x4A33)
+            .replay
+            .games[0]
+            .ticks
+            .iter()
+            .flat_map(|t| &t.events)
+            .filter(|e| matches!(e, TickEvent::Miss { actor, .. } if actor.side == Side::A))
+            .count()
+    };
+    assert!(
+        attacker_misses(true) > attacker_misses(false),
+        "an enemy Jammer must raise the attacking army's misses: jammed={} none={}",
+        attacker_misses(true),
+        attacker_misses(false)
+    );
+}
+
+/// The EW auras (Jammer / Comms Jammer) and the AoE splash items (Napalm / Flak Screen) carry the effect
+/// the §14 design names — a data check over the authored items (mechanics proven by the sim tests above).
+#[test]
+fn ew_and_aoe_items_carry_expected_effects() {
+    let rs = seed_ruleset();
+    let aura_of = |id: &str| -> AuraEffect {
+        match &rs.equipment.get(&EquipmentId::new(id)).expect("item exists").spec {
+            EquipmentSpec::Utility(u) => u.aura.expect("carries an aura"),
+            _ => panic!("{id} is not a utility"),
+        }
+    };
+    let jammer = aura_of("Jammer");
+    assert_eq!(jammer.kind, AuraKind::Accuracy);
+    assert_eq!(jammer.scope, AuraScope::ZoneEnemies);
+    assert!(jammer.magnitude < 0, "a jammer is a negative (debuff) magnitude");
+    let comms = aura_of("CommsJammer");
+    assert_eq!(comms.kind, AuraKind::Accuracy);
+    assert_eq!(comms.scope, AuraScope::AllEnemies);
+    assert!(comms.magnitude < 0, "comms jammer is a negative (debuff) magnitude");
+
+    let base_splash = {
+        let m = tank(&rs, "Grizzly", ZoneId::Front, 0);
+        derive_effective_stats(&m, &rs).expect("bare Grizzly").splash
+    };
+    let splash_with = |util: &str| {
+        let mut m = tank(&rs, "Grizzly", ZoneId::Front, 0);
+        m.loadout.utilities = vec![EquipmentId::new(util)];
+        derive_effective_stats(&m, &rs).expect("legal single-utility Grizzly").splash
+    };
+    assert!(splash_with("Napalm") > base_splash, "Napalm raises splash");
+    assert!(splash_with("FlakScreen") > base_splash, "Flak Screen raises splash");
+}

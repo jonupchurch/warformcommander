@@ -312,6 +312,8 @@ fn grant_start_shields(combatants: &mut [Combatant]) {
                     && match s.scope {
                         AuraScope::AllAllies => true,
                         AuraScope::ZoneAllies => s.zone == c.zone,
+                        // StartShield is an ally-only feature; enemy scopes never confer a shield.
+                        AuraScope::ZoneEnemies | AuraScope::AllEnemies => false,
                     }
             })
             .map(|s| s.mag)

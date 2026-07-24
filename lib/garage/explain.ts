@@ -204,6 +204,10 @@ const CAPABILITY_COPY: Record<Capability, string> = {
   Duelist: 'Consecutive hits on the same target ramp its damage — a focus-fire crescendo that resets on a target switch',
   CoordinatedStrike: 'More accurate while a zone ally targets the same enemy — a focus-fire reward',
   Guardian: 'Soaks a share of the direct fire aimed at a zone ally — a damage-redirect bodyguard',
+  AirSuperiority: 'Extra damage against air targets — own the dogfight lane',
+  Flanking: 'Extra damage against the enemy rear zone — punish the backline',
+  CounterBattery: 'Extra damage against indirect-fire units (enemy artillery / rocket-arty)',
+  Sead: 'Extra damage against anti-air carriers — hunt the flak that answers your air',
 };
 
 // --- equipment -------------------------------------------------------------

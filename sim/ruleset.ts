@@ -65,7 +65,11 @@ export type Capability =
   | 'AdaptiveMunitions'
   | 'Duelist'
   | 'CoordinatedStrike'
-  | 'Guardian';
+  | 'Guardian'
+  | 'AirSuperiority'
+  | 'Flanking'
+  | 'CounterBattery'
+  | 'Sead';
 
 /** The canonical `Capability` sort order (the Rust enum's `Ord` / declaration order). */
 export const CAPABILITY_ORDER: readonly Capability[] = [
@@ -86,6 +90,10 @@ export const CAPABILITY_ORDER: readonly Capability[] = [
   'Duelist',
   'CoordinatedStrike',
   'Guardian',
+  'AirSuperiority',
+  'Flanking',
+  'CounterBattery',
+  'Sead',
 ];
 
 /** Which equipment kind a slot expects (`SlotKind`) — carried on a `WrongSlotKind` derivation error. */
@@ -143,8 +151,8 @@ export type AuraKind =
   | 'Accuracy' // Spotter Network / Coordination Net accuracy aura (v3 US3)
   | 'Evasion'; // Smoke Canisters zone-evasion aura (v3 US3-D)
 
-/** Who an aura reaches (`AuraScope`). */
-export type AuraScope = 'ZoneAllies' | 'AllAllies';
+/** Who an aura reaches (`AuraScope`). Enemy scopes carry an enemy-directed debuff (Jammer / Comms Jammer). */
+export type AuraScope = 'ZoneAllies' | 'AllAllies' | 'ZoneEnemies' | 'AllEnemies';
 
 /**
  * A passive zone/army aura a chassis projects (`AuraEffect`) — e.g. the Command Post's army-wide

@@ -349,6 +349,14 @@ pub enum AuraScope {
     ZoneAllies,
     /// Every allied machine on the same side, regardless of zone.
     AllAllies,
+    /// Every **enemy** machine sharing the source's zone (v3 US3, the Light's **Jammer** EW screen —
+    /// enemies fighting in the source's zone suffer the aura, e.g. −accuracy). Read only by the
+    /// enemy-scope aura path, never by the same-side aggregators. Added last to keep the enum's
+    /// serialized names stable for the pre-existing ally scopes.
+    ZoneEnemies,
+    /// Every **enemy** machine on the opposing side, regardless of zone (v3 US3, the Commander's
+    /// **Comms Jammer** — army-wide −accuracy). Added last to keep the serialized names stable.
+    AllEnemies,
 }
 
 /// A per-attacker-type damage bonus versus a set of target machine types — a "role counter" (e.g.
@@ -645,6 +653,24 @@ pub enum Capability {
     /// direct-fire damage aimed at a **zone ally** onto this machine — a damage-soak bodyguard. Added
     /// last to keep the enum's `Ord`/serialization stable.
     Guardian,
+    /// **Air Superiority** (v3 US3, design §14.4, the Heli): +damage vs any target in [`ZoneId::Air`] —
+    /// own the dogfight lane. A conditional damage counter (like [`Ambush`], a cap→condition→multiplier
+    /// on the primary hit); inert vs ground. Added last to keep the enum's `Ord`/serialization stable.
+    AirSuperiority,
+    /// **Flanking Package** (v3 US3, design §14.2, the Light): +damage vs a target in [`ZoneId::Rear`] —
+    /// punish the enemy backline the Light's reach can hit. Conditional counter; inert vs the front line.
+    /// Added last to keep the enum's `Ord`/serialization stable.
+    Flanking,
+    /// **Counter-Battery** (v3 US3, design §14.5, the Artillery): +damage vs an **indirect-fire** target
+    /// (one whose weapon reach is [`ReachTag::AnyGround`] — enemy artillery / rocket-arty). Conditional
+    /// counter; inert vs direct-fire units. Added last to keep the enum's `Ord`/serialization stable.
+    CounterBattery,
+    /// **SEAD** (v3 US3, design §14.4, the Heli signature): +damage vs a target carrying [`AntiAir`] —
+    /// hunt the flak that answers air. Conditional counter; inert vs non-AA units. Added last to keep the
+    /// enum's `Ord`/serialization stable.
+    ///
+    /// [`AntiAir`]: Capability::AntiAir
+    Sead,
 }
 
 // ---------------------------------------------------------------------------

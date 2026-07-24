@@ -57,6 +57,12 @@ const COORDINATED_STRIKE_ACC_BONUS: Bp = 1_000; // +10% to-hit when focus-firing
 /// Start-value (→ ruleset in the balance pass).
 const GUARDIAN_REDIRECT: Bp = 3_000; // 30% of the aimed target's incoming is soaked by the guardian
 
+/// Conditional-damage counters (v3 US3, design §14: Air Superiority / Flanking / Counter-Battery / SEAD):
+/// the primary-hit damage bonus (bp) an attacker gets when the target matches the carried counter's role
+/// condition. One shared start-value for all four (→ split per-counter into the ruleset in the balance
+/// pass). Inert unless the attacker carries the matching capability, so the stock field is untouched.
+const CONDITIONAL_DAMAGE_BONUS: Bp = 5_000; // +50% vs the countered role
+
 /// The incoming-damage multiplier from an active Paint mark (`BP_ONE` when the target is not painted).
 fn paint_mult(target: &Combatant, tick: u16) -> Bp {
     if target.painted_until > tick {
@@ -79,6 +85,8 @@ fn aura_mult(combatants: &[Combatant], subject_idx: usize, kinds: &[AuraKind]) -
             let in_scope = match a.scope {
                 AuraScope::AllAllies => true,
                 AuraScope::ZoneAllies => c.zone == zone,
+                // Enemy scopes never reach a same-side subject through the ally aggregator.
+                AuraScope::ZoneEnemies | AuraScope::AllEnemies => false,
             };
             if in_scope && kinds.contains(&a.kind) {
                 // Compose bp multipliers: (mult × (1 + magnitude)) at bp scale, widened to avoid overflow.
@@ -102,6 +110,33 @@ fn aura_add(combatants: &[Combatant], subject_idx: usize, kind: AuraKind) -> Bp 
             let in_scope = match a.scope {
                 AuraScope::AllAllies => true,
                 AuraScope::ZoneAllies => c.zone == zone,
+                // Enemy scopes never reach a same-side subject through the ally aggregator.
+                AuraScope::ZoneEnemies | AuraScope::AllEnemies => false,
+            };
+            if in_scope && a.kind == kind {
+                total += a.magnitude;
+            }
+        }
+    }
+    total
+}
+
+/// Sum of the `magnitude`s (bp) from every **living ENEMY** machine whose aura matches `kind` and whose
+/// **enemy scope** reaches `subject_idx` (v3 US3, the Jammer / Comms Jammer −accuracy debuffs). The enemy
+/// mirror of [`aura_add`]: it scans the *opposing* side and honours only [`AuraScope::ZoneEnemies`] /
+/// [`AuraScope::AllEnemies`], so ally-scoped auras are inert here just as enemy-scoped auras are inert in
+/// [`aura_add`]. `0` when no such aura is in scope — inert for a field with no enemy-scope auras.
+fn enemy_aura_add(combatants: &[Combatant], subject_idx: usize, kind: AuraKind) -> Bp {
+    let side = combatants[subject_idx].unit.side;
+    let zone = combatants[subject_idx].zone;
+    let mut total = 0;
+    for c in combatants.iter().filter(|c| c.alive && c.unit.side != side) {
+        for a in &c.auras {
+            let in_scope = match a.scope {
+                AuraScope::AllEnemies => true,
+                AuraScope::ZoneEnemies => c.zone == zone,
+                // Ally scopes never reach an enemy subject through the enemy aggregator.
+                AuraScope::AllAllies | AuraScope::ZoneAllies => false,
             };
             if in_scope && a.kind == kind {
                 total += a.magnitude;
@@ -280,6 +315,36 @@ fn role_mult(ruleset: &Ruleset, attacker: MachineTypeId, target: MachineTypeId) 
         .unwrap_or(BP_ONE)
 }
 
+/// The **conditional-damage counter** multiplier (v3 US3, §14) for one primary hit: each counter the
+/// attacker carries adds [`CONDITIONAL_DAMAGE_BONUS`] when the `target` matches its role condition —
+/// Air Superiority vs an air target, Flanking vs the rear zone, Counter-Battery vs an indirect-fire
+/// (`AnyGround`) target, SEAD vs an [`AntiAir`] carrier. The rare multi-counter case stacks additively.
+/// `BP_ONE` when the attacker carries none / the target matches none — so a stock hit is byte-identical.
+///
+/// [`AntiAir`]: Capability::AntiAir
+fn conditional_mult(
+    air_sup: bool,
+    flanking: bool,
+    counter_battery: bool,
+    sead: bool,
+    target: &Combatant,
+) -> Bp {
+    let mut bonus = 0;
+    if air_sup && target.zone == ZoneId::Air {
+        bonus += CONDITIONAL_DAMAGE_BONUS;
+    }
+    if flanking && target.zone == ZoneId::Rear {
+        bonus += CONDITIONAL_DAMAGE_BONUS;
+    }
+    if counter_battery && target.stats.reach == ReachTag::AnyGround {
+        bonus += CONDITIONAL_DAMAGE_BONUS;
+    }
+    if sead && target.stats.capabilities.contains(&Capability::AntiAir) {
+        bonus += CONDITIONAL_DAMAGE_BONUS;
+    }
+    BP_ONE + bonus
+}
+
 /// Resolve one attacker's shot against `target_idx`, mutating the target(s) and pushing events.
 /// Consumes RNG in a fixed order regardless of the miss/hit branch structure (still deterministic).
 pub(crate) fn resolve_attack(
@@ -309,6 +374,12 @@ pub(crate) fn resolve_attack(
     let att_suppresses = caps.contains(&Capability::OnHitSuppress);
     let att_snares = caps.contains(&Capability::OnHitSnare);
     let att_ambushes = caps.contains(&Capability::Ambush); // +damage vs a full-health target (US3)
+    // Conditional-damage counters (US3, §14) — captured before any mutation; each adds a primary-hit
+    // bonus when the target matches its role condition (inert otherwise, so the stock field is untouched).
+    let att_air_sup = caps.contains(&Capability::AirSuperiority); // vs air
+    let att_flanking = caps.contains(&Capability::Flanking); // vs the rear zone
+    let att_counter_battery = caps.contains(&Capability::CounterBattery); // vs indirect (AnyGround reach)
+    let att_sead = caps.contains(&Capability::Sead); // vs an AA carrier
     // Is THIS attacker itself currently suppressed? (a Suppress rider cut its own output + accuracy).
     let att_suppressed = combatants[att_idx].suppressed_until > tick;
 
@@ -323,6 +394,9 @@ pub(crate) fn resolve_attack(
     }
     // Spotter Network (US3): a same-zone/army accuracy aura lifts this attacker's to-hit (inert with none).
     acc += aura_add(combatants, att_idx, AuraKind::Accuracy);
+    // Jammer / Comms Jammer (US3): an enemy-scope accuracy aura (negative magnitude) degrades this
+    // attacker's to-hit — the EW debuff. Inert when no enemy fields one.
+    acc += enemy_aura_add(combatants, att_idx, AuraKind::Accuracy);
     // Coordinated Strike (US3, Heli): +to-hit while a zone ally independently targets the same enemy —
     // a focus-fire reward. Read-only targeting probe (no air-budget/RNG side effects); inert without it.
     if combatants[att_idx]
@@ -431,6 +505,15 @@ pub(crate) fn resolve_attack(
     } else {
         BP_ONE
     };
+    // Conditional-damage counters (US3, §14): +damage when the target matches a carried counter's role
+    // (Air Superiority / Flanking / Counter-Battery / SEAD). BP_ONE for the stock field (no counter).
+    let conditional = conditional_mult(
+        att_air_sup,
+        att_flanking,
+        att_counter_battery,
+        att_sead,
+        &combatants[target_idx],
+    );
     // Duelist Servos (US3): consecutive hits on the same target ramp this attacker's output (primary hit
     // only — a focus-fire duel, not collateral). Mutates the attacker's ramp state; `att_idx != target_idx`
     // (an attacker never targets its own side) so this never aliases the target borrow below.
@@ -454,6 +537,7 @@ pub(crate) fn resolve_attack(
             .mul_bp(exposure)
             .mul_bp(brace)
             .mul_bp(ambush)
+            .mul_bp(conditional)
             .mul_bp(duelist)
             .mul_bp(BP_ONE - redirect),
         prof.damage_type,
