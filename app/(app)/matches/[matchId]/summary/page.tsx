@@ -49,6 +49,7 @@ export default async function BattleSummaryPage({
         outcome={vm.outcome}
         series={vm.series}
         watchReplayHref={vm.actions.watchReplayHref}
+        backHref={vm.actions.backHref}
       >
         <StandingDelta standing={vm.standing} />
       </OutcomeHero>

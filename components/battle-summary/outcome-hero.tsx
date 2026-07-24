@@ -19,12 +19,15 @@ export interface OutcomeHeroProps {
   /** Battle Playback route for this match — the primary "watch the replay" CTA lives up here in the
    * hero (above the fold), not only in the footer action row (SC-007: a link, no player mounted). */
   watchReplayHref: string;
+  /** Arena route — the "leave" action, kept directly under Watch Replay so exiting doesn't require a
+   * scroll to the footer (mirrors how Watch Replay itself was lifted out of `SummaryActions`). */
+  backHref: string;
   /** US4 standing panel slot. */
   children?: ReactNode;
   className?: string;
 }
 
-export function OutcomeHero({ outcome, series, watchReplayHref, children, className }: OutcomeHeroProps) {
+export function OutcomeHero({ outcome, series, watchReplayHref, backHref, children, className }: OutcomeHeroProps) {
   const won = outcome.verdict === 'VICTORY';
   const opponentName = outcome.opponent.hidden
     ? 'Practice Opponent'
@@ -63,11 +66,17 @@ export function OutcomeHero({ outcome, series, watchReplayHref, children, classN
             </h1>
           </div>
 
-          {/* Primary CTA, kept high in the hero so watching the replay is the obvious first action
-              (was previously only in the footer, below the fold). Full-width in portrait. */}
-          <Button asChild size="lg" className="w-full sm:w-auto sm:shrink-0">
-            <Link href={watchReplayHref}>► Watch Full Replay</Link>
-          </Button>
+          {/* Primary CTA + the "leave" action, kept high in the hero so watching the replay is the
+              obvious first action and exiting doesn't require a scroll to the footer (both were
+              previously only below the fold). Stretch to equal width; full-width in portrait. */}
+          <div className="flex flex-col gap-3 sm:shrink-0">
+            <Button asChild size="lg" className="w-full sm:w-auto">
+              <Link href={watchReplayHref}>► Watch Full Replay</Link>
+            </Button>
+            <Button asChild variant="secondary" size="lg" className="w-full sm:w-auto">
+              <Link href={backHref}>Back to Arena</Link>
+            </Button>
+          </div>
         </div>
 
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-8">
