@@ -49,7 +49,7 @@ async function main() {
   const result = await saveRuleset(actor, {
     data: target,
     expectedVersion: current.version,
-    note: "v2 ruleset — 4 defense families, stance allocation, support stances, Mech reactive plating + native flexibility, air contest (energy-air off by default) + Rocket Pack",
+    note: "v3 counter-web ruleset — sharpened ×1.6/×0.7 damage matrix, cadence welded to weapon type, targeting priority-score chain (2 filters + Closest/Furthest), 3 universal stances (two-sided magnitude), 4 self-terminating movement modes, Commander while-alive auras + Paint on-hit rider. Untuned start-values (tuning to follow via the balance editor).",
   });
   console.log("saveRuleset result:", JSON.stringify(result));
   if ("error" in result) throw new Error(`re-seed failed: ${result.error}`);

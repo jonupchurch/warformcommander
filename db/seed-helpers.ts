@@ -21,7 +21,9 @@ export function configSignature(config: SquadConfig): string {
   return config.machines
     .map((m) => {
       const d = m.dials;
-      const t = d.targeting;
+      // Tolerate a stale-schema config (e.g. a v2 snapshot still in the DB has no `targeting`): a
+      // missing field just yields a different signature, which correctly triggers a refresh/replace.
+      const t = d.targeting ?? ({} as Partial<NonNullable<typeof d.targeting>>);
       return [
         m.typeId,
         m.variantId,
@@ -29,7 +31,7 @@ export function configSignature(config: SquadConfig): string {
         m.loadout.weapon,
         m.loadout.defense,
         [...m.loadout.utilities].sort().join("+"),
-        [t.priority1 ?? "", t.priority2 ?? "", t.fallback, d.movement, d.stance].join(","),
+        [t.priority1 ?? "", t.priority2 ?? "", t.fallback ?? "", d.movement, d.stance].join(","),
       ].join("/");
     })
     .join("|");
