@@ -2241,6 +2241,16 @@
           "AirSuperiority"
         ]
       },
+      "AlphaStrike": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "AlphaStrike",
+        "kind": "Utility",
+        "name": "Alpha Strike",
+        "unlocks": [
+          "Ambush"
+        ]
+      },
       "Ambush": {
         "cadenceShift": 0,
         "cost": 2,
@@ -2490,6 +2500,16 @@
           "splash": 0,
           "targetDraw": 0
         }
+      },
+      "BroadcastArray": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "BroadcastArray",
+        "kind": "Utility",
+        "name": "Broadcast Array",
+        "unlocks": [
+          "Broadcast"
+        ]
       },
       "BulwarkMode": {
         "cadenceShift": 0,
@@ -3516,6 +3536,25 @@
           "targetDraw": 0
         }
       },
+      "ModularHardpoint": {
+        "cadenceShift": 0,
+        "id": "ModularHardpoint",
+        "kind": "Utility",
+        "name": "Modular Hardpoint",
+        "unlocks": [
+          "ExtraUtilitySlot"
+        ]
+      },
+      "MultiTargeting": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "MultiTargeting",
+        "kind": "Utility",
+        "name": "Multi-Targeting",
+        "unlocks": [
+          "MultiTarget"
+        ]
+      },
       "Napalm": {
         "cadenceShift": 0,
         "cost": 2,
@@ -3533,6 +3572,27 @@
           "penetration": 0,
           "reach": null,
           "splash": 4000,
+          "targetDraw": 0
+        },
+        "unlocks": []
+      },
+      "Overdrive": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "Overdrive",
+        "kind": "Utility",
+        "name": "Overdrive",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": -2000,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 20000,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0,
           "targetDraw": 0
         },
         "unlocks": []
@@ -4230,6 +4290,16 @@
         "name": "Suppressing Fire",
         "unlocks": [
           "OnHitSuppress"
+        ]
+      },
+      "TargetRadar": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "TargetRadar",
+        "kind": "Utility",
+        "name": "Target Radar",
+        "unlocks": [
+          "ExtendReach"
         ]
       }
     },

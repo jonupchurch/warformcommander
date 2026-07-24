@@ -515,7 +515,7 @@ fn resolve_support(
 ) {
     let n = combatants.len();
     for i in 0..n {
-        let (power, range, side, zone, actor, kind) = {
+        let (power, range, side, zone, actor, kind, multi) = {
             let c = &combatants[i];
             match (c.alive, c.stats.support_power) {
                 (true, Some(p)) if p.milli() > 0 => (
@@ -526,45 +526,73 @@ fn resolve_support(
                     c.zone,
                     c.unit,
                     c.stats.support_kind, // Heal (medic) or the Commander's projected Shield/Ablation (US5)
+                    // Multi-Targeting (US3, §14.6): project to a second ally this tick.
+                    c.stats
+                        .capabilities
+                        .contains(&crate::model::types::Capability::MultiTarget),
                 ),
                 _ => continue,
             }
         };
         let zones = support_zones(range, zone);
 
-        // Pick the most-damaged serviceable ally in range that still has room for THIS projection layer
-        // (a full layer is not a target). EMP (US3) shuts down all projected sustain, not just heals.
-        let mut best: Option<usize> = None;
-        for j in 0..n {
-            if !serviceable(combatants, i, j, side, &zones) {
-                continue;
-            }
-            if combatants[j].emp_until > tick {
-                continue; // EMP (US3) blocks this ally's incoming heal / shield / ablation while active
-            }
-            if !projection_needed(&combatants[j], kind) {
-                continue;
-            }
-            best = match best {
-                None => Some(j),
-                Some(b) if support_prefers(&combatants[j], &combatants[b]) => Some(j),
-                Some(b) => Some(b),
-            };
-        }
-
-        if let Some(j) = best {
+        // First projection: the single most-damaged serviceable ally in range (byte-identical to the
+        // pre-US3 single-target path). A living Multi-Targeting projector then adds a second projection to
+        // the next-best ally, excluding the first, so it spreads sustain instead of stacking it.
+        let first = select_projection_target(combatants, i, tick, side, &zones, kind, None);
+        if let Some(j) = first {
             let target = combatants[j].unit;
             let amount = apply_projection(&mut combatants[j], kind, power);
             if amount.milli() > 0 {
-                events.push(TickEvent::Support {
-                    actor,
-                    target,
-                    amount,
-                    kind,
-                });
+                events.push(TickEvent::Support { actor, target, amount, kind });
+            }
+        }
+        if multi {
+            if let Some(j) = select_projection_target(combatants, i, tick, side, &zones, kind, first) {
+                let target = combatants[j].unit;
+                let amount = apply_projection(&mut combatants[j], kind, power);
+                if amount.milli() > 0 {
+                    events.push(TickEvent::Support { actor, target, amount, kind });
+                }
             }
         }
     }
+}
+
+/// Pick the most-damaged serviceable ally of projector `i` in range that still has room for a `kind`
+/// projection this tick, optionally excluding one index (v3 US3 Multi-Targeting's second pass). The
+/// argmax is a stable most-wounded-first selection (ties keep the earlier index), so with `exclude:
+/// None` it reproduces the pre-US3 single-target pick byte-for-byte. `None` when nothing is serviceable.
+fn select_projection_target(
+    combatants: &[Combatant],
+    i: usize,
+    tick: u16,
+    side: Side,
+    zones: &[ZoneId],
+    kind: SupportKind,
+    exclude: Option<usize>,
+) -> Option<usize> {
+    let mut best: Option<usize> = None;
+    for j in 0..combatants.len() {
+        if exclude == Some(j) {
+            continue;
+        }
+        if !serviceable(combatants, i, j, side, zones) {
+            continue;
+        }
+        if combatants[j].emp_until > tick {
+            continue; // EMP (US3) blocks this ally's incoming heal / shield / ablation while active
+        }
+        if !projection_needed(&combatants[j], kind) {
+            continue;
+        }
+        best = match best {
+            None => Some(j),
+            Some(b) if support_prefers(&combatants[j], &combatants[b]) => Some(j),
+            Some(b) => Some(b),
+        };
+    }
+    best
 }
 
 /// Whether ally `c` still has headroom for a `kind` projection this tick — a full layer is skipped, so a

@@ -212,6 +212,9 @@ const CAPABILITY_COPY: Record<Capability, string> = {
   Flanking: 'Extra damage against the enemy rear zone — punish the backline',
   CounterBattery: 'Extra damage against indirect-fire units (enemy artillery / rocket-arty)',
   Sead: 'Extra damage against anti-air carriers — hunt the flak that answers your air',
+  MultiTarget: 'The support projector reaches a second ally each tick — spreads sustain instead of stacking it',
+  ExtraUtilitySlot: 'A net +1 utility slot — literal extra flexibility',
+  Broadcast: 'The support projector reaches the whole army, not just its own zone',
 };
 
 // --- equipment -------------------------------------------------------------

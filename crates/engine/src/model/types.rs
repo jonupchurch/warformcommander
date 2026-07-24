@@ -694,6 +694,18 @@ pub enum Capability {
     ///
     /// [`AntiAir`]: Capability::AntiAir
     Sead,
+    /// **Multi-Targeting** (v3 US3, design §14.6, the Commander): the machine's support projector reaches
+    /// a **second** ally each tick — spread sustain instead of stacking it on one. Inert on a non-support
+    /// machine (nothing projects). Added last to keep the enum's `Ord`/serialization stable.
+    MultiTarget,
+    /// **Modular Hardpoint** (v3 US3, design §14.3, the Mech): grants a **net +1 utility slot** (the
+    /// validator raises the budget by 2, so after the item's own cost the machine ends one slot richer).
+    /// A validator-only capability — the sim/derive never read it. Added last for `Ord` stability.
+    ExtraUtilitySlot,
+    /// **Broadcast Array** (v3 US3, design §14.6, the Commander): widens the machine's support projector
+    /// to reach the **whole army** (every zone), not just its own. Set in derive (support_range →
+    /// `WholeArmy`); inert on a non-support machine. Added last to keep the enum's serialization stable.
+    Broadcast,
 }
 
 // ---------------------------------------------------------------------------

@@ -285,14 +285,24 @@ fn validate_utilities(
             _ => 0, // unknown / non-utility modules are reported below; they don't spend budget
         })
         .sum();
-    if spent > slots.utility as u32 {
+    // Modular Hardpoint (§14.3): each `ExtraUtilitySlot` utility raises the budget by 2. It costs 1
+    // (counted in `spent`), so the net is a genuine +1 utility slot beyond the chassis default.
+    let extra_slots: u32 = utils
+        .iter()
+        .filter(|u| match ruleset.equipment(u).map(|module| &module.spec) {
+            Some(EquipmentSpec::Utility(spec)) => {
+                spec.unlocks.contains(&Capability::ExtraUtilitySlot)
+            }
+            _ => false,
+        })
+        .count() as u32
+        * 2;
+    let budget = slots.utility as u32 + extra_slots;
+    if spent > budget {
         errors.push(ValidationError::machine(
             ValidationCode::Utilities,
             id,
-            format!(
-                "utilities cost {} of a {}-point utility budget",
-                spent, slots.utility
-            ),
+            format!("utilities cost {} of a {}-point utility budget", spent, budget),
         ));
     }
     // No duplicates (ordered scan → deterministic).

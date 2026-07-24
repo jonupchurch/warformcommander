@@ -1549,6 +1549,46 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
             },
         ),
     );
+
+    // --- v3 US3-D heavy exotics (§14) — modelled as the simplest existing mechanic that captures the
+    // intent (no entity/spawn systems). Three reuse existing hooks; three add a small contained mechanic.
+    // Overdrive (§14.3 Mech): a burst tradeoff — +damage, −defense. Pure stat-kit (glass-cannon swap).
+    add(
+        "Overdrive",
+        "Overdrive",
+        stat_util(
+            2,
+            StatDeltas {
+                damage: q(20),      // +20 damage (start-value)
+                armor_pct: -2_000,  // −20% armor (the "−defense" side of the tradeoff)
+                ..Default::default()
+            },
+        ),
+    );
+    // Alpha Strike (§14.4 Heli): big burst on the first pass — reuse the Ambush full-HP alpha (front-loads
+    // value against an undamaged target, which is exactly the opening-pass scenario).
+    add("AlphaStrike", "Alpha Strike", cap_util(2, Capability::Ambush));
+    // Target Radar (§14.2 Light): reach a backline target — reuse ExtendReach (the carrier reaches deeper;
+    // the design's army-wide-reach is simplified to the carrier's own reach, the simplest existing hook).
+    add("TargetRadar", "Target Radar", cap_util(2, Capability::ExtendReach));
+    // Multi-Targeting (§14.6 Commander): the projector hits a second ally per tick (new sim mechanic).
+    add(
+        "MultiTargeting",
+        "Multi-Targeting",
+        cap_util(2, Capability::MultiTarget),
+    );
+    // Modular Hardpoint (§14.3 Mech): a net +1 utility slot (validator grants +2 budget at cost 1).
+    add(
+        "ModularHardpoint",
+        "Modular Hardpoint",
+        cap_util(1, Capability::ExtraUtilitySlot),
+    );
+    // Broadcast Array (§14.6 Commander): the projector reaches the whole army, not just its zone.
+    add(
+        "BroadcastArray",
+        "Broadcast Array",
+        cap_util(2, Capability::Broadcast),
+    );
 }
 
 /// A capability-unlock utility with no stat deltas — the common shape for the v3 kit items.

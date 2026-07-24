@@ -33,6 +33,7 @@ import {
   type ReachTag,
   type Ruleset,
   type StatDeltas,
+  type SupportRange,
   type UtilitySpec,
   type WeaponSpec,
 } from './ruleset';
@@ -313,6 +314,9 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
   const shieldCap = defenseShieldCap + acc.shieldCap;
   const shieldRegen = defenseShieldRegen + acc.shieldRegen;
   const supportPowerFinal = supportPower !== null ? supportPower + acc.supportPower : null;
+  // Broadcast Array (§14.6): widen the projector to the whole army — only where support exists.
+  const supportRangeFinal: SupportRange | null =
+    caps.has('Broadcast') && supportRange !== null ? 'WholeArmy' : supportRange;
 
   return {
     ok: true,
@@ -343,7 +347,7 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
       threat: base.threat,
       targetDraw: clamp(acc.targetDraw, -128, 127),
       supportPower: supportPowerFinal,
-      supportRange,
+      supportRange: supportRangeFinal,
       supportKind,
       specialMitigation,
       capabilities: sortCapabilities(caps),

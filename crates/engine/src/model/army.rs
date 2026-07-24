@@ -383,6 +383,13 @@ pub fn derive_effective_stats(
             SupportKind::Heal,
         ),
     };
+    // Broadcast Array (§14.6): widen the projector's reach to the whole army — only where a projector
+    // exists (support_range is Some), so it is inert on a non-support machine.
+    let support_range = if caps.contains(&Capability::Broadcast) && support_range.is_some() {
+        Some(SupportRange::WholeArmy)
+    } else {
+        support_range
+    };
 
     let native_match = mtype.native_family == Some(family);
     let damage_type = family.as_damage_type().unwrap_or(base.damage_type);

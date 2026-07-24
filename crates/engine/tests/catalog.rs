@@ -9,7 +9,8 @@ use engine::model::army::{derive_effective_stats, Army, MachineInstance};
 use engine::model::ruleset::Ruleset;
 use engine::model::types::{
     AuraEffect, AuraKind, AuraScope, Capability, DamageType, DialKey, DialValue, EquipmentId,
-    EquipmentSpec, MachineTypeId, PlanBSlot, PlanBTrigger, TriggerCondition, VariantId, ZoneId,
+    EquipmentSpec, MachineTypeId, PlanBSlot, PlanBTrigger, SupportRange, TriggerCondition, VariantId,
+    ZoneId,
 };
 use engine::replay::{Adaptation, DamageLayer, Fate, MatchConfig, Side, TickEvent, UnitRef};
 use engine::{resolve, BattleInput, BattleOutput};
@@ -907,5 +908,140 @@ fn sustain_support_deltas_feed_derived_stats() {
     assert!(
         grunt.support_power.is_none(),
         "Amplifier is inert on a machine with no support to amplify"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// v3 US3-D heavy exotics (§14) — Overdrive / Alpha Strike / Target Radar / Multi-Targeting /
+// Modular Hardpoint / Broadcast Array (simplest-mechanic reuse + three contained new mechanics)
+// ---------------------------------------------------------------------------
+
+/// **Modular Hardpoint** grants a net +1 utility slot: a 5-cost loadout that overspends a Mech's 4-point
+/// budget is illegal, but becomes legal once a hardpoint (cost 1, +2 budget) is added.
+#[test]
+fn modular_hardpoint_grants_a_net_utility_slot() {
+    let rs = seed_ruleset();
+    let legal = |with_hardpoint: bool| -> bool {
+        let mut mech = stock_instance(&rs, MachineTypeId::Mech, "Vanguard", ZoneId::Front, 0);
+        // JumpJets (3) + Combat AI (2) = 5 > the Mech's 4-point budget.
+        let mut utils = vec![EquipmentId::new("JumpJets"), EquipmentId::new("CombatAI")];
+        if with_hardpoint {
+            utils.push(EquipmentId::new("ModularHardpoint")); // cost 1, +2 budget → net +1 slot
+        }
+        mech.loadout.utilities = utils;
+        let a = Army {
+            machines: vec![
+                mech,
+                stock_instance(&rs, MachineTypeId::Mech, "Vanguard", ZoneId::Front, 1),
+                stock_instance(&rs, MachineTypeId::Mech, "Vanguard", ZoneId::Middle, 2),
+                stock_instance(&rs, MachineTypeId::Mech, "Vanguard", ZoneId::Rear, 3),
+                stock_instance(&rs, MachineTypeId::Mech, "Vanguard", ZoneId::Rear, 4),
+            ],
+        };
+        let b = Army {
+            machines: (0..5).map(|i| tank(&rs, "Grizzly", ground_zone(i), i)).collect(),
+        };
+        resolve(&BattleInput {
+            armies: [a, b],
+            ruleset: rs.clone(),
+            seed: 1,
+            match_config: cfg(),
+        })
+        .is_ok()
+    };
+    assert!(!legal(false), "a 5-cost loadout must be illegal on the Mech's 4-point budget");
+    assert!(legal(true), "a Modular Hardpoint's net +1 slot must make the 5-cost loadout legal");
+}
+
+/// **Multi-Targeting** adds a second projection per tick: with several wounded allies in range, the
+/// Medic emits strictly more Support events over the battle than a single-target Medic.
+#[test]
+fn multi_targeting_projects_to_a_second_ally() {
+    let medic = UnitRef {
+        side: Side::B,
+        instance_id: 1,
+    };
+    let medic_heals = |multi: bool| -> usize {
+        let mut rs = seed_ruleset();
+        // Give the attackers heavy splash so a volley wounds BOTH co-zone Cavaliers at once — otherwise
+        // focus-fire leaves only a single wounded ally and the second projection has nothing to heal.
+        rs.variants.get_mut(&VariantId::new("Grizzly")).unwrap().splash = 6_000;
+        let mut m = stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 1);
+        m.loadout.utilities = if multi {
+            vec![EquipmentId::new("MultiTargeting")]
+        } else {
+            vec![]
+        };
+        let defenders = Army {
+            machines: vec![
+                tank(&rs, "Cavalier", ZoneId::Front, 0),
+                m,
+                tank(&rs, "Cavalier", ZoneId::Front, 2),
+                tank(&rs, "Cavalier", ZoneId::Middle, 3),
+                tank(&rs, "Cavalier", ZoneId::Middle, 4),
+            ],
+        };
+        let attackers = Army {
+            machines: (0..5).map(|i| tank(&rs, "Grizzly", ground_zone(i), i)).collect(),
+        };
+        run(&rs, attackers, defenders, 0x3D7A)
+            .replay
+            .games[0]
+            .ticks
+            .iter()
+            .flat_map(|t| &t.events)
+            .filter(|e| matches!(e, TickEvent::Support { actor, .. } if *actor == medic))
+            .count()
+    };
+    assert!(
+        medic_heals(true) > medic_heals(false),
+        "Multi-Targeting must add a second heal per tick: multi={} single={}",
+        medic_heals(true),
+        medic_heals(false)
+    );
+}
+
+/// **Broadcast Array** widens the projector to the whole army, and the reuse-based exotics (Overdrive,
+/// Alpha Strike, Target Radar) feed the derived stat / capability each names — a wiring check.
+#[test]
+fn broadcast_and_reuse_exotics_wire_through() {
+    let mut rs = seed_ruleset();
+    // The Medic's stock base is already WholeArmy; drop it to OwnZone so Broadcast's widening is visible.
+    rs.variants.get_mut(&VariantId::new("Medic")).unwrap().support_range = Some(SupportRange::OwnZone);
+    let medic_range = |broadcast: bool| -> Option<SupportRange> {
+        let mut m = stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 0);
+        m.loadout.utilities = if broadcast {
+            vec![EquipmentId::new("BroadcastArray")]
+        } else {
+            vec![]
+        };
+        derive_effective_stats(&m, &rs).expect("legal Medic").support_range
+    };
+    assert_eq!(medic_range(false), Some(SupportRange::OwnZone));
+    assert_eq!(
+        medic_range(true),
+        Some(SupportRange::WholeArmy),
+        "Broadcast widens the projector to the whole army"
+    );
+
+    let base = {
+        let m = tank(&rs, "Grizzly", ZoneId::Front, 0);
+        derive_effective_stats(&m, &rs).expect("bare Grizzly")
+    };
+    let derive_util = |util: &str| {
+        let mut m = tank(&rs, "Grizzly", ZoneId::Front, 0);
+        m.loadout.utilities = vec![EquipmentId::new(util)];
+        derive_effective_stats(&m, &rs).expect("legal single-utility Grizzly")
+    };
+    let od = derive_util("Overdrive");
+    assert!(od.damage > base.damage, "Overdrive raises damage");
+    assert!(od.armor_pct < base.armor_pct, "Overdrive lowers armor (the -defense tradeoff)");
+    assert!(
+        derive_util("AlphaStrike").capabilities.contains(&Capability::Ambush),
+        "Alpha Strike reuses the Ambush alpha"
+    );
+    assert!(
+        derive_util("TargetRadar").capabilities.contains(&Capability::ExtendReach),
+        "Target Radar reuses ExtendReach"
     );
 }
