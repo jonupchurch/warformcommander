@@ -28,6 +28,22 @@ Commander (US5). Live ruleset `0b4cd0f2…` +10 hot-added `damage:0` weapons; fi
 **→ Authoritative status + correction plan: `specs/015-v3-counter-web/gap-analysis.md`.**
 Locked plan: docs-first → defenses §10 + weapon tuning (wake the matrix) → equipment economy →
 Commander; content-first, measure each slice, open a super-linearity engine pass only if walls persist.
+**Update (2026-07-24): implementing ALL remaining v3 features first, balance deferred to one pass at
+the end — see `specs/015-v3-counter-web/completion-plan.md`.** (US1b weapon bake + US3-B riders done;
+EMP anti-sustain proven to flip sustain walls — the counter-web is an equipment-counter problem.)
+
+---
+
+## Backlog (post-current-work)
+
+- **Garage: live gear-effect flyout during selection.** On the garage customization screen (active
+  customization state), show a tooltip/flyout **next to the dropdown** that previews each gear item's
+  effects **as the player browses the dropdown options** (on hover/focus), *before* committing a
+  selection — so they don't have to select → check → reselect. The effect-derivation already exists
+  (`components/garage/effect-breakdown.tsx` + `sim/derive.ts` `deriveEffectiveStats`); the work is a
+  per-option hover preview wired into the loadout dropdowns (`components/garage/loadout-editor.tsx` /
+  `field-select.tsx` / `defense-panel.tsx`), likely a diff-vs-current stat delta shown in a popover.
+  UX-only, no engine change. (Added 2026-07-24.)
 
 ---
 
