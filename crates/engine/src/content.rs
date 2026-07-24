@@ -1338,6 +1338,29 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
     add("Rally", "Rally", cap_util(2, Capability::Rally));
     // Ambush (§14): this machine's hits land harder against a full-health target (the alpha bonus).
     add("Ambush", "Ambush", cap_util(2, Capability::Ambush));
+    // Adaptive Munitions (§14, the Mech flex signature): unlocks the DamageType Plan-B — switch the
+    // outgoing damage type mid-battle when a trigger fires (improvised ammo → no native bonus). A
+    // build-definer (cost 2 for now; the mechanic lives in `damage.rs`/`behavior.rs`/`validate.rs`).
+    add(
+        "AdaptiveMunitions",
+        "Adaptive Munitions",
+        cap_util(2, Capability::AdaptiveMunitions),
+    );
+    // Duelist Servos (§14): consecutive hits on the same target ramp this machine's damage (focus-fire
+    // crescendo that resets on a target switch). The ramp lives in the sim; this is the unlock.
+    add("DuelistServos", "Duelist Servos", cap_util(2, Capability::Duelist));
+    // Coordinated Strike (§14, the Heli signature): +accuracy while a zone ally targets the same enemy.
+    add(
+        "CoordinatedStrike",
+        "Coordinated Strike",
+        cap_util(2, Capability::CoordinatedStrike),
+    );
+    // Guardian Protocol (§14, the Heavy's protector): soak a share of a zone ally's incoming direct fire.
+    add(
+        "GuardianProtocol",
+        "Guardian Protocol",
+        cap_util(2, Capability::Guardian),
+    );
 }
 
 /// A capability-unlock utility with no stat deltas — the common shape for the v3 kit items.
@@ -1405,6 +1428,7 @@ pub fn stock_dials() -> BehaviorDials {
         targeting: TargetingChain::DEFAULT,
         movement: MovementMode::Hold,
         stance: Stance::Neutral,
+        damage_override: None,
     }
 }
 

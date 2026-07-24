@@ -199,6 +199,11 @@ const CAPABILITY_COPY: Record<Capability, string> = {
   StationaryBrace: 'Takes less damage while it holds its position — the reward for staying put',
   Rally: 'Each tick, cleanses EMP / Suppress / Snare off allies — the answer to control riders',
   Ambush: 'Hits land harder against a full-health target — an alpha bonus that fades once it is dented',
+  AdaptiveMunitions:
+    'Unlocks a Plan-B that switches this machine’s outgoing damage type mid-battle (improvised ammo — no native bonus)',
+  Duelist: 'Consecutive hits on the same target ramp its damage — a focus-fire crescendo that resets on a target switch',
+  CoordinatedStrike: 'More accurate while a zone ally targets the same enemy — a focus-fire reward',
+  Guardian: 'Soaks a share of the direct fire aimed at a zone ally — a damage-redirect bodyguard',
 };
 
 // --- equipment -------------------------------------------------------------

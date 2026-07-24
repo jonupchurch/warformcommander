@@ -705,6 +705,7 @@ mod tests {
             targeting: TargetingChain::DEFAULT,
             movement: MovementMode::Advance,
             stance: Stance::Aggressive,
+            damage_override: None,
         }
     }
 

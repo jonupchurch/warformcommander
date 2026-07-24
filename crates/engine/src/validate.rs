@@ -11,7 +11,8 @@ use serde::{Deserialize, Serialize};
 use crate::model::army::{derive_effective_stats, Army, DerivationError, MachineInstance};
 use crate::model::ruleset::Ruleset;
 use crate::model::types::{
-    EquipmentId, EquipmentSpec, MachineTypeId, MovementMode, PlanBSlot, SlotLayout, ZoneId,
+    Capability, DialValue, EquipmentId, EquipmentSpec, MachineTypeId, MovementMode, PlanBSlot,
+    SlotLayout, ZoneId,
 };
 
 /// Zone caps (game rules, not tunable balance): ground rows hold 3, Air holds 2.
@@ -194,10 +195,22 @@ fn validate_machine(
                 ));
             }
 
-            // V7 retired (v3 US2): no dial option is capability-gated any more. A `TargetAir` filter on
-            // a unit with no air reach is simply *inert* — air never enters its reachable pool, so the
-            // filter falls through — rather than an illegal build (design §12 Q5). Movement/Stance are
-            // ungated (the v2 Reposition/Escort/Opportunist options are gone).
+            // V7 (v3 US3): dial *options* are ungated (a `TargetAir` filter on a unit with no air reach
+            // is simply inert; Movement/Stance are universal) — but a **DamageType** Plan-B (Adaptive
+            // Munitions) is capability-gated: only a machine carrying `AdaptiveMunitions` may switch its
+            // outgoing damage type mid-battle. Everything else falls through per design §12 Q5.
+            if m
+                .plan_b
+                .iter()
+                .any(|t| matches!(t.plan_b_value, DialValue::DamageType(_)))
+                && !stats.capabilities.contains(&Capability::AdaptiveMunitions)
+            {
+                errors.push(ValidationError::machine(
+                    ValidationCode::DialGating,
+                    id,
+                    "a DamageType Plan-B requires the Adaptive Munitions capability".to_string(),
+                ));
+            }
 
             // V8 — movement order feasible for the machine's mobility.
             let moving = !matches!(m.dials.movement, MovementMode::Hold);
@@ -331,8 +344,8 @@ mod tests {
     use super::*;
     use crate::content::{seed_ruleset, stock_instance};
     use crate::model::types::{
-        DialKey, DialValue, EquipmentId, MachineTypeId, MovementMode, PlanBTrigger, Stance,
-        TriggerCondition,
+        DamageType, DialKey, DialValue, EquipmentId, MachineTypeId, MovementMode, PlanBTrigger,
+        Stance, TriggerCondition,
     };
 
     fn legal_army() -> Army {
@@ -490,6 +503,39 @@ mod tests {
             validate(&army, &rs),
             Ok(()),
             "a Commander in the roster must grant the army a 2nd Plan-B slot"
+        );
+    }
+
+    /// V7 (v3 US3): a DamageType Plan-B is legal only with the Adaptive Munitions capability. The stock
+    /// Grizzly (no such utility) is rejected with `DialGating`; equipping Adaptive Munitions clears it.
+    #[test]
+    fn v7_gates_the_damage_type_plan_b_behind_adaptive_munitions() {
+        let rs = seed_ruleset();
+        let switch = PlanBTrigger {
+            slot: PlanBSlot::Slot1,
+            condition: TriggerCondition::AfterTick(0),
+            dial: DialKey::DamageType,
+            plan_b_value: DialValue::DamageType(DamageType::Energy),
+        };
+
+        // Ungated: the stock Grizzly carries no Adaptive Munitions → the DamageType Plan-B is rejected.
+        let mut ungated = legal_army();
+        ungated.machines[0].plan_b = vec![switch];
+        let errs = validate(&ungated, &rs).unwrap_err();
+        assert!(
+            errs.iter()
+                .any(|e| e.code == ValidationCode::DialGating && e.instance_id == Some(0)),
+            "a DamageType Plan-B without Adaptive Munitions must be rejected (V7): {errs:?}"
+        );
+
+        // Gated: equip Adaptive Munitions on the same machine → the switch becomes legal.
+        let mut gated = legal_army();
+        gated.machines[0].loadout.utilities = vec![EquipmentId::new("AdaptiveMunitions")];
+        gated.machines[0].plan_b = vec![switch];
+        assert_eq!(
+            validate(&gated, &rs),
+            Ok(()),
+            "Adaptive Munitions must unlock the DamageType Plan-B"
         );
     }
 

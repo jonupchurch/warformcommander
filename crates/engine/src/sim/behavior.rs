@@ -128,6 +128,9 @@ fn apply_dial(dials: &mut BehaviorDials, value: DialValue) {
     match value {
         DialValue::Movement(v) => dials.movement = v,
         DialValue::Stance(v) => dials.stance = v,
+        // Adaptive Munitions (US3): latch a new outgoing damage type. Recomputed from base each tick, so
+        // it reverts to the weapon's own type the instant a Commander-granted Slot-2 stops applying.
+        DialValue::DamageType(t) => dials.damage_override = Some(t),
     }
 }
 

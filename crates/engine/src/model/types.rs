@@ -607,6 +607,22 @@ pub enum Capability {
     /// full-health target** — a first-strike/alpha bonus that fades once the target has been dented.
     /// Added last to keep the enum's `Ord`/serialization stable.
     Ambush,
+    /// **Adaptive Munitions** (v3 US3, design §14: the Mech's flex signature): unlocks a Plan-B
+    /// **DamageType** dial — the machine may switch its outgoing damage *type* mid-battle when a trigger
+    /// fires (improvised ammo, so the switch drops the native-match bonus). Gated in `validate` (V7):
+    /// only a machine carrying this may set a `DialValue::DamageType`. Added last for `Ord` stability.
+    AdaptiveMunitions,
+    /// **Duelist Servos** (v3 US3, design §14): consecutive *hits* on the **same** target ramp this
+    /// machine's damage (a focus-fire crescendo that resets when it switches target). The ramp lives in
+    /// the sim (`damage.rs`); this is the pure capability unlock. Added last for `Ord` stability.
+    Duelist,
+    /// **Coordinated Strike** (v3 US3, the Heli signature): +accuracy while a zone ally independently
+    /// targets the **same** enemy — a focus-fire reward, inert when firing solo. Added last for stability.
+    CoordinatedStrike,
+    /// **Guardian Protocol** (v3 US3, design §14: the Heavy's protector): redirects a share of the
+    /// direct-fire damage aimed at a **zone ally** onto this machine — a damage-soak bodyguard. Added
+    /// last to keep the enum's `Ord`/serialization stable.
+    Guardian,
 }
 
 // ---------------------------------------------------------------------------
@@ -621,6 +637,12 @@ pub struct BehaviorDials {
     pub targeting: TargetingChain,
     pub movement: MovementMode,
     pub stance: Stance,
+    /// v3 US3 Adaptive Munitions: an active outgoing damage-*type* override, latched by a Plan-B
+    /// `DialValue::DamageType`. `None` in every authored/base build (the machine fires its weapon's own
+    /// type); a fired trigger flips it. **Skipped when `None`** so existing dials serialize
+    /// byte-identically (hash-stable), and reverts to `None` when the granting slot stops applying.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub damage_override: Option<DamageType>,
 }
 
 /// The targeting **priority-score chain** (v3 US2, design §12) — two ordered class **filters** (either
@@ -709,6 +731,9 @@ pub enum Stance {
 pub enum DialKey {
     Movement,
     Stance,
+    /// v3 US3 Adaptive Munitions — the machine's outgoing damage *type*. Only a machine carrying the
+    /// `AdaptiveMunitions` capability may set it (gated in `validate`). Added last for `Ord` stability.
+    DamageType,
 }
 
 /// A dial-typed value a Plan-B trigger latches (externally tagged: `{ "Movement": "FallBack" }`).
@@ -716,6 +741,8 @@ pub enum DialKey {
 pub enum DialValue {
     Movement(MovementMode),
     Stance(Stance),
+    /// v3 US3 Adaptive Munitions: latch a new outgoing damage *type* (Kinetic / Energy / Explosive).
+    DamageType(DamageType),
 }
 
 impl DialValue {
@@ -724,6 +751,7 @@ impl DialValue {
         match self {
             DialValue::Movement(_) => DialKey::Movement,
             DialValue::Stance(_) => DialKey::Stance,
+            DialValue::DamageType(_) => DialKey::DamageType,
         }
     }
 }
@@ -962,6 +990,7 @@ mod tests {
                 targeting: TargetingChain::DEFAULT,
                 movement: MovementMode::Advance,
                 stance: Stance::Aggressive,
+                damage_override: None,
             },
             plan_b: vec![PlanBTrigger {
                 slot: PlanBSlot::Slot1,

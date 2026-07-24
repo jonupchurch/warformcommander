@@ -93,6 +93,11 @@ pub(crate) struct Combatant {
     /// Ticks left in the current jump phase — the airborne window while `Airborne`, the ground cooldown
     /// while `Grounded`. Counts down every tick for a jumper; inert (stays `0`) for a non-jumper.
     pub jump_timer: u16,
+    /// **Duelist Servos** ramp state (v3 US3): the unit this machine hit on its previous shot, and how
+    /// many consecutive hits it has landed on it. Tracked for every combatant (cheap) but only *read* for
+    /// a `Duelist` machine, whose damage ramps with `ramp_stacks` and resets when `last_target` changes.
+    pub last_target: Option<UnitRef>,
+    pub ramp_stacks: u16,
     pub alive: bool,
     pub damage_dealt: Fixed,
     pub destroyed_at: Option<u16>,
@@ -240,6 +245,8 @@ pub(crate) fn build_combatants(
                 fallback_timer: 0,
                 jump: JumpJetPhase::Grounded,
                 jump_timer: 0,
+                last_target: None,
+                ramp_stacks: 0,
                 alive: true,
                 damage_dealt: Fixed::ZERO,
                 destroyed_at: None,

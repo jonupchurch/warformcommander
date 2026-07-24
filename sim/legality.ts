@@ -158,6 +158,17 @@ function validateMachine(
     );
   }
 
+  // V7 (v3 US3): dial options are ungated, but a DamageType Plan-B (Adaptive Munitions) is
+  // capability-gated — only a machine carrying `AdaptiveMunitions` may switch its outgoing damage type.
+  if (
+    m.planB.some((t) => 'DamageType' in t.planBValue) &&
+    !stats.capabilities.includes('AdaptiveMunitions')
+  ) {
+    errors.push(
+      machineError('DialGating', id, 'a DamageType Plan-B requires the Adaptive Munitions capability'),
+    );
+  }
+
   // V8 — movement order feasible for the machine's mobility.
   const moving = m.dials.movement !== 'Hold';
   const immobile = stats.moveSpeed === null || stats.moveSpeed === 0;

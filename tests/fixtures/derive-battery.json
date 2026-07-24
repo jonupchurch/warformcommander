@@ -2166,6 +2166,16 @@
           "range": "WholeArmy"
         }
       },
+      "AdaptiveMunitions": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "AdaptiveMunitions",
+        "kind": "Utility",
+        "name": "Adaptive Munitions",
+        "unlocks": [
+          "AdaptiveMunitions"
+        ]
+      },
       "Ambush": {
         "cadenceShift": 0,
         "cost": 2,
@@ -2453,6 +2463,16 @@
           "targetDraw": 0
         }
       },
+      "CoordinatedStrike": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "CoordinatedStrike",
+        "kind": "Utility",
+        "name": "Coordinated Strike",
+        "unlocks": [
+          "CoordinatedStrike"
+        ]
+      },
       "Decoy": {
         "cadenceShift": 0,
         "id": "Decoy",
@@ -2537,6 +2557,16 @@
           "targetDraw": 0
         },
         "unlocks": []
+      },
+      "DuelistServos": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "DuelistServos",
+        "kind": "Utility",
+        "name": "Duelist Servos",
+        "unlocks": [
+          "Duelist"
+        ]
       },
       "ECMSuite": {
         "cadenceShift": 0,
@@ -2680,6 +2710,16 @@
           "splash": 0,
           "targetDraw": 0
         }
+      },
+      "GuardianProtocol": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "GuardianProtocol",
+        "kind": "Utility",
+        "name": "Guardian Protocol",
+        "unlocks": [
+          "Guardian"
+        ]
       },
       "HealProjector": {
         "family": "Support",
