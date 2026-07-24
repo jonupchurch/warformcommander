@@ -142,7 +142,7 @@ fn seed_machine_types(m: &mut BTreeMap<MachineTypeId, MachineType>) {
             native_family: None, // generalist — no native bonus
             home_zones: ground(),
             mount_class: MountClass::Mech,
-            slot_layout: SlotLayout::STANDARD,
+            slot_layout: SlotLayout::FOUR_UTILITY, // §14.3 the flex bruiser — 4 utility slots
             can_fire_from_rear: false,
             air_capable_by_default: false,
         },
@@ -154,7 +154,7 @@ fn seed_machine_types(m: &mut BTreeMap<MachineTypeId, MachineType>) {
             native_family: Some(DamageFamily::Explosive),
             home_zones: vec![ZoneId::Air], // air-locked
             mount_class: MountClass::Heli,
-            slot_layout: SlotLayout::STANDARD,
+            slot_layout: SlotLayout::TWO_UTILITY, // §14.4 fragile air striker — hard-commits 2 slots
             can_fire_from_rear: false,
             // A heli engages enemy air FIRST (air sorts frontmost, see sim/target.rs reach_zones) and
             // only at the non-AA "plink" rate (sim/damage.rs air_mods): it clears the skies, then turns
@@ -169,7 +169,7 @@ fn seed_machine_types(m: &mut BTreeMap<MachineTypeId, MachineType>) {
             native_family: Some(DamageFamily::Explosive),
             home_zones: ground(),
             mount_class: MountClass::RktArty,
-            slot_layout: SlotLayout::STANDARD,
+            slot_layout: SlotLayout::TWO_UTILITY, // §14.5 fragile backline (SAM) — 2 slots
             can_fire_from_rear: true,
             air_capable_by_default: true, // the SAM specialist
         },
@@ -181,7 +181,7 @@ fn seed_machine_types(m: &mut BTreeMap<MachineTypeId, MachineType>) {
             native_family: Some(DamageFamily::Explosive),
             home_zones: ground(),
             mount_class: MountClass::Artillery,
-            slot_layout: SlotLayout::STANDARD,
+            slot_layout: SlotLayout::TWO_UTILITY, // §14.5 fragile backline (bombardment) — 2 slots
             can_fire_from_rear: true,
             air_capable_by_default: false, // indirect — never targets air
         },
@@ -1552,16 +1552,20 @@ mod tests {
             let m = stock_instance(&rs, type_id, variant, zone, 0);
             let e = derive_effective_stats(&m, &rs)
                 .unwrap_or_else(|err| panic!("{variant} stock build failed: {err:?}"));
-            // Sanity: a wide-utility variant fills as many utilities as the stock pool holds. Sentinel's
-            // 4 slots and the Commander's 5 (CommandPost) both cap at the 4-item stock utility pool.
-            let expected_utils = if matches!(variant, "Sentinel" | "CommandPost") {
-                4
-            } else {
-                3
-            };
+            // Sanity: the stock fill takes `min(budget, pool)` utilities — the chassis's utility budget,
+            // capped by the 4-item stock cost-1 pool. So a 2-slot Heli/Arty fills 2, a 4-slot Mech fills 4,
+            // and the Commander's 5 (CommandPost) caps at the pool's 4 (v3 US3-D per-chassis budgets).
+            const STOCK_POOL: usize = 4;
+            let budget = rs
+                .chassis
+                .get(&VariantId::new(variant))
+                .and_then(|c| c.slot_layout_override)
+                .or_else(|| rs.machine_type(type_id).map(|t| t.slot_layout))
+                .map(|s| s.utility as usize)
+                .expect("variant has a slot layout");
             assert_eq!(
                 m.loadout.utilities.len(),
-                expected_utils,
+                budget.min(STOCK_POOL),
                 "{variant} utility count"
             );
             // Air-locked helis keep move_speed None through derivation.

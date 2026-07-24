@@ -215,6 +215,13 @@ impl SlotLayout {
         defense: 1,
         utility: 3,
     };
+    /// The 1 / 1 / 2 layout (v3 US3-D per-chassis budgets, §14.4/§14.5 — the fragile air + backline
+    /// chassis hard-commit their two utility slots: Attack Heli · Rocket-Artillery · Artillery).
+    pub const TWO_UTILITY: SlotLayout = SlotLayout {
+        weapon: 1,
+        defense: 1,
+        utility: 2,
+    };
     /// The 1 / 1 / 4 layout (Sentinel mech, Command Post support).
     pub const FOUR_UTILITY: SlotLayout = SlotLayout {
         weapon: 1,
