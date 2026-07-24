@@ -7,7 +7,9 @@
 use engine::content::stock_instance;
 use engine::model::army::{Army, MachineInstance};
 use engine::model::ruleset::Ruleset;
-use engine::model::types::{EquipmentId, MachineTypeId, Stance, TargetSelector, ZoneId};
+use engine::model::types::{
+    EquipmentId, MachineTypeId, Stance, TargetFilter, TargetSelector, TargetingChain, ZoneId,
+};
 
 /// A labeled army builder — a candidate combo / field opponent (data-model MatchupSpec source).
 #[derive(Clone, Copy)]
@@ -31,6 +33,24 @@ fn with_weapon(mut m: MachineInstance, weapon: &str) -> MachineInstance {
 /// from the enemy rear rather than the contact line).
 fn with_fallback(mut m: MachineInstance, sel: TargetSelector) -> MachineInstance {
     m.dials.targeting.fallback = sel;
+    m
+}
+
+/// Override a machine's full targeting chain — a back-targeting reach counter (`Target Support` /
+/// `Target Indirect` + `Furthest`). Without such builds every archetype uses the stock `Closest` chain,
+/// so the sweep is structurally blind to reach/screening counter-play (a raider sniping a screened
+/// backline) — the reason a graded-row-screening change reads as inert. See [`reach_field`].
+fn with_chain(
+    mut m: MachineInstance,
+    p1: TargetFilter,
+    p2: Option<TargetFilter>,
+    sel: TargetSelector,
+) -> MachineInstance {
+    m.dials.targeting = TargetingChain {
+        priority1: Some(p1),
+        priority2: p2,
+        fallback: sel,
+    };
     m
 }
 
@@ -383,6 +403,57 @@ pub fn combined_arms_field() -> Vec<Archetype> {
     ]
 }
 
+// ---------------------------------------------------------------------------
+// Reach-counter field (measurement-instrument fix, 2026-07-24)
+// ---------------------------------------------------------------------------
+//
+// The mono + combined fields build every unit with the stock `Closest` chain, so no archetype ever
+// hunts a screened backline — the sweep is structurally blind to reach/targeting counter-play. That is
+// why a graded-row-screening (leak-through) change measured as inert: the field cannot field the build
+// that would exploit it. This archetype fields explicit back-targeting reach counters so a reach change
+// becomes *measurable* — a raider sniping a healer/artillery through a screen should tilt the turtle
+// matchups it currently cannot touch. See `balance.md` (v3 Phase 1 super-linearity probe).
+
+/// A layered reach-counter: a front screen that HOLDS (default targeting), short-reach back-snipers (a
+/// Mech on Target Support, a Light on Target Indirect, both sweeping `Furthest`), and an artillery tube
+/// for genuine indirect reach. Unlike a naive "abandon the screen to snipe" list, the screen still
+/// trades while the snipers work the backline — the build a real player brings to crack a turtle. On the
+/// stock engine the short-reach snipers can only reach the backline once the screen clears (so they read
+/// near-inert); under a graded-screening change they snipe through it, and the delta is the signal.
+pub fn reach_raider(rs: &Ruleset) -> Army {
+    Army {
+        machines: vec![
+            place(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 0),
+            place(rs, MachineTypeId::HeavyTank, "Cavalier", ZoneId::Front, 1),
+            with_chain(
+                place(rs, MachineTypeId::Mech, "Vanguard", ZoneId::Middle, 2),
+                TargetFilter::TargetSupport,
+                Some(TargetFilter::TargetIndirect),
+                TargetSelector::Furthest,
+            ),
+            with_chain(
+                place(rs, MachineTypeId::LightTank, "Scout", ZoneId::Middle, 3),
+                TargetFilter::TargetIndirect,
+                Some(TargetFilter::TargetSupport),
+                TargetSelector::Furthest,
+            ),
+            place(rs, MachineTypeId::Artillery, "Longbow", ZoneId::Rear, 4),
+        ],
+    }
+}
+
+/// The reach-counter diagnostic field: the combined-arms builds plus the explicit back-targeting reach
+/// raider — the instrument for judging whether a reach/screening change actually creates counter-play
+/// (run `verify --field reach` before and after such a change; watch `reach-raider`'s turtle matchups).
+pub fn reach_field() -> Vec<Archetype> {
+    let mut f = combined_arms_field();
+    f.push(Archetype {
+        label: "reach-raider",
+        build: reach_raider,
+    });
+    f
+}
+
 /// Assign a **role-based stance** to a placed machine (v3 stance diagnostic): front-zone brawlers go
 /// Aggressive (trading survivability for output where they trade blows), the fragile Rear backline
 /// goes Defensive (less output, but harder to kill), and the middle holds Neutral. Stance is a
@@ -445,6 +516,7 @@ pub fn field_by_name(name: &str) -> Vec<Archetype> {
     match name {
         "combined" => combined_arms_field(),
         "stance" => stance_field(),
+        "reach" => reach_field(),
         "all" => default_field()
             .into_iter()
             .chain(combined_arms_field())
@@ -576,6 +648,7 @@ mod tests {
         builds.push(("max-gear", max_gear(&rs)));
         builds.push(("skilled-base-gear", skilled_base_gear(&rs)));
         builds.push(("sloppy-max-gear", sloppy_max_gear(&rs)));
+        builds.push(("reach-raider", reach_raider(&rs)));
         for (label, army) in builds {
             assert_eq!(validate(&army, &rs), Ok(()), "{label} must be a legal army");
         }
