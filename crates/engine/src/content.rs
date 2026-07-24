@@ -804,6 +804,109 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
         ),
     );
 
+    // --- v3 roster fill (design D1 / §9.1): every combat chassis fields one weapon of each damage
+    // type, so the counter-web's damage-type counter-pick is expressible. Baked at parity with the
+    // live-DB hot-add (`scripts/add-v3-weapons.ts`): chassis-matched cadence + reach, damage delta 0
+    // — a pure damage-TYPE sidegrade. The trade is real via the ×1.6/×0.7 matrix (an off-family gun
+    // forgoes the +native% but can hit the matrix the right way). Untuned start values — a later
+    // measured slice gives the off-family variants their damage tradeoff. ---
+    // Heavy (native Kinetic; already had Kinetic + Energy) → + Explosive
+    add(
+        "DemolitionGun",
+        "Demolition Gun",
+        weapon(
+            MountClass::Heavy,
+            DamageFamily::Explosive,
+            gun(CadenceTier::Slow, ReachTag::Nearest),
+        ),
+    );
+    // Light (native Kinetic; had Kinetic only) → + Energy, + Explosive
+    add(
+        "ArcRepeater",
+        "Arc Repeater",
+        weapon(
+            MountClass::Light,
+            DamageFamily::Energy,
+            gun(CadenceTier::Fast, ReachTag::Nearest),
+        ),
+    );
+    add(
+        "GrenadeLauncher",
+        "Grenade Launcher",
+        weapon(
+            MountClass::Light,
+            DamageFamily::Explosive,
+            gun(CadenceTier::Fast, ReachTag::Nearest),
+        ),
+    );
+    // Mech (generalist, no native; had Kinetic + Energy) → + Explosive
+    add(
+        "MissileRack",
+        "Missile Rack",
+        weapon(
+            MountClass::Mech,
+            DamageFamily::Explosive,
+            gun(CadenceTier::Medium, ReachTag::Nearest),
+        ),
+    );
+    // Attack Heli (native Explosive; had Explosive only) → + Kinetic, + Energy
+    add(
+        "ChainGun",
+        "Chain Gun",
+        weapon(
+            MountClass::Heli,
+            DamageFamily::Kinetic,
+            gun(CadenceTier::Medium, ReachTag::AnyGround),
+        ),
+    );
+    add(
+        "BeamProjector",
+        "Beam Projector",
+        weapon(
+            MountClass::Heli,
+            DamageFamily::Energy,
+            gun(CadenceTier::Medium, ReachTag::AnyGround),
+        ),
+    );
+    // Rocket Artillery (native Explosive; had Explosive only) → + Kinetic, + Energy (ground bombardment)
+    add(
+        "FlechetteBattery",
+        "Flechette Battery",
+        weapon(
+            MountClass::RktArty,
+            DamageFamily::Kinetic,
+            gun(CadenceTier::Slow, ReachTag::AnyGround),
+        ),
+    );
+    add(
+        "LaserBattery",
+        "Laser Battery",
+        weapon(
+            MountClass::RktArty,
+            DamageFamily::Energy,
+            gun(CadenceTier::Slow, ReachTag::AnyGround),
+        ),
+    );
+    // Artillery (native Explosive; had Explosive only) → + Kinetic, + Energy
+    add(
+        "RailHowitzer",
+        "Rail Howitzer",
+        weapon(
+            MountClass::Artillery,
+            DamageFamily::Kinetic,
+            gun(CadenceTier::Siege, ReachTag::AnyGround),
+        ),
+    );
+    add(
+        "IonCannon",
+        "Ion Cannon",
+        weapon(
+            MountClass::Artillery,
+            DamageFamily::Energy,
+            gun(CadenceTier::Siege, ReachTag::AnyGround),
+        ),
+    );
+
     // --- Defenses: four families per mount, generated from one scale loop (v2) ---
     // The per-mount magnitude scaling happens at *derive* time (`mount_scale`), so every mount shares
     // these base numbers and the scale table alone differentiates a fragile heli from a heavy tank —
