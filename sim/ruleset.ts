@@ -366,6 +366,23 @@ export const DEFAULT_MOUNT_SCALE: MountScale = {
   support: 9000,
 };
 
+/** Fire cadence welded to damage type (v3 US1c, design §D6). Mirrors the engine `CadenceProfile`. */
+export interface CadenceProfile {
+  energy: CadenceTier;
+  kinetic: CadenceTier;
+  explosive: CadenceTier;
+  /** Extra outgoing damage (bp) for the heavy-platform chassis (Heavy Tank, Mech). 1000 = +10%. */
+  heavyPlatformDmgBonus: number;
+}
+
+/** The engine default (omitted from a ruleset at rest, so absence ⇒ this). */
+export const DEFAULT_CADENCE_PROFILE: CadenceProfile = {
+  energy: 'Fast',
+  kinetic: 'Medium',
+  explosive: 'Slow',
+  heavyPlatformDmgBonus: 1000,
+};
+
 /** The mount-scale factor (bp) for a mount class, from a ruleset's table or the default. */
 export function mountScaleFor(scale: MountScale, mount: MountClass): number {
   switch (mount) {
@@ -426,6 +443,8 @@ export interface Ruleset {
   reactiveMods?: ReactiveMods;
   /** Coordination diminishing-returns curve (spec 014); omitted at the identity default. */
   coordination?: Coordination;
+  /** Cadence welded to damage type (v3 US1c); omitted at the default ({@link DEFAULT_CADENCE_PROFILE}). */
+  cadenceProfile?: CadenceProfile;
 }
 
 // --- Derived output --------------------------------------------------------

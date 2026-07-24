@@ -20,6 +20,7 @@ import type { Army, Loadout, MachineInstance } from './model';
 export type DerivableMachine = Pick<MachineInstance, 'typeId' | 'variantId' | 'loadout'>;
 import {
   CAPABILITY_ORDER,
+  DEFAULT_CADENCE_PROFILE,
   DEFAULT_MOUNT_SCALE,
   mountScaleFor,
   type CadenceTier,
@@ -224,6 +225,28 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
   // Native behavioural flexibility (v2, FR-025): the Mech — the sole generalist (no native family) —
   // natively carries the extra Plan-B slot other chassis buy with Combat AI. Mirrors the engine.
   if (mtype.nativeFamily === undefined) caps.add('ExtraPlanBSlot');
+
+  // v3 US1c: cadence is welded to the damage TYPE (design §D6), overriding the weapon's own tier —
+  // Energy Fast / Kinetic Medium / Explosive Slow. Heavy-platform chassis (Heavy Tank, Mech) fire one
+  // tier slower AND deal +10% (the heavy-platform bonus); Artillery fires a tier slower with no bonus.
+  // Support keeps its base. Mirrors derive_effective_stats in crates/engine/src/model/army.rs.
+  const cp = ruleset.cadenceProfile ?? DEFAULT_CADENCE_PROFILE;
+  const weldedTier =
+    family === 'Energy'
+      ? cp.energy
+      : family === 'Kinetic'
+        ? cp.kinetic
+        : family === 'Explosive'
+          ? cp.explosive
+          : undefined; // Support projects, not fires
+  if (weldedTier !== undefined) {
+    const heavyPlatform = machine.typeId === 'HeavyTank' || machine.typeId === 'Mech';
+    acc.cadence =
+      heavyPlatform || machine.typeId === 'Artillery' ? slower(weldedTier) : weldedTier;
+    if (heavyPlatform) {
+      acc.damage = Math.trunc((acc.damage * (BP_ONE + cp.heavyPlatformDmgBonus)) / BP_ONE);
+    }
+  }
 
   // Resolve cadence shifts (positive = faster, saturating at the tier ends).
   let cadence = acc.cadence;

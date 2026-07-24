@@ -97,6 +97,7 @@ pub fn seed_ruleset() -> Ruleset {
         stance_mods: StanceMods::default(),
         reactive_mods: ReactiveMods::default(),
         coordination: Coordination::default(),
+        cadence_profile: crate::model::ruleset::CadenceProfile::default(),
     }
 }
 
@@ -1409,7 +1410,8 @@ mod tests {
         m.loadout.weapon = EquipmentId::new("SiegeLaser");
         let laser = derive_effective_stats(&m, &rs).unwrap();
         assert_eq!(laser.damage_type, DamageType::Energy);
-        assert_eq!(laser.damage, q(40), "35 base + 5 laser delta");
+        // 35 base + 5 laser delta = 40, then the +10% heavy-platform bonus (D6).
+        assert_eq!(laser.damage, q(40).mul_bp(11_000), "40, +10% heavy platform");
         assert!(!laser.native_match);
     }
 

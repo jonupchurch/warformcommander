@@ -81,5 +81,40 @@ goldens **only** after proving the change is stock-battle-inert (strip-and-repro
 regenerate `derive-battery.json` when the derive/validation shape changes · `vitest` green. **No
 `balancer verify` field sweeps** — the balance pass runs once, after Slice H.
 
-## Seams
-_(filled from the codebase-scout recon — pending.)_
+## Resolved open calls (from the recon)
+- **ECM-as-defense: pure data** — `DefenseSpec.tradeoff: StatDeltas` already carries `target_draw`
+  (the `ECMSuite` utility proves it). Author a defense module with `tradeoff.target_draw = -2`. (The
+  earlier "extend DefenseSpec" note above is superseded.)
+- **Autoloader: KEEP** as a slot-costly `cadence_shift` exception — it stacks on the derived cadence
+  coherently (base from type+chassis, then the utility nudges).
+- **Cadence overrides on the ~28 baked weapons: derive formula WINS** — cadence = f(type, chassis)
+  ignores each weapon's `cadence_tier` (type-welding is the point of D6). The weapon `cadence_tier`
+  becomes vestigial (still carries `reach` via `gun()`); don't hand-edit 28 modules.
+- **Commander projector: build the weapon-slot plumbing** (Heal/Shield/Ablation Guns as projector
+  weapons whose support stats flow into derive) — the design's live counter-pick intent, not 3 fixed
+  variants. This is the sleeper cost (support_power/range bypass the loadout today).
+
+## Seams (from recon)
+- **Economy (A):** `UtilitySpec.cost: u8` (`#[serde(default=one)]`) `model/types.rs:490`; validate
+  `sum(costs) > budget` at `validate.rs:246` + TS `sim/legality.ts:200`; budgets via
+  `slot_layout`/`slot_layout_override` in `content.rs`; TS `sim/ruleset.ts:206`; garage
+  `lib/garage/preset-catalog.ts:85`.
+- **Cadence (B):** derive in `model/army.rs` after family resolved (~:242), before `cadence_shift`
+  (~:286); `CadenceTier::faster/slower` `types.rs:165`. Put the type→tier map + Heavy/Mech modifier in
+  a new `Ruleset` sub-struct (mirror `StanceMods`).
+- **Defenses (C):** replace the generic loop `content.rs:917-1002` with explicit per-mount ×3 via the
+  `defense()` helper `content.rs:598`; **Camo** = `tradeoff.evasion` (pure data); **Chaff** = new
+  `evasion_vs_air` field through `StatDeltas`→`Accum`→`EffectiveStats`, applied only in the AA/flak
+  branch `sim/damage.rs:178-206`; ablative retire = stop emitting ablative modules; defaults
+  `base_defense_id()` `content.rs:1206` + TS `lib/garage/preset-catalog.ts:57`.
+- **Jump Jets (D):** clone `FallbackPhase` (`sim/mod.rs:94`, `behavior.rs:218-293`, `FALLBACK_DUCK_TICKS`);
+  own trigger in `apply_behavior` (`behavior.rs:25`); `c.zone=Air`/`=home_zone` direct; ground-reach +
+  AA-vuln are AUTOMATIC once `zone==Air`; need dynamic `can_air` (`target.rs:224`) + a `jumped` flag on
+  `AttackProfile` (`sim/mod.rs:120`) for full air-to-air; `Capability::JumpJets` (append).
+- **Commander (E):** new `MachineTypeId::Commander` (Rust `content.rs`/`base_weapon_for`/`stock_instance`
+  + TS `sim/model.ts:16` + ~14 TS readers); survival-gated Plan-B = runtime gate in `latch_plan_b`
+  (`behavior.rs:39`) via a `commander_alive(side)` scan (clone `aura_mult` living-source loop);
+  projectors = new discriminator on `WeaponSpec` + support stats into `Accum`/`EffectiveStats` (new
+  pathway — today `support_power/range` come straight from `BaseStats` `army.rs:348`) + branch
+  `resolve_support` (`sim/mod.rs:445-501`) to write shield/ablative; `SupportKind::ShieldBoost` exists
+  (`replay/mod.rs:100`), add `Ablation` (+ TS `sim/replay-reader.ts:43`).

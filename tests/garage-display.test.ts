@@ -47,7 +47,7 @@ describe('statBars', () => {
     // and the Balanced default adds +5% armor (30% → 35%) plus a small shield pool.
     expect(byLabel.HULL.display).toBe('1479'); // 1_479_000 milli → 1479 units
     expect(byLabel.ARMOR.display).toBe('35%'); // 3000 bp base + 500 bp Balanced → 35%
-    expect(byLabel.DAMAGE.display).toBe('35'); // HeavyCannon identity → 35
+    expect(byLabel.DAMAGE.display).toBe('39'); // HeavyCannon 35 + 10% heavy-platform bonus (D6) → 38.5 → 39
   });
 
   it('an air-locked machine shows AIR for speed', () => {

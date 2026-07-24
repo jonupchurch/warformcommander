@@ -283,6 +283,27 @@ pub fn derive_effective_stats(
         caps.insert(Capability::ExtraPlanBSlot);
     }
 
+    // v3 US1c: cadence is welded to the damage TYPE (design §D6), overriding the weapon's own tier —
+    // Energy Fast / Kinetic Medium / Explosive Slow. Heavy-platform chassis (Heavy Tank, Mech) fire one
+    // tier slower AND deal the heavy-platform damage bonus (ponderous but punchy); Artillery also fires
+    // a tier slower (its Explosive → Siege) with no damage bonus. Support keeps its base (it projects,
+    // not fires). Utility cadence shifts (Autoloader) still apply on top of the welded tier below.
+    let cp = &ruleset.cadence_profile;
+    if let Some(mut welded) = cp.tier_for(family) {
+        let (slower, dmg_bonus) = match machine.type_id {
+            MachineTypeId::HeavyTank | MachineTypeId::Mech => (true, cp.heavy_platform_dmg_bonus),
+            MachineTypeId::Artillery => (true, 0),
+            _ => (false, 0),
+        };
+        if slower {
+            welded = welded.slower();
+        }
+        if dmg_bonus > 0 {
+            acc.damage = acc.damage.mul_bp(BP_ONE + dmg_bonus);
+        }
+        acc.cadence = welded;
+    }
+
     // Resolve cadence shifts (positive = faster, saturating at the tier ends).
     let mut cadence = acc.cadence;
     for _ in 0..cadence_shift.max(0) {
@@ -627,6 +648,7 @@ mod tests {
             stance_mods: crate::model::ruleset::StanceMods::default(),
             reactive_mods: crate::model::ruleset::ReactiveMods::default(),
             coordination: crate::model::ruleset::Coordination::default(),
+            cadence_profile: crate::model::ruleset::CadenceProfile::default(),
         }
     }
 
@@ -688,7 +710,8 @@ mod tests {
             &["Autoloader", "DriveServos", "CombatAI"],
         );
         let e = derive_effective_stats(&m, &rs).unwrap();
-        assert_eq!(e.damage, Fixed::from_int(35), "base weapon adds no damage");
+        // Base weapon adds no *weapon* delta; the Heavy chassis adds the +10% heavy-platform bonus (D6).
+        assert_eq!(e.damage, Fixed::from_int(35).mul_bp(11_000), "base 35, +10% heavy platform");
         assert_eq!(e.damage_type, DamageType::Kinetic);
         assert!(
             e.native_match,
@@ -706,7 +729,8 @@ mod tests {
             &["Autoloader", "DriveServos", "CombatAI"],
         );
         let e = derive_effective_stats(&m, &rs).unwrap();
-        assert_eq!(e.damage, Fixed::from_int(40), "35 base + 5 weapon delta");
+        // 35 base + 5 weapon delta = 40, then the +10% heavy-platform bonus (D6).
+        assert_eq!(e.damage, Fixed::from_int(40).mul_bp(11_000), "40, +10% heavy platform");
         assert_eq!(e.damage_type, DamageType::Energy);
         assert!(
             !e.native_match,

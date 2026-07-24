@@ -280,3 +280,34 @@ fn suppress_rider_cuts_enemy_output() {
         "Suppress must reduce the enemy's cumulative damage: suppressed={suppressed} plain={plain}"
     );
 }
+
+// ---------------------------------------------------------------------------
+// v3 US1c — cadence welded to damage type + chassis (design §D6).
+// ---------------------------------------------------------------------------
+
+/// Cadence derives from the damage TYPE (+ chassis), overriding the weapon's own tier: Energy Fast,
+/// Kinetic Medium, Explosive Slow; heavy-platform chassis (Heavy Tank, Mech) fire one tier slower,
+/// Artillery one tier slower (Explosive → Siege).
+#[test]
+fn cadence_welds_to_type_and_chassis() {
+    use engine::model::army::derive_effective_stats;
+    use engine::model::types::CadenceTier;
+    let rs = seed_ruleset();
+    let cad = |t: MachineTypeId, variant: &str, weapon: &str| {
+        let mut m = stock_instance(&rs, t, variant, ZoneId::Front, 0);
+        m.loadout.weapon = EquipmentId::new(weapon);
+        m.loadout.utilities.clear(); // drop the stock Autoloader so we read the raw welded tier
+        derive_effective_stats(&m, &rs).unwrap().cadence
+    };
+    // Kinetic = Medium; a Light tank (not a heavy platform) keeps Medium.
+    assert_eq!(cad(MachineTypeId::LightTank, "Scout", "Autocannon"), CadenceTier::Medium);
+    // Energy = Fast (Light tank, no chassis modifier).
+    assert_eq!(cad(MachineTypeId::LightTank, "Scout", "ArcRepeater"), CadenceTier::Fast);
+    // Heavy platform: Kinetic Medium → one tier slower → Slow.
+    assert_eq!(cad(MachineTypeId::HeavyTank, "Grizzly", "HeavyCannon"), CadenceTier::Slow);
+    // Derive WINS over the weapon's own tier: the Railgun authors CadenceTier::Siege, but a heavy
+    // platform firing Kinetic welds to Medium → Slow, not Siege.
+    assert_eq!(cad(MachineTypeId::HeavyTank, "Grizzly", "Railgun"), CadenceTier::Slow);
+    // Artillery firing its native Explosive: Slow → one tier slower → Siege.
+    assert_eq!(cad(MachineTypeId::Artillery, "Longbow", "Howitzer"), CadenceTier::Siege);
+}
