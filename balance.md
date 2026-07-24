@@ -1,5 +1,64 @@
 # Warform Commander — Balance Readout
 
+## v3 Phase 1 probe — "wake the dormant matrix" via defenses (2026-07-24, reverted)
+
+First measured slice of the v3 correction plan (`specs/015-v3-counter-web/gap-analysis.md`), testing the
+highest-leverage content hypothesis: **put real shields/armor on the stock field so the already-built
+sharpened matrix (K ×1.6 vs shields / E ×1.6 vs armor) can bite.** Two probes, `verify --field all
+--seed 1 --samples 120`, against the v3 baseline (~125/132 walls; kinetic-tanks 0.6%; the flagship
+`kinetic-tanks vs energy-mechs` a hard 0/100).
+
+| Probe | Change | Walls | flagship kin-vs-mech | kinetic-tanks | air walls (ca-aa/air-alpha) |
+|---|---|---:|---|---:|---|
+| Iter 1 | Mech default → §10 heavy shield (one variable) | 130/132 | still 0/100 | 0.3% | 90.9 / 81.8 (unchanged) |
+| Iter 2 | full §10-lite (Heavy→armor, Mech→shield, fragile→light shield) | 130/132 | still 0/100 | 0.1% | 90.9 / 81.8 (unchanged) |
+
+**Result: defenses do NOT dissolve the walls.** Kinetic ×1.6 into a fresh 450 shield moved the flagship
+matchup **zero** (still 120/0); the reshaping reshuffled exactly one matchup into a near-tie
+(`energy-mechs ⇄ artillery-line` ~50/46) while the aggregate wall rate held/worsened. Crucially, the
+**biggest dominants are untouched** — ca-aa (90.9%) and air-alpha (81.8%) are *engagement/reach* walls
+that no defense choice can affect. This **reproduces the v2 "shields don't create counter-play" finding
+under the v3 sharpened matrix**, and confirms the structural read: the walls are super-linearity +
+reach/engagement, not a thin damage matrix. A key structural note surfaced: **a shield large enough to
+matter to the matrix is also a durability buff** (the defense module can't remove hull), so "populate
+shields" changes power levels, not just matchup shapes — which is why it can't cleanly create a counter.
+
+**Decision taken:** per the locked "content-first, measure, then decide" plan, the cheapest content
+lever (defenses) is measured insufficient for the matrix walls and irrelevant to the air walls, so we
+opened the super-linearity/engagement investigation next (below). The experimental `content.rs` change
+was **reverted** (did not earn a keep).
+
+## v3 Phase 1 probe — super-linearity root cause + a "leak-through" fix experiment (2026-07-24, reverted)
+
+**Diagnosis (code, `sim/`):** the walls are a **binary step function in the reach code**. `Occupancy::has`
+(`sim/target.rs`) is a *boolean* per zone, so the instant an enemy Front row holds ≥1 living unit, a
+short-reach attacker's Middle/Rear pool is excluded **entirely** — reach flips 0→100% when a row clears.
+That is the dominant super-linearity source (it gates the target *pool* before any damage math). Two
+amplifiers ride on it: splash overlap is linear-but-uncapped (`splash_cap` only clamps a weapon's own
+splash, not per-victim incoming), and the design's "overkill-avoiding disperse" default (§12.5/P16) is
+**never implemented** (`grep overkill` → 0 hits) — a designed-but-unbuilt gap the US2 audit missed.
+
+**Experiment — graded row-screening ("leak-through"):** a short-reach unit's pool becomes every occupied
+ground row, but hits landing PAST its free-reach floor take a leak accuracy + damage penalty (mirrors the
+air plink). Built in `sim/target.rs` (`reach_zones`) + `sim/damage.rs` (`resolve_attack`).
+
+| Check | Result |
+|---|---|
+| Engine tests + golden battery | all green; **golden byte-identical** (inert for default-targeting full-screen battles → screening preserved, zero regression) |
+| Aggregate field (`verify --field all`) | **125/132 walls, 7 contested — identical to baseline** (archetypes all use default `Closest`, so nothing ever *chooses* a leaked shot) |
+| Controlled counter probe: kinetic vs support-ball with a `Target Support` leak-raider | **0.0% → 0.0%** at ×0.5 leak **and** ×0.8 leak — the healers out-sustain penalised chip; abandoning the screen to snipe is a losing trade |
+
+**Read:** graded row-screening is the *right class* of change (an engagement rule, the only lever that
+ever moved this field) and is **safe/surgical** (inert until a build targets past a screen), but **alone
+it is too weak** to crack the deep walls — a penalised short-reach shot can't beat sustain/durability, and
+the archetype **measurement field can't even exercise reach counters** (all default `Closest`; no
+back-targeting or `Furthest` builds). Consistent with the v9 finding that even *full-reach* raiders
+couldn't crack the toughest backlines. A real fix is bigger than one localised change: leak-through +
+overkill-avoidance (to auto-spill fire) + stronger/tunable magnitude + **new measurement fixtures that
+field reach-counter builds**. Experiment reverted; findings kept here.
+
+---
+
 ## Investigation — the counter-web is made of walls (2026-07-22, nothing shipped)
 
 Went after the two open structural items (populate the shield side; give aa-rocket a second
