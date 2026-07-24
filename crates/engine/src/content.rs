@@ -237,6 +237,7 @@ fn seed_variants(
                 type_id,
                 slot_layout_override: slot_override,
                 passive_aura: aura,
+                innate_capabilities: Vec::new(),
             },
         );
         variants.insert(id, stats);
@@ -603,6 +604,27 @@ fn seed_variants(
             scope: AuraScope::AllAllies,
         }),
     );
+
+    // --- Innate chassis signatures (v3 US3-D, §14.2/§14.4: free/no-slot, all variants of the class) ---
+    // Spotter Network — the Light Tank's namesake: a zone accuracy aura for its zone allies (front scout
+    // or rear accuracy-battery for the accuracy-starved artillery/AA). Coordinated Strike — the Attack
+    // Heli's focus-fire reward: +accuracy while a zone/army ally targets the same enemy (self-scoped, so
+    // it is an innate capability, not an aura). Start-value magnitude, tunable in the balance pass.
+    for c in chassis.values_mut() {
+        match c.type_id {
+            MachineTypeId::LightTank => {
+                c.passive_aura = Some(AuraEffect {
+                    kind: AuraKind::Accuracy,
+                    magnitude: 1_000, // +10% to-hit to zone allies
+                    scope: AuraScope::ZoneAllies,
+                });
+            }
+            MachineTypeId::AttackHeli => {
+                c.innate_capabilities = vec![Capability::CoordinatedStrike];
+            }
+            _ => {}
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------

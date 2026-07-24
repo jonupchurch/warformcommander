@@ -5,11 +5,11 @@
 
 use engine::content::{seed_ruleset, stock_instance};
 use engine::fixed::Fixed;
-use engine::model::army::{Army, MachineInstance};
+use engine::model::army::{derive_effective_stats, Army, MachineInstance};
 use engine::model::ruleset::Ruleset;
 use engine::model::types::{
-    AuraEffect, AuraKind, AuraScope, DamageType, DialKey, DialValue, EquipmentId, MachineTypeId,
-    PlanBSlot, PlanBTrigger, TriggerCondition, VariantId, ZoneId,
+    AuraEffect, AuraKind, AuraScope, Capability, DamageType, DialKey, DialValue, EquipmentId,
+    MachineTypeId, PlanBSlot, PlanBTrigger, TriggerCondition, VariantId, ZoneId,
 };
 use engine::replay::{Adaptation, DamageLayer, Fate, MatchConfig, Side, TickEvent, UnitRef};
 use engine::{resolve, BattleInput, BattleOutput};
@@ -260,6 +260,43 @@ fn ambush_hits_a_full_health_target_harder() {
         "Ambush must hit a full-health target harder: ambush={} plain={}",
         ambusher_first_hit(true),
         ambusher_first_hit(false)
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Innate chassis signatures (v3 US3-D §14.2/§14.4) — Spotter Network + Coordinated Strike
+// ---------------------------------------------------------------------------
+
+/// The Light Tank carries **Spotter Network** innately: every Light chassis has a zone-allies accuracy
+/// aura, free of any utility slot. (The aura *mechanic* is proven in `accuracy_aura_reduces_misses`;
+/// this pins the innate attachment.)
+#[test]
+fn light_tank_carries_spotter_network_innately() {
+    let rs = seed_ruleset();
+    for (id, chassis) in &rs.chassis {
+        if chassis.type_id == MachineTypeId::LightTank {
+            let aura = chassis
+                .passive_aura
+                .unwrap_or_else(|| panic!("Light chassis {id:?} has no innate Spotter aura"));
+            assert_eq!(aura.kind, AuraKind::Accuracy, "{id:?} Spotter is an accuracy aura");
+            assert_eq!(aura.scope, AuraScope::ZoneAllies, "{id:?} Spotter is zone-scoped");
+            assert!(aura.magnitude > 0, "{id:?} Spotter has a positive magnitude");
+        }
+    }
+}
+
+/// The Attack Heli carries **Coordinated Strike** innately: a stock Heli's derived capabilities include
+/// it with no utility equipped (the focus-fire accuracy mechanic is proven in the Coordinated-Strike
+/// catalog test; this pins the innate, no-slot attachment).
+#[test]
+fn attack_heli_carries_coordinated_strike_innately() {
+    let rs = seed_ruleset();
+    let gunship = stock_instance(&rs, MachineTypeId::AttackHeli, "Gunship", ZoneId::Air, 0);
+    let stats = derive_effective_stats(&gunship, &rs).expect("stock heli derives");
+    assert!(
+        stats.capabilities.contains(&Capability::CoordinatedStrike),
+        "a stock Attack Heli must carry Coordinated Strike innately (no utility): {:?}",
+        stats.capabilities
     );
 }
 

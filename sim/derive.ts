@@ -233,6 +233,13 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
     cadenceShift += util.spec.cadenceShift;
   }
 
+  // Innate chassis signatures (v3 US3-D, §14): free/no-slot capabilities the chassis carries by
+  // identity (the Heli's Coordinated Strike). Merged alongside the utility unlocks — mirrors the engine.
+  const chassis = ruleset.chassis[machine.variantId];
+  if (chassis?.innateCapabilities) {
+    for (const cap of chassis.innateCapabilities) caps.add(cap);
+  }
+
   // Native behavioural flexibility (v2, FR-025): the Mech — the sole generalist (no native family) —
   // natively carries the extra Plan-B slot other chassis buy with Combat AI. Mirrors the engine.
   if (mtype.nativeFamily === undefined) caps.add('ExtraPlanBSlot');

@@ -670,6 +670,7 @@ mod tests {
                 type_id: MachineTypeId::HeavyTank,
                 slot_layout_override: None,
                 passive_aura: None,
+                innate_capabilities: Vec::new(),
             },
         );
 

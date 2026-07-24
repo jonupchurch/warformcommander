@@ -567,7 +567,9 @@
           "armorPct": 700,
           "cadence": "Slow",
           "canTargetAir": true,
-          "capabilities": [],
+          "capabilities": [
+            "CoordinatedStrike"
+          ],
           "critChance": 500,
           "critMult": 15000,
           "damage": 17000,
@@ -627,7 +629,9 @@
           "armorPct": 700,
           "cadence": "Slow",
           "canTargetAir": true,
-          "capabilities": [],
+          "capabilities": [
+            "CoordinatedStrike"
+          ],
           "critChance": 500,
           "critMult": 15000,
           "damage": 14000,
@@ -687,7 +691,9 @@
           "armorPct": 900,
           "cadence": "Slow",
           "canTargetAir": true,
-          "capabilities": [],
+          "capabilities": [
+            "CoordinatedStrike"
+          ],
           "critChance": 500,
           "critMult": 15000,
           "damage": 21000,
@@ -1788,7 +1794,8 @@
           "cadence": "Slow",
           "canTargetAir": true,
           "capabilities": [
-            "TargetAir"
+            "TargetAir",
+            "CoordinatedStrike"
           ],
           "critChance": 500,
           "critMult": 15000,
@@ -2055,14 +2062,25 @@
       },
       "Gunship": {
         "id": "Gunship",
+        "innateCapabilities": [
+          "CoordinatedStrike"
+        ],
         "typeId": "AttackHeli"
       },
       "Hunter": {
         "id": "Hunter",
+        "passiveAura": {
+          "kind": "Accuracy",
+          "magnitude": 1000,
+          "scope": "ZoneAllies"
+        },
         "typeId": "LightTank"
       },
       "Interceptor": {
         "id": "Interceptor",
+        "innateCapabilities": [
+          "CoordinatedStrike"
+        ],
         "typeId": "AttackHeli"
       },
       "Longbow": {
@@ -2079,10 +2097,20 @@
       },
       "Outrider": {
         "id": "Outrider",
+        "passiveAura": {
+          "kind": "Accuracy",
+          "magnitude": 1000,
+          "scope": "ZoneAllies"
+        },
         "typeId": "LightTank"
       },
       "Scout": {
         "id": "Scout",
+        "passiveAura": {
+          "kind": "Accuracy",
+          "magnitude": 1000,
+          "scope": "ZoneAllies"
+        },
         "typeId": "LightTank"
       },
       "Sentinel": {
@@ -2116,6 +2144,9 @@
       },
       "Warhog": {
         "id": "Warhog",
+        "innateCapabilities": [
+          "CoordinatedStrike"
+        ],
         "typeId": "AttackHeli"
       }
     },

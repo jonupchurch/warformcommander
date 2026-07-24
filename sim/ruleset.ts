@@ -201,6 +201,9 @@ export interface ChassisVariant {
   /** Raises utility slots for the odd variant (Sentinel, Command Post → 4). */
   slotLayoutOverride?: SlotLayout;
   passiveAura?: AuraEffect;
+  /** Capabilities the chassis carries innately (v3 US3-D, §14 — the Heli's Coordinated Strike). Merged
+   *  into the derived capability set alongside the utility unlocks. Absent (not `[]`) when empty. */
+  innateCapabilities?: Capability[];
 }
 
 // --- Equipment (kind-tagged union, flattened id/name) ----------------------

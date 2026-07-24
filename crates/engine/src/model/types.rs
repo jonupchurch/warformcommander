@@ -447,6 +447,11 @@ pub struct ChassisVariant {
     pub slot_layout_override: Option<SlotLayout>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub passive_aura: Option<AuraEffect>,
+    /// Capabilities the chassis carries **innately** (v3 US3-D, §14: free/no-slot signatures — the
+    /// Attack Heli's Coordinated Strike). Merged into the derived capability set alongside the utility
+    /// unlocks. **Skipped when empty**, so the ordinary chassis serialize byte-identically (hash-stable).
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub innate_capabilities: Vec<Capability>,
 }
 
 // ---------------------------------------------------------------------------

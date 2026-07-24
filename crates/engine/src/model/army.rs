@@ -287,6 +287,12 @@ pub fn derive_effective_stats(
         cadence_shift += util.cadence_shift as i32;
     }
 
+    // Innate chassis signatures (v3 US3-D, §14): free/no-slot capabilities the chassis carries by
+    // identity (the Attack Heli's Coordinated Strike). Merged alongside the utility unlocks.
+    if let Some(chassis) = ruleset.chassis.get(&machine.variant_id) {
+        caps.extend(chassis.innate_capabilities.iter().copied());
+    }
+
     // Native behavioural flexibility (v2, FR-025): the Mech — the sole generalist (`native_family ==
     // None`) — natively carries the extra Plan-B slot other chassis must buy with a Combat-AI utility.
     // It is the mechanical compensation for forfeiting the native-family weapon bonus (FR-027).
@@ -488,6 +494,7 @@ mod tests {
                 type_id: MachineTypeId::HeavyTank,
                 slot_layout_override: None,
                 passive_aura: None,
+                innate_capabilities: Vec::new(),
             },
         );
 
