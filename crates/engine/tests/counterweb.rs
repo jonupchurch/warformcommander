@@ -8,8 +8,9 @@ use engine::content::{seed_ruleset, stock_instance};
 use engine::model::army::Army;
 use engine::model::ruleset::Ruleset;
 use engine::model::types::{
-    AuraEffect, AuraKind, AuraScope, Capability, EquipmentId, EquipmentModule,
-    EquipmentSpec, MachineTypeId, UtilitySpec, VariantId, ZoneId,
+    AuraEffect, AuraKind, AuraScope, CadenceTier, Capability, DamageFamily, EquipmentId,
+    EquipmentModule, EquipmentSpec, MachineTypeId, MountClass, ReachTag, StatDeltas, UtilitySpec,
+    VariantId, WeaponSpec, ZoneId,
 };
 use engine::replay::{
     Adaptation, Fate, MatchConfig, Replay, Side, SupportKind, TickEvent, UnitRef,
@@ -74,6 +75,21 @@ fn actor_hit_air(replay: &Replay, who: UnitRef) -> bool {
         t.events.iter().any(
             |e| matches!(e, TickEvent::Hit { actor, target, .. } if *actor == who && is_heli(*target)),
         )
+    })
+}
+
+/// Whether `who` ever **engaged** an enemy air unit — a Hit *or* a Miss (both are emitted only when a
+/// target was actually selected, per `resolve_attack`). Unlike [`actor_hit_air`] this ignores whether
+/// damage landed, so it isolates the *targeting/reach* question from any damage-config confound.
+fn actor_engaged_air(replay: &Replay, who: UnitRef) -> bool {
+    let is_heli = |u: UnitRef| u.side == Side::B && (u.instance_id == 0 || u.instance_id == 1);
+    replay.games.iter().flat_map(|g| &g.ticks).any(|t| {
+        t.events.iter().any(|e| match e {
+            TickEvent::Hit { actor, target, .. } | TickEvent::Miss { actor, target } => {
+                *actor == who && is_heli(*target)
+            }
+            _ => false,
+        })
     })
 }
 
@@ -708,6 +724,59 @@ fn air_capable_units_engage_air_first() {
         target.instance_id <= 1,
         "air-first: a helicopter's first landed hit must be on an air unit, got instance {}",
         target.instance_id,
+    );
+}
+
+/// Regression (gameplay bug, 2026-07-23): an air-locked heli armed with an *improvised-air* weapon
+/// family (an Energy gun — the kind hot-added in v14 so every chassis fields all three families) must
+/// still engage enemy air. The `improvised_air` reach limit (energy laser / Rocket-Pack mech = FRONT
+/// row only) was written for GROUND units reaching *up*; but a heli is innately air-capable and lives
+/// in the Air zone — it can never be "in Front", so the limit wrongly grounded it and the heli would
+/// *never* fire on air, even as the only target. It must dogfight exactly like the stock explosive
+/// Gunship does in `air_capable_units_engage_air_first`.
+#[test]
+fn energy_armed_heli_still_engages_air() {
+    let mut rs = seed_ruleset();
+    rs.air_mods.energy_air_dmg_mult = 7_500; // energy contests air (the arena enables this)
+    // A Heli-mount Energy primary — a stand-in for the v14 hot-added energy heli weapon.
+    rs.equipment.insert(
+        EquipmentId::new("HeliLaser"),
+        EquipmentModule {
+            id: EquipmentId::new("HeliLaser"),
+            name: "Heli Laser".into(),
+            spec: EquipmentSpec::Weapon(WeaponSpec {
+                mount_class: MountClass::Heli,
+                family: DamageFamily::Energy,
+                stat_deltas: StatDeltas {
+                    cadence_tier: Some(CadenceTier::Medium),
+                    reach: Some(ReachTag::AnyGround),
+                    ..Default::default()
+                },
+            }),
+        },
+    );
+
+    // Side A: an energy-armed Gunship over a ground line. Side B: the stock air squad (helis in Air).
+    let mut heli = stock_instance(&rs, MachineTypeId::AttackHeli, "Gunship", ZoneId::Air, 0);
+    heli.loadout.weapon = EquipmentId::new("HeliLaser");
+    let energy_air = Army {
+        machines: vec![
+            heli,
+            stock_instance(&rs, MachineTypeId::LightTank, "Scout", ZoneId::Front, 1),
+            stock_instance(&rs, MachineTypeId::LightTank, "Scout", ZoneId::Front, 2),
+            stock_instance(&rs, MachineTypeId::LightTank, "Scout", ZoneId::Front, 3),
+            stock_instance(&rs, MachineTypeId::LightTank, "Scout", ZoneId::Middle, 4),
+        ],
+    };
+    let heli0 = UnitRef {
+        side: Side::A,
+        instance_id: 0,
+    };
+    let out = run(&rs, energy_air, air_squad(&rs), 0x5A66);
+    assert!(
+        actor_engaged_air(&out.replay, heli0),
+        "an energy-armed heli (innately air-capable, air-locked) must still engage enemy air — the \
+         improvised-air front-row limit is for ground units reaching up, not for aircraft"
     );
 }
 

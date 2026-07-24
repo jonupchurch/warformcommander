@@ -227,8 +227,14 @@ fn reach_zones(att: &Combatant, occupied: &Occupancy, air_allowed: bool) -> (Vec
     // IMPROVISED air answer — an energy weapon contesting air, or the Mech's Rocket Pack — only reaches
     // it at close range, from the Front row. So a Front laser or Rocket-Pack Mech can shoot down a heli
     // but the same off the front line cannot, while dedicated AA reaches it from any row.
-    let improvised_air = (att.stats.family == DamageFamily::Energy
-        || att.stats.capabilities.contains(&Capability::RocketPack))
+    //
+    // This "improvised, front-only" rule is for a GROUND unit reaching *up*. An air-locked chassis (a
+    // heli — `home_zone == Air`) is a purpose-built aircraft that fights in the air layer itself, so its
+    // energy gun is never "improvised"; excluding it here keeps an energy-armed heli engaging enemy air
+    // (it can never be in the Front row, so without this it would never fire on air at all — regression).
+    let improvised_air = att.home_zone != ZoneId::Air
+        && (att.stats.family == DamageFamily::Energy
+            || att.stats.capabilities.contains(&Capability::RocketPack))
         && att.stats.reach != ReachTag::Air
         && !att.stats.capabilities.contains(&Capability::AntiAir);
     let air_reachable = can_air && (!improvised_air || att.zone == ZoneId::Front);
