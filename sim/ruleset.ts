@@ -127,6 +127,13 @@ export interface StatDeltas {
   targetDraw: number; // i8 — v3 US3: Decoy/Taunt +2 pulls fire, ECM −2 sheds it (feeds the priority chain)
   cadenceTier: CadenceTier | null;
   reach: ReachTag | null;
+  /** v3 US3-D self-hull regen per tick (Field Repair / Repair Nanites); omitted when zero. */
+  hullRegen?: number; // milli
+  /** v3 US3-D utility shield boost (Extra Batteries); omitted when zero. */
+  shieldCap?: number; // milli
+  shieldRegen?: number; // milli
+  /** v3 US3-D projector-output boost (Amplifier); omitted when zero. */
+  supportPower?: number; // milli
 }
 
 /** A shield's three coupled numbers, as deltas a defense contributes (`ShieldDelta`). */
@@ -512,6 +519,7 @@ export interface EffectiveStats {
   shieldCap: number; // milli
   shieldRegen: number; // milli
   shieldDelay: number; // ticks
+  hullRegen: number; // milli — v3 US3-D self-hull regen per tick (Field Repair / Repair Nanites); 0 when none
   ablativeCap: number; // milli — v2 one-time non-regenerating pool (0 when no ablative defense)
   reactive: boolean; // v2 — true only for the Mech's reactive plating; drives adaptive mitigation
   damage: number; // milli

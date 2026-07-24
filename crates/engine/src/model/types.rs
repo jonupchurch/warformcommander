@@ -272,6 +272,23 @@ pub struct StatDeltas {
     pub cadence_tier: Option<CadenceTier>,
     /// **Override** the reach tag outright (a weapon's own reach), not a delta.
     pub reach: Option<ReachTag>,
+    /// Additive **self-hull regen per tick** (v3 US3-D, design §14.1/§14.3: Field Repair / Repair
+    /// Nanites) — the machine slowly repairs its own hull each tick (EMP-blocked, like shield regen).
+    /// Skipped when zero, so the field is hash-stable for every non-regen module.
+    #[serde(default, skip_serializing_if = "is_zero_fixed")]
+    pub hull_regen: Fixed,
+    /// Additive **shield capacity** (v3 US3-D, design §14.1: Extra Batteries) — a utility shield boost,
+    /// folded into the derived shield pool atop the defense slot's. Skipped when zero (hash-stable).
+    #[serde(default, skip_serializing_if = "is_zero_fixed")]
+    pub shield_cap: Fixed,
+    /// Additive **shield regen per tick** (v3 US3-D, design §14.1: Extra Batteries) — pairs with
+    /// `shield_cap` to lift shield *output*. Skipped when zero (hash-stable).
+    #[serde(default, skip_serializing_if = "is_zero_fixed")]
+    pub shield_regen: Fixed,
+    /// Additive **support/projector power** (v3 US3-D, design §14.6: Amplifier) — lifts a support
+    /// machine's projector output; inert on a non-support machine (no base support). Skipped when zero.
+    #[serde(default, skip_serializing_if = "is_zero_fixed")]
+    pub support_power: Fixed,
 }
 
 /// A shield's three coupled numbers, as deltas a defense module contributes (a no-shield
@@ -551,6 +568,12 @@ fn is_false(b: &bool) -> bool {
 /// serde skip-when-zero for the additive bp deltas that were added after the fact (hash-stable).
 fn is_zero_bp(v: &Bp) -> bool {
     *v == 0
+}
+
+/// serde skip-when-zero for the additive [`Fixed`] deltas added after the fact (hash-stable) — the v3
+/// US3-D sustain/support fields (`hull_regen`, shield deltas, `support_power`).
+fn is_zero_fixed(v: &Fixed) -> bool {
+    v.milli() == 0
 }
 
 /// A utility — ungated, **no duplicates on one machine**; may unlock capabilities.

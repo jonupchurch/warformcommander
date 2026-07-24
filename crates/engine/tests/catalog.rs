@@ -808,3 +808,104 @@ fn ew_and_aoe_items_carry_expected_effects() {
     assert!(splash_with("Napalm") > base_splash, "Napalm raises splash");
     assert!(splash_with("FlakScreen") > base_splash, "Flak Screen raises splash");
 }
+
+// ---------------------------------------------------------------------------
+// v3 US3-D sustain / support augments (§14) — Field Repair / Repair Nanites / Extra Batteries / Amplifier
+// ---------------------------------------------------------------------------
+
+/// **Field Repair** regenerates the carrier's own hull each tick, so under identical focused fire the
+/// front unit lives strictly longer than the same unit without it. (The catalog start-value is a slow
+/// trickle by design; the test injects a brisk rate so the mechanic clearly tips survival.)
+#[test]
+fn self_hull_regen_extends_survival() {
+    let front = UnitRef {
+        side: Side::B,
+        instance_id: 0,
+    };
+    let front_death = |repairing: bool| -> u16 {
+        let mut rs = seed_ruleset();
+        if let EquipmentSpec::Utility(u) = &mut rs
+            .equipment
+            .get_mut(&EquipmentId::new("FieldRepair"))
+            .unwrap()
+            .spec
+        {
+            u.stat_deltas.as_mut().unwrap().hull_regen = Fixed::from_int(400);
+        }
+        let mut f = tank(&rs, "Cavalier", ZoneId::Front, 0);
+        if repairing {
+            f.loadout.utilities = vec![EquipmentId::new("FieldRepair")];
+        }
+        let defenders = Army {
+            machines: vec![
+                f,
+                tank(&rs, "Grizzly", ZoneId::Middle, 1),
+                tank(&rs, "Grizzly", ZoneId::Middle, 2),
+                tank(&rs, "Grizzly", ZoneId::Rear, 3),
+                tank(&rs, "Grizzly", ZoneId::Rear, 4),
+            ],
+        };
+        let attackers = Army {
+            machines: (0..5).map(|i| tank(&rs, "Grizzly", ground_zone(i), i)).collect(),
+        };
+        death_tick(&run(&rs, attackers, defenders, 0x5E6E), front)
+    };
+    assert!(
+        front_death(true) > front_death(false),
+        "self-hull regen must extend the front unit's life: repairing@{} plain@{}",
+        front_death(true),
+        front_death(false)
+    );
+}
+
+/// The sustain/support augments feed the derived stat each names — a wiring check over the new
+/// StatDeltas fields (mechanics are exercised by the sim test above + the projector paths).
+#[test]
+fn sustain_support_deltas_feed_derived_stats() {
+    let rs = seed_ruleset();
+    // Hull regen: Field Repair + Repair Nanites both lift the derived hull_regen off a zero base.
+    let regen_of = |util: &str| -> Fixed {
+        let mut m = tank(&rs, "Grizzly", ZoneId::Front, 0);
+        m.loadout.utilities = vec![EquipmentId::new(util)];
+        derive_effective_stats(&m, &rs).expect("legal single-utility Grizzly").hull_regen
+    };
+    assert!(regen_of("FieldRepair").milli() > 0, "Field Repair grants hull regen");
+    assert!(regen_of("RepairNanites").milli() > 0, "Repair Nanites grants hull regen");
+
+    // Extra Batteries: a utility shield boost lifts both shield_cap and shield_regen.
+    let bare = {
+        let m = tank(&rs, "Grizzly", ZoneId::Front, 0);
+        derive_effective_stats(&m, &rs).expect("bare Grizzly")
+    };
+    let batteries = {
+        let mut m = tank(&rs, "Grizzly", ZoneId::Front, 0);
+        m.loadout.utilities = vec![EquipmentId::new("ExtraBatteries")];
+        derive_effective_stats(&m, &rs).expect("legal Grizzly + batteries")
+    };
+    assert!(batteries.shield_cap > bare.shield_cap, "Extra Batteries lifts shield cap");
+    assert!(batteries.shield_regen > bare.shield_regen, "Extra Batteries lifts shield regen");
+
+    // Amplifier: lifts a support machine's projector power, but is inert on a non-support machine.
+    let medic = |amped: bool| -> Option<Fixed> {
+        let mut m = stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 0);
+        if amped {
+            m.loadout.utilities = vec![EquipmentId::new("Amplifier")];
+        } else {
+            m.loadout.utilities = vec![];
+        }
+        derive_effective_stats(&m, &rs).expect("legal Medic").support_power
+    };
+    assert!(
+        medic(true).unwrap() > medic(false).unwrap(),
+        "Amplifier lifts the Medic's projector power"
+    );
+    let grunt = {
+        let mut m = tank(&rs, "Grizzly", ZoneId::Front, 0);
+        m.loadout.utilities = vec![EquipmentId::new("Amplifier")];
+        derive_effective_stats(&m, &rs).expect("legal Grizzly + amplifier")
+    };
+    assert!(
+        grunt.support_power.is_none(),
+        "Amplifier is inert on a machine with no support to amplify"
+    );
+}

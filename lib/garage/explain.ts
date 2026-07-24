@@ -110,6 +110,10 @@ function statDeltaLines(d: StatDeltas, ruleset: Ruleset): EffectLine[] {
   push('Crit chance', d.critChance, signedPct);
   push('Evasion', d.evasion, signedPct);
   push('Armor', d.armorPct, signedPct);
+  push('Hull regen', d.hullRegen ?? 0, signedUnits);
+  push('Shield capacity', d.shieldCap ?? 0, signedUnits);
+  push('Shield regen', d.shieldRegen ?? 0, signedUnits);
+  push('Projector power', d.supportPower ?? 0, signedUnits);
   push('Move speed', d.moveSpeed, (n) => `${n > 0 ? '+' : ''}${n}`);
   if (d.targetDraw !== 0) {
     out.push({

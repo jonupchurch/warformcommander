@@ -115,6 +115,11 @@ interface Accum {
   targetDraw: number;
   cadence: CadenceTier;
   reach: ReachTag;
+  // v3 US3-D sustain/support deltas (Field Repair / Repair Nanites / Extra Batteries / Amplifier).
+  hullRegen: number;
+  shieldCap: number;
+  shieldRegen: number;
+  supportPower: number;
 }
 
 /** Apply one module's deltas: additive everywhere; `cadenceTier`/`reach` override when non-null. */
@@ -129,6 +134,10 @@ function applyDeltas(acc: Accum, d: StatDeltas): void {
   acc.penetration += d.penetration;
   acc.moveDelta += d.moveSpeed;
   acc.targetDraw += d.targetDraw;
+  acc.hullRegen += d.hullRegen ?? 0;
+  acc.shieldCap += d.shieldCap ?? 0;
+  acc.shieldRegen += d.shieldRegen ?? 0;
+  acc.supportPower += d.supportPower ?? 0;
   if (d.cadenceTier !== null) acc.cadence = d.cadenceTier;
   if (d.reach !== null) acc.reach = d.reach;
 }
@@ -188,6 +197,11 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
     targetDraw: 0, // equipment-only (Decoy/ECM); no chassis carries an innate draw offset
     cadence: base.cadence,
     reach: base.reach,
+    // Sustain/support deltas are equipment-only (Field Repair / Extra Batteries / Amplifier).
+    hullRegen: 0,
+    shieldCap: 0,
+    shieldRegen: 0,
+    supportPower: 0,
   };
   const caps = new Set<Capability>();
   let cadenceShift = 0;
@@ -217,8 +231,8 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
   acc.armorPct += scaleBp(defense.spec.armorPctDelta);
   applyDeltas(acc, defense.spec.tradeoff);
   const s = defense.spec.shieldDelta;
-  const shieldCap = s ? base.shieldCap + scaleBp(s.cap) : base.shieldCap;
-  const shieldRegen = s ? base.shieldRegen + s.regen : base.shieldRegen;
+  const defenseShieldCap = s ? base.shieldCap + scaleBp(s.cap) : base.shieldCap;
+  const defenseShieldRegen = s ? base.shieldRegen + s.regen : base.shieldRegen;
   const shieldDelay = s ? clamp(base.shieldDelay + s.delay, 0, U16_MAX) : base.shieldDelay;
   const ablativeCap = defense.spec.ablativeDelta ? scaleBp(defense.spec.ablativeDelta.cap) : 0;
   const specialMitigation = defense.spec.specialMitigation ?? null;
@@ -294,6 +308,12 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
     (family === 'Energy' && (ruleset.airMods.energyAirDmgMult ?? 0) > 0);
   const planBSlots = 1 + (caps.has('ExtraPlanBSlot') ? 1 : 0);
 
+  // v3 US3-D sustain/support augments fold in here (mirrors `derive_effective_stats`): Extra Batteries
+  // atop the defense shield pool; Amplifier onto the projector output (inert where there is no support).
+  const shieldCap = defenseShieldCap + acc.shieldCap;
+  const shieldRegen = defenseShieldRegen + acc.shieldRegen;
+  const supportPowerFinal = supportPower !== null ? supportPower + acc.supportPower : null;
+
   return {
     ok: true,
     stats: {
@@ -302,6 +322,7 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
       shieldCap,
       shieldRegen,
       shieldDelay,
+      hullRegen: acc.hullRegen,
       ablativeCap,
       reactive,
       damage: Math.max(acc.damage, 0),
@@ -321,7 +342,7 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
       evasionVsAir,
       threat: base.threat,
       targetDraw: clamp(acc.targetDraw, -128, 127),
-      supportPower,
+      supportPower: supportPowerFinal,
       supportRange,
       supportKind,
       specialMitigation,

@@ -431,6 +431,11 @@ pub(crate) fn run_game(
                     .saturating_add(c.stats.shield_regen)
                     .min(c.stats.shield_cap);
             }
+            // Self-hull regen (v3 US3-D: Field Repair / Repair Nanites) — a slow self-repair, EMP-blocked
+            // like shield regen and capped at max hull. Inert (skipped) for the stock field (regen == 0).
+            if c.stats.hull_regen.milli() > 0 && c.hull < c.max_hull && c.emp_until <= tick {
+                c.hull = c.hull.saturating_add(c.stats.hull_regen).min(c.max_hull);
+            }
         }
 
         // 2. Behavior: Plan-B latches, then movement (both deterministic, no RNG).

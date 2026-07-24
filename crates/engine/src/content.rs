@@ -1497,6 +1497,58 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
             },
         ),
     );
+
+    // --- v3 US3-D sustain / support augments (§14) — self-hull regen + a utility shield / projector
+    // boost. New StatDeltas fields (hull_regen / shield_cap+regen / support_power), all skip-when-zero.
+    // Field Repair (§14.1 Heavy): slow self-hull regen — outlast attrition.
+    add(
+        "FieldRepair",
+        "Field Repair",
+        stat_util(
+            2,
+            StatDeltas {
+                hull_regen: q(3), // ~3 hull/tick self-repair (start-value; EMP-blocked)
+                ..Default::default()
+            },
+        ),
+    );
+    // Repair Nanites (§14.3 Mech): self-hull regen for the durable flex bruiser.
+    add(
+        "RepairNanites",
+        "Repair Nanites",
+        stat_util(
+            2,
+            StatDeltas {
+                hull_regen: q(2), // ~2 hull/tick self-repair (start-value; EMP-blocked)
+                ..Default::default()
+            },
+        ),
+    );
+    // Extra Batteries (§14.1 Heavy): a utility shield boost — lift shield pool + regen (+shield output).
+    add(
+        "ExtraBatteries",
+        "Extra Batteries",
+        stat_util(
+            2,
+            StatDeltas {
+                shield_cap: q(40),  // +40 shield pool (start-value)
+                shield_regen: q(2), // +2 shield/tick (start-value)
+                ..Default::default()
+            },
+        ),
+    );
+    // Amplifier (§14.6 Commander): +projector output — lifts a support machine's power (inert otherwise).
+    add(
+        "Amplifier",
+        "Amplifier",
+        stat_util(
+            1,
+            StatDeltas {
+                support_power: q(2), // +2 projector power/tick (start-value)
+                ..Default::default()
+            },
+        ),
+    );
 }
 
 /// A capability-unlock utility with no stat deltas — the common shape for the v3 kit items.

@@ -95,6 +95,9 @@ pub struct EffectiveStats {
     pub shield_cap: Fixed,
     pub shield_regen: Fixed,
     pub shield_delay: u16,
+    /// Self-hull regen per tick (v3 US3-D, design §14.1/§14.3: Field Repair / Repair Nanites). `ZERO`
+    /// unless a self-repair utility is equipped; applied in the sim's per-tick upkeep (EMP-blocked).
+    pub hull_regen: Fixed,
     /// v2 ablative pool — one-time, non-regenerating absorption between shields and hull. `ZERO` when
     /// no ablative defense is mounted (the overwhelmingly common case).
     pub ablative_cap: Fixed,
@@ -181,6 +184,11 @@ struct Accum {
     target_draw: i32,
     cadence: CadenceTier,
     reach: ReachTag,
+    // v3 US3-D sustain/support deltas (Field Repair / Repair Nanites / Extra Batteries / Amplifier).
+    hull_regen: Fixed,
+    shield_cap: Fixed,
+    shield_regen: Fixed,
+    support_power: Fixed,
 }
 
 impl Accum {
@@ -196,6 +204,10 @@ impl Accum {
         self.penetration += d.penetration;
         self.move_delta += d.move_speed as i32;
         self.target_draw += d.target_draw as i32;
+        self.hull_regen = self.hull_regen.saturating_add(d.hull_regen);
+        self.shield_cap = self.shield_cap.saturating_add(d.shield_cap);
+        self.shield_regen = self.shield_regen.saturating_add(d.shield_regen);
+        self.support_power = self.support_power.saturating_add(d.support_power);
         if let Some(c) = d.cadence_tier {
             self.cadence = c;
         }
@@ -243,6 +255,12 @@ pub fn derive_effective_stats(
         target_draw: 0, // equipment-only (Decoy/ECM); no chassis carries an innate draw offset
         cadence: base.cadence,
         reach: base.reach,
+        // Sustain/support deltas are equipment-only (Field Repair / Extra Batteries / Amplifier); no
+        // chassis carries an innate self-regen or a utility shield/support boost.
+        hull_regen: Fixed::ZERO,
+        shield_cap: Fixed::ZERO,
+        shield_regen: Fixed::ZERO,
+        support_power: Fixed::ZERO,
     };
     let mut caps: BTreeSet<Capability> = BTreeSet::new();
     let mut cadence_shift: i32 = 0;
@@ -350,9 +368,20 @@ pub fn derive_effective_stats(
     // Support (v3 US5): a projector weapon drives what this machine projects (its own power/range/kind);
     // otherwise the chassis's native support applies (the medic — always Heal). A non-support machine has
     // no support either way (base `support_power` None → None), so its kind is the harmless Heal default.
+    // Amplifier (§14.6): `acc.support_power` lifts the projector's output — added only where support
+    // already exists (a projector weapon or the chassis's native support), so it is inert on a machine
+    // with no support to amplify.
     let (support_power, support_range, support_kind) = match weapon.support {
-        Some(proj) => (Some(proj.power), Some(proj.range), proj.kind),
-        None => (base.support_power, base.support_range, SupportKind::Heal),
+        Some(proj) => (
+            Some(proj.power.saturating_add(acc.support_power)),
+            Some(proj.range),
+            proj.kind,
+        ),
+        None => (
+            base.support_power.map(|p| p.saturating_add(acc.support_power)),
+            base.support_range,
+            SupportKind::Heal,
+        ),
     };
 
     let native_match = mtype.native_family == Some(family);
@@ -370,9 +399,11 @@ pub fn derive_effective_stats(
     Ok(EffectiveStats {
         hull: base.hull,
         armor_pct,
-        shield_cap,
-        shield_regen,
+        // Extra Batteries (§14.1): a utility shield boost folds atop the defense slot's shield pool.
+        shield_cap: shield_cap.saturating_add(acc.shield_cap),
+        shield_regen: shield_regen.saturating_add(acc.shield_regen),
         shield_delay,
+        hull_regen: acc.hull_regen,
         ablative_cap,
         reactive,
         damage: acc.damage.max_zero(),
