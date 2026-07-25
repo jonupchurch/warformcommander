@@ -42,10 +42,14 @@ describe('toLadderRows', () => {
     const rows = toLadderRows([row({ userId: 'me', netVictories: -7 }), row({ userId: 'other' })], 'me', 'net');
     expect(rows[0].netVictoriesLabel).toBe('-7');
     expect(rows[0].isViewer).toBe(true);
-    expect(rows[0].profileHref).toBe('/profile/me');
+    expect(rows[0].profileHref).toBe('/commander/ACE'); // public profile route is /commander/[handle]
     expect(rows[1].isViewer).toBe(false);
     expect(rows[0].record).toBe('22-9 · 14-3D');
     expect(rows[0].streak).toEqual({ current: 4, best: 7 });
+  });
+
+  it('URL-encodes the handle in the Profile href (no broken links on spaced handles)', () => {
+    expect(toLadderRows([row({ handle: 'Red Baron' })], null, 'net')[0].profileHref).toBe('/commander/Red%20Baron');
   });
 
   it('formats the metric value label per selected metric', () => {
