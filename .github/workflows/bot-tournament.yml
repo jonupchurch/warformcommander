@@ -1,0 +1,39 @@
+name: Bot Tournament
+
+# Keeps the ladder alive until there are real players: every 4 hours, hit the protected endpoint that
+# runs the automated bot round-robin (each bot attacks every other defender, recording ranked matches +
+# replays + standings). Also runnable on demand from the Actions tab ("Run workflow" → workflow_dispatch).
+#
+# Requires two repository secrets:
+#   PROD_URL     — the production origin, e.g. https://warformcommander.vercel.app
+#   CRON_SECRET  — must match the CRON_SECRET environment variable set on the Vercel project
+on:
+  schedule:
+    - cron: "0 */4 * * *" # every 4 hours, on the hour (UTC)
+  workflow_dispatch: {}
+
+# Never let two runs overlap (a run is seconds; the schedule is hours — this is just belt-and-suspenders).
+concurrency:
+  group: bot-tournament
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger bot tournament
+        env:
+          PROD_URL: ${{ secrets.PROD_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "${PROD_URL:-}" ] || [ -z "${CRON_SECRET:-}" ]; then
+            echo "::error::PROD_URL and CRON_SECRET repository secrets must both be set"; exit 1
+          fi
+          code=$(curl -sS -o /tmp/resp.json -w "%{http_code}" --max-time 300 -X POST \
+            "${PROD_URL%/}/api/cron/bot-tournament" \
+            -H "Authorization: Bearer ${CRON_SECRET}")
+          echo "HTTP $code"
+          cat /tmp/resp.json 2>/dev/null || true
+          echo
+          test "$code" = "200"
