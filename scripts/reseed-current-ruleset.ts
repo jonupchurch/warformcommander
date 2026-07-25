@@ -49,7 +49,7 @@ async function main() {
   const result = await saveRuleset(actor, {
     data: target,
     expectedVersion: current.version,
-    note: "v3 counter-web — phase 1 feature build. The full §14 equipment catalog is now live: on-hit riders (Paint/EMP/Suppress/Snare), utility & enemy-debuff auras (Coordination Net, Damage Boost/Reduction, Smoke, Jammer/Comms Jammer), conditional counters (Air Superiority/Flanking/Counter-Battery/SEAD), AoE (Napalm/Flak Screen), sustain & support augments (Field Repair/Repair Nanites/Extra Batteries/Amplifier), and the heavy exotics (Overdrive/Alpha Strike/Target Radar/Multi-Targeting/Modular Hardpoint/Broadcast Array) — atop per-chassis slot budgets + costs, §10 defenses (Camo/Chaff/ECM), Jump Jets, the distinct Commander chassis with weapon-driven projectors, 3 stances, and 4 self-terminating movement modes. Start-values are UNTUNED — a balance pass follows via the balance editor.",
+    note: "v3 counter-web — chassis + equipment consolidation. The Rear Support (Medic) chassis is retired: the Commander is now the sole backline support, its Heal projector subsuming the medic's role. Utilities are gated to their owning chassis (§14) — each signature module now mounts only on the vehicle it belongs to — over a small common pool (Fire Control, Drive Servos, Autoloader, ECM Suite) any chassis may take; the two air-unlock utilities settle as Rocket Pack → Mech and Sensor Suite → Light. Start-values remain UNTUNED — a balance pass follows via the balance editor.",
   });
   console.log("saveRuleset result:", JSON.stringify(result));
   if ("error" in result) throw new Error(`re-seed failed: ${result.error}`);
