@@ -6,6 +6,9 @@
  * roster slot. `ACTIVE` marks a squad currently serving as defense (mirrors Feature 7 `defenseSlot`).
  */
 
+import { useTransition } from 'react';
+import { Trash2 } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import { Chip } from '@/components/ui/chip';
 import { Panel } from '@/components/ui/panel';
@@ -18,8 +21,19 @@ import type { SquadConfig } from '@/sim/model';
 import { cn } from '@/lib/utils';
 
 export function SquadRail() {
-  const { roster, session, dispatch } = useGarageEditor();
+  const { roster, session, dispatch, deleteSquad } = useGarageEditor();
+  const [deleting, startDelete] = useTransition();
   const takenSlots = new Set(roster.map((r) => r.slotIndex));
+
+  function onDelete(id: string, name: string) {
+    if (!window.confirm(`Delete “${name}”? This cannot be undone.`)) return;
+    startDelete(async () => {
+      const res = await deleteSquad(id);
+      if (!res.ok) {
+        window.alert(res.reason ?? 'Could not delete this squad.');
+      }
+    });
+  }
 
   function newSquad() {
     dispatch({ type: 'createSquad' });
@@ -44,7 +58,7 @@ export function SquadRail() {
             const config = squad.config as SquadConfig;
             const selected = session.editingSquadId === squad.id;
             return (
-              <li key={squad.id}>
+              <li key={squad.id} className="relative">
                 <button
                   type="button"
                   onClick={() =>
@@ -64,7 +78,7 @@ export function SquadRail() {
                       : 'border-border hover:bg-surface-raised',
                   )}
                 >
-                  <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center justify-between gap-2 pr-6">
                     <span className="type-h3 truncate text-text-strong">{squad.name}</span>
                     {squad.defenseSlot !== null && (
                       <Chip tone="front" variant="solid" className="shrink-0">
@@ -85,6 +99,18 @@ export function SquadRail() {
                     <span className="type-readout text-text-dim">SLOT {squad.slotIndex}</span>
                   </div>
                 </button>
+                {squad.defenseSlot === null && (
+                  <button
+                    type="button"
+                    onClick={() => onDelete(squad.id, squad.name)}
+                    disabled={deleting}
+                    aria-label={`Delete ${squad.name}`}
+                    title="Delete squad"
+                    className="absolute right-2 top-2 rounded p-1 text-text-dim transition-colors hover:bg-surface-raised hover:text-destructive focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-40"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" aria-hidden />
+                  </button>
+                )}
               </li>
             );
           })}

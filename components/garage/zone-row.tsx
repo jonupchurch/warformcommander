@@ -7,6 +7,8 @@
  * ([research B1]).
  */
 
+import { X } from 'lucide-react';
+
 import { UnitIcon } from '@/components/brand/unit-icon';
 import {
   FAMILY_TEXT_CLASS,
@@ -29,24 +31,36 @@ function MachineChip({ slot, machine }: { slot: SlotIndex; machine: DraftMachine
   const family = derived.ok ? derived.stats.family : null;
 
   return (
-    <button
-      type="button"
-      onClick={() => dispatch({ type: 'selectMachine', slot })}
-      aria-pressed={selected}
-      className={cn(
-        'flex items-center gap-2 rounded-md border bg-surface px-2 py-1.5 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-        selected ? 'border-faction-friendly motion-safe:shadow-glow-soft' : 'border-border hover:bg-surface-raised',
-      )}
-    >
-      <UnitIcon
-        type={UNIT_ICON_KEY[machine.typeId]}
-        className={cn('w-9', family ? FAMILY_TEXT_CLASS[family] : 'text-text-muted')}
-      />
-      <span className="flex flex-col">
-        <span className="type-label text-text-strong">{machine.variantId}</span>
-        {family && <span className="type-eyebrow text-text-dim">{family.toUpperCase()}</span>}
-      </span>
-    </button>
+    <div className="group relative">
+      <button
+        type="button"
+        onClick={() => dispatch({ type: 'selectMachine', slot })}
+        aria-pressed={selected}
+        className={cn(
+          'flex w-full items-center gap-2 rounded-md border bg-surface px-2 py-1.5 pr-6 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+          selected ? 'border-faction-friendly motion-safe:shadow-glow-soft' : 'border-border hover:bg-surface-raised',
+        )}
+      >
+        <UnitIcon
+          type={UNIT_ICON_KEY[machine.typeId]}
+          className={cn('w-9', family ? FAMILY_TEXT_CLASS[family] : 'text-text-muted')}
+        />
+        <span className="flex flex-col">
+          <span className="type-label text-text-strong">{machine.variantId}</span>
+          {family && <span className="type-eyebrow text-text-dim">{family.toUpperCase()}</span>}
+        </span>
+      </button>
+      {/* Clear this slot directly (no need to open the detail panel first). Revealed on hover/focus. */}
+      <button
+        type="button"
+        onClick={() => dispatch({ type: 'clearSlot', slot })}
+        aria-label={`Clear ${machine.variantId} from this slot`}
+        title="Clear slot"
+        className="absolute right-1 top-1 rounded p-0.5 text-text-dim opacity-0 transition-opacity hover:text-destructive focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring group-hover:opacity-100"
+      >
+        <X className="h-3.5 w-3.5" aria-hidden />
+      </button>
+    </div>
   );
 }
 
