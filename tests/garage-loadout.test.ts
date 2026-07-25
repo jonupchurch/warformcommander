@@ -81,6 +81,19 @@ describe('reducer loadout edits', () => {
     const s = run(base(), { type: 'clearUtility', slot: 0, index: 0 });
     expect(s.draft.machines[0]!.loadout.utilities).toHaveLength(2);
   });
+
+  it('addUtility appends a utility, and dedups a duplicate to a no-op', () => {
+    // Free a point, then add a new utility back into it (the empty-slot round trip).
+    const freed = run(base(), { type: 'clearUtility', slot: 0, index: 0 });
+    const util = utilityOptions(rs).find((u) => !freed.draft.machines[0]!.loadout.utilities.includes(u.id))!;
+    const added = run(freed, { type: 'addUtility', slot: 0, equipmentId: util.id });
+    expect(added.draft.machines[0]!.loadout.utilities).toHaveLength(3);
+    expect(added.draft.machines[0]!.loadout.utilities).toContain(util.id);
+
+    // Adding one already equipped is a no-op (dedup, V5).
+    const again = run(added, { type: 'addUtility', slot: 0, equipmentId: util.id });
+    expect(again.draft.machines[0]!.loadout.utilities).toHaveLength(3);
+  });
 });
 
 /** A legal 5-squad with a Heavy tank in slot 0 we can then break. */

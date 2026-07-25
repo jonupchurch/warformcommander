@@ -58,6 +58,7 @@ export type EditorAction =
   | { type: 'setWeapon'; slot: SlotIndex; equipmentId: EquipmentId }
   | { type: 'setDefense'; slot: SlotIndex; equipmentId: EquipmentId }
   | { type: 'setUtility'; slot: SlotIndex; index: number; equipmentId: EquipmentId }
+  | { type: 'addUtility'; slot: SlotIndex; equipmentId: EquipmentId }
   | { type: 'clearUtility'; slot: SlotIndex; index: number }
   | { type: 'setDial'; slot: SlotIndex; patch: Partial<BehaviorDials> }
   | { type: 'addPlanB'; slot: SlotIndex; trigger: PlanBTrigger }
@@ -217,6 +218,19 @@ export function garageReducer(session: EditorSession, action: EditorAction): Edi
             if (machine === null) break;
             if (action.index >= 0 && action.index < machine.loadout.utilities.length) {
               machine.loadout.utilities[action.index] = action.equipmentId;
+              machine.sourcePresetId = undefined;
+            }
+            break;
+          }
+
+          case 'addUtility': {
+            // Append a utility into a free budget point (the counterpart to clearUtility). Dedup is a
+            // rule (V5), so a duplicate is a no-op; over-budget is left for validation to flag (the
+            // caller only offers this when there is room), matching the "allow, then explain" posture.
+            const machine = d.draft.machines[action.slot];
+            if (machine === null) break;
+            if (!machine.loadout.utilities.includes(action.equipmentId)) {
+              machine.loadout.utilities.push(action.equipmentId);
               machine.sourcePresetId = undefined;
             }
             break;

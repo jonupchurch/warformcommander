@@ -26,11 +26,16 @@ import {
   mountScaleFor,
 } from '@/sim/ruleset';
 import type {
+  AuraEffect,
+  AuraKind,
+  AuraScope,
   Capability,
   DamageFamily,
   ReachTag,
   Ruleset,
   StatDeltas,
+  SupportKind,
+  SupportRange,
 } from '@/sim/ruleset';
 
 import { humanize, summarizeTargeting } from './display';
@@ -155,6 +160,10 @@ const EQUIPMENT_BLURB: Record<string, string> = {
   RocketBarrage:
     'Gives up anti-air entirely to fire on ground with no penalty — a second artillery piece.',
   RepairBeam: 'Nominal only. Support machines never fire; they repair instead.',
+  HealProjector: 'Projects hull repair across the whole army each tick — the Commander’s sustain answer.',
+  ShieldProjector: 'Projects a shield top-up across the whole army each tick — the counter to burst.',
+  AblationProjector:
+    'Projects a one-time ablative buffer across the whole army — soaks the enemy’s opening alpha.',
 
   // Defenses
   CompositeArmor: 'Maximum armour, paid for with mobility.',
@@ -217,6 +226,52 @@ const CAPABILITY_COPY: Record<Capability, string> = {
   Broadcast: 'The support projector reaches the whole army, not just its own zone',
 };
 
+// --- auras + projections ---------------------------------------------------
+
+/** Who a passive aura reaches, as a phrase. */
+const AURA_SCOPE_COPY: Record<AuraScope, string> = {
+  ZoneAllies: 'zone allies',
+  AllAllies: 'the whole army',
+  ZoneEnemies: 'enemies in its zone',
+  AllEnemies: 'every enemy',
+};
+
+/** What an aura kind modifies, as a stat noun. */
+const AURA_KIND_NOUN: Record<AuraKind, string> = {
+  DamageDealt: 'damage',
+  CommandBoost: 'damage',
+  StartShield: 'start shield',
+  DamageTaken: 'damage taken',
+  Accuracy: 'accuracy',
+  Evasion: 'evasion',
+};
+
+/**
+ * A passive aura (chassis- or utility-projected) as one effect line — e.g. "+10% accuracy to the whole
+ * army", or an enemy-directed debuff "−8% accuracy to every enemy". Numbers come straight from the
+ * ruleset magnitude, so a balance edit moves the copy.
+ */
+function auraLine(a: AuraEffect): EffectLine {
+  const noun = AURA_KIND_NOUN[a.kind] ?? humanize(a.kind);
+  const scope = AURA_SCOPE_COPY[a.scope] ?? humanize(a.scope);
+  return { label: 'Aura', value: `${signedPct(a.magnitude)} ${noun} to ${scope}`, tone: 'gain' };
+}
+
+/** What a projector weapon projects onto its allies. */
+const PROJECT_KIND_COPY: Record<SupportKind, string> = {
+  Heal: 'Heals hull',
+  ShieldBoost: 'Restores shield',
+  Ablation: 'Grants an ablative buffer',
+  Aura: 'Projects an aura',
+};
+
+/** How far a projector / support reaches. */
+const SUPPORT_RANGE_COPY: Record<SupportRange, string> = {
+  OwnZone: 'its own zone',
+  OwnPlusAdjacent: 'its zone + adjacent zones',
+  WholeArmy: 'the whole army',
+};
+
 // --- equipment -------------------------------------------------------------
 
 /** How a damage family fares against each defensive layer, from the live matrix. */
@@ -237,6 +292,27 @@ export function explainWeapon(
   typeId: MachineTypeId,
   ruleset: Ruleset,
 ): Explanation {
+  // A projector "weapon" (the Commander, US5) deals no damage — it projects support onto the army.
+  // Describe THAT, and skip the damage-family / native-bonus lines, which are meaningless at zero
+  // damage (this is why these used to render only a bare "Effect").
+  if (weapon.support) {
+    const s = weapon.support;
+    return {
+      title: weapon.name,
+      blurb: EQUIPMENT_BLURB[weapon.id] ?? '',
+      effects: [
+        {
+          label: 'Projects',
+          value: `${PROJECT_KIND_COPY[s.kind] ?? humanize(s.kind)} — ${signedUnits(s.power)}/tick to ${
+            SUPPORT_RANGE_COPY[s.range] ?? humanize(s.range)
+          }`,
+          tone: 'gain',
+        },
+      ],
+      caveat: EQUIPMENT_CAVEAT[weapon.id],
+    };
+  }
+
   const effects: EffectLine[] = [];
   const fam = familyLine(weapon.family, ruleset);
   if (fam) effects.push(fam);
@@ -252,25 +328,29 @@ export function explainWeapon(
     });
   }
 
+  // The native-family bonus is a *damage* bonus, so it is meaningless on a Support-family weapon (the
+  // medic's Repair Beam deals no damage) — skip it there rather than print a misleading "+X% damage".
   const native = ruleset.machineTypes[typeId]?.nativeFamily;
-  if (native === undefined) {
-    effects.push({
-      label: 'Native bonus',
-      value: 'None — this class is a generalist and never earns it',
-      tone: 'none',
-    });
-  } else if (native === weapon.family) {
-    effects.push({
-      label: 'Native bonus',
-      value: `${signedPct(ruleset.globals.nativeBonus)} damage`,
-      tone: 'gain',
-    });
-  } else {
-    effects.push({
-      label: 'Native bonus',
-      value: `Forfeited — this class is native ${native}`,
-      tone: 'cost',
-    });
+  if (weapon.family !== 'Support') {
+    if (native === undefined) {
+      effects.push({
+        label: 'Native bonus',
+        value: 'None — this class is a generalist and never earns it',
+        tone: 'none',
+      });
+    } else if (native === weapon.family) {
+      effects.push({
+        label: 'Native bonus',
+        value: `${signedPct(ruleset.globals.nativeBonus)} damage`,
+        tone: 'gain',
+      });
+    } else {
+      effects.push({
+        label: 'Native bonus',
+        value: `Forfeited — this class is native ${native}`,
+        tone: 'cost',
+      });
+    }
   }
 
   effects.push(...statDeltaLines(weapon.statDeltas, ruleset));
@@ -363,6 +443,9 @@ export function explainUtility(utility: UtilityModule, ruleset: Ruleset): Explan
   for (const cap of utility.unlocks) {
     effects.push({ label: 'Unlocks', value: CAPABILITY_COPY[cap] ?? humanize(cap), tone: 'gain' });
   }
+  // Several utilities (Coordination Net, Damage Boost/Reduction, Smoke, Jammer/Comms Jammer) do their
+  // whole job through a projected aura — describe it, so they no longer render a bare "Effect: None".
+  if (utility.aura) effects.push(auraLine(utility.aura));
   if (effects.length === 0) {
     effects.push({ label: 'Effect', value: 'None', tone: 'none' });
   }
