@@ -163,7 +163,7 @@ const ARCHETYPES: Archetype[] = [
         m("Artillery", "Marksman", "Rear", "RailHowitzer", "StandardHullArtillery", ["FireControl", "Autoloader"], "Aggressive", FURTHEST),
       ),
       army(
-        m("LightTank", "Scout", "Front", "Autocannon", "LightArmor", ["FireControl", "Spotter"], "Aggressive", CLOSEST, "Advance"),
+        m("LightTank", "Scout", "Front", "Autocannon", "LightArmor", ["FireControl", "RocketPack"], "Aggressive", CLOSEST, "Advance"),
         m("LightTank", "Hunter", "Front", "Autocannon", "FastCycleShield", ["Spotter", "SensorSuite"], "Aggressive", ARMOR, "Advance"),
         m("LightTank", "Outrider", "Front", "GaussRepeater", "LightArmor", ["DriveServos", "SnareShot"], "Aggressive", CLOSEST, "Kite"),
         m("RocketArtillery", "Deluge", "Middle", "RocketBarrage", "StandardHullRktArty", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
@@ -178,21 +178,21 @@ const ARCHETYPES: Archetype[] = [
     blurb: "Energy lance — every barrel fires Energy to strip shields, a Commander refreshing its own.",
     variations: [
       army(
-        m("HeavyTank", "Bulwark", "Front", "SiegeLaser", "HeavyShield", ["FireControl", "Autoloader", "ECMSuite"], "Neutral", ARMOR),
+        m("HeavyTank", "Bulwark", "Front", "SiegeLaser", "HeavyShield", ["FireControl", "Autoloader", "RocketPack"], "Neutral", ARMOR),
         m("Mech", "Sentinel", "Middle", "PulseLaser", "MechShield", ["FireControl", "Autoloader", "ModularHardpoint", "BulwarkMode"], "Neutral", HUNT_SUPPORT),
         m("RocketArtillery", "Deluge", "Middle", "LaserBattery", "RktArtyShield", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
         m("Artillery", "Longbow", "Rear", "IonCannon", "ArtilleryShield", ["FireControl", "Autoloader"], "Aggressive", FURTHEST),
         m("Commander", "CommandPost", "Rear", "ShieldProjector", "SupportShield", ["FireControl", "CoordinationNet"], "Neutral", CLOSEST),
       ),
       army(
-        m("HeavyTank", "Grizzly", "Front", "SiegeLaser", "DeflectorShield", ["FireControl", "ExtraBatteries"], "Aggressive", CLOSEST),
+        m("HeavyTank", "Grizzly", "Front", "SiegeLaser", "DeflectorShield", ["FireControl", "Autoloader", "RocketPack"], "Aggressive", CLOSEST),
         m("Mech", "Striker", "Front", "PulseLaser", "MechShield", ["FireControl", "Autoloader", "Overdrive"], "Aggressive", ARMOR),
         m("RocketArtillery", "Aegis", "Middle", "LaserBattery", "RktArtyShield", ["FireControl", "Autoloader"], "Neutral", INDIRECT),
         m("Artillery", "Siege", "Rear", "IonCannon", "ArtilleryShield", ["FireControl", "Autoloader"], "Aggressive", FURTHEST),
         m("Commander", "CommandPost", "Rear", "ShieldProjector", "SupportShield", ["FireControl", "Amplifier"], "Neutral", CLOSEST),
       ),
       army(
-        m("HeavyTank", "Cavalier", "Front", "SiegeLaser", "HeavyShield", ["FireControl", "Autoloader", "ECMSuite"], "Aggressive", CLOSEST),
+        m("HeavyTank", "Cavalier", "Front", "SiegeLaser", "HeavyShield", ["FireControl", "Autoloader", "RocketPack"], "Aggressive", CLOSEST),
         m("Mech", "Sentinel", "Middle", "PulseLaser", "MechReactive", ["FireControl", "ModularHardpoint", "SuppressingFire"], "Aggressive", HUNT_SUPPORT),
         m("LightTank", "Outrider", "Front", "ArcRepeater", "LightShield", ["FireControl", "SensorSuite", "DriveServos"], "Aggressive", CLOSEST, "Advance"),
         m("Artillery", "Marksman", "Rear", "IonCannon", "ArtilleryShield", ["FireControl", "Autoloader"], "Aggressive", FURTHEST),
@@ -207,7 +207,7 @@ const ARCHETYPES: Archetype[] = [
     blurb: "Explosive saturation — demolition guns, rocket barrages and howitzers bury the front in splash.",
     variations: [
       army(
-        m("HeavyTank", "Cavalier", "Front", "DemolitionGun", "BlastPlating", ["FireControl", "Autoloader", "SiegeMode"], "Aggressive", CLOSEST),
+        m("HeavyTank", "Cavalier", "Front", "DemolitionGun", "BlastPlating", ["FireControl", "Autoloader", "RocketPack"], "Aggressive", CLOSEST),
         m("Mech", "Striker", "Front", "MissileRack", "MechArmor", ["FireControl", "Autoloader", "Overdrive"], "Aggressive", ARMOR),
         m("RocketArtillery", "Deluge", "Middle", "RocketBarrage", "StandardHullRktArty", ["Autoloader", "Entrench"], "Aggressive", INDIRECT),
         m("Artillery", "Siege", "Rear", "Howitzer", "StandardHullArtillery", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
@@ -224,7 +224,7 @@ const ARCHETYPES: Archetype[] = [
         m("Mech", "Vanguard", "Front", "MissileRack", "MechArmor", ["FireControl", "Autoloader", "SuppressingFire"], "Aggressive", CLOSEST),
         m("Mech", "Striker", "Front", "MissileRack", "MechReactive", ["FireControl", "Autoloader", "Overdrive"], "Aggressive", ARMOR),
         m("RocketArtillery", "Deluge", "Middle", "RocketBarrage", "StandardHullRktArty", ["Autoloader", "Entrench"], "Aggressive", INDIRECT),
-        m("Artillery", "Marksman", "Rear", "Howitzer", "StandardHullArtillery", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
+        m("Artillery", "Marksman", "Rear", "Howitzer", "StandardHullArtillery", ["FireControl", "RocketPack"], "Aggressive", INDIRECT),
         m("Artillery", "Siege", "Rear", "Howitzer", "ArtilleryArmor", ["FireControl", "Autoloader"], "Aggressive", FURTHEST),
       ),
     ],
@@ -346,29 +346,30 @@ const ARCHETYPES: Archetype[] = [
     ],
   },
 
-  // 10. INTERCEPTOR_SCREEN — a double-SAM box under two interceptors; air simply cannot land here.
+  // 10. INTERCEPTOR_SCREEN — fighters + ONE SAM over a rocket line (NOT double-AA: two dedicated AA
+  // units over-invest in air defence and lose the ground fight — the second SAM bombards ground instead).
   {
     tag: "INTERCEPTOR_SCREEN",
-    blurb: "Interceptor screen — a double-SAM box under two fighters. An air-heavy attack breaks on it.",
+    blurb: "Interceptor screen — two fighters and a single SAM screen a rocket line. Air-leaning, not all-in.",
     variations: [
       army(
         m("AttackHeli", "Interceptor", "Air", "BeamProjector", "HeliShield", ["FireControl", "Flares"], "Aggressive", CLOSEST),
         m("AttackHeli", "Gunship", "Air", "RocketPods", "HeliChaff", ["FireControl", "Flares"], "Aggressive", FURTHEST),
         m("RocketArtillery", "Sentry", "Middle", "SAMBattery", "StandardHullRktArty", ["FireControl", "Autoloader"], "Neutral", AIR),
-        m("RocketArtillery", "Aegis", "Middle", "SAMBattery", "RktArtyArmor", ["FireControl", "Autoloader"], "Neutral", AIR),
+        m("RocketArtillery", "Aegis", "Middle", "RocketBarrage", "RktArtyArmor", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
         m("HeavyTank", "Bulwark", "Front", "HeavyCannon", "CompositeArmor", ["FireControl", "Autoloader", "ECMSuite"], "Defensive", CLOSEST),
       ),
       army(
         m("AttackHeli", "Interceptor", "Air", "ChainGun", "HeliShield", ["FireControl", "Flares"], "Aggressive", AIR),
         m("AttackHeli", "Warhog", "Air", "RocketPods", "HeliArmor", ["FireControl", "Flares"], "Aggressive", CLOSEST),
         m("RocketArtillery", "Sentry", "Middle", "SAMBattery", "StandardHullRktArty", ["FireControl", "Autoloader"], "Neutral", AIR),
-        m("RocketArtillery", "Deluge", "Middle", "SAMBattery", "RktArtyArmor", ["FireControl", "Autoloader"], "Neutral", AIR),
+        m("RocketArtillery", "Deluge", "Middle", "RocketBarrage", "RktArtyArmor", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
         m("HeavyTank", "Grizzly", "Front", "Railgun", "DeflectorShield", ["FireControl", "Autoloader", "Rangefinder"], "Defensive", CLOSEST),
       ),
       army(
         m("AttackHeli", "Interceptor", "Air", "BeamProjector", "HeliShield", ["FireControl", "Flares"], "Aggressive", CLOSEST),
         m("RocketArtillery", "Sentry", "Middle", "SAMBattery", "StandardHullRktArty", ["FireControl", "Autoloader"], "Neutral", AIR),
-        m("RocketArtillery", "Aegis", "Middle", "SAMBattery", "RktArtyECM", ["FireControl", "Autoloader"], "Neutral", AIR),
+        m("RocketArtillery", "Aegis", "Middle", "RocketBarrage", "RktArtyECM", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
         m("HeavyTank", "Cavalier", "Front", "HeavyCannon", "CompositeArmor", ["FireControl", "Autoloader", "SiegeMode"], "Defensive", CLOSEST),
         m("Commander", "CommandPost", "Rear", "HealProjector", "SupportArmor", ["FireControl", "Amplifier"], "Neutral", CLOSEST),
       ),
@@ -383,20 +384,20 @@ const ARCHETYPES: Archetype[] = [
       army(
         m("HeavyTank", "Bulwark", "Front", "Railgun", "CompositeArmor", ["FireControl", "Autoloader", "Rangefinder"], "Aggressive", ARMOR),
         m("HeavyTank", "Grizzly", "Front", "Railgun", "HeavyArmor", ["FireControl", "Autoloader", "Rangefinder"], "Aggressive", ARMOR),
-        m("HeavyTank", "Cavalier", "Front", "HeavyCannon", "HeavyArmor", ["FireControl", "Autoloader", "SiegeMode"], "Aggressive", CLOSEST),
+        m("HeavyTank", "Cavalier", "Front", "HeavyCannon", "HeavyArmor", ["FireControl", "Autoloader", "RocketPack"], "Aggressive", CLOSEST),
         m("RocketArtillery", "Aegis", "Middle", "FlechetteBattery", "RktArtyArmor", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
         m("Artillery", "Longbow", "Rear", "RailHowitzer", "StandardHullArtillery", ["FireControl", "Autoloader"], "Aggressive", FURTHEST),
       ),
       army(
         m("HeavyTank", "Grizzly", "Front", "Railgun", "HeavyArmor", ["FireControl", "Autoloader", "Rangefinder"], "Aggressive", ARMOR),
-        m("HeavyTank", "Cavalier", "Front", "Railgun", "CompositeArmor", ["FireControl", "Autoloader", "SiegeMode"], "Aggressive", ARMOR),
+        m("HeavyTank", "Cavalier", "Front", "Railgun", "CompositeArmor", ["FireControl", "Autoloader", "RocketPack"], "Aggressive", ARMOR),
         m("Mech", "Striker", "Front", "AssaultCannon", "MechArmor", ["FireControl", "Autoloader", "Overdrive"], "Aggressive", CLOSEST),
         m("RocketArtillery", "Sentry", "Middle", "FlechetteBattery", "RktArtyArmor", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
         m("Artillery", "Marksman", "Rear", "RailHowitzer", "StandardHullArtillery", ["FireControl", "Autoloader"], "Aggressive", FURTHEST),
       ),
       army(
         m("HeavyTank", "Bulwark", "Front", "Railgun", "CompositeArmor", ["FireControl", "Autoloader", "Rangefinder"], "Aggressive", ARMOR),
-        m("HeavyTank", "Cavalier", "Front", "HeavyCannon", "HeavyArmor", ["FireControl", "Autoloader", "Decoy"], "Aggressive", CLOSEST),
+        m("HeavyTank", "Cavalier", "Front", "HeavyCannon", "HeavyArmor", ["FireControl", "Autoloader", "RocketPack"], "Aggressive", CLOSEST),
         m("LightTank", "Hunter", "Front", "GaussRepeater", "LightArmor", ["FireControl", "Spotter"], "Aggressive", ARMOR, "Advance"),
         m("RocketArtillery", "Aegis", "Middle", "FlechetteBattery", "RktArtyArmor", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
         m("Artillery", "Siege", "Rear", "RailHowitzer", "ArtilleryArmor", ["FireControl", "Autoloader"], "Aggressive", FURTHEST),
@@ -412,7 +413,7 @@ const ARCHETYPES: Archetype[] = [
       army(
         m("HeavyTank", "Bulwark", "Front", "HeavyCannon", "CompositeArmor", ["FireControl", "Autoloader", "Decoy"], "Defensive", CLOSEST),
         m("Mech", "Vanguard", "Middle", "AssaultCannon", "MechReactive", ["FireControl", "Autoloader", "SuppressingFire"], "Neutral", ARMOR),
-        m("Artillery", "Longbow", "Rear", "Howitzer", "StandardHullArtillery", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
+        m("Artillery", "Longbow", "Rear", "Howitzer", "StandardHullArtillery", ["FireControl", "RocketPack"], "Aggressive", INDIRECT),
         m("Artillery", "Siege", "Rear", "Howitzer", "ArtilleryArmor", ["FireControl", "Autoloader"], "Aggressive", FURTHEST),
         m("Commander", "CommandPost", "Rear", "HealProjector", "SupportArmor", ["FireControl", "Amplifier"], "Neutral", CLOSEST),
       ),
@@ -425,7 +426,7 @@ const ARCHETYPES: Archetype[] = [
       ),
       army(
         m("HeavyTank", "Bulwark", "Front", "HeavyCannon", "CompositeArmor", ["FireControl", "GuardianProtocol"], "Defensive", CLOSEST),
-        m("HeavyTank", "Grizzly", "Front", "Railgun", "DeflectorShield", ["FireControl", "Autoloader", "Rangefinder"], "Defensive", ARMOR),
+        m("HeavyTank", "Grizzly", "Front", "Railgun", "DeflectorShield", ["FireControl", "Autoloader", "RocketPack"], "Defensive", ARMOR),
         m("Artillery", "Siege", "Rear", "Howitzer", "StandardHullArtillery", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
         m("Artillery", "Marksman", "Rear", "Howitzer", "ArtilleryArmor", ["FireControl", "Autoloader"], "Aggressive", FURTHEST),
         m("Commander", "CommandPost", "Rear", "HealProjector", "SupportArmor", ["FireControl", "CoordinationNet"], "Neutral", CLOSEST),
@@ -461,6 +462,14 @@ const liveCostRuleset = loadDefaultRuleset();
 for (const [id, cost] of Object.entries(LIVE_UTILITY_COST_OVERRIDES)) {
   const mod = liveCostRuleset.equipment[id];
   if (mod && mod.kind === "Utility") mod.cost = cost;
+}
+// Mirror the LIVE ruleset's broadened Rocket Pack gate (2026-07-25: Mech → Mech/Heavy/Light/Artillery,
+// live rev f0ca9c7d) so a ground chassis carrying a Rocket Pack — its optional 1-slot air answer —
+// validates here exactly as it does live. content.rs still gates it Mech-only (deferred bake), so
+// without this the generator would wrongly reject these builds.
+{
+  const rp = liveCostRuleset.equipment.RocketPack;
+  if (rp && rp.kind === "Utility") rp.mountClasses = ["Mech", "Heavy", "Light", "Artillery"];
 }
 
 const out: OutArmy[] = [];

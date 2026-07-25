@@ -378,7 +378,7 @@
             "utilities": [
               "FireControl",
               "Autoloader",
-              "ECMSuite"
+              "RocketPack"
             ]
           },
           "dials": {
@@ -503,7 +503,7 @@
             "utilities": [
               "FireControl",
               "Autoloader",
-              "SiegeMode"
+              "RocketPack"
             ]
           },
           "dials": {
@@ -1107,7 +1107,7 @@
   },
   {
     "name": "INTERCEPTOR_SCREEN_01",
-    "blurb": "Interceptor screen — a double-SAM box under two fighters. An air-heavy attack breaks on it.",
+    "blurb": "Interceptor screen — two fighters and a single SAM screen a rocket line. Air-leaning, not all-in.",
     "config": {
       "machines": [
         {
@@ -1183,7 +1183,7 @@
           "variantId": "Aegis",
           "zone": "Middle",
           "loadout": {
-            "weapon": "SAMBattery",
+            "weapon": "RocketBarrage",
             "defense": "RktArtyArmor",
             "utilities": [
               "FireControl",
@@ -1192,11 +1192,11 @@
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetAir",
-              "fallback": "Closest"
+              "priority1": "TargetIndirect",
+              "fallback": "Furthest"
             },
             "movement": "Hold",
-            "stance": "Neutral"
+            "stance": "Aggressive"
           },
           "planB": []
         },
@@ -1290,7 +1290,7 @@
             "utilities": [
               "FireControl",
               "Autoloader",
-              "SiegeMode"
+              "RocketPack"
             ]
           },
           "dials": {
@@ -1412,7 +1412,7 @@
             "defense": "StandardHullArtillery",
             "utilities": [
               "FireControl",
-              "Autoloader"
+              "RocketPack"
             ]
           },
           "dials": {
@@ -1853,7 +1853,8 @@
             "defense": "DeflectorShield",
             "utilities": [
               "FireControl",
-              "ExtraBatteries"
+              "Autoloader",
+              "RocketPack"
             ]
           },
           "dials": {
@@ -2577,7 +2578,7 @@
   },
   {
     "name": "INTERCEPTOR_SCREEN_02",
-    "blurb": "Interceptor screen — a double-SAM box under two fighters. An air-heavy attack breaks on it.",
+    "blurb": "Interceptor screen — two fighters and a single SAM screen a rocket line. Air-leaning, not all-in.",
     "config": {
       "machines": [
         {
@@ -2654,7 +2655,7 @@
           "variantId": "Deluge",
           "zone": "Middle",
           "loadout": {
-            "weapon": "SAMBattery",
+            "weapon": "RocketBarrage",
             "defense": "RktArtyArmor",
             "utilities": [
               "FireControl",
@@ -2663,11 +2664,11 @@
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetAir",
-              "fallback": "Closest"
+              "priority1": "TargetIndirect",
+              "fallback": "Furthest"
             },
             "movement": "Hold",
-            "stance": "Neutral"
+            "stance": "Aggressive"
           },
           "planB": []
         },
@@ -2737,7 +2738,7 @@
             "utilities": [
               "FireControl",
               "Autoloader",
-              "SiegeMode"
+              "RocketPack"
             ]
           },
           "dials": {
@@ -3202,7 +3203,7 @@
             "defense": "LightArmor",
             "utilities": [
               "FireControl",
-              "Spotter"
+              "RocketPack"
             ]
           },
           "dials": {
@@ -3324,7 +3325,7 @@
             "utilities": [
               "FireControl",
               "Autoloader",
-              "ECMSuite"
+              "RocketPack"
             ]
           },
           "dials": {
@@ -3516,7 +3517,7 @@
             "defense": "StandardHullArtillery",
             "utilities": [
               "FireControl",
-              "Autoloader"
+              "RocketPack"
             ]
           },
           "dials": {
@@ -4049,7 +4050,7 @@
   },
   {
     "name": "INTERCEPTOR_SCREEN_03",
-    "blurb": "Interceptor screen — a double-SAM box under two fighters. An air-heavy attack breaks on it.",
+    "blurb": "Interceptor screen — two fighters and a single SAM screen a rocket line. Air-leaning, not all-in.",
     "config": {
       "machines": [
         {
@@ -4103,7 +4104,7 @@
           "variantId": "Aegis",
           "zone": "Middle",
           "loadout": {
-            "weapon": "SAMBattery",
+            "weapon": "RocketBarrage",
             "defense": "RktArtyECM",
             "utilities": [
               "FireControl",
@@ -4112,11 +4113,11 @@
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetAir",
-              "fallback": "Closest"
+              "priority1": "TargetIndirect",
+              "fallback": "Furthest"
             },
             "movement": "Hold",
-            "stance": "Neutral"
+            "stance": "Aggressive"
           },
           "planB": []
         },
@@ -4208,7 +4209,7 @@
             "utilities": [
               "FireControl",
               "Autoloader",
-              "Decoy"
+              "RocketPack"
             ]
           },
           "dials": {
@@ -4329,7 +4330,7 @@
             "utilities": [
               "FireControl",
               "Autoloader",
-              "Rangefinder"
+              "RocketPack"
             ]
           },
           "dials": {
