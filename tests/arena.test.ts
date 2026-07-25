@@ -210,8 +210,14 @@ describe('US5 — server authority: reproducible + no client write surface', () 
       }
     };
     roots.forEach(walk);
-    // Allowed: the definition (server/matches.ts) and the two orchestrators that call it.
-    const allowed = new Set(['server/matches.ts', 'server/arena.ts', 'server/practice.ts']);
+    // Allowed: the definition (server/matches.ts) and the server-only orchestrators that call it —
+    // ranked/practice from the app, plus the cron bot tournament (triggered by a secret, never a client).
+    const allowed = new Set([
+      'server/matches.ts',
+      'server/arena.ts',
+      'server/practice.ts',
+      'server/bot-tournament.ts',
+    ]);
     expect(offenders.filter((f) => !allowed.has(f))).toEqual([]);
   });
 });
