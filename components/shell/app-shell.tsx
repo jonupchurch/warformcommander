@@ -4,17 +4,17 @@ import { Logo } from "@/components/brand/logo";
 import { Wordmark } from "@/components/brand/wordmark";
 
 import { PrimaryNav } from "./primary-nav";
-import { IdentityBadge, type IdentityBadgeProps } from "./identity-badge";
+import { IdentityMenu, type IdentityMenuProps } from "./identity-menu";
 
 export interface AppShellProps {
   children: React.ReactNode;
-  /** commander/rank/avatar; omit on unauthenticated. */
-  identity?: IdentityBadgeProps;
+  /** commander/rank/avatar; omit on unauthenticated (the menu then offers Log In). */
+  identity?: IdentityMenuProps["identity"];
 }
 
 /**
  * The chrome every authenticated screen renders inside (implemented as the `app/(app)` layout):
- * sticky blurred header (Logo + Wordmark + IdentityBadge) + responsive PrimaryNav + a
+ * sticky blurred header (Logo + Wordmark + IdentityMenu) + responsive PrimaryNav + a
  * max-width-constrained, safe-area-padded content region. Guarantees a skip link + nav landmark
  * (FR-011), `min-h-dvh`, and **no horizontal overflow 320px→∞** (SC-001).
  */
@@ -41,11 +41,7 @@ export function AppShell({ children, identity }: AppShellProps) {
             </Link>
             <PrimaryNav />
           </div>
-          {identity ? (
-            <IdentityBadge {...identity} />
-          ) : (
-            <span className="type-label text-text-muted">Guest</span>
-          )}
+          <IdentityMenu identity={identity} />
         </div>
       </header>
 
