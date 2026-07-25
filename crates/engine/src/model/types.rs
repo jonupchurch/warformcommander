@@ -23,7 +23,9 @@ use crate::fixed::{Bp, Fixed};
 // Identifiers
 // ---------------------------------------------------------------------------
 
-/// The eight machine classes — a **closed** set (the roster is fixed; variants extend it).
+/// The seven machine classes — a **closed** set (the roster is fixed; variants extend it). The v2
+/// `RearSupport` medic chassis was removed in the v3 consolidation (the Commander is the sole backline
+/// support unit; its Heal projector subsumes the medic's healing).
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Serialize, Deserialize)]
 pub enum MachineTypeId {
     HeavyTank,
@@ -32,10 +34,9 @@ pub enum MachineTypeId {
     AttackHeli,
     RocketArtillery,
     Artillery,
-    RearSupport,
     /// The Commander (v3 US5): a no-offense projector chassis that grants its army the `CommandBoost`
     /// aura + a survival-gated Plan-B slot while it lives, and projects Heal/Shield/Ablation support via
-    /// its weapon slot. Added last to keep the enum's `Ord`/serialization stable for the seven originals.
+    /// its weapon slot.
     Commander,
 }
 

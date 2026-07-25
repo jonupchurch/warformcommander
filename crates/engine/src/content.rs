@@ -186,18 +186,6 @@ fn seed_machine_types(m: &mut BTreeMap<MachineTypeId, MachineType>) {
             air_capable_by_default: false, // indirect — never targets air
         },
     );
-    insert(
-        m,
-        MachineType {
-            id: MachineTypeId::RearSupport,
-            native_family: Some(DamageFamily::Support),
-            home_zones: ground(),
-            mount_class: MountClass::Support,
-            slot_layout: SlotLayout::STANDARD,
-            can_fire_from_rear: false,
-            air_capable_by_default: false,
-        },
-    );
     // The Commander (v3 US5): a no-offense projector chassis. Reuses the Support mount (its projector
     // weapon + defenses gate to Support), native Support family (so its projector is native — no bearing
     // on damage, which is 0), and the widest utility budget (5). Grants its army the CommandBoost aura +
@@ -546,8 +534,10 @@ fn seed_variants(
         None,
     );
 
-    // --- Rear Support (Support · Shields · force multiplier) ---
-    let medic = BaseStats {
+    // --- Commander base stats (Support · Shields · the sole backline support unit) ---
+    // The v2 Medic/Warden variants were removed in the v3 consolidation; this Support-family template
+    // now seeds only the Commander (`CommandPost` below), whose Heal projector subsumes the medic role.
+    let support_base = BaseStats {
         hull: q(616),
         armor_pct: 1_200,
         shield_cap: q(250),
@@ -568,31 +558,17 @@ fn seed_variants(
         support_power: Some(q(5)), // ~5 hull/tick to the most-wounded ally in range
         support_range: Some(SupportRange::WholeArmy), // heal the whole army, incl. the front line
     };
-    add("Medic", MachineTypeId::RearSupport, medic, None, None);
-    add(
-        "Warden",
-        MachineTypeId::RearSupport,
-        BaseStats {
-            hull: q(801),
-            armor_pct: 1_800,
-            support_range: Some(SupportRange::OwnZone),
-            ..medic
-        },
-        None,
-        None,
-    );
-    // The Commander (v3 US5): promoted out of RearSupport into its own `MachineTypeId::Commander`
-    // chassis (design §14.6 — a distinct class, not a support variant). Its slot budget comes from the
-    // Commander type default (5 utility), so no per-variant override is needed. Its support is now
-    // weapon-driven (the projector); the base `support_power` (inherited from `medic`) is a fallback for
-    // a non-projector loadout. `move_speed 0` keeps it the immobile backline anchor.
+    // The Commander (v3 US5): its own `MachineTypeId::Commander` chassis (design §14.6 — a distinct
+    // class). Its slot budget comes from the Commander type default (5 utility), so no per-variant
+    // override is needed. Its support is weapon-driven (the projector); the base `support_power` is a
+    // fallback for a non-projector loadout. `move_speed 0` keeps it the immobile backline anchor.
     add(
         "CommandPost",
         MachineTypeId::Commander,
         BaseStats {
             hull: q(370),
             move_speed: Some(0), // immobile
-            ..medic
+            ..support_base
         },
         None,
         Some(AuraEffect {
@@ -853,15 +829,6 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
             MountClass::Artillery,
             DamageFamily::Explosive,
             gun(CadenceTier::Siege, ReachTag::AnyGround),
-        ),
-    );
-    add(
-        "RepairBeam",
-        "Repair Beam",
-        weapon(
-            MountClass::Support,
-            DamageFamily::Support,
-            gun(CadenceTier::Medium, ReachTag::Nearest),
         ),
     );
     // Commander projectors (v3 US5): the weapon slot picks what the Commander projects onto its army —
@@ -1668,7 +1635,6 @@ fn base_weapon_for(type_id: MachineTypeId, variant: &VariantId) -> (&'static str
             }
         }
         MachineTypeId::Artillery => ("Howitzer", MountClass::Artillery),
-        MachineTypeId::RearSupport => ("RepairBeam", MountClass::Support),
         // The Commander's stock weapon is the Heal projector (US5); swap it for Shield/Ablation to
         // counter-pick what the army needs.
         MachineTypeId::Commander => ("HealProjector", MountClass::Support),
@@ -1737,9 +1703,9 @@ mod tests {
     #[test]
     fn seed_has_all_types_and_variants() {
         let rs = seed_ruleset();
-        assert_eq!(rs.machine_types.len(), 8, "eight machine types (Commander added, US5)");
-        assert_eq!(rs.variants.len(), 21, "21 variants across the 8 types");
-        assert_eq!(rs.chassis.len(), 21);
+        assert_eq!(rs.machine_types.len(), 7, "seven machine types (Rear Support removed, v3)");
+        assert_eq!(rs.variants.len(), 19, "19 variants across the 7 types");
+        assert_eq!(rs.chassis.len(), 19);
     }
 
     #[test]
@@ -1791,11 +1757,9 @@ mod tests {
             (MachineTypeId::Artillery, "Longbow"),
             (MachineTypeId::Artillery, "Siege"),
             (MachineTypeId::Artillery, "Marksman"),
-            (MachineTypeId::RearSupport, "Medic"),
-            (MachineTypeId::RearSupport, "Warden"),
-            (MachineTypeId::Commander, "CommandPost"), // promoted out of RearSupport (US5)
+            (MachineTypeId::Commander, "CommandPost"), // the sole backline support unit (US5)
         ];
-        assert_eq!(cases.len(), 21);
+        assert_eq!(cases.len(), 19);
         for (type_id, variant) in cases {
             let zone = if type_id == MachineTypeId::AttackHeli {
                 ZoneId::Air
