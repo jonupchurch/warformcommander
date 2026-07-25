@@ -716,6 +716,7 @@ mod tests {
                 splash_cap: 2_500,
                 hit_clamp_min: 500,
                 hit_clamp_max: 9_500,
+                heal_cooldown_ticks: 0,
             },
             role_damage_bonuses: BTreeMap::new(),
             ablative_mods: crate::model::ruleset::AblativeMods::default(),
