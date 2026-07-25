@@ -41,10 +41,9 @@ describe('pickRankedOpponent — basic selection (T010, US1)', () => {
   });
 
   it('errors NO_OPPONENT when the pool holds only the attacker (never self-matches)', async () => {
+    // `seedAttacker` already fields the attacker's own active defense snapshot — which must still never
+    // be served back to them. No other defender exists, so matchmaking must error rather than self-match.
     const { ctx } = await seedAttacker();
-    // The attacker even holds a snapshot of their own — still must not be served to themselves.
-    const { seedSnapshot } = await import('./arena-fixtures');
-    await seedSnapshot(ctx.id, 0);
 
     const pick = await pickRankedOpponent(ctx);
     expect(pick.ok).toBe(false);

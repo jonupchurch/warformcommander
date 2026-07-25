@@ -13,6 +13,7 @@ import type { RerollResult } from './actions';
 import { previewRankedMatch } from '@/server/arena';
 import { fogPreview } from '@/server/arena-types';
 import { AuthError } from '@/server/authz';
+import { listDefense } from '@/server/defense';
 import { getCurrentRuleset } from '@/server/ruleset';
 import { requireSession } from '@/server/session';
 import { listAttackable } from '@/server/squads';
@@ -57,11 +58,17 @@ export default async function ArenaPage() {
       }))
     : [];
 
+  // The must-defend precondition: you can't attack the ladder without a squad on active defense.
+  const defenseResult = await listDefense(actor);
+  const hasDefense = defenseResult.ok && defenseResult.value.length > 0;
+
   // The opening server-matched ticket (US1) — re-rolled client-side via the skip action (US2). We
-  // only preview when the player has something to attack with (FR-001).
+  // only preview when the player has something to attack with (FR-001) AND is fielding a defense.
   let initial: RerollResult;
   if (attackable.length === 0) {
     initial = { ok: false, error: 'NOT_ATTACKABLE', reason: 'no attackable squad' };
+  } else if (!hasDefense) {
+    initial = { ok: false, error: 'NO_ACTIVE_DEFENSE', reason: 'put a squad on defense first' };
   } else {
     const preview = await previewRankedMatch(actor);
     initial = preview.ok

@@ -16,6 +16,7 @@ import {
   listSquads,
   deleteSquad,
 } from "@/server/squads";
+import { designateDefense, undesignateDefense } from "@/server/defense";
 import { truncateAll, closeDb, createTestUser } from "./db-setup";
 import { validSquad } from "./fixtures";
 
@@ -146,5 +147,30 @@ describe("8-slot cap and cross-user ownership (US2-AS4/5)", () => {
     // A's squad is untouched.
     expect((await listSquads(a)).ok).toBe(true);
     expect(await squadRowCount()).toBe(1);
+  });
+});
+
+describe("deleteSquad guards a squad assigned to defense", () => {
+  it("refuses to delete a designated squad, then allows it once undesignated", async () => {
+    const actor = await createTestUser();
+    const saved = await saveSquad(actor, { slotIndex: 0, name: "Wall", config: validSquad() });
+    expect(saved.ok).toBe(true);
+    if (!saved.ok) return;
+    const id = saved.value.id;
+
+    const designated = await designateDefense(actor, { squadId: id, slot: 0 });
+    expect(designated.ok).toBe(true);
+
+    // Designated → delete is refused (trust boundary), and the row survives.
+    const blocked = await deleteSquad(actor, id);
+    expect(blocked.ok).toBe(false);
+    if (!blocked.ok) expect(blocked.error).toBe("SQUAD_DESIGNATED");
+    expect(await squadRowCount()).toBe(1);
+
+    // Undesignate → the same delete now succeeds.
+    expect((await undesignateDefense(actor, id)).ok).toBe(true);
+    const ok = await deleteSquad(actor, id);
+    expect(ok.ok).toBe(true);
+    expect(await squadRowCount()).toBe(0);
   });
 });

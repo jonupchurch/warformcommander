@@ -17,6 +17,7 @@ export const runtime = 'nodejs';
 function statusFor(error: ErrorCode): number {
   switch (error) {
     case 'NOT_ATTACKABLE':
+    case 'NO_ACTIVE_DEFENSE':
       return 403;
     case 'INVALID_TICKET':
       return 409;

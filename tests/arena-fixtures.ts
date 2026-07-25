@@ -31,10 +31,12 @@ export async function seedSquad(userId: string, slotIndex: number, config: Squad
   return row!.id;
 }
 
-/** A user with one attackable squad — the caller in ranked/practice tests. */
+/** A user with one attackable squad **and** one active defense — a ladder-eligible caller (ranked now
+ *  requires ≥1 squad on defense to attack). Practice ignores the defense; it's harmless there. */
 export async function seedAttacker(): Promise<{ ctx: SessionUser; squadId: string }> {
   const ctx = await createTestUser();
   const squadId = await seedSquad(ctx.id, 0);
+  await seedSnapshot(ctx.id, 0); // fields a defense so the attacker may attack the ranked ladder
   return { ctx, squadId };
 }
 
