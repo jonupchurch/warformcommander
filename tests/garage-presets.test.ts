@@ -43,21 +43,21 @@ function stockOf(variantId: string): CatalogPreset {
 }
 
 describe('slot-layout awareness', () => {
-  it('reads a variant utility count, honoring the override (CommandPost/Sentinel = 4, others = 3)', () => {
+  it('reads a variant utility count, honoring the layout (Commander = 5, Sentinel = 4, others = 3)', () => {
     expect(utilitySlots('Grizzly', rs)).toBe(3);
     expect(utilitySlots('Medic', rs)).toBe(3);
-    expect(utilitySlots('CommandPost', rs)).toBe(4);
+    expect(utilitySlots('CommandPost', rs)).toBe(5); // now the Commander chassis (US5) — 5 slots
     expect(utilitySlots('Sentinel', rs)).toBe(4);
   });
 });
 
 describe('fitUtilities (FR-013)', () => {
   it('truncates an over-long list to the slot count — never overfills', () => {
-    const four = defaultFor('CommandPost', rs).loadout.utilities;
-    expect(four).toHaveLength(4);
-    const fit = fitUtilities(four, 3, rs);
+    const bundle = defaultFor('CommandPost', rs).loadout.utilities; // Commander stock fills its 5 slots
+    expect(bundle).toHaveLength(5);
+    const fit = fitUtilities(bundle, 3, rs);
     expect(fit).toHaveLength(3);
-    expect(fit).toEqual(four.slice(0, 3));
+    expect(fit).toEqual(bundle.slice(0, 3));
   });
 
   it('drops duplicates and stale (non-utility) ids', () => {
@@ -78,9 +78,9 @@ describe('fitUtilities (FR-013)', () => {
 });
 
 describe('fitPresetToVariant', () => {
-  it('fits a 4-utility bundle onto a 3-slot variant, preserving weapon/defense/dials/planB', () => {
-    const cfg = configFor('CommandPost'); // 4 utilities
-    const seed = fitPresetToVariant(cfg, 'Medic', rs); // Medic = 3 slots, same type
+  it('fits a wider bundle onto a 3-slot variant, preserving weapon/defense/dials/planB', () => {
+    const cfg = configFor('CommandPost'); // Commander stock — 5 utilities
+    const seed = fitPresetToVariant(cfg, 'Medic', rs); // Medic = 3 slots
     expect(seed.variantId).toBe('Medic');
     expect(seed.loadout.utilities).toHaveLength(3);
     expect(seed.loadout.weapon).toBe(cfg.loadout.weapon);
@@ -89,10 +89,10 @@ describe('fitPresetToVariant', () => {
     expect(seed.planB).toEqual(cfg.planB);
   });
 
-  it('pads a 3-utility bundle onto a 4-slot variant', () => {
+  it('pads a 3-utility bundle onto a wider-slot variant', () => {
     const cfg = configFor('Medic'); // 3 utilities
-    const seed = fitPresetToVariant(cfg, 'CommandPost', rs); // 4 slots
-    expect(seed.loadout.utilities).toHaveLength(4);
+    const seed = fitPresetToVariant(cfg, 'CommandPost', rs); // Commander = 5 slots (US5)
+    expect(seed.loadout.utilities).toHaveLength(5);
   });
 });
 
@@ -139,7 +139,7 @@ describe('apply plans', () => {
   });
 
   it('planCustomApply fits to the current variant when filled, else the type default variant', () => {
-    const cfg = configFor('CommandPost'); // 4 utilities
+    const cfg = configFor('CommandPost'); // Commander stock — 5 utilities
     const preset = { id: 'custom:1', machineTypeId: 'RearSupport' as const, config: cfg };
 
     const filled = planCustomApply(preset, 'Medic', 'Middle', rs);
@@ -224,7 +224,7 @@ describe('on-ramp fields a legal squad (SC-004) and stays legal under fitting', 
     lineup.forEach(([variant, zone], i) => {
       s = run(s, { type: 'applyPreset', slot: i as 0, ...planStockApply(stockOf(variant), zone, rs) });
     });
-    // A CommandPost (4-utility) bundle applied to the Medic (3-slot) in slot 0.
+    // A CommandPost (5-utility) bundle applied to the Medic (3-slot) in slot 0.
     const cur = s.draft.machines[0] as DraftSlot as DraftMachine;
     const preset = { id: 'custom:3', machineTypeId: 'RearSupport' as const, config: configFor('CommandPost') };
     s = run(s, { type: 'applyPreset', slot: 0, ...planCustomApply(preset, cur.variantId, cur.zone, rs) });

@@ -20,6 +20,7 @@ const ICON_KEY: Record<string, MachineTypeKey> = {
   RocketArtillery: 'rocketarty',
   Artillery: 'artillery',
   RearSupport: 'support',
+  Commander: 'support', // US5 — promoted support chassis, shares the support silhouette
 };
 
 const MACHINE_LABEL: Record<MachineTypeKey, string> = {

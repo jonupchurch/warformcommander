@@ -8,14 +8,21 @@
 
 use crate::model::ruleset::Ruleset;
 use crate::model::types::{
-    BehaviorDials, DialValue, MovementMode, PlanBSlot, TriggerCondition, ZoneId,
+    BehaviorDials, Capability, DialValue, MachineTypeId, MovementMode, PlanBSlot, TriggerCondition,
+    ZoneId,
 };
-use crate::replay::TickEvent;
+use crate::replay::{Side, TickEvent};
 
-use super::{target, Combatant, FallbackPhase};
+use super::{target, Combatant, FallbackPhase, JumpJetPhase};
 
 /// Ticks a machine holds its ducked position before turning for home (v3 US2, start-value).
 const FALLBACK_DUCK_TICKS: u16 = 10;
+
+/// Ticks a Jump-Jet machine stays airborne per leap (v3 US3-C, design §14.3 = 10). Start-values held
+/// here as consts (like `FALLBACK_DUCK_TICKS`); they move to the ruleset in the balance pass.
+const JUMP_AIR_TICKS: u16 = 10;
+/// Ticks a Jump-Jet machine cools down on the ground between leaps (design §14.3 = 10 → ~50% duty).
+const JUMP_COOLDOWN_TICKS: u16 = 10;
 
 /// The most ground machines one side may hold in a single zone (mirrors the `validate.rs` cap). A
 /// `FallBack` return only re-enters the home zone while it is below this, so a return never overfills.
@@ -29,7 +36,7 @@ pub(crate) fn apply_behavior(
     events: &mut Vec<TickEvent>,
 ) {
     latch_plan_b(combatants, tick, ruleset, events);
-    resolve_movement(combatants, ruleset, events);
+    resolve_movement(combatants, tick, ruleset, events);
 }
 
 // ---------------------------------------------------------------------------
@@ -47,10 +54,20 @@ fn latch_plan_b(
         if !combatants[i].alive || combatants[i].plan_b.is_empty() {
             continue;
         }
+        // Whether this machine's Slot-2 is live this tick (US5): its own extra slot (Combat AI / native
+        // Mech) always is; otherwise the Commander's Command grants it, but only while a friendly
+        // Commander survives. Computed each tick so a Commander's death revokes the bonus on the spot.
+        let slot2_active = combatants[i].stats.plan_b_slots >= 2
+            || commander_alive(combatants, combatants[i].unit.side);
         // Evaluate each not-yet-fired trigger against current state; latch those whose condition holds.
         let triggers = combatants[i].plan_b.clone();
         for trig in &triggers {
             if combatants[i].fired.contains(&trig.slot) {
+                continue;
+            }
+            // A Commander-granted Slot-2 can only latch while a Commander lives (its own extra slot is
+            // unconditional). Slot-1 is never gated.
+            if trig.slot == PlanBSlot::Slot2 && !slot2_active {
                 continue;
             }
             if condition_met(combatants, i, trig.condition, tick, ruleset) {
@@ -62,9 +79,14 @@ fn latch_plan_b(
                 });
             }
         }
-        // Recompute active dials from base + the fired set (Slot-2 then Slot-1 → Slot-1 wins).
-        combatants[i].dials =
-            active_dials(&combatants[i].base_dials, &triggers, &combatants[i].fired);
+        // Recompute active dials from base + the fired set (Slot-2 then Slot-1 → Slot-1 wins). A latched
+        // Slot-2 stops applying the instant its Commander dies (`slot2_active` false), reverting the dial.
+        combatants[i].dials = active_dials(
+            &combatants[i].base_dials,
+            &triggers,
+            &combatants[i].fired,
+            slot2_active,
+        );
     }
 }
 
@@ -74,9 +96,14 @@ fn active_dials(
     base: &BehaviorDials,
     triggers: &[crate::model::types::PlanBTrigger],
     fired: &std::collections::BTreeSet<PlanBSlot>,
+    slot2_active: bool,
 ) -> BehaviorDials {
     let mut dials = *base;
     for slot in [PlanBSlot::Slot2, PlanBSlot::Slot1] {
+        // A Commander-granted Slot-2 stops applying the moment its Commander dies (US5).
+        if slot == PlanBSlot::Slot2 && !slot2_active {
+            continue;
+        }
         if !fired.contains(&slot) {
             continue;
         }
@@ -87,10 +114,23 @@ fn active_dials(
     dials
 }
 
+/// Whether a living Commander (v3 US5) remains on `side`. Its **Command** grants every ally a
+/// survival-gated bonus Plan-B slot, so the extra Slot-2 latch/apply is live only while the Commander
+/// survives — assassinating it revokes the bonus on the spot, mirroring the `CommandBoost` aura. A
+/// machine with its own `ExtraPlanBSlot` (Combat AI / native Mech) never depends on this.
+fn commander_alive(combatants: &[Combatant], side: Side) -> bool {
+    combatants
+        .iter()
+        .any(|c| c.alive && c.unit.side == side && c.type_id == MachineTypeId::Commander)
+}
+
 fn apply_dial(dials: &mut BehaviorDials, value: DialValue) {
     match value {
         DialValue::Movement(v) => dials.movement = v,
         DialValue::Stance(v) => dials.stance = v,
+        // Adaptive Munitions (US3): latch a new outgoing damage type. Recomputed from base each tick, so
+        // it reverts to the weapon's own type the instant a Commander-granted Slot-2 stops applying.
+        DialValue::DamageType(t) => dials.damage_override = Some(t),
     }
 }
 
@@ -149,7 +189,7 @@ fn toward(z: ZoneId, home: ZoneId) -> ZoneId {
         Front => 2,
         Middle => 1,
         Rear => 0,
-        ZoneId::Air => return 3, // air never steps toward a ground home
+        ZoneId::Air => 3, // air never steps toward a ground home
     };
     match rank(z).cmp(&rank(home)) {
         std::cmp::Ordering::Less => forward(z),
@@ -240,7 +280,64 @@ fn fallback_intent(c: &mut Combatant, home_has_room: bool) -> ZoneId {
     }
 }
 
-fn resolve_movement(combatants: &mut [Combatant], ruleset: &Ruleset, events: &mut Vec<TickEvent>) {
+/// Advance one machine's Jump-Jet duty cycle (v3 US3-C), mutating its `zone`/`jump`/`jump_timer`
+/// directly. Returns `true` when the jump owns the machine's zone this tick — it is airborne, or just
+/// took off / landed — so the caller **skips** normal ground movement for it. Returns `false` only when
+/// the machine is grounded and cooling down, in which case it moves as usual. Runs before the move
+/// cooldown gate so a scheduled leap is never dropped; non-jumpers never reach here (gated at the call
+/// site by the `JumpJets` capability). The airborne window is fixed (`JUMP_AIR_TICKS`) and the ground
+/// cooldown (`JUMP_COOLDOWN_TICKS`) begins on landing, giving the ~50% duty cycle the design pins.
+fn resolve_jump_jets(c: &mut Combatant, events: &mut Vec<TickEvent>) -> bool {
+    match c.jump {
+        JumpJetPhase::Grounded => {
+            // Count the ground cooldown down; the tick it reaches zero, leap into the air.
+            c.jump_timer = c.jump_timer.saturating_sub(1);
+            if c.jump_timer == 0 {
+                let from = c.zone;
+                c.zone = ZoneId::Air;
+                c.jump = JumpJetPhase::Airborne;
+                c.jump_timer = JUMP_AIR_TICKS;
+                c.ticks_since_move = 0; // the leap counts as a move (brace lapses)
+                if from != ZoneId::Air {
+                    events.push(TickEvent::Move {
+                        unit: c.unit,
+                        from,
+                        to: ZoneId::Air,
+                    });
+                }
+                true
+            } else {
+                false // still grounded — resolve normal movement this tick
+            }
+        }
+        JumpJetPhase::Airborne => {
+            // Ride out the airborne window; the tick it expires, land back home and start the cooldown.
+            c.jump_timer = c.jump_timer.saturating_sub(1);
+            if c.jump_timer == 0 {
+                let from = c.zone;
+                c.zone = c.home_zone;
+                c.jump = JumpJetPhase::Grounded;
+                c.jump_timer = JUMP_COOLDOWN_TICKS;
+                c.ticks_since_move = 0; // the landing counts as a move (brace lapses)
+                if from != c.home_zone {
+                    events.push(TickEvent::Move {
+                        unit: c.unit,
+                        from,
+                        to: c.home_zone,
+                    });
+                }
+            }
+            true // airborne (or landing) — the jump owns the zone; no ordinary movement this tick
+        }
+    }
+}
+
+fn resolve_movement(
+    combatants: &mut [Combatant],
+    tick: u16,
+    ruleset: &Ruleset,
+    events: &mut Vec<TickEvent>,
+) {
     let n = combatants.len();
     // Reach probe (immutable): does each machine have an enemy in reach right now? Drives the
     // self-termination of Advance/Kite. Computed up front so the mutable step loop can borrow freely.
@@ -252,12 +349,30 @@ fn resolve_movement(combatants: &mut [Combatant], ruleset: &Ruleset, events: &mu
         if !combatants[i].alive {
             continue;
         }
+        // Stationary brace (v3 US3): age the "held position" counter every tick; a move (below, or a
+        // jump excursion) resets it. Only read for a `StationaryBrace` machine, so it is inert otherwise.
+        combatants[i].ticks_since_move = combatants[i].ticks_since_move.saturating_add(1);
+        // Jump-Jet duty cycle (v3 US3-C): a jumper's airborne excursion owns its zone, so while airborne
+        // (and on the takeoff / landing tick) it skips normal ground movement entirely. When grounded and
+        // cooling down it falls through to move as usual. Non-jumpers skip this and behave as before.
+        if combatants[i]
+            .stats
+            .capabilities
+            .contains(&Capability::JumpJets)
+            && resolve_jump_jets(&mut combatants[i], events)
+        {
+            continue;
+        }
         // Air-locked (move_speed None) and immobile (Some(0)) never move — but a FallBack order still
         // has no effect on them, so we simply skip: they cannot duck or return.
-        let speed = match combatants[i].stats.move_speed {
+        let mut speed = match combatants[i].stats.move_speed {
             Some(s) if s > 0 => s,
             _ => continue,
         };
+        if combatants[i].snared_until > tick {
+            // Snare rider (US3): halve movement while active (min 1 so it still crawls, never air-locks).
+            speed = (speed / 2).max(1);
+        }
 
         // Home-zone room for a FallBack return (own-side ground occupancy, excluding self).
         let home = combatants[i].home_zone;
@@ -294,6 +409,7 @@ fn resolve_movement(combatants: &mut [Combatant], ruleset: &Ruleset, events: &mu
         if to != from {
             combatants[i].zone = to;
             combatants[i].move_cooldown = move_interval(speed);
+            combatants[i].ticks_since_move = 0; // moved → the stationary brace lapses
             events.push(TickEvent::Move {
                 unit: combatants[i].unit,
                 from,

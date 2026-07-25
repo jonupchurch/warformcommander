@@ -97,6 +97,7 @@ pub fn seed_ruleset() -> Ruleset {
         stance_mods: StanceMods::default(),
         reactive_mods: ReactiveMods::default(),
         coordination: Coordination::default(),
+        cadence_profile: crate::model::ruleset::CadenceProfile::default(),
     }
 }
 
@@ -141,7 +142,7 @@ fn seed_machine_types(m: &mut BTreeMap<MachineTypeId, MachineType>) {
             native_family: None, // generalist — no native bonus
             home_zones: ground(),
             mount_class: MountClass::Mech,
-            slot_layout: SlotLayout::STANDARD,
+            slot_layout: SlotLayout::FOUR_UTILITY, // §14.3 the flex bruiser — 4 utility slots
             can_fire_from_rear: false,
             air_capable_by_default: false,
         },
@@ -153,7 +154,7 @@ fn seed_machine_types(m: &mut BTreeMap<MachineTypeId, MachineType>) {
             native_family: Some(DamageFamily::Explosive),
             home_zones: vec![ZoneId::Air], // air-locked
             mount_class: MountClass::Heli,
-            slot_layout: SlotLayout::STANDARD,
+            slot_layout: SlotLayout::TWO_UTILITY, // §14.4 fragile air striker — hard-commits 2 slots
             can_fire_from_rear: false,
             // A heli engages enemy air FIRST (air sorts frontmost, see sim/target.rs reach_zones) and
             // only at the non-AA "plink" rate (sim/damage.rs air_mods): it clears the skies, then turns
@@ -168,7 +169,7 @@ fn seed_machine_types(m: &mut BTreeMap<MachineTypeId, MachineType>) {
             native_family: Some(DamageFamily::Explosive),
             home_zones: ground(),
             mount_class: MountClass::RktArty,
-            slot_layout: SlotLayout::STANDARD,
+            slot_layout: SlotLayout::TWO_UTILITY, // §14.5 fragile backline (SAM) — 2 slots
             can_fire_from_rear: true,
             air_capable_by_default: true, // the SAM specialist
         },
@@ -180,7 +181,7 @@ fn seed_machine_types(m: &mut BTreeMap<MachineTypeId, MachineType>) {
             native_family: Some(DamageFamily::Explosive),
             home_zones: ground(),
             mount_class: MountClass::Artillery,
-            slot_layout: SlotLayout::STANDARD,
+            slot_layout: SlotLayout::TWO_UTILITY, // §14.5 fragile backline (bombardment) — 2 slots
             can_fire_from_rear: true,
             air_capable_by_default: false, // indirect — never targets air
         },
@@ -193,6 +194,22 @@ fn seed_machine_types(m: &mut BTreeMap<MachineTypeId, MachineType>) {
             home_zones: ground(),
             mount_class: MountClass::Support,
             slot_layout: SlotLayout::STANDARD,
+            can_fire_from_rear: false,
+            air_capable_by_default: false,
+        },
+    );
+    // The Commander (v3 US5): a no-offense projector chassis. Reuses the Support mount (its projector
+    // weapon + defenses gate to Support), native Support family (so its projector is native — no bearing
+    // on damage, which is 0), and the widest utility budget (5). Grants its army the CommandBoost aura +
+    // a survival-gated Plan-B slot while it lives (behavior.rs / validate.rs).
+    insert(
+        m,
+        MachineType {
+            id: MachineTypeId::Commander,
+            native_family: Some(DamageFamily::Support),
+            home_zones: ground(),
+            mount_class: MountClass::Support,
+            slot_layout: SlotLayout::COMMANDER,
             can_fire_from_rear: false,
             air_capable_by_default: false,
         },
@@ -220,6 +237,7 @@ fn seed_variants(
                 type_id,
                 slot_layout_override: slot_override,
                 passive_aura: aura,
+                innate_capabilities: Vec::new(),
             },
         );
         variants.insert(id, stats);
@@ -563,15 +581,20 @@ fn seed_variants(
         None,
         None,
     );
+    // The Commander (v3 US5): promoted out of RearSupport into its own `MachineTypeId::Commander`
+    // chassis (design §14.6 — a distinct class, not a support variant). Its slot budget comes from the
+    // Commander type default (5 utility), so no per-variant override is needed. Its support is now
+    // weapon-driven (the projector); the base `support_power` (inherited from `medic`) is a fallback for
+    // a non-projector loadout. `move_speed 0` keeps it the immobile backline anchor.
     add(
         "CommandPost",
-        MachineTypeId::RearSupport,
+        MachineTypeId::Commander,
         BaseStats {
             hull: q(370),
             move_speed: Some(0), // immobile
             ..medic
         },
-        Some(SlotLayout::FOUR_UTILITY),
+        None,
         Some(AuraEffect {
             // The Commander's innate Command (v3 US5): an army-wide C2 boost to every ally's outgoing
             // damage, live only while the Commander survives — so its death lifts the buff, making it
@@ -581,6 +604,27 @@ fn seed_variants(
             scope: AuraScope::AllAllies,
         }),
     );
+
+    // --- Innate chassis signatures (v3 US3-D, §14.2/§14.4: free/no-slot, all variants of the class) ---
+    // Spotter Network — the Light Tank's namesake: a zone accuracy aura for its zone allies (front scout
+    // or rear accuracy-battery for the accuracy-starved artillery/AA). Coordinated Strike — the Attack
+    // Heli's focus-fire reward: +accuracy while a zone/army ally targets the same enemy (self-scoped, so
+    // it is an innate capability, not an aura). Start-value magnitude, tunable in the balance pass.
+    for c in chassis.values_mut() {
+        match c.type_id {
+            MachineTypeId::LightTank => {
+                c.passive_aura = Some(AuraEffect {
+                    kind: AuraKind::Accuracy,
+                    magnitude: 1_000, // +10% to-hit to zone allies
+                    scope: AuraScope::ZoneAllies,
+                });
+            }
+            MachineTypeId::AttackHeli => {
+                c.innate_capabilities = vec![Capability::CoordinatedStrike];
+            }
+            _ => {}
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -592,6 +636,23 @@ fn weapon(mount: MountClass, family: DamageFamily, deltas: StatDeltas) -> Equipm
         mount_class: mount,
         family,
         stat_deltas: deltas,
+        support: None,
+    })
+}
+
+/// A Commander **projector** weapon (v3 US5): no offense, projects `kind` (Heal/Shield/Ablation) onto
+/// the whole army each tick. The weapon slot chooses what the Commander projects — the counter-pick.
+fn projector(kind: crate::replay::SupportKind) -> EquipmentSpec {
+    EquipmentSpec::Weapon(WeaponSpec {
+        mount_class: MountClass::Support,
+        family: DamageFamily::Support,
+        // No offense — a projector deals no damage; its reach/cadence are irrelevant to `resolve_support`.
+        stat_deltas: StatDeltas::default(),
+        support: Some(crate::model::types::SupportProjection {
+            power: q(5), // ~5/tick to the most-needful ally — start-value, tuned in the balance pass
+            range: SupportRange::WholeArmy,
+            kind,
+        }),
     })
 }
 
@@ -803,6 +864,127 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
             gun(CadenceTier::Medium, ReachTag::Nearest),
         ),
     );
+    // Commander projectors (v3 US5): the weapon slot picks what the Commander projects onto its army —
+    // Heal (hull), Shield (shield pool), or Ablation (a one-time ablative buffer). The counter-pick lever
+    // — swap the projector to answer the army's need, the design's "live counter-pick" (§14.6).
+    add(
+        "HealProjector",
+        "Heal Projector",
+        projector(crate::replay::SupportKind::Heal),
+    );
+    add(
+        "ShieldProjector",
+        "Shield Projector",
+        projector(crate::replay::SupportKind::ShieldBoost),
+    );
+    add(
+        "AblationProjector",
+        "Ablation Projector",
+        projector(crate::replay::SupportKind::Ablation),
+    );
+
+    // --- v3 roster fill (design D1 / §9.1): every combat chassis fields one weapon of each damage
+    // type, so the counter-web's damage-type counter-pick is expressible. Baked at parity with the
+    // live-DB hot-add (`scripts/add-v3-weapons.ts`): chassis-matched cadence + reach, damage delta 0
+    // — a pure damage-TYPE sidegrade. The trade is real via the ×1.6/×0.7 matrix (an off-family gun
+    // forgoes the +native% but can hit the matrix the right way). Untuned start values — a later
+    // measured slice gives the off-family variants their damage tradeoff. ---
+    // Heavy (native Kinetic; already had Kinetic + Energy) → + Explosive
+    add(
+        "DemolitionGun",
+        "Demolition Gun",
+        weapon(
+            MountClass::Heavy,
+            DamageFamily::Explosive,
+            gun(CadenceTier::Slow, ReachTag::Nearest),
+        ),
+    );
+    // Light (native Kinetic; had Kinetic only) → + Energy, + Explosive
+    add(
+        "ArcRepeater",
+        "Arc Repeater",
+        weapon(
+            MountClass::Light,
+            DamageFamily::Energy,
+            gun(CadenceTier::Fast, ReachTag::Nearest),
+        ),
+    );
+    add(
+        "GrenadeLauncher",
+        "Grenade Launcher",
+        weapon(
+            MountClass::Light,
+            DamageFamily::Explosive,
+            gun(CadenceTier::Fast, ReachTag::Nearest),
+        ),
+    );
+    // Mech (generalist, no native; had Kinetic + Energy) → + Explosive
+    add(
+        "MissileRack",
+        "Missile Rack",
+        weapon(
+            MountClass::Mech,
+            DamageFamily::Explosive,
+            gun(CadenceTier::Medium, ReachTag::Nearest),
+        ),
+    );
+    // Attack Heli (native Explosive; had Explosive only) → + Kinetic, + Energy
+    add(
+        "ChainGun",
+        "Chain Gun",
+        weapon(
+            MountClass::Heli,
+            DamageFamily::Kinetic,
+            gun(CadenceTier::Medium, ReachTag::AnyGround),
+        ),
+    );
+    add(
+        "BeamProjector",
+        "Beam Projector",
+        weapon(
+            MountClass::Heli,
+            DamageFamily::Energy,
+            gun(CadenceTier::Medium, ReachTag::AnyGround),
+        ),
+    );
+    // Rocket Artillery (native Explosive; had Explosive only) → + Kinetic, + Energy (ground bombardment)
+    add(
+        "FlechetteBattery",
+        "Flechette Battery",
+        weapon(
+            MountClass::RktArty,
+            DamageFamily::Kinetic,
+            gun(CadenceTier::Slow, ReachTag::AnyGround),
+        ),
+    );
+    add(
+        "LaserBattery",
+        "Laser Battery",
+        weapon(
+            MountClass::RktArty,
+            DamageFamily::Energy,
+            gun(CadenceTier::Slow, ReachTag::AnyGround),
+        ),
+    );
+    // Artillery (native Explosive; had Explosive only) → + Kinetic, + Energy
+    add(
+        "RailHowitzer",
+        "Rail Howitzer",
+        weapon(
+            MountClass::Artillery,
+            DamageFamily::Kinetic,
+            gun(CadenceTier::Siege, ReachTag::AnyGround),
+        ),
+    );
+    add(
+        "IonCannon",
+        "Ion Cannon",
+        weapon(
+            MountClass::Artillery,
+            DamageFamily::Energy,
+            gun(CadenceTier::Siege, ReachTag::AnyGround),
+        ),
+    );
 
     // --- Defenses: four families per mount, generated from one scale loop (v2) ---
     // The per-mount magnitude scaling happens at *derive* time (`mount_scale`), so every mount shares
@@ -958,6 +1140,61 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
         ),
     );
 
+    // --- Defenses: the §10 avoidance axis (v3 US1d) — survive by not-being-hit, not by mitigation.
+    // Each is "light armor + an avoidance stat", mount-gated to the chassis the §10 table assigns it.
+    // Camo = flat evasion (dodges everything, beaten by accuracy/volume/splash); Chaff = evasion vs
+    // AA/flak only (the aircraft's built-in AA answer); ECM = −2 target draw (shed fire, not dodge it).
+    // Magnitudes are start-values (tuned later). Ablative is being retired from the *offered* set at the
+    // garage-curation layer; the module + mechanic stay for back-compat and the Commander's Ablation gun.
+    let camo = |mount: MountClass| {
+        defense(
+            mount,
+            500,
+            None,
+            None,
+            StatDeltas {
+                evasion: 2_000, // +20% evasion (start-value)
+                ..Default::default()
+            },
+        )
+    };
+    let ecm_defense = |mount: MountClass| {
+        defense(
+            mount,
+            500,
+            None,
+            None,
+            StatDeltas {
+                target_draw: -2, // shed fire (mirrors the ECM utility, but in the defense slot)
+                ..Default::default()
+            },
+        )
+    };
+    // Camo net — Light Tank + the fragile backline (Rocket-Arty / Artillery), per §10.
+    add("LightCamo", "Camo Netting", camo(MountClass::Light));
+    add("RktArtyCamo", "Camo Netting", camo(MountClass::RktArty));
+    add("ArtilleryCamo", "Camo Netting", camo(MountClass::Artillery));
+    // Chaff — Attack Heli only: evasion vs AA/flak fire (design §10.1, the new conditional mechanic).
+    add(
+        "HeliChaff",
+        "Chaff Dispenser",
+        defense(
+            MountClass::Heli,
+            500,
+            None,
+            None,
+            StatDeltas {
+                evasion_vs_air: 2_500, // +25% evasion, but only vs air-directed fire
+                ..Default::default()
+            },
+        ),
+    );
+    // ECM defense — the fragile backline (AA/Artillery), Attack Heli, and the Commander/Support, per §10.
+    add("RktArtyECM", "ECM Screen", ecm_defense(MountClass::RktArty));
+    add("ArtilleryECM", "ECM Screen", ecm_defense(MountClass::Artillery));
+    add("HeliECM", "ECM Screen", ecm_defense(MountClass::Heli));
+    add("SupportECM", "ECM Screen", ecm_defense(MountClass::Support));
+
     // --- Utilities (ungated) ---
     add(
         "Autoloader",
@@ -966,6 +1203,8 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
             stat_deltas: None,
             unlocks: vec![],
             cadence_shift: 1,
+            cost: 1,
+            aura: None,
         }),
     );
     add(
@@ -995,45 +1234,15 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
             ..Default::default()
         }),
     );
-    add(
-        "CombatAI",
-        "Combat AI Core",
-        EquipmentSpec::Utility(crate::model::types::UtilitySpec {
-            stat_deltas: None,
-            unlocks: vec![Capability::ExtraPlanBSlot],
-            cadence_shift: 0,
-        }),
-    );
-    add(
-        "SensorSuite",
-        "Sensor Suite",
-        EquipmentSpec::Utility(crate::model::types::UtilitySpec {
-            stat_deltas: None,
-            unlocks: vec![Capability::TargetAir],
-            cadence_shift: 0,
-        }),
-    );
-    add(
-        "Rangefinder",
-        "Rangefinder",
-        EquipmentSpec::Utility(crate::model::types::UtilitySpec {
-            stat_deltas: None,
-            unlocks: vec![Capability::ExtendReach],
-            cadence_shift: 0,
-        }),
-    );
+    // Combat AI (§14.3 Mech signature): a bought extra Plan-B slot — the only path to a 2nd Plan-B for a
+    // non-Mech, non-Commander build (mirrors the Mech's innate ExtraPlanBSlot; validate V6). Cost 2 (§14).
+    add("CombatAI", "Combat AI Core", cap_util(2, Capability::ExtraPlanBSlot));
+    add("SensorSuite", "Sensor Suite", cap_util(1, Capability::TargetAir));
+    add("Rangefinder", "Rangefinder", cap_util(1, Capability::ExtendReach));
     // Rocket Pack (v2, US4): the Mech's air answer — full-rate anti-air (flak damage), but reach-limited
     // to the front line so dedicated AA keeps its whole-field reach advantage (FR-026/029). A utility, so
     // it costs a slot; a Mech that wants to answer aircraft trades a utility for the capability.
-    add(
-        "RocketPack",
-        "Rocket Pack",
-        EquipmentSpec::Utility(crate::model::types::UtilitySpec {
-            stat_deltas: None,
-            unlocks: vec![Capability::RocketPack],
-            cadence_shift: 0,
-        }),
-    );
+    add("RocketPack", "Rocket Pack", cap_util(1, Capability::RocketPack));
     // Decoy / Lure (v3 US3, Heavy Tank signature, design §12.4): +2 targeting draw — pull enemy fire to
     // a durable front-line anchor so the fragile backline is screened (the matched opposite of ECM).
     add(
@@ -1046,15 +1255,351 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
     );
     // Spotter / Paint (v3 US3, Light Tank signature, design §13.2): this unit's landed hits mark the
     // target so the army's further fire lands harder — a focus-fire multiplier (the Paint on-hit rider).
+    add("Spotter", "Spotter Array", cap_util(1, Capability::OnHitPaint));
+    // The other three v3 US3 on-hit riders (design §13.2/§14.3). Like Spotter, each is a pure
+    // capability-unlock utility; the effect lives in the sim (`sim/damage.rs` + the sustain/movement
+    // gates). Untuned start-values (const magnitudes in `sim/damage.rs`) — to measure + tune.
+    // EMP Ammo (§14.3): anti-sustain — the target's shields stop regenerating and it cannot be healed.
+    add("EMPAmmo", "EMP Ammo", cap_util(1, Capability::OnHitEmp));
+    // Suppressing Fire (§13.2): the hit target's own outgoing damage + accuracy are cut — degrade an
+    // alpha/burst dealer rather than out-damage it.
+    add("SuppressingFire", "Suppressing Fire", cap_util(1, Capability::OnHitSuppress));
+    // Snare Shot (§13.2): the hit target's move speed is cut — pin a kiter / backline-diver.
     add(
-        "Spotter",
-        "Spotter Array",
-        EquipmentSpec::Utility(crate::model::types::UtilitySpec {
-            stat_deltas: None,
-            unlocks: vec![Capability::OnHitPaint],
-            cadence_shift: 0,
-        }),
+        "SnareShot",
+        "Snare Shot",
+        cap_util(1, Capability::OnHitSnare),
     );
+    // Jump Jets (§14.3, the Mech signature): the machine periodically leaps into the Air for a window —
+    // full air-to-air fire + whole-battlefield reach — then lands and cools down (~50% duty). The
+    // airborne exposure (extra AA damage taken) balances the graded reach. A build-definer, so it is the
+    // cost-3 tier (design §14). The duty-cycle mechanic lives in the sim (`behavior.rs` + `damage.rs`);
+    // this item is the pure capability unlock.
+    add("JumpJets", "Jump Jets", cap_util(3, Capability::JumpJets));
+    // Stationary brace (§14): hold position → take less damage. Siege Mode (the artillery/heavy commit),
+    // Bulwark Mode (the Mech's lighter brace), Entrench (Artillery). All grant `StationaryBrace`; the
+    // magnitude difference the design pins is a balance-pass concern (one shared mechanic for now).
+    add("SiegeMode", "Siege Mode", cap_util(1, Capability::StationaryBrace));
+    add("BulwarkMode", "Bulwark Mode", cap_util(1, Capability::StationaryBrace));
+    add("Entrench", "Entrench", cap_util(1, Capability::StationaryBrace));
+    // Rally (§14.7): the anti-control counter — cleanse EMP/Suppress/Snare off allies each tick.
+    add("Rally", "Rally", cap_util(2, Capability::Rally));
+    // Ambush (§14): this machine's hits land harder against a full-health target (the alpha bonus).
+    add("Ambush", "Ambush", cap_util(2, Capability::Ambush));
+    // Adaptive Munitions (§14, the Mech flex signature): unlocks the DamageType Plan-B — switch the
+    // outgoing damage type mid-battle when a trigger fires (improvised ammo → no native bonus). A
+    // build-definer (cost 2 for now; the mechanic lives in `damage.rs`/`behavior.rs`/`validate.rs`).
+    add(
+        "AdaptiveMunitions",
+        "Adaptive Munitions",
+        cap_util(2, Capability::AdaptiveMunitions),
+    );
+    // Duelist Servos (§14): consecutive hits on the same target ramp this machine's damage (focus-fire
+    // crescendo that resets on a target switch). The ramp lives in the sim; this is the unlock.
+    add("DuelistServos", "Duelist Servos", cap_util(2, Capability::Duelist));
+    // Coordinated Strike (§14, the Heli signature): +accuracy while a zone ally targets the same enemy.
+    add(
+        "CoordinatedStrike",
+        "Coordinated Strike",
+        cap_util(2, Capability::CoordinatedStrike),
+    );
+    // Guardian Protocol (§14, the Heavy's protector): soak a share of a zone ally's incoming direct fire.
+    add(
+        "GuardianProtocol",
+        "Guardian Protocol",
+        cap_util(2, Capability::Guardian),
+    );
+
+    // --- v3 US3-D pure stat-delta class kit (§14) — counter tools that reuse existing derived stats.
+    // Saturation (§14.5 Artillery signature): max splash — punish clustered/stacked armies.
+    add(
+        "Saturation",
+        "Saturation",
+        stat_util(
+            2,
+            StatDeltas {
+                splash: 4_000, // +40% splash (start-value; clamps to the ruleset splash cap)
+                ..Default::default()
+            },
+        ),
+    );
+    // Bunker Buster (§14.5 Artillery): armor penetration — bypass armour (anti-tank / fortified).
+    add(
+        "BunkerBuster",
+        "Bunker Buster",
+        stat_util(
+            2,
+            StatDeltas {
+                penetration: 4_000, // +40% penetration (start-value)
+                ..Default::default()
+            },
+        ),
+    );
+    // Low-Heat Exhaust (§14.1 Heavy): dodge AA/missiles — evasion vs air-directed fire only, in a utility
+    // slot (distinct from the Chaff *defense*). Lets a ground platform shrug off secondary flak.
+    add(
+        "LowHeatExhaust",
+        "Low-Heat Exhaust",
+        stat_util(
+            2,
+            StatDeltas {
+                evasion_vs_air: 2_500, // +25% evasion vs air/flak (start-value)
+                ..Default::default()
+            },
+        ),
+    );
+    // Flares (§14.4 Heli): +evasion vs AA — survival kit (stacks with the Chaff defense). Cheaper, lighter.
+    add(
+        "Flares",
+        "Flares",
+        stat_util(
+            1,
+            StatDeltas {
+                evasion_vs_air: 1_500, // +15% evasion vs air/flak (start-value)
+                ..Default::default()
+            },
+        ),
+    );
+    // --- v3 US3-D utility-projected auras (§14) — a utility carries a passive aura, merged with the
+    // carrier's chassis aura. All start-value magnitudes (tuned later). The Commander's aura kit + the
+    // Heavy's Smoke screen; the enemy-debuff auras (Jammer / Comms Jammer) follow in the next section.
+    // Coordination Net (§14.6 Commander): army-wide accuracy aura.
+    add(
+        "CoordinationNet",
+        "Coordination Net",
+        aura_util(
+            1,
+            AuraEffect {
+                kind: AuraKind::Accuracy,
+                magnitude: 800, // +8% to-hit army-wide
+                scope: AuraScope::AllAllies,
+            },
+        ),
+    );
+    // Damage Boost (§14.6 Commander): allies deal more.
+    add(
+        "DamageBoost",
+        "Damage Boost",
+        aura_util(
+            2,
+            AuraEffect {
+                kind: AuraKind::DamageDealt,
+                magnitude: 1_000, // +10% army-wide outgoing damage
+                scope: AuraScope::AllAllies,
+            },
+        ),
+    );
+    // Damage Reduction (§14.6 Commander): allies take less (negative magnitude = protection, like the
+    // Commander's Shield/Ablation projection expressed as mitigation).
+    add(
+        "DamageReduction",
+        "Damage Reduction",
+        aura_util(
+            2,
+            AuraEffect {
+                kind: AuraKind::DamageTaken,
+                magnitude: -1_000, // −10% army-wide incoming damage
+                scope: AuraScope::AllAllies,
+            },
+        ),
+    );
+    // Smoke Canisters (§14.1 Heavy): a zone evasion screen for the tank + its zone allies (distinct from
+    // the common single-unit evasion — this reaches the whole row).
+    add(
+        "SmokeCanisters",
+        "Smoke Canisters",
+        aura_util(
+            2,
+            AuraEffect {
+                kind: AuraKind::Evasion,
+                magnitude: 2_000, // +20% evasion to the zone (start-value)
+                scope: AuraScope::ZoneAllies,
+            },
+        ),
+    );
+
+    // --- v3 US3-D enemy-debuff auras (§14) — the EW screens: an accuracy aura with a NEGATIVE magnitude
+    // and an ENEMY scope, so it degrades the opposing side's to-hit (read by the enemy-scope aura path).
+    // Jammer (§14.2 Light): enemies fighting in the Light's zone aim worse — an EW screen for it + allies.
+    add(
+        "Jammer",
+        "Jammer",
+        aura_util(
+            2,
+            AuraEffect {
+                kind: AuraKind::Accuracy,
+                magnitude: -1_000, // −10% to-hit to enemies in the Light's zone (start-value)
+                scope: AuraScope::ZoneEnemies,
+            },
+        ),
+    );
+    // Comms Jammer (§14.6 Commander): army-wide enemy −accuracy (disrupt their fire) — the Commander's EW.
+    add(
+        "CommsJammer",
+        "Comms Jammer",
+        aura_util(
+            2,
+            AuraEffect {
+                kind: AuraKind::Accuracy,
+                magnitude: -800, // −8% to-hit to the whole enemy army (start-value; wider scope, softer)
+                scope: AuraScope::AllEnemies,
+            },
+        ),
+    );
+
+    // --- v3 US3-D conditional-damage counters (§14) — a role counter carried as equipment: +damage vs a
+    // target category (folded into the primary hit in `damage.rs::conditional_mult`). Inert vs other roles.
+    // Air Superiority (§14.4 Heli): bonus damage vs enemy air — own the dogfight lane.
+    add(
+        "AirSuperiority",
+        "Air Superiority",
+        cap_util(2, Capability::AirSuperiority),
+    );
+    // Flanking Package (§14.2 Light): bonus damage vs the enemy rear zone — the Light's own reach.
+    add(
+        "FlankingPackage",
+        "Flanking Package",
+        cap_util(2, Capability::Flanking),
+    );
+    // Counter-Battery (§14.5 Artillery): bonus damage vs indirect-fire units (enemy artillery / rocket-arty).
+    add(
+        "CounterBattery",
+        "Counter-Battery",
+        cap_util(2, Capability::CounterBattery),
+    );
+    // SEAD (§14.4 Heli signature): bonus damage vs AA carriers — hunt the flak that answers air.
+    add("SEAD", "SEAD", cap_util(2, Capability::Sead));
+
+    // --- v3 US3-D AoE ground/air strikes (§14) — heavy splash. Splash never rolls to-hit (it auto-applies
+    // to every other in-zone enemy), so these "ignore evasion" for free; they are pure splash stat-kit.
+    // Napalm / Cluster (§14.4 Heli): heavy AoE ground strike — anti-swarm, ignores evasion.
+    add(
+        "Napalm",
+        "Napalm / Cluster",
+        stat_util(
+            2,
+            StatDeltas {
+                splash: 4_000, // +40% splash (start-value; clamps to the ruleset splash cap)
+                ..Default::default()
+            },
+        ),
+    );
+    // Flak Screen (§14.5 Rocket Arty): AoE anti-air — when the SAM targets air, its splash hits the other
+    // aircraft sharing the Air zone (same splash mechanic, contextualised by an air target).
+    add(
+        "FlakScreen",
+        "Flak Screen",
+        stat_util(
+            2,
+            StatDeltas {
+                splash: 4_000, // +40% splash (start-value)
+                ..Default::default()
+            },
+        ),
+    );
+
+    // --- v3 US3-D sustain / support augments (§14) — self-hull regen + a utility shield / projector
+    // boost. New StatDeltas fields (hull_regen / shield_cap+regen / support_power), all skip-when-zero.
+    // Field Repair (§14.1 Heavy): slow self-hull regen — outlast attrition.
+    add(
+        "FieldRepair",
+        "Field Repair",
+        stat_util(
+            2,
+            StatDeltas {
+                hull_regen: q(3), // ~3 hull/tick self-repair (start-value; EMP-blocked)
+                ..Default::default()
+            },
+        ),
+    );
+    // Repair Nanites (§14.3 Mech): self-hull regen for the durable flex bruiser.
+    add(
+        "RepairNanites",
+        "Repair Nanites",
+        stat_util(
+            2,
+            StatDeltas {
+                hull_regen: q(2), // ~2 hull/tick self-repair (start-value; EMP-blocked)
+                ..Default::default()
+            },
+        ),
+    );
+    // Extra Batteries (§14.1 Heavy): a utility shield boost — lift shield pool + regen (+shield output).
+    add(
+        "ExtraBatteries",
+        "Extra Batteries",
+        stat_util(
+            2,
+            StatDeltas {
+                shield_cap: q(40),  // +40 shield pool (start-value)
+                shield_regen: q(2), // +2 shield/tick (start-value)
+                ..Default::default()
+            },
+        ),
+    );
+    // Amplifier (§14.6 Commander): +projector output — lifts a support machine's power (inert otherwise).
+    add(
+        "Amplifier",
+        "Amplifier",
+        stat_util(
+            1,
+            StatDeltas {
+                support_power: q(2), // +2 projector power/tick (start-value)
+                ..Default::default()
+            },
+        ),
+    );
+
+    // --- v3 US3-D heavy exotics (§14) — modelled as the simplest existing mechanic that captures the
+    // intent (no entity/spawn systems). Three reuse existing hooks; three add a small contained mechanic.
+    // Overdrive (§14.3 Mech): a burst tradeoff — +damage, −defense. Pure stat-kit (glass-cannon swap).
+    add(
+        "Overdrive",
+        "Overdrive",
+        stat_util(
+            2,
+            StatDeltas {
+                damage: q(20),      // +20 damage (start-value)
+                armor_pct: -2_000,  // −20% armor (the "−defense" side of the tradeoff)
+                ..Default::default()
+            },
+        ),
+    );
+    // Alpha Strike (§14.4 Heli): big burst on the first pass — reuse the Ambush full-HP alpha (front-loads
+    // value against an undamaged target, which is exactly the opening-pass scenario).
+    add("AlphaStrike", "Alpha Strike", cap_util(2, Capability::Ambush));
+    // Target Radar (§14.2 Light): reach a backline target — reuse ExtendReach (the carrier reaches deeper;
+    // the design's army-wide-reach is simplified to the carrier's own reach, the simplest existing hook).
+    add("TargetRadar", "Target Radar", cap_util(2, Capability::ExtendReach));
+    // Multi-Targeting (§14.6 Commander): the projector hits a second ally per tick (new sim mechanic).
+    add(
+        "MultiTargeting",
+        "Multi-Targeting",
+        cap_util(2, Capability::MultiTarget),
+    );
+    // Modular Hardpoint (§14.3 Mech): a net +1 utility slot (validator grants +2 budget at cost 1).
+    add(
+        "ModularHardpoint",
+        "Modular Hardpoint",
+        cap_util(1, Capability::ExtraUtilitySlot),
+    );
+    // Broadcast Array (§14.6 Commander): the projector reaches the whole army, not just its zone.
+    add(
+        "BroadcastArray",
+        "Broadcast Array",
+        cap_util(2, Capability::Broadcast),
+    );
+}
+
+/// A capability-unlock utility with no stat deltas — the common shape for the v3 kit items.
+fn cap_util(cost: u8, cap: Capability) -> EquipmentSpec {
+    EquipmentSpec::Utility(crate::model::types::UtilitySpec {
+        stat_deltas: None,
+        unlocks: vec![cap],
+        cadence_shift: 0,
+        cost,
+        aura: None,
+    })
 }
 
 fn util_deltas(d: StatDeltas) -> EquipmentSpec {
@@ -1062,6 +1607,31 @@ fn util_deltas(d: StatDeltas) -> EquipmentSpec {
         stat_deltas: Some(d),
         unlocks: vec![],
         cadence_shift: 0,
+        cost: 1,
+        aura: None,
+    })
+}
+
+/// A pure stat-delta utility at an explicit cost tier (v3 US3-D — the §14 items whose cost is 2/3).
+fn stat_util(cost: u8, d: StatDeltas) -> EquipmentSpec {
+    EquipmentSpec::Utility(crate::model::types::UtilitySpec {
+        stat_deltas: Some(d),
+        unlocks: vec![],
+        cadence_shift: 0,
+        cost,
+        aura: None,
+    })
+}
+
+/// A utility that projects a passive **aura** while equipped (v3 US3-D, §14 — Coordination Net,
+/// Damage Boost/Reduction, Smoke Canisters). No stat deltas or unlocks of its own.
+fn aura_util(cost: u8, aura: AuraEffect) -> EquipmentSpec {
+    EquipmentSpec::Utility(crate::model::types::UtilitySpec {
+        stat_deltas: None,
+        unlocks: vec![],
+        cadence_shift: 0,
+        cost,
+        aura: Some(aura),
     })
 }
 
@@ -1099,6 +1669,9 @@ fn base_weapon_for(type_id: MachineTypeId, variant: &VariantId) -> (&'static str
         }
         MachineTypeId::Artillery => ("Howitzer", MountClass::Artillery),
         MachineTypeId::RearSupport => ("RepairBeam", MountClass::Support),
+        // The Commander's stock weapon is the Heal projector (US5); swap it for Shield/Ablation to
+        // counter-pick what the army needs.
+        MachineTypeId::Commander => ("HealProjector", MountClass::Support),
     }
 }
 
@@ -1108,6 +1681,7 @@ pub fn stock_dials() -> BehaviorDials {
         targeting: TargetingChain::DEFAULT,
         movement: MovementMode::Hold,
         stance: Stance::Neutral,
+        damage_override: None,
     }
 }
 
@@ -1163,8 +1737,8 @@ mod tests {
     #[test]
     fn seed_has_all_types_and_variants() {
         let rs = seed_ruleset();
-        assert_eq!(rs.machine_types.len(), 7, "seven machine types");
-        assert_eq!(rs.variants.len(), 21, "7 types × 3 variants");
+        assert_eq!(rs.machine_types.len(), 8, "eight machine types (Commander added, US5)");
+        assert_eq!(rs.variants.len(), 21, "21 variants across the 8 types");
         assert_eq!(rs.chassis.len(), 21);
     }
 
@@ -1219,7 +1793,7 @@ mod tests {
             (MachineTypeId::Artillery, "Marksman"),
             (MachineTypeId::RearSupport, "Medic"),
             (MachineTypeId::RearSupport, "Warden"),
-            (MachineTypeId::RearSupport, "CommandPost"),
+            (MachineTypeId::Commander, "CommandPost"), // promoted out of RearSupport (US5)
         ];
         assert_eq!(cases.len(), 21);
         for (type_id, variant) in cases {
@@ -1231,15 +1805,20 @@ mod tests {
             let m = stock_instance(&rs, type_id, variant, zone, 0);
             let e = derive_effective_stats(&m, &rs)
                 .unwrap_or_else(|err| panic!("{variant} stock build failed: {err:?}"));
-            // Sanity: a 4-utility variant actually gets 4 utilities.
-            let expected_utils = if matches!(variant, "Sentinel" | "CommandPost") {
-                4
-            } else {
-                3
-            };
+            // Sanity: the stock fill takes `min(budget, pool)` utilities — the chassis's utility budget,
+            // capped by the 4-item stock cost-1 pool. So a 2-slot Heli/Arty fills 2, a 4-slot Mech fills 4,
+            // and the Commander's 5 (CommandPost) caps at the pool's 4 (v3 US3-D per-chassis budgets).
+            const STOCK_POOL: usize = 4;
+            let budget = rs
+                .chassis
+                .get(&VariantId::new(variant))
+                .and_then(|c| c.slot_layout_override)
+                .or_else(|| rs.machine_type(type_id).map(|t| t.slot_layout))
+                .map(|s| s.utility as usize)
+                .expect("variant has a slot layout");
             assert_eq!(
                 m.loadout.utilities.len(),
-                expected_utils,
+                budget.min(STOCK_POOL),
                 "{variant} utility count"
             );
             // Air-locked helis keep move_speed None through derivation.
@@ -1262,7 +1841,8 @@ mod tests {
         m.loadout.weapon = EquipmentId::new("SiegeLaser");
         let laser = derive_effective_stats(&m, &rs).unwrap();
         assert_eq!(laser.damage_type, DamageType::Energy);
-        assert_eq!(laser.damage, q(40), "35 base + 5 laser delta");
+        // 35 base + 5 laser delta = 40, then the +10% heavy-platform bonus (D6).
+        assert_eq!(laser.damage, q(40).mul_bp(11_000), "40, +10% heavy platform");
         assert!(!laser.native_match);
     }
 

@@ -40,7 +40,13 @@ export type WireEvent =
   | { t: 'death'; u: number; k: number | null }
   | { t: 'move'; u: number; from: number; to: number }
   | { t: 'planb'; u: number; slot: 'Slot1' | 'Slot2'; dial: string }
-  | { t: 'support'; a: number; d: number; amt: number; kind: 'Heal' | 'ShieldBoost' | 'Aura' };
+  | {
+      t: 'support';
+      a: number;
+      d: number;
+      amt: number;
+      kind: 'Heal' | 'ShieldBoost' | 'Aura' | 'Ablation';
+    };
 
 export interface WireGameResult {
   winner: Side | null;

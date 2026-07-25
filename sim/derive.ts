@@ -20,6 +20,7 @@ import type { Army, Loadout, MachineInstance } from './model';
 export type DerivableMachine = Pick<MachineInstance, 'typeId' | 'variantId' | 'loadout'>;
 import {
   CAPABILITY_ORDER,
+  DEFAULT_CADENCE_PROFILE,
   DEFAULT_MOUNT_SCALE,
   mountScaleFor,
   type CadenceTier,
@@ -32,6 +33,7 @@ import {
   type ReachTag,
   type Ruleset,
   type StatDeltas,
+  type SupportRange,
   type UtilitySpec,
   type WeaponSpec,
 } from './ruleset';
@@ -105,6 +107,7 @@ interface Accum {
   damage: number;
   accuracy: number;
   evasion: number;
+  evasionVsAir: number;
   armorPct: number;
   critChance: number;
   splash: number;
@@ -113,6 +116,11 @@ interface Accum {
   targetDraw: number;
   cadence: CadenceTier;
   reach: ReachTag;
+  // v3 US3-D sustain/support deltas (Field Repair / Repair Nanites / Extra Batteries / Amplifier).
+  hullRegen: number;
+  shieldCap: number;
+  shieldRegen: number;
+  supportPower: number;
 }
 
 /** Apply one module's deltas: additive everywhere; `cadenceTier`/`reach` override when non-null. */
@@ -120,12 +128,17 @@ function applyDeltas(acc: Accum, d: StatDeltas): void {
   acc.damage += d.damage;
   acc.accuracy += d.accuracy;
   acc.evasion += d.evasion;
+  acc.evasionVsAir += d.evasionVsAir ?? 0;
   acc.armorPct += d.armorPct;
   acc.critChance += d.critChance;
   acc.splash += d.splash;
   acc.penetration += d.penetration;
   acc.moveDelta += d.moveSpeed;
   acc.targetDraw += d.targetDraw;
+  acc.hullRegen += d.hullRegen ?? 0;
+  acc.shieldCap += d.shieldCap ?? 0;
+  acc.shieldRegen += d.shieldRegen ?? 0;
+  acc.supportPower += d.supportPower ?? 0;
   if (d.cadenceTier !== null) acc.cadence = d.cadenceTier;
   if (d.reach !== null) acc.reach = d.reach;
 }
@@ -176,6 +189,7 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
     damage: base.damage,
     accuracy: base.accuracy,
     evasion: base.evasion,
+    evasionVsAir: 0, // equipment-only (Chaff); no chassis carries innate air-evasion
     armorPct: base.armorPct,
     critChance: base.critChance,
     splash: base.splash,
@@ -184,6 +198,11 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
     targetDraw: 0, // equipment-only (Decoy/ECM); no chassis carries an innate draw offset
     cadence: base.cadence,
     reach: base.reach,
+    // Sustain/support deltas are equipment-only (Field Repair / Extra Batteries / Amplifier).
+    hullRegen: 0,
+    shieldCap: 0,
+    shieldRegen: 0,
+    supportPower: 0,
   };
   const caps = new Set<Capability>();
   let cadenceShift = 0;
@@ -193,6 +212,14 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
   if (!weapon.ok) return weapon;
   applyDeltas(acc, weapon.spec.statDeltas);
   const family = weapon.spec.family;
+
+  // --- Support (v3 US5): a projector weapon drives what this machine projects (its own power/range/kind);
+  // otherwise the chassis-native support applies (the medic — always Heal). Mirrors `derive_effective_stats`
+  // in crates/engine/src/model/army.rs. A non-support machine has no support power either way.
+  const proj = weapon.spec.support;
+  const supportPower = proj ? proj.power : (base.supportPower ?? null);
+  const supportRange = proj ? proj.range : (base.supportRange ?? null);
+  const supportKind = proj ? proj.kind : 'Heal';
 
   // --- Defense (armor/shield/ablative layer + its tradeoff cost) ---
   // Defensive magnitudes scale by mount class (v2): armor %, shield pool, and ablative pool alike, so
@@ -205,8 +232,8 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
   acc.armorPct += scaleBp(defense.spec.armorPctDelta);
   applyDeltas(acc, defense.spec.tradeoff);
   const s = defense.spec.shieldDelta;
-  const shieldCap = s ? base.shieldCap + scaleBp(s.cap) : base.shieldCap;
-  const shieldRegen = s ? base.shieldRegen + s.regen : base.shieldRegen;
+  const defenseShieldCap = s ? base.shieldCap + scaleBp(s.cap) : base.shieldCap;
+  const defenseShieldRegen = s ? base.shieldRegen + s.regen : base.shieldRegen;
   const shieldDelay = s ? clamp(base.shieldDelay + s.delay, 0, U16_MAX) : base.shieldDelay;
   const ablativeCap = defense.spec.ablativeDelta ? scaleBp(defense.spec.ablativeDelta.cap) : 0;
   const specialMitigation = defense.spec.specialMitigation ?? null;
@@ -221,9 +248,38 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
     cadenceShift += util.spec.cadenceShift;
   }
 
+  // Innate chassis signatures (v3 US3-D, §14): free/no-slot capabilities the chassis carries by
+  // identity (the Heli's Coordinated Strike). Merged alongside the utility unlocks — mirrors the engine.
+  const chassis = ruleset.chassis[machine.variantId];
+  if (chassis?.innateCapabilities) {
+    for (const cap of chassis.innateCapabilities) caps.add(cap);
+  }
+
   // Native behavioural flexibility (v2, FR-025): the Mech — the sole generalist (no native family) —
   // natively carries the extra Plan-B slot other chassis buy with Combat AI. Mirrors the engine.
   if (mtype.nativeFamily === undefined) caps.add('ExtraPlanBSlot');
+
+  // v3 US1c: cadence is welded to the damage TYPE (design §D6), overriding the weapon's own tier —
+  // Energy Fast / Kinetic Medium / Explosive Slow. Heavy-platform chassis (Heavy Tank, Mech) fire one
+  // tier slower AND deal +10% (the heavy-platform bonus); Artillery fires a tier slower with no bonus.
+  // Support keeps its base. Mirrors derive_effective_stats in crates/engine/src/model/army.rs.
+  const cp = ruleset.cadenceProfile ?? DEFAULT_CADENCE_PROFILE;
+  const weldedTier =
+    family === 'Energy'
+      ? cp.energy
+      : family === 'Kinetic'
+        ? cp.kinetic
+        : family === 'Explosive'
+          ? cp.explosive
+          : undefined; // Support projects, not fires
+  if (weldedTier !== undefined) {
+    const heavyPlatform = machine.typeId === 'HeavyTank' || machine.typeId === 'Mech';
+    acc.cadence =
+      heavyPlatform || machine.typeId === 'Artillery' ? slower(weldedTier) : weldedTier;
+    if (heavyPlatform) {
+      acc.damage = Math.trunc((acc.damage * (BP_ONE + cp.heavyPlatformDmgBonus)) / BP_ONE);
+    }
+  }
 
   // Resolve cadence shifts (positive = faster, saturating at the tier ends).
   let cadence = acc.cadence;
@@ -236,6 +292,7 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
   const penetration = clamp(acc.penetration, 0, BP_ONE);
   const armorPct = clamp(acc.armorPct, 0, BP_ONE);
   const evasion = clamp(acc.evasion, 0, BP_ONE);
+  const evasionVsAir = clamp(acc.evasionVsAir, 0, BP_ONE);
 
   // Mobility: air-locked (base null) stays null; otherwise clamp the delta at zero.
   const moveSpeed = base.moveSpeed === null ? null : clamp(base.moveSpeed + acc.moveDelta, 0, U8_MAX);
@@ -252,6 +309,15 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
     (family === 'Energy' && (ruleset.airMods.energyAirDmgMult ?? 0) > 0);
   const planBSlots = 1 + (caps.has('ExtraPlanBSlot') ? 1 : 0);
 
+  // v3 US3-D sustain/support augments fold in here (mirrors `derive_effective_stats`): Extra Batteries
+  // atop the defense shield pool; Amplifier onto the projector output (inert where there is no support).
+  const shieldCap = defenseShieldCap + acc.shieldCap;
+  const shieldRegen = defenseShieldRegen + acc.shieldRegen;
+  const supportPowerFinal = supportPower !== null ? supportPower + acc.supportPower : null;
+  // Broadcast Array (§14.6): widen the projector to the whole army — only where support exists.
+  const supportRangeFinal: SupportRange | null =
+    caps.has('Broadcast') && supportRange !== null ? 'WholeArmy' : supportRange;
+
   return {
     ok: true,
     stats: {
@@ -260,6 +326,7 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
       shieldCap,
       shieldRegen,
       shieldDelay,
+      hullRegen: acc.hullRegen,
       ablativeCap,
       reactive,
       damage: Math.max(acc.damage, 0),
@@ -276,10 +343,12 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
       canTargetAir,
       moveSpeed,
       evasion,
+      evasionVsAir,
       threat: base.threat,
       targetDraw: clamp(acc.targetDraw, -128, 127),
-      supportPower: base.supportPower ?? null,
-      supportRange: base.supportRange ?? null,
+      supportPower: supportPowerFinal,
+      supportRange: supportRangeFinal,
+      supportKind,
       specialMitigation,
       capabilities: sortCapabilities(caps),
       planBSlots,

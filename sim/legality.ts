@@ -91,15 +91,22 @@ export function validateArmy(army: Army, ruleset: Ruleset): ValidationError[] {
     }
   }
 
-  // V3–V8 — per machine.
+  // V3–V8 — per machine. A living-Commander army grants every machine a survival-gated bonus Plan-B
+  // slot (US5): allowed at declaration here, gated to Commander-survival at runtime (behavior.rs).
+  const hasCommander = army.machines.some((m) => m.typeId === 'Commander');
   for (const m of army.machines) {
-    validateMachine(m, ruleset, errors);
+    validateMachine(m, ruleset, hasCommander, errors);
   }
 
   return errors;
 }
 
-function validateMachine(m: MachineInstance, ruleset: Ruleset, errors: ValidationError[]): void {
+function validateMachine(
+  m: MachineInstance,
+  ruleset: Ruleset,
+  armyHasCommander: boolean,
+  errors: ValidationError[],
+): void {
   const id = m.instanceId;
   const mtype = ruleset.machineTypes[m.typeId];
   if (!mtype) {
@@ -128,19 +135,37 @@ function validateMachine(m: MachineInstance, ruleset: Ruleset, errors: Validatio
   }
   const stats = derived.stats;
 
-  // V6 — Plan-B count + Slot-2 gating.
-  if (m.planB.length > stats.planBSlots) {
+  // V6 — Plan-B count + Slot-2 gating. A friendly Commander in the roster grants a survival-gated bonus
+  // slot (US5), allowed at declaration and capped at the two real slots; it fires only while the
+  // Commander lives (runtime gate in behavior.rs). Combat AI still grants its own 2nd slot.
+  const effectiveSlots = Math.min(stats.planBSlots + (armyHasCommander ? 1 : 0), 2);
+  if (m.planB.length > effectiveSlots) {
     errors.push(
       machineError(
         'PlanB',
         id,
-        `${m.planB.length} Plan-B triggers exceed the ${stats.planBSlots} available slots (Combat AI grants a 2nd)`,
+        `${m.planB.length} Plan-B triggers exceed the ${effectiveSlots} available slots (Combat AI or a Commander grants a 2nd)`,
       ),
     );
   }
-  if (stats.planBSlots < 2 && m.planB.some((t) => t.slot === 'Slot2')) {
+  if (effectiveSlots < 2 && m.planB.some((t) => t.slot === 'Slot2')) {
     errors.push(
-      machineError('PlanB', id, 'a Slot-2 Plan-B trigger requires the Combat-AI capability'),
+      machineError(
+        'PlanB',
+        id,
+        'a Slot-2 Plan-B trigger requires the Combat-AI capability or a friendly Commander',
+      ),
+    );
+  }
+
+  // V7 (v3 US3): dial options are ungated, but a DamageType Plan-B (Adaptive Munitions) is
+  // capability-gated — only a machine carrying `AdaptiveMunitions` may switch its outgoing damage type.
+  if (
+    m.planB.some((t) => 'DamageType' in t.planBValue) &&
+    !stats.capabilities.includes('AdaptiveMunitions')
+  ) {
+    errors.push(
+      machineError('DialGating', id, 'a DamageType Plan-B requires the Adaptive Munitions capability'),
     );
   }
 
@@ -197,12 +222,19 @@ function validateUtilities(
 ): void {
   const id = m.instanceId;
   const utils = m.loadout.utilities;
-  if (utils.length !== slots.utility) {
+  // v3 US3-A economy: sum each utility's slot cost (default 1); legal while it does not exceed the
+  // chassis's utility budget (`slots.utility`). Under-spending is allowed. Mirrors validate.rs.
+  let spent = 0;
+  for (const u of utils) {
+    const mod = ruleset.equipment[u];
+    if (mod && mod.kind === 'Utility') spent += mod.cost ?? 1;
+  }
+  if (spent > slots.utility) {
     errors.push(
       machineError(
         'Utilities',
         id,
-        `${utils.length} utilities equipped; the slot layout allows ${slots.utility}`,
+        `utilities cost ${spent} of a ${slots.utility}-point utility budget`,
       ),
     );
   }

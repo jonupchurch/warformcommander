@@ -12,13 +12,56 @@ use crate::model::types::{
 use crate::replay::{DamageLayer, TickEvent, UnitRef};
 use crate::rng::Rng;
 
-use super::{AttackProfile, Combatant};
+use super::{target, AttackProfile, Combatant, JumpJetPhase};
 
 /// Paint on-hit rider (v3 US3, design §13.2): extra incoming damage a **painted** target takes, and
 /// how long the mark lasts. Start-values held as consts here (like the targeting armour threshold);
 /// they move to the ruleset in the balance pass.
 const PAINT_TAKEN_BONUS: Bp = 2_500; // +25% damage taken while painted
 const PAINT_DURATION_TICKS: u16 = 30;
+
+// The other three v3 US3 on-hit riders (design §13.2/§14.3). Start-values held as consts like Paint;
+// they move to the ruleset in the balance pass. Durations mirror Paint (30t) unless the design pins one.
+const EMP_DURATION_TICKS: u16 = 30; // anti-sustain: no shield regen / no heals while EMP'd (§14.3)
+const SUPPRESS_OUTPUT_MULT: Bp = 7_500; // a suppressed unit deals ×0.75 damage
+const SUPPRESS_ACC_PENALTY: Bp = 1_000; // ...and −10% accuracy (bp, subtracted)
+const SUPPRESS_DURATION_TICKS: u16 = 30;
+const SNARE_DURATION_TICKS: u16 = 30;
+
+/// Extra incoming damage a **Jump-Jet machine takes while airborne** (v3 US3-C, design §14.3): the risk
+/// half of the graded-reach leap — whole-battlefield reach + full air-to-air is paid for by exposure as
+/// an AA target. Start-value const (moves to the ruleset in the balance pass).
+const JUMP_AIR_EXPOSURE_BONUS: Bp = 5_000; // +50% damage taken while airborne (×1.5)
+
+/// Stationary brace (v3 US3, Siege / Bulwark / Entrench): ticks a machine must hold its position before
+/// the brace engages, and the incoming-damage multiplier it then enjoys. Start-values (→ ruleset later).
+const BRACE_SETTLE_TICKS: u16 = 5;
+const BRACE_TAKEN_MULT: Bp = 8_000; // ×0.8 damage taken (−20%) while braced
+
+/// Ambush (v3 US3): extra damage a **full-health** target takes from an ambush attacker — the alpha
+/// bonus that fades the instant the target is dented. Start-value.
+const AMBUSH_FULL_HP_BONUS: Bp = 5_000; // +50% vs a target still at full hull
+
+/// Duelist Servos (v3 US3): each consecutive hit on the **same** target adds this much outgoing damage,
+/// up to the stack cap (so a focused duel ramps to `+PER_STACK × CAP`). Reset when the target changes.
+/// Start-values (→ ruleset in the balance pass).
+const DUELIST_RAMP_PER_STACK: Bp = 1_000; // +10% per consecutive same-target hit
+const DUELIST_RAMP_CAP: u16 = 10; // ...capped at +100%
+
+/// Coordinated Strike (v3 US3, Heli): the accuracy bonus (bp, added to to-hit) while a zone ally
+/// independently targets the same enemy. Inert without the capability. Start-value.
+const COORDINATED_STRIKE_ACC_BONUS: Bp = 1_000; // +10% to-hit when focus-firing with an ally
+
+/// Guardian Protocol (v3 US3, Heavy): the share (bp) of direct-fire damage aimed at a zone ally that a
+/// living Guardian intercepts onto itself. `0` (no guardian) leaves the aimed target's math untouched.
+/// Start-value (→ ruleset in the balance pass).
+const GUARDIAN_REDIRECT: Bp = 3_000; // 30% of the aimed target's incoming is soaked by the guardian
+
+/// Conditional-damage counters (v3 US3, design §14: Air Superiority / Flanking / Counter-Battery / SEAD):
+/// the primary-hit damage bonus (bp) an attacker gets when the target matches the carried counter's role
+/// condition. One shared start-value for all four (→ split per-counter into the ruleset in the balance
+/// pass). Inert unless the attacker carries the matching capability, so the stock field is untouched.
+const CONDITIONAL_DAMAGE_BONUS: Bp = 5_000; // +50% vs the countered role
 
 /// The incoming-damage multiplier from an active Paint mark (`BP_ONE` when the target is not painted).
 fn paint_mult(target: &Combatant, tick: u16) -> Bp {
@@ -38,10 +81,12 @@ fn aura_mult(combatants: &[Combatant], subject_idx: usize, kinds: &[AuraKind]) -
     let zone = combatants[subject_idx].zone;
     let mut mult = BP_ONE;
     for c in combatants.iter().filter(|c| c.alive && c.unit.side == side) {
-        if let Some(a) = c.passive_aura {
+        for a in &c.auras {
             let in_scope = match a.scope {
                 AuraScope::AllAllies => true,
                 AuraScope::ZoneAllies => c.zone == zone,
+                // Enemy scopes never reach a same-side subject through the ally aggregator.
+                AuraScope::ZoneEnemies | AuraScope::AllEnemies => false,
             };
             if in_scope && kinds.contains(&a.kind) {
                 // Compose bp multipliers: (mult × (1 + magnitude)) at bp scale, widened to avoid overflow.
@@ -52,13 +97,144 @@ fn aura_mult(combatants: &[Combatant], subject_idx: usize, kinds: &[AuraKind]) -
     mult
 }
 
+/// Sum of the `magnitude`s (bp) from every **living** same-side machine whose passive aura matches
+/// `kind` and whose scope reaches `subject_idx`'s zone (v3). Additive companion to [`aura_mult`] — for
+/// auras applied as a flat delta (the Spotter Network accuracy aura) rather than a multiplier. `0` when
+/// no such aura is in scope, so it is inert for a field with no accuracy aura.
+fn aura_add(combatants: &[Combatant], subject_idx: usize, kind: AuraKind) -> Bp {
+    let side = combatants[subject_idx].unit.side;
+    let zone = combatants[subject_idx].zone;
+    let mut total = 0;
+    for c in combatants.iter().filter(|c| c.alive && c.unit.side == side) {
+        for a in &c.auras {
+            let in_scope = match a.scope {
+                AuraScope::AllAllies => true,
+                AuraScope::ZoneAllies => c.zone == zone,
+                // Enemy scopes never reach a same-side subject through the ally aggregator.
+                AuraScope::ZoneEnemies | AuraScope::AllEnemies => false,
+            };
+            if in_scope && a.kind == kind {
+                total += a.magnitude;
+            }
+        }
+    }
+    total
+}
+
+/// Sum of the `magnitude`s (bp) from every **living ENEMY** machine whose aura matches `kind` and whose
+/// **enemy scope** reaches `subject_idx` (v3 US3, the Jammer / Comms Jammer −accuracy debuffs). The enemy
+/// mirror of [`aura_add`]: it scans the *opposing* side and honours only [`AuraScope::ZoneEnemies`] /
+/// [`AuraScope::AllEnemies`], so ally-scoped auras are inert here just as enemy-scoped auras are inert in
+/// [`aura_add`]. `0` when no such aura is in scope — inert for a field with no enemy-scope auras.
+fn enemy_aura_add(combatants: &[Combatant], subject_idx: usize, kind: AuraKind) -> Bp {
+    let side = combatants[subject_idx].unit.side;
+    let zone = combatants[subject_idx].zone;
+    let mut total = 0;
+    for c in combatants.iter().filter(|c| c.alive && c.unit.side != side) {
+        for a in &c.auras {
+            let in_scope = match a.scope {
+                AuraScope::AllEnemies => true,
+                AuraScope::ZoneEnemies => c.zone == zone,
+                // Ally scopes never reach an enemy subject through the enemy aggregator.
+                AuraScope::AllAllies | AuraScope::ZoneAllies => false,
+            };
+            if in_scope && a.kind == kind {
+                total += a.magnitude;
+            }
+        }
+    }
+    total
+}
+
+/// The incoming-damage multiplier from a **settled stationary brace** (v3 US3): a `StationaryBrace`
+/// machine that has held its position past the settle threshold takes reduced damage. `BP_ONE` for
+/// anything not bracing (or not yet settled) — so it is inert for the stock field.
+fn brace_mult(target: &Combatant) -> Bp {
+    if target
+        .stats
+        .capabilities
+        .contains(&Capability::StationaryBrace)
+        && target.ticks_since_move >= BRACE_SETTLE_TICKS
+    {
+        BRACE_TAKEN_MULT
+    } else {
+        BP_ONE
+    }
+}
+
+/// Advance the **Duelist Servos** ramp (v3 US3) for `att` firing at `target`, returning the outgoing
+/// damage multiplier. A `Duelist` machine's consecutive hits on the *same* target ramp up to the cap;
+/// a new target resets the crescendo. For a non-Duelist attacker this is `BP_ONE` and touches no state,
+/// so the stock damage pipeline is byte-identical. Called once per landed hit (misses don't ramp).
+fn duelist_ramp(att: &mut Combatant, target: UnitRef) -> Bp {
+    if !att.stats.capabilities.contains(&Capability::Duelist) {
+        return BP_ONE;
+    }
+    if att.last_target == Some(target) {
+        att.ramp_stacks = (att.ramp_stacks + 1).min(DUELIST_RAMP_CAP);
+    } else {
+        att.last_target = Some(target);
+        att.ramp_stacks = 0;
+    }
+    BP_ONE + DUELIST_RAMP_PER_STACK.saturating_mul(att.ramp_stacks as Bp)
+}
+
+/// Whether a **living zone/army ally** of `att_idx` independently targets the same enemy as `target_idx`
+/// (v3 US3 Coordinated Strike). Uses a **read-only** targeting probe (`air_focus: None`) so it neither
+/// consumes the tick's anti-air budget nor draws RNG — a pure function of current state. Support
+/// machines don't fire, so they never count as co-targeting.
+fn ally_co_targets(
+    combatants: &[Combatant],
+    att_idx: usize,
+    target_idx: usize,
+    ruleset: &Ruleset,
+) -> bool {
+    let side = combatants[att_idx].unit.side;
+    let target_ref = combatants[target_idx].unit;
+    (0..combatants.len()).any(|j| {
+        j != att_idx
+            && combatants[j].alive
+            && combatants[j].unit.side == side
+            && combatants[j].stats.family != DamageFamily::Support
+            && target::select_target(combatants, j, ruleset, None)
+                .is_some_and(|t| combatants[t].unit == target_ref)
+    })
+}
+
+/// The **Guardian** (v3 US3) that would intercept fire aimed at `target_idx`, if any: a living same-side
+/// ally sharing the target's zone that carries `Capability::Guardian`. Deterministic — the lowest
+/// `instance_id` among candidates. `None` (the stock case) means no redirect, so the aimed target's
+/// damage math is untouched. A guardian never guards itself (`j != target_idx`).
+fn guardian_for(combatants: &[Combatant], target_idx: usize) -> Option<usize> {
+    let side = combatants[target_idx].unit.side;
+    let zone = combatants[target_idx].zone;
+    (0..combatants.len())
+        .filter(|&j| {
+            j != target_idx
+                && combatants[j].alive
+                && combatants[j].unit.side == side
+                && combatants[j].zone == zone
+                && combatants[j]
+                    .stats
+                    .capabilities
+                    .contains(&Capability::Guardian)
+        })
+        .min_by_key(|&j| combatants[j].unit.instance_id)
+}
+
 /// Build the `Copy` attack profile from the attacker's current effective stats.
 fn profile(att: &Combatant) -> AttackProfile {
+    // Adaptive Munitions (v3 US3): a latched damage-type override replaces the weapon's own type and
+    // drops the native-match bonus (improvised ammo). `None` in every stock build → byte-identical.
+    let (damage_type, native_match) = match att.dials.damage_override {
+        Some(t) => (t, false),
+        None => (att.stats.damage_type, att.stats.native_match),
+    };
     AttackProfile {
         actor: att.unit,
         damage: att.stats.damage,
-        damage_type: att.stats.damage_type,
-        native_match: att.stats.native_match,
+        damage_type,
+        native_match,
         crit_chance: att.stats.crit_chance,
         crit_mult: att.stats.crit_mult,
         accuracy: att.stats.accuracy,
@@ -67,6 +243,18 @@ fn profile(att: &Combatant) -> AttackProfile {
         reach: att.stats.reach,
         anti_air: att.stats.capabilities.contains(&Capability::AntiAir),
         rocket_pack: att.stats.capabilities.contains(&Capability::RocketPack),
+        jumped: att.jump == JumpJetPhase::Airborne,
+    }
+}
+
+/// The incoming-damage multiplier for a **Jump-Jet machine airborne** (v3 US3-C): it is an exposed AA
+/// target and takes extra damage until it lands. `BP_ONE` for anything grounded or not jumping — so a
+/// stock target's damage math is byte-identical.
+fn jump_exposure(target: &Combatant) -> Bp {
+    if target.jump == JumpJetPhase::Airborne {
+        BP_ONE + JUMP_AIR_EXPOSURE_BONUS
+    } else {
+        BP_ONE
     }
 }
 
@@ -127,6 +315,36 @@ fn role_mult(ruleset: &Ruleset, attacker: MachineTypeId, target: MachineTypeId) 
         .unwrap_or(BP_ONE)
 }
 
+/// The **conditional-damage counter** multiplier (v3 US3, §14) for one primary hit: each counter the
+/// attacker carries adds [`CONDITIONAL_DAMAGE_BONUS`] when the `target` matches its role condition —
+/// Air Superiority vs an air target, Flanking vs the rear zone, Counter-Battery vs an indirect-fire
+/// (`AnyGround`) target, SEAD vs an [`AntiAir`] carrier. The rare multi-counter case stacks additively.
+/// `BP_ONE` when the attacker carries none / the target matches none — so a stock hit is byte-identical.
+///
+/// [`AntiAir`]: Capability::AntiAir
+fn conditional_mult(
+    air_sup: bool,
+    flanking: bool,
+    counter_battery: bool,
+    sead: bool,
+    target: &Combatant,
+) -> Bp {
+    let mut bonus = 0;
+    if air_sup && target.zone == ZoneId::Air {
+        bonus += CONDITIONAL_DAMAGE_BONUS;
+    }
+    if flanking && target.zone == ZoneId::Rear {
+        bonus += CONDITIONAL_DAMAGE_BONUS;
+    }
+    if counter_battery && target.stats.reach == ReachTag::AnyGround {
+        bonus += CONDITIONAL_DAMAGE_BONUS;
+    }
+    if sead && target.stats.capabilities.contains(&Capability::AntiAir) {
+        bonus += CONDITIONAL_DAMAGE_BONUS;
+    }
+    BP_ONE + bonus
+}
+
 /// Resolve one attacker's shot against `target_idx`, mutating the target(s) and pushing events.
 /// Consumes RNG in a fixed order regardless of the miss/hit branch structure (still deterministic).
 pub(crate) fn resolve_attack(
@@ -149,11 +367,21 @@ pub(crate) fn resolve_attack(
     // adjusts its outgoing output + accuracy, each target's stance its incoming damage + evasion.
     let att_stance = combatants[att_idx].dials.stance;
     let sm = &ruleset.stance_mods;
-    // Whether this attacker carries the Paint on-hit rider (v3 US3) — captured before any mutation.
-    let att_paints = combatants[att_idx]
-        .stats
-        .capabilities
-        .contains(&Capability::OnHitPaint);
+    // Which on-hit riders this attacker carries (v3 US3) — captured before any mutation.
+    let caps = &combatants[att_idx].stats.capabilities;
+    let att_paints = caps.contains(&Capability::OnHitPaint);
+    let att_emps = caps.contains(&Capability::OnHitEmp);
+    let att_suppresses = caps.contains(&Capability::OnHitSuppress);
+    let att_snares = caps.contains(&Capability::OnHitSnare);
+    let att_ambushes = caps.contains(&Capability::Ambush); // +damage vs a full-health target (US3)
+    // Conditional-damage counters (US3, §14) — captured before any mutation; each adds a primary-hit
+    // bonus when the target matches its role condition (inert otherwise, so the stock field is untouched).
+    let att_air_sup = caps.contains(&Capability::AirSuperiority); // vs air
+    let att_flanking = caps.contains(&Capability::Flanking); // vs the rear zone
+    let att_counter_battery = caps.contains(&Capability::CounterBattery); // vs indirect (AnyGround reach)
+    let att_sead = caps.contains(&Capability::Sead); // vs an AA carrier
+    // Is THIS attacker itself currently suppressed? (a Suppress rider cut its own output + accuracy).
+    let att_suppressed = combatants[att_idx].suppressed_until > tick;
 
     // --- Hit chance: accuracy − evasion, with off-domain modifiers, clamped. ---
     // `domain_mult` scales damage for a weapon firing outside its element: AA vs air gets the bonus;
@@ -161,9 +389,33 @@ pub(crate) fn resolve_attack(
     // are clear takes the plink *accuracy* penalty but its own `sam_ground` damage multiplier — so
     // air-to-air lethality and ground suppression tune independently. Same-domain fire is BP_ONE.
     let mut acc = prof.accuracy + sm.accuracy_add(att_stance);
+    if att_suppressed {
+        acc -= SUPPRESS_ACC_PENALTY; // Suppress rider (US3): the suppressed attacker aims worse
+    }
+    // Spotter Network (US3): a same-zone/army accuracy aura lifts this attacker's to-hit (inert with none).
+    acc += aura_add(combatants, att_idx, AuraKind::Accuracy);
+    // Jammer / Comms Jammer (US3): an enemy-scope accuracy aura (negative magnitude) degrades this
+    // attacker's to-hit — the EW debuff. Inert when no enemy fields one.
+    acc += enemy_aura_add(combatants, att_idx, AuraKind::Accuracy);
+    // Coordinated Strike (US3, Heli): +to-hit while a zone ally independently targets the same enemy —
+    // a focus-fire reward. Read-only targeting probe (no air-budget/RNG side effects); inert without it.
+    if combatants[att_idx]
+        .stats
+        .capabilities
+        .contains(&Capability::CoordinatedStrike)
+        && ally_co_targets(combatants, att_idx, target_idx, ruleset)
+    {
+        acc += COORDINATED_STRIKE_ACC_BONUS;
+    }
     let mut domain_mult = BP_ONE;
     if target_air {
-        if prof.reach == ReachTag::Air {
+        if prof.jumped {
+            // Jump-Jet attacker fighting from the air (v3 US3-C): full air-to-air — no plink penalty,
+            // its own damage rate (neither the SAM's flak bonus nor the plink cut), accurate enough to be
+            // a real air answer. Checked first so a jumped Mech dogfights regardless of its weapon family.
+            acc += ruleset.air_mods.aa_acc_bonus;
+            domain_mult = BP_ONE;
+        } else if prof.reach == ReachTag::Air {
             acc += ruleset.air_mods.aa_acc_bonus; // AA bonus
             domain_mult = ruleset.air_mods.aa_dmg_mult;
         } else if prof.anti_air || prof.rocket_pack {
@@ -187,8 +439,16 @@ pub(crate) fn resolve_attack(
         acc += ruleset.air_mods.plink_acc_penalty;
         domain_mult = ruleset.air_mods.sam_ground_dmg_mult;
     }
-    let target_evasion = combatants[target_idx].stats.evasion
-        + sm.evasion_add(combatants[target_idx].dials.stance);
+    let mut target_evasion = combatants[target_idx].stats.evasion
+        + sm.evasion_add(combatants[target_idx].dials.stance)
+        // Smoke Canisters (US3-D): a same-zone/army evasion aura raises this target's dodge (inert with none).
+        + aura_add(combatants, target_idx, AuraKind::Evasion);
+    if target_air {
+        // Chaff (v3 US1d): the aircraft's air-only evasion counts vs this air-directed shot (AA / flak /
+        // plink) — never vs ground fire, so it is dead weight the instant the unit isn't being shot at
+        // as air. A dedicated high-accuracy AA (SAM) still connects; casual flak whiffs (accuracy math).
+        target_evasion += combatants[target_idx].stats.evasion_vs_air;
+    }
     let hit_chance = (acc - target_evasion).clamp(g.hit_clamp_min, g.hit_clamp_max);
 
     let target_ref = combatants[target_idx].unit;
@@ -214,6 +474,9 @@ pub(crate) fn resolve_attack(
     d0 = d0.mul_bp(domain_mult); // BP_ONE for ordinary same-domain fire
     d0 = d0.mul_bp(BP_ONE + variance);
     d0 = d0.mul_bp(sm.output_mult(att_stance)); // stance output (applies to splash too, via d0)
+    if att_suppressed {
+        d0 = d0.mul_bp(SUPPRESS_OUTPUT_MULT); // Suppress rider (US3): the suppressed attacker hits softer
+    }
     // Army C2 boost (US5): a living Commander lifts every ally's outgoing damage; folded into d0 so it
     // reaches splash too, and gone the tick the Commander dies (aura reads only living sources).
     d0 = d0.mul_bp(aura_mult(
@@ -233,13 +496,50 @@ pub(crate) fn resolve_attack(
     // Reactive plating reads the target's absorbed history *before* this hit, then the hull damage this
     // hit deals is folded back into that history below.
     let reactive = reactive_mult(&combatants[target_idx], prof.damage_type, ruleset);
+    // A Jump-Jet target caught airborne takes extra damage — the exposure that pays for its reach (US3-C).
+    let exposure = jump_exposure(&combatants[target_idx]);
+    // A settled stationary-brace target takes less (US3); an Ambush attacker hits a full-HP target harder.
+    let brace = brace_mult(&combatants[target_idx]);
+    let ambush = if att_ambushes && combatants[target_idx].hull >= combatants[target_idx].max_hull {
+        BP_ONE + AMBUSH_FULL_HP_BONUS
+    } else {
+        BP_ONE
+    };
+    // Conditional-damage counters (US3, §14): +damage when the target matches a carried counter's role
+    // (Air Superiority / Flanking / Counter-Battery / SEAD). BP_ONE for the stock field (no counter).
+    let conditional = conditional_mult(
+        att_air_sup,
+        att_flanking,
+        att_counter_battery,
+        att_sead,
+        &combatants[target_idx],
+    );
+    // Duelist Servos (US3): consecutive hits on the same target ramp this attacker's output (primary hit
+    // only — a focus-fire duel, not collateral). Mutates the attacker's ramp state; `att_idx != target_idx`
+    // (an attacker never targets its own side) so this never aliases the target borrow below.
+    let duelist = duelist_ramp(&mut combatants[att_idx], target_ref);
+    // Guardian Protocol (US3): a living zone ally carrying Guardian soaks a share of this shot, so the
+    // aimed target takes only `1 − redirect`. `redirect == 0` (no guardian) leaves the primary math
+    // byte-identical; the redirected share is resolved as the guardian's own hit after this one.
+    let guardian = guardian_for(combatants, target_idx);
+    let redirect: Bp = if guardian.is_some() {
+        GUARDIAN_REDIRECT
+    } else {
+        0
+    };
     let (sh, ab, hu, died) = apply_damage(
         &mut combatants[target_idx],
         d0.mul_bp(role_mult(ruleset, att_type, target_type))
             .mul_bp(taken)
             .mul_bp(taken_aura)
             .mul_bp(paint)
-            .mul_bp(reactive),
+            .mul_bp(reactive)
+            .mul_bp(exposure)
+            .mul_bp(brace)
+            .mul_bp(ambush)
+            .mul_bp(conditional)
+            .mul_bp(duelist)
+            .mul_bp(BP_ONE - redirect),
         prof.damage_type,
         prof.penetration,
         save,
@@ -247,10 +547,21 @@ pub(crate) fn resolve_attack(
     );
     absorb_family(&mut combatants[target_idx], prof.damage_type, hu);
     emit_hit(events, prof.actor, target_ref, sh, ab, hu, crit, false);
-    // Paint the aimed target after this hit lands (so the painting shot itself doesn't self-benefit);
-    // the mark amplifies further fire on it until it expires.
-    if att_paints && !died {
-        combatants[target_idx].painted_until = tick.saturating_add(PAINT_DURATION_TICKS);
+    // Apply on-hit riders to the aimed target after this hit lands (so the applying shot itself doesn't
+    // self-benefit); each marks the target until its own rider expires. Skipped on a killing blow.
+    if !died {
+        if att_paints {
+            combatants[target_idx].painted_until = tick.saturating_add(PAINT_DURATION_TICKS);
+        }
+        if att_emps {
+            combatants[target_idx].emp_until = tick.saturating_add(EMP_DURATION_TICKS);
+        }
+        if att_suppresses {
+            combatants[target_idx].suppressed_until = tick.saturating_add(SUPPRESS_DURATION_TICKS);
+        }
+        if att_snares {
+            combatants[target_idx].snared_until = tick.saturating_add(SNARE_DURATION_TICKS);
+        }
     }
     let mut dealt = sh.saturating_add(ab).saturating_add(hu);
     if died {
@@ -259,6 +570,46 @@ pub(crate) fn resolve_attack(
             unit: target_ref,
             killer: Some(prof.actor),
         });
+    }
+
+    // --- Guardian redirect (US3): resolve the intercepted share as the guardian's own hit, through its
+    // own mitigation + zone multipliers (mirrors the splash path). Only when a guardian intercepted, so
+    // the stock stream (no guardian) draws no extra RNG and emits no extra events — byte-identical. ---
+    if let Some(gj) = guardian {
+        let gunit = combatants[gj].unit;
+        let mut gd0 = d0
+            .mul_bp(redirect)
+            .mul_bp(role_mult(ruleset, att_type, combatants[gj].type_id))
+            .mul_bp(sm.taken_mult(combatants[gj].dials.stance))
+            .mul_bp(aura_mult(combatants, gj, &[AuraKind::DamageTaken]))
+            .mul_bp(paint_mult(&combatants[gj], tick))
+            .mul_bp(jump_exposure(&combatants[gj]))
+            .mul_bp(brace_mult(&combatants[gj]));
+        if let Some(m) = combatants[gj].stats.special_mitigation {
+            if m.against == prof.damage_type {
+                gd0 = gd0.mul_bp(m.splash_taken_mult);
+            }
+        }
+        let gsave = roll_ablative_save(&combatants[gj], ruleset, rng);
+        let greactive = reactive_mult(&combatants[gj], prof.damage_type, ruleset);
+        let (gs, ga, gh, gdied) = apply_damage(
+            &mut combatants[gj],
+            gd0.mul_bp(greactive),
+            prof.damage_type,
+            prof.penetration,
+            gsave,
+            ruleset,
+        );
+        absorb_family(&mut combatants[gj], prof.damage_type, gh);
+        emit_hit(events, prof.actor, gunit, gs, ga, gh, false, true);
+        dealt = dealt.saturating_add(gs).saturating_add(ga).saturating_add(gh);
+        if gdied {
+            kill(&mut combatants[gj], tick);
+            events.push(TickEvent::Death {
+                unit: gunit,
+                killer: Some(prof.actor),
+            });
+        }
     }
 
     // --- Splash: a reduced hit on OTHER enemies in the target's zone (≤ cap). ---
@@ -280,7 +631,9 @@ pub(crate) fn resolve_attack(
                 .mul_bp(role_mult(ruleset, att_type, combatants[j].type_id))
                 .mul_bp(sm.taken_mult(combatants[j].dials.stance))
                 .mul_bp(aura_mult(combatants, j, &[AuraKind::DamageTaken]))
-                .mul_bp(paint_mult(&combatants[j], tick));
+                .mul_bp(paint_mult(&combatants[j], tick))
+                .mul_bp(jump_exposure(&combatants[j]))
+                .mul_bp(brace_mult(&combatants[j]));
             if let Some(m) = combatants[j].stats.special_mitigation {
                 if m.against == prof.damage_type {
                     sd0 = sd0.mul_bp(m.splash_taken_mult);

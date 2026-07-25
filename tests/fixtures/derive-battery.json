@@ -12,11 +12,13 @@
           "capabilities": [],
           "critChance": 500,
           "critMult": 15000,
-          "damage": 35000,
+          "damage": 38500,
           "damageType": "Kinetic",
           "evasion": 200,
+          "evasionVsAir": 0,
           "family": "Kinetic",
           "hull": 1479000,
+          "hullRegen": 0,
           "moveSpeed": 4,
           "nativeMatch": true,
           "penetration": 0,
@@ -28,6 +30,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -71,11 +74,13 @@
           "capabilities": [],
           "critChance": 500,
           "critMult": 15000,
-          "damage": 40000,
+          "damage": 44000,
           "damageType": "Kinetic",
           "evasion": 500,
+          "evasionVsAir": 0,
           "family": "Kinetic",
           "hull": 1183000,
+          "hullRegen": 0,
           "moveSpeed": 6,
           "nativeMatch": true,
           "penetration": 0,
@@ -87,6 +92,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -130,11 +136,13 @@
           "capabilities": [],
           "critChance": 500,
           "critMult": 15000,
-          "damage": 26000,
+          "damage": 28600,
           "damageType": "Kinetic",
           "evasion": 200,
+          "evasionVsAir": 0,
           "family": "Kinetic",
           "hull": 1849000,
+          "hullRegen": 0,
           "moveSpeed": 3,
           "nativeMatch": true,
           "penetration": 0,
@@ -146,6 +154,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -192,8 +201,10 @@
           "damage": 5000,
           "damageType": "Kinetic",
           "evasion": 2500,
+          "evasionVsAir": 0,
           "family": "Kinetic",
           "hull": 572000,
+          "hullRegen": 0,
           "moveSpeed": 8,
           "nativeMatch": true,
           "penetration": 0,
@@ -205,6 +216,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -251,8 +263,10 @@
           "damage": 5000,
           "damageType": "Kinetic",
           "evasion": 2000,
+          "evasionVsAir": 0,
           "family": "Kinetic",
           "hull": 572000,
+          "hullRegen": 0,
           "moveSpeed": 8,
           "nativeMatch": true,
           "penetration": 0,
@@ -264,6 +278,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -310,8 +325,10 @@
           "damage": 5000,
           "damageType": "Kinetic",
           "evasion": 2800,
+          "evasionVsAir": 0,
           "family": "Kinetic",
           "hull": 484000,
+          "hullRegen": 0,
           "moveSpeed": 10,
           "nativeMatch": true,
           "penetration": 0,
@@ -323,6 +340,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -361,18 +379,20 @@
           "ablativeCap": 0,
           "accuracy": 9300,
           "armorPct": 1700,
-          "cadence": "Fast",
+          "cadence": "Medium",
           "canTargetAir": false,
           "capabilities": [
             "ExtraPlanBSlot"
           ],
           "critChance": 500,
           "critMult": 15000,
-          "damage": 15000,
+          "damage": 16500,
           "damageType": "Kinetic",
           "evasion": 1000,
+          "evasionVsAir": 0,
           "family": "Kinetic",
           "hull": 870000,
+          "hullRegen": 0,
           "moveSpeed": 7,
           "nativeMatch": false,
           "penetration": 0,
@@ -384,9 +404,10 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
-          "targetDraw": 0,
+          "targetDraw": -2,
           "threat": 15000
         }
       },
@@ -404,7 +425,8 @@
           "utilities": [
             "FireControl",
             "DriveServos",
-            "Autoloader"
+            "Autoloader",
+            "ECMSuite"
           ],
           "weapon": "AssaultCannon"
         },
@@ -422,18 +444,20 @@
           "ablativeCap": 0,
           "accuracy": 9300,
           "armorPct": 1700,
-          "cadence": "Fast",
+          "cadence": "Medium",
           "canTargetAir": false,
           "capabilities": [
             "ExtraPlanBSlot"
           ],
           "critChance": 500,
           "critMult": 15000,
-          "damage": 19000,
+          "damage": 20900,
           "damageType": "Kinetic",
           "evasion": 1000,
+          "evasionVsAir": 0,
           "family": "Kinetic",
           "hull": 713000,
+          "hullRegen": 0,
           "moveSpeed": 8,
           "nativeMatch": false,
           "penetration": 0,
@@ -445,9 +469,10 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
-          "targetDraw": 0,
+          "targetDraw": -2,
           "threat": 19000
         }
       },
@@ -465,7 +490,8 @@
           "utilities": [
             "FireControl",
             "DriveServos",
-            "Autoloader"
+            "Autoloader",
+            "ECMSuite"
           ],
           "weapon": "AssaultCannon"
         },
@@ -483,18 +509,20 @@
           "ablativeCap": 0,
           "accuracy": 9300,
           "armorPct": 1700,
-          "cadence": "Fast",
+          "cadence": "Medium",
           "canTargetAir": false,
           "capabilities": [
             "ExtraPlanBSlot"
           ],
           "critChance": 500,
           "critMult": 15000,
-          "damage": 12000,
+          "damage": 13200,
           "damageType": "Kinetic",
           "evasion": 1000,
+          "evasionVsAir": 0,
           "family": "Kinetic",
           "hull": 1000000,
+          "hullRegen": 0,
           "moveSpeed": 7,
           "nativeMatch": false,
           "penetration": 0,
@@ -506,6 +534,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": -2,
@@ -545,16 +574,20 @@
           "ablativeCap": 0,
           "accuracy": 8800,
           "armorPct": 700,
-          "cadence": "Fast",
+          "cadence": "Slow",
           "canTargetAir": true,
-          "capabilities": [],
+          "capabilities": [
+            "CoordinatedStrike"
+          ],
           "critChance": 500,
           "critMult": 15000,
           "damage": 17000,
           "damageType": "Explosive",
           "evasion": 3000,
+          "evasionVsAir": 0,
           "family": "Explosive",
           "hull": 504000,
+          "hullRegen": 0,
           "moveSpeed": null,
           "nativeMatch": true,
           "penetration": 0,
@@ -566,6 +599,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 1500,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -585,8 +619,7 @@
           "defense": "StandardHullHeli",
           "utilities": [
             "FireControl",
-            "DriveServos",
-            "Autoloader"
+            "DriveServos"
           ],
           "weapon": "RocketPods"
         },
@@ -604,16 +637,20 @@
           "ablativeCap": 0,
           "accuracy": 8800,
           "armorPct": 700,
-          "cadence": "Fast",
+          "cadence": "Slow",
           "canTargetAir": true,
-          "capabilities": [],
+          "capabilities": [
+            "CoordinatedStrike"
+          ],
           "critChance": 500,
           "critMult": 15000,
           "damage": 14000,
           "damageType": "Explosive",
           "evasion": 3500,
+          "evasionVsAir": 0,
           "family": "Explosive",
           "hull": 504000,
+          "hullRegen": 0,
           "moveSpeed": null,
           "nativeMatch": true,
           "penetration": 0,
@@ -625,6 +662,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 1500,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -644,8 +682,7 @@
           "defense": "StandardHullHeli",
           "utilities": [
             "FireControl",
-            "DriveServos",
-            "Autoloader"
+            "DriveServos"
           ],
           "weapon": "RocketPods"
         },
@@ -663,16 +700,20 @@
           "ablativeCap": 0,
           "accuracy": 8800,
           "armorPct": 900,
-          "cadence": "Fast",
+          "cadence": "Slow",
           "canTargetAir": true,
-          "capabilities": [],
+          "capabilities": [
+            "CoordinatedStrike"
+          ],
           "critChance": 500,
           "critMult": 15000,
           "damage": 21000,
           "damageType": "Explosive",
           "evasion": 2200,
+          "evasionVsAir": 0,
           "family": "Explosive",
           "hull": 630000,
+          "hullRegen": 0,
           "moveSpeed": null,
           "nativeMatch": true,
           "penetration": 0,
@@ -684,6 +725,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 1500,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -703,8 +745,7 @@
           "defense": "StandardHullHeli",
           "utilities": [
             "FireControl",
-            "DriveServos",
-            "Autoloader"
+            "DriveServos"
           ],
           "weapon": "RocketPods"
         },
@@ -722,7 +763,7 @@
           "ablativeCap": 0,
           "accuracy": 9300,
           "armorPct": 1350,
-          "cadence": "Medium",
+          "cadence": "Slow",
           "canTargetAir": true,
           "capabilities": [],
           "critChance": 500,
@@ -730,8 +771,10 @@
           "damage": 30000,
           "damageType": "Explosive",
           "evasion": 600,
+          "evasionVsAir": 0,
           "family": "Explosive",
           "hull": 638000,
+          "hullRegen": 0,
           "moveSpeed": 5,
           "nativeMatch": true,
           "penetration": 0,
@@ -743,6 +786,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 2000,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -762,8 +806,7 @@
           "defense": "StandardHullRktArty",
           "utilities": [
             "FireControl",
-            "DriveServos",
-            "Autoloader"
+            "DriveServos"
           ],
           "weapon": "SAMBattery"
         },
@@ -781,7 +824,7 @@
           "ablativeCap": 0,
           "accuracy": 9300,
           "armorPct": 1350,
-          "cadence": "Medium",
+          "cadence": "Slow",
           "canTargetAir": true,
           "capabilities": [],
           "critChance": 500,
@@ -789,8 +832,10 @@
           "damage": 36000,
           "damageType": "Explosive",
           "evasion": 600,
+          "evasionVsAir": 0,
           "family": "Explosive",
           "hull": 638000,
+          "hullRegen": 0,
           "moveSpeed": 5,
           "nativeMatch": true,
           "penetration": 0,
@@ -802,6 +847,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 2000,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -821,8 +867,7 @@
           "defense": "StandardHullRktArty",
           "utilities": [
             "FireControl",
-            "DriveServos",
-            "Autoloader"
+            "DriveServos"
           ],
           "weapon": "SAMBattery"
         },
@@ -840,7 +885,7 @@
           "ablativeCap": 0,
           "accuracy": 8600,
           "armorPct": 1350,
-          "cadence": "Medium",
+          "cadence": "Slow",
           "canTargetAir": true,
           "capabilities": [],
           "critChance": 500,
@@ -848,8 +893,10 @@
           "damage": 34000,
           "damageType": "Explosive",
           "evasion": 600,
+          "evasionVsAir": 0,
           "family": "Explosive",
           "hull": 638000,
+          "hullRegen": 0,
           "moveSpeed": 5,
           "nativeMatch": true,
           "penetration": 0,
@@ -861,6 +908,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 2400,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -880,8 +928,7 @@
           "defense": "StandardHullRktArty",
           "utilities": [
             "FireControl",
-            "DriveServos",
-            "Autoloader"
+            "DriveServos"
           ],
           "weapon": "RocketBarrage"
         },
@@ -899,7 +946,7 @@
           "ablativeCap": 0,
           "accuracy": 7800,
           "armorPct": 950,
-          "cadence": "Slow",
+          "cadence": "Siege",
           "canTargetAir": false,
           "capabilities": [],
           "critChance": 500,
@@ -907,8 +954,10 @@
           "damage": 65000,
           "damageType": "Explosive",
           "evasion": 300,
+          "evasionVsAir": 0,
           "family": "Explosive",
           "hull": 527000,
+          "hullRegen": 0,
           "moveSpeed": 3,
           "nativeMatch": true,
           "penetration": 0,
@@ -920,6 +969,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 2500,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -939,8 +989,7 @@
           "defense": "StandardHullArtillery",
           "utilities": [
             "FireControl",
-            "DriveServos",
-            "Autoloader"
+            "DriveServos"
           ],
           "weapon": "Howitzer"
         },
@@ -958,7 +1007,7 @@
           "ablativeCap": 0,
           "accuracy": 7800,
           "armorPct": 950,
-          "cadence": "Slow",
+          "cadence": "Siege",
           "canTargetAir": false,
           "capabilities": [],
           "critChance": 500,
@@ -966,8 +1015,10 @@
           "damage": 82000,
           "damageType": "Explosive",
           "evasion": 300,
+          "evasionVsAir": 0,
           "family": "Explosive",
           "hull": 442000,
+          "hullRegen": 0,
           "moveSpeed": 3,
           "nativeMatch": true,
           "penetration": 0,
@@ -979,6 +1030,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 2500,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -998,8 +1050,7 @@
           "defense": "StandardHullArtillery",
           "utilities": [
             "FireControl",
-            "DriveServos",
-            "Autoloader"
+            "DriveServos"
           ],
           "weapon": "Howitzer"
         },
@@ -1017,7 +1068,7 @@
           "ablativeCap": 0,
           "accuracy": 9300,
           "armorPct": 950,
-          "cadence": "Slow",
+          "cadence": "Siege",
           "canTargetAir": false,
           "capabilities": [],
           "critChance": 500,
@@ -1025,8 +1076,10 @@
           "damage": 58000,
           "damageType": "Explosive",
           "evasion": 300,
+          "evasionVsAir": 0,
           "family": "Explosive",
           "hull": 527000,
+          "hullRegen": 0,
           "moveSpeed": 3,
           "nativeMatch": true,
           "penetration": 0,
@@ -1038,6 +1091,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 1000,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -1057,8 +1111,7 @@
           "defense": "StandardHullArtillery",
           "utilities": [
             "FireControl",
-            "DriveServos",
-            "Autoloader"
+            "DriveServos"
           ],
           "weapon": "Howitzer"
         },
@@ -1084,8 +1137,10 @@
           "damage": 0,
           "damageType": "Kinetic",
           "evasion": 500,
+          "evasionVsAir": 0,
           "family": "Support",
           "hull": 616000,
+          "hullRegen": 0,
           "moveSpeed": 5,
           "nativeMatch": true,
           "penetration": 0,
@@ -1097,6 +1152,7 @@
           "shieldRegen": 11000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": 5000,
           "supportRange": "WholeArmy",
           "targetDraw": 0,
@@ -1143,8 +1199,10 @@
           "damage": 0,
           "damageType": "Kinetic",
           "evasion": 500,
+          "evasionVsAir": 0,
           "family": "Support",
           "hull": 801000,
+          "hullRegen": 0,
           "moveSpeed": 5,
           "nativeMatch": true,
           "penetration": 0,
@@ -1156,6 +1214,7 @@
           "shieldRegen": 11000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": 5000,
           "supportRange": "OwnZone",
           "targetDraw": 0,
@@ -1202,8 +1261,10 @@
           "damage": 0,
           "damageType": "Kinetic",
           "evasion": 500,
+          "evasionVsAir": 0,
           "family": "Support",
           "hull": 370000,
+          "hullRegen": 0,
           "moveSpeed": 2,
           "nativeMatch": true,
           "penetration": 0,
@@ -1215,9 +1276,10 @@
           "shieldRegen": 11000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": 5000,
           "supportRange": "WholeArmy",
-          "targetDraw": -2,
+          "targetDraw": 0,
           "threat": 5000
         }
       },
@@ -1235,8 +1297,7 @@
           "utilities": [
             "FireControl",
             "DriveServos",
-            "Autoloader",
-            "ECMSuite"
+            "Autoloader"
           ],
           "weapon": "RepairBeam"
         },
@@ -1254,16 +1315,18 @@
           "ablativeCap": 0,
           "accuracy": 8800,
           "armorPct": 3500,
-          "cadence": "Medium",
+          "cadence": "Fast",
           "canTargetAir": false,
           "capabilities": [],
           "critChance": 500,
           "critMult": 15000,
-          "damage": 40000,
+          "damage": 44000,
           "damageType": "Energy",
           "evasion": 200,
+          "evasionVsAir": 0,
           "family": "Energy",
           "hull": 1479000,
+          "hullRegen": 0,
           "moveSpeed": 4,
           "nativeMatch": false,
           "penetration": 0,
@@ -1275,6 +1338,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -1313,16 +1377,18 @@
           "ablativeCap": 0,
           "accuracy": 8800,
           "armorPct": 3500,
-          "cadence": "Slow",
+          "cadence": "Medium",
           "canTargetAir": false,
           "capabilities": [],
           "critChance": 500,
           "critMult": 15000,
-          "damage": 60000,
+          "damage": 66000,
           "damageType": "Kinetic",
           "evasion": 200,
+          "evasionVsAir": 0,
           "family": "Kinetic",
           "hull": 1479000,
+          "hullRegen": 0,
           "moveSpeed": 4,
           "nativeMatch": true,
           "penetration": 5000,
@@ -1334,6 +1400,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -1379,11 +1446,13 @@
           ],
           "critChance": 500,
           "critMult": 15000,
-          "damage": 35000,
+          "damage": 38500,
           "damageType": "Kinetic",
           "evasion": 200,
+          "evasionVsAir": 0,
           "family": "Kinetic",
           "hull": 1479000,
+          "hullRegen": 0,
           "moveSpeed": 3,
           "nativeMatch": true,
           "penetration": 0,
@@ -1395,6 +1464,7 @@
           "shieldRegen": 0,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -1438,11 +1508,13 @@
           "capabilities": [],
           "critChance": 500,
           "critMult": 15000,
-          "damage": 35000,
+          "damage": 38500,
           "damageType": "Kinetic",
           "evasion": 200,
+          "evasionVsAir": 0,
           "family": "Kinetic",
           "hull": 1479000,
+          "hullRegen": 0,
           "moveSpeed": 4,
           "nativeMatch": true,
           "penetration": 0,
@@ -1454,6 +1526,7 @@
           "shieldRegen": 6000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -1497,11 +1570,13 @@
           "capabilities": [],
           "critChance": 500,
           "critMult": 15000,
-          "damage": 35000,
+          "damage": 38500,
           "damageType": "Kinetic",
           "evasion": 200,
+          "evasionVsAir": 0,
           "family": "Kinetic",
           "hull": 1479000,
+          "hullRegen": 0,
           "moveSpeed": 4,
           "nativeMatch": true,
           "penetration": 0,
@@ -1516,6 +1591,7 @@
             "splashTakenMult": 6000
           },
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -1561,11 +1637,13 @@
           ],
           "critChance": 500,
           "critMult": 15000,
-          "damage": 35000,
+          "damage": 38500,
           "damageType": "Kinetic",
           "evasion": 200,
+          "evasionVsAir": 0,
           "family": "Kinetic",
           "hull": 1479000,
+          "hullRegen": 0,
           "moveSpeed": 4,
           "nativeMatch": true,
           "penetration": 0,
@@ -1577,6 +1655,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -1622,11 +1701,13 @@
           ],
           "critChance": 500,
           "critMult": 15000,
-          "damage": 35000,
+          "damage": 38500,
           "damageType": "Kinetic",
           "evasion": 200,
+          "evasionVsAir": 0,
           "family": "Kinetic",
           "hull": 1479000,
+          "hullRegen": 0,
           "moveSpeed": 4,
           "nativeMatch": true,
           "penetration": 0,
@@ -1638,6 +1719,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -1676,7 +1758,7 @@
           "ablativeCap": 0,
           "accuracy": 9000,
           "armorPct": 600,
-          "cadence": "Fast",
+          "cadence": "Medium",
           "canTargetAir": false,
           "capabilities": [],
           "critChance": 500,
@@ -1684,8 +1766,10 @@
           "damage": 5000,
           "damageType": "Kinetic",
           "evasion": 2500,
+          "evasionVsAir": 0,
           "family": "Kinetic",
           "hull": 572000,
+          "hullRegen": 0,
           "moveSpeed": 8,
           "nativeMatch": true,
           "penetration": 0,
@@ -1697,6 +1781,7 @@
           "shieldRegen": 12000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": -2,
@@ -1735,18 +1820,21 @@
           "ablativeCap": 0,
           "accuracy": 8800,
           "armorPct": 700,
-          "cadence": "Medium",
+          "cadence": "Slow",
           "canTargetAir": true,
           "capabilities": [
-            "TargetAir"
+            "TargetAir",
+            "CoordinatedStrike"
           ],
           "critChance": 500,
           "critMult": 15000,
           "damage": 17000,
           "damageType": "Explosive",
           "evasion": 3000,
+          "evasionVsAir": 0,
           "family": "Explosive",
           "hull": 504000,
+          "hullRegen": 0,
           "moveSpeed": null,
           "nativeMatch": true,
           "penetration": 0,
@@ -1758,6 +1846,7 @@
           "shieldRegen": 5000,
           "specialMitigation": null,
           "splash": 1500,
+          "supportKind": "Heal",
           "supportPower": null,
           "supportRange": null,
           "targetDraw": 0,
@@ -1804,8 +1893,10 @@
           "damage": 0,
           "damageType": "Kinetic",
           "evasion": 500,
+          "evasionVsAir": 0,
           "family": "Support",
           "hull": 370000,
+          "hullRegen": 0,
           "moveSpeed": 2,
           "nativeMatch": true,
           "penetration": 0,
@@ -1817,6 +1908,7 @@
           "shieldRegen": 11000,
           "specialMitigation": null,
           "splash": 0,
+          "supportKind": "Heal",
           "supportPower": 5000,
           "supportRange": "WholeArmy",
           "targetDraw": -2,
@@ -1989,12 +2081,7 @@
           "magnitude": 1000,
           "scope": "AllAllies"
         },
-        "slotLayoutOverride": {
-          "defense": 1,
-          "utility": 4,
-          "weapon": 1
-        },
-        "typeId": "RearSupport"
+        "typeId": "Commander"
       },
       "Deluge": {
         "id": "Deluge",
@@ -2006,14 +2093,25 @@
       },
       "Gunship": {
         "id": "Gunship",
+        "innateCapabilities": [
+          "CoordinatedStrike"
+        ],
         "typeId": "AttackHeli"
       },
       "Hunter": {
         "id": "Hunter",
+        "passiveAura": {
+          "kind": "Accuracy",
+          "magnitude": 1000,
+          "scope": "ZoneAllies"
+        },
         "typeId": "LightTank"
       },
       "Interceptor": {
         "id": "Interceptor",
+        "innateCapabilities": [
+          "CoordinatedStrike"
+        ],
         "typeId": "AttackHeli"
       },
       "Longbow": {
@@ -2030,10 +2128,20 @@
       },
       "Outrider": {
         "id": "Outrider",
+        "passiveAura": {
+          "kind": "Accuracy",
+          "magnitude": 1000,
+          "scope": "ZoneAllies"
+        },
         "typeId": "LightTank"
       },
       "Scout": {
         "id": "Scout",
+        "passiveAura": {
+          "kind": "Accuracy",
+          "magnitude": 1000,
+          "scope": "ZoneAllies"
+        },
         "typeId": "LightTank"
       },
       "Sentinel": {
@@ -2067,6 +2175,9 @@
       },
       "Warhog": {
         "id": "Warhog",
+        "innateCapabilities": [
+          "CoordinatedStrike"
+        ],
         "typeId": "AttackHeli"
       }
     },
@@ -2085,6 +2196,112 @@
       }
     },
     "equipment": {
+      "AblationProjector": {
+        "family": "Support",
+        "id": "AblationProjector",
+        "kind": "Weapon",
+        "mountClass": "Support",
+        "name": "Ablation Projector",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0,
+          "targetDraw": 0
+        },
+        "support": {
+          "kind": "Ablation",
+          "power": 5000,
+          "range": "WholeArmy"
+        }
+      },
+      "AdaptiveMunitions": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "AdaptiveMunitions",
+        "kind": "Utility",
+        "name": "Adaptive Munitions",
+        "unlocks": [
+          "AdaptiveMunitions"
+        ]
+      },
+      "AirSuperiority": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "AirSuperiority",
+        "kind": "Utility",
+        "name": "Air Superiority",
+        "unlocks": [
+          "AirSuperiority"
+        ]
+      },
+      "AlphaStrike": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "AlphaStrike",
+        "kind": "Utility",
+        "name": "Alpha Strike",
+        "unlocks": [
+          "Ambush"
+        ]
+      },
+      "Ambush": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "Ambush",
+        "kind": "Utility",
+        "name": "Ambush",
+        "unlocks": [
+          "Ambush"
+        ]
+      },
+      "Amplifier": {
+        "cadenceShift": 0,
+        "id": "Amplifier",
+        "kind": "Utility",
+        "name": "Amplifier",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0,
+          "supportPower": 2000,
+          "targetDraw": 0
+        },
+        "unlocks": []
+      },
+      "ArcRepeater": {
+        "family": "Energy",
+        "id": "ArcRepeater",
+        "kind": "Weapon",
+        "mountClass": "Light",
+        "name": "Arc Repeater",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Fast",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "Nearest",
+          "splash": 0,
+          "targetDraw": 0
+        }
+      },
       "ArtilleryAblative": {
         "ablativeDelta": {
           "cap": 600000
@@ -2126,6 +2343,46 @@
           "reach": null,
           "splash": 0,
           "targetDraw": 0
+        }
+      },
+      "ArtilleryCamo": {
+        "armorPctDelta": 500,
+        "id": "ArtilleryCamo",
+        "kind": "Defense",
+        "mountClass": "Artillery",
+        "name": "Camo Netting",
+        "tradeoff": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 2000,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0,
+          "targetDraw": 0
+        }
+      },
+      "ArtilleryECM": {
+        "armorPctDelta": 500,
+        "id": "ArtilleryECM",
+        "kind": "Defense",
+        "mountClass": "Artillery",
+        "name": "ECM Screen",
+        "tradeoff": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0,
+          "targetDraw": -2
         }
       },
       "ArtilleryShield": {
@@ -2200,6 +2457,26 @@
         "name": "Autoloader",
         "unlocks": []
       },
+      "BeamProjector": {
+        "family": "Energy",
+        "id": "BeamProjector",
+        "kind": "Weapon",
+        "mountClass": "Heli",
+        "name": "Beam Projector",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Medium",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "AnyGround",
+          "splash": 0,
+          "targetDraw": 0
+        }
+      },
       "BlastPlating": {
         "armorPctDelta": 800,
         "id": "BlastPlating",
@@ -2224,14 +2501,88 @@
           "targetDraw": 0
         }
       },
+      "BroadcastArray": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "BroadcastArray",
+        "kind": "Utility",
+        "name": "Broadcast Array",
+        "unlocks": [
+          "Broadcast"
+        ]
+      },
+      "BulwarkMode": {
+        "cadenceShift": 0,
+        "id": "BulwarkMode",
+        "kind": "Utility",
+        "name": "Bulwark Mode",
+        "unlocks": [
+          "StationaryBrace"
+        ]
+      },
+      "BunkerBuster": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "BunkerBuster",
+        "kind": "Utility",
+        "name": "Bunker Buster",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 4000,
+          "reach": null,
+          "splash": 0,
+          "targetDraw": 0
+        },
+        "unlocks": []
+      },
+      "ChainGun": {
+        "family": "Kinetic",
+        "id": "ChainGun",
+        "kind": "Weapon",
+        "mountClass": "Heli",
+        "name": "Chain Gun",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Medium",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "AnyGround",
+          "splash": 0,
+          "targetDraw": 0
+        }
+      },
       "CombatAI": {
         "cadenceShift": 0,
+        "cost": 2,
         "id": "CombatAI",
         "kind": "Utility",
         "name": "Combat AI Core",
         "unlocks": [
           "ExtraPlanBSlot"
         ]
+      },
+      "CommsJammer": {
+        "aura": {
+          "kind": "Accuracy",
+          "magnitude": -800,
+          "scope": "AllEnemies"
+        },
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "CommsJammer",
+        "kind": "Utility",
+        "name": "Comms Jammer",
+        "unlocks": []
       },
       "CompositeArmor": {
         "armorPctDelta": 1200,
@@ -2252,6 +2603,64 @@
           "splash": 0,
           "targetDraw": 0
         }
+      },
+      "CoordinatedStrike": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "CoordinatedStrike",
+        "kind": "Utility",
+        "name": "Coordinated Strike",
+        "unlocks": [
+          "CoordinatedStrike"
+        ]
+      },
+      "CoordinationNet": {
+        "aura": {
+          "kind": "Accuracy",
+          "magnitude": 800,
+          "scope": "AllAllies"
+        },
+        "cadenceShift": 0,
+        "id": "CoordinationNet",
+        "kind": "Utility",
+        "name": "Coordination Net",
+        "unlocks": []
+      },
+      "CounterBattery": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "CounterBattery",
+        "kind": "Utility",
+        "name": "Counter-Battery",
+        "unlocks": [
+          "CounterBattery"
+        ]
+      },
+      "DamageBoost": {
+        "aura": {
+          "kind": "DamageDealt",
+          "magnitude": 1000,
+          "scope": "AllAllies"
+        },
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "DamageBoost",
+        "kind": "Utility",
+        "name": "Damage Boost",
+        "unlocks": []
+      },
+      "DamageReduction": {
+        "aura": {
+          "kind": "DamageTaken",
+          "magnitude": -1000,
+          "scope": "AllAllies"
+        },
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "DamageReduction",
+        "kind": "Utility",
+        "name": "Damage Reduction",
+        "unlocks": []
       },
       "Decoy": {
         "cadenceShift": 0,
@@ -2298,6 +2707,26 @@
           "targetDraw": 0
         }
       },
+      "DemolitionGun": {
+        "family": "Explosive",
+        "id": "DemolitionGun",
+        "kind": "Weapon",
+        "mountClass": "Heavy",
+        "name": "Demolition Gun",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Slow",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "Nearest",
+          "splash": 0,
+          "targetDraw": 0
+        }
+      },
       "DriveServos": {
         "cadenceShift": 0,
         "id": "DriveServos",
@@ -2318,6 +2747,16 @@
         },
         "unlocks": []
       },
+      "DuelistServos": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "DuelistServos",
+        "kind": "Utility",
+        "name": "Duelist Servos",
+        "unlocks": [
+          "Duelist"
+        ]
+      },
       "ECMSuite": {
         "cadenceShift": 0,
         "id": "ECMSuite",
@@ -2335,6 +2774,47 @@
           "reach": null,
           "splash": 0,
           "targetDraw": -2
+        },
+        "unlocks": []
+      },
+      "EMPAmmo": {
+        "cadenceShift": 0,
+        "id": "EMPAmmo",
+        "kind": "Utility",
+        "name": "EMP Ammo",
+        "unlocks": [
+          "OnHitEmp"
+        ]
+      },
+      "Entrench": {
+        "cadenceShift": 0,
+        "id": "Entrench",
+        "kind": "Utility",
+        "name": "Entrench",
+        "unlocks": [
+          "StationaryBrace"
+        ]
+      },
+      "ExtraBatteries": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "ExtraBatteries",
+        "kind": "Utility",
+        "name": "Extra Batteries",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "shieldCap": 40000,
+          "shieldRegen": 2000,
+          "splash": 0,
+          "targetDraw": 0
         },
         "unlocks": []
       },
@@ -2363,6 +2843,28 @@
           "targetDraw": 0
         }
       },
+      "FieldRepair": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "FieldRepair",
+        "kind": "Utility",
+        "name": "Field Repair",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "hullRegen": 3000,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0,
+          "targetDraw": 0
+        },
+        "unlocks": []
+      },
       "FireControl": {
         "cadenceShift": 0,
         "id": "FireControl",
@@ -2383,6 +2885,78 @@
         },
         "unlocks": []
       },
+      "FlakScreen": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "FlakScreen",
+        "kind": "Utility",
+        "name": "Flak Screen",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 4000,
+          "targetDraw": 0
+        },
+        "unlocks": []
+      },
+      "FlankingPackage": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "FlankingPackage",
+        "kind": "Utility",
+        "name": "Flanking Package",
+        "unlocks": [
+          "Flanking"
+        ]
+      },
+      "Flares": {
+        "cadenceShift": 0,
+        "id": "Flares",
+        "kind": "Utility",
+        "name": "Flares",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "evasionVsAir": 1500,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0,
+          "targetDraw": 0
+        },
+        "unlocks": []
+      },
+      "FlechetteBattery": {
+        "family": "Kinetic",
+        "id": "FlechetteBattery",
+        "kind": "Weapon",
+        "mountClass": "RktArty",
+        "name": "Flechette Battery",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Slow",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "AnyGround",
+          "splash": 0,
+          "targetDraw": 0
+        }
+      },
       "GaussRepeater": {
         "family": "Kinetic",
         "id": "GaussRepeater",
@@ -2401,6 +2975,61 @@
           "reach": "Nearest",
           "splash": 0,
           "targetDraw": 0
+        }
+      },
+      "GrenadeLauncher": {
+        "family": "Explosive",
+        "id": "GrenadeLauncher",
+        "kind": "Weapon",
+        "mountClass": "Light",
+        "name": "Grenade Launcher",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Fast",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "Nearest",
+          "splash": 0,
+          "targetDraw": 0
+        }
+      },
+      "GuardianProtocol": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "GuardianProtocol",
+        "kind": "Utility",
+        "name": "Guardian Protocol",
+        "unlocks": [
+          "Guardian"
+        ]
+      },
+      "HealProjector": {
+        "family": "Support",
+        "id": "HealProjector",
+        "kind": "Weapon",
+        "mountClass": "Support",
+        "name": "Heal Projector",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0,
+          "targetDraw": 0
+        },
+        "support": {
+          "kind": "Heal",
+          "power": 5000,
+          "range": "WholeArmy"
         }
       },
       "HeavyAblative": {
@@ -2534,6 +3163,47 @@
           "targetDraw": 0
         }
       },
+      "HeliChaff": {
+        "armorPctDelta": 500,
+        "id": "HeliChaff",
+        "kind": "Defense",
+        "mountClass": "Heli",
+        "name": "Chaff Dispenser",
+        "tradeoff": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "evasionVsAir": 2500,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0,
+          "targetDraw": 0
+        }
+      },
+      "HeliECM": {
+        "armorPctDelta": 500,
+        "id": "HeliECM",
+        "kind": "Defense",
+        "mountClass": "Heli",
+        "name": "ECM Screen",
+        "tradeoff": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0,
+          "targetDraw": -2
+        }
+      },
       "HeliShield": {
         "armorPctDelta": 0,
         "id": "HeliShield",
@@ -2569,6 +3239,69 @@
           "accuracy": 0,
           "armorPct": 0,
           "cadenceTier": "Siege",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "AnyGround",
+          "splash": 0,
+          "targetDraw": 0
+        }
+      },
+      "IonCannon": {
+        "family": "Energy",
+        "id": "IonCannon",
+        "kind": "Weapon",
+        "mountClass": "Artillery",
+        "name": "Ion Cannon",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Siege",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "AnyGround",
+          "splash": 0,
+          "targetDraw": 0
+        }
+      },
+      "Jammer": {
+        "aura": {
+          "kind": "Accuracy",
+          "magnitude": -1000,
+          "scope": "ZoneEnemies"
+        },
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "Jammer",
+        "kind": "Utility",
+        "name": "Jammer",
+        "unlocks": []
+      },
+      "JumpJets": {
+        "cadenceShift": 0,
+        "cost": 3,
+        "id": "JumpJets",
+        "kind": "Utility",
+        "name": "Jump Jets",
+        "unlocks": [
+          "JumpJets"
+        ]
+      },
+      "LaserBattery": {
+        "family": "Energy",
+        "id": "LaserBattery",
+        "kind": "Weapon",
+        "mountClass": "RktArty",
+        "name": "Laser Battery",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Slow",
           "critChance": 0,
           "damage": 0,
           "evasion": 0,
@@ -2622,6 +3355,26 @@
           "targetDraw": 0
         }
       },
+      "LightCamo": {
+        "armorPctDelta": 500,
+        "id": "LightCamo",
+        "kind": "Defense",
+        "mountClass": "Light",
+        "name": "Camo Netting",
+        "tradeoff": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 2000,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0,
+          "targetDraw": 0
+        }
+      },
       "LightShield": {
         "armorPctDelta": 0,
         "id": "LightShield",
@@ -2646,6 +3399,28 @@
           "splash": 0,
           "targetDraw": 0
         }
+      },
+      "LowHeatExhaust": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "LowHeatExhaust",
+        "kind": "Utility",
+        "name": "Low-Heat Exhaust",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "evasionVsAir": 2500,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0,
+          "targetDraw": 0
+        },
+        "unlocks": []
       },
       "MechAblative": {
         "ablativeDelta": {
@@ -2741,6 +3516,87 @@
           "targetDraw": 0
         }
       },
+      "MissileRack": {
+        "family": "Explosive",
+        "id": "MissileRack",
+        "kind": "Weapon",
+        "mountClass": "Mech",
+        "name": "Missile Rack",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Medium",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "Nearest",
+          "splash": 0,
+          "targetDraw": 0
+        }
+      },
+      "ModularHardpoint": {
+        "cadenceShift": 0,
+        "id": "ModularHardpoint",
+        "kind": "Utility",
+        "name": "Modular Hardpoint",
+        "unlocks": [
+          "ExtraUtilitySlot"
+        ]
+      },
+      "MultiTargeting": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "MultiTargeting",
+        "kind": "Utility",
+        "name": "Multi-Targeting",
+        "unlocks": [
+          "MultiTarget"
+        ]
+      },
+      "Napalm": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "Napalm",
+        "kind": "Utility",
+        "name": "Napalm / Cluster",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 4000,
+          "targetDraw": 0
+        },
+        "unlocks": []
+      },
+      "Overdrive": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "Overdrive",
+        "kind": "Utility",
+        "name": "Overdrive",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": -2000,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 20000,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0,
+          "targetDraw": 0
+        },
+        "unlocks": []
+      },
       "PulseLaser": {
         "family": "Energy",
         "id": "PulseLaser",
@@ -2757,6 +3613,26 @@
           "moveSpeed": 0,
           "penetration": 0,
           "reach": "Nearest",
+          "splash": 0,
+          "targetDraw": 0
+        }
+      },
+      "RailHowitzer": {
+        "family": "Kinetic",
+        "id": "RailHowitzer",
+        "kind": "Weapon",
+        "mountClass": "Artillery",
+        "name": "Rail Howitzer",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": "Siege",
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": "AnyGround",
           "splash": 0,
           "targetDraw": 0
         }
@@ -2780,6 +3656,16 @@
           "splash": 0,
           "targetDraw": 0
         }
+      },
+      "Rally": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "Rally",
+        "kind": "Utility",
+        "name": "Rally",
+        "unlocks": [
+          "Rally"
+        ]
       },
       "Rangefinder": {
         "cadenceShift": 0,
@@ -2809,6 +3695,28 @@
           "splash": 0,
           "targetDraw": 0
         }
+      },
+      "RepairNanites": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "RepairNanites",
+        "kind": "Utility",
+        "name": "Repair Nanites",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "hullRegen": 2000,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0,
+          "targetDraw": 0
+        },
+        "unlocks": []
       },
       "RktArtyAblative": {
         "ablativeDelta": {
@@ -2851,6 +3759,46 @@
           "reach": null,
           "splash": 0,
           "targetDraw": 0
+        }
+      },
+      "RktArtyCamo": {
+        "armorPctDelta": 500,
+        "id": "RktArtyCamo",
+        "kind": "Defense",
+        "mountClass": "RktArty",
+        "name": "Camo Netting",
+        "tradeoff": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 2000,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0,
+          "targetDraw": 0
+        }
+      },
+      "RktArtyECM": {
+        "armorPctDelta": 500,
+        "id": "RktArtyECM",
+        "kind": "Defense",
+        "mountClass": "RktArty",
+        "name": "ECM Screen",
+        "tradeoff": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0,
+          "targetDraw": -2
         }
       },
       "RktArtyShield": {
@@ -2947,6 +3895,37 @@
           "targetDraw": 0
         }
       },
+      "SEAD": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "SEAD",
+        "kind": "Utility",
+        "name": "SEAD",
+        "unlocks": [
+          "Sead"
+        ]
+      },
+      "Saturation": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "Saturation",
+        "kind": "Utility",
+        "name": "Saturation",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 4000,
+          "targetDraw": 0
+        },
+        "unlocks": []
+      },
       "SensorSuite": {
         "cadenceShift": 0,
         "id": "SensorSuite",
@@ -2955,6 +3934,31 @@
         "unlocks": [
           "TargetAir"
         ]
+      },
+      "ShieldProjector": {
+        "family": "Support",
+        "id": "ShieldProjector",
+        "kind": "Weapon",
+        "mountClass": "Support",
+        "name": "Shield Projector",
+        "statDeltas": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0,
+          "targetDraw": 0
+        },
+        "support": {
+          "kind": "ShieldBoost",
+          "power": 5000,
+          "range": "WholeArmy"
+        }
       },
       "SiegeLaser": {
         "family": "Energy",
@@ -2975,6 +3979,37 @@
           "splash": 0,
           "targetDraw": 0
         }
+      },
+      "SiegeMode": {
+        "cadenceShift": 0,
+        "id": "SiegeMode",
+        "kind": "Utility",
+        "name": "Siege Mode",
+        "unlocks": [
+          "StationaryBrace"
+        ]
+      },
+      "SmokeCanisters": {
+        "aura": {
+          "kind": "Evasion",
+          "magnitude": 2000,
+          "scope": "ZoneAllies"
+        },
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "SmokeCanisters",
+        "kind": "Utility",
+        "name": "Smoke Canisters",
+        "unlocks": []
+      },
+      "SnareShot": {
+        "cadenceShift": 0,
+        "id": "SnareShot",
+        "kind": "Utility",
+        "name": "Snare Shot",
+        "unlocks": [
+          "OnHitSnare"
+        ]
       },
       "Spotter": {
         "cadenceShift": 0,
@@ -3203,6 +4238,26 @@
           "targetDraw": 0
         }
       },
+      "SupportECM": {
+        "armorPctDelta": 500,
+        "id": "SupportECM",
+        "kind": "Defense",
+        "mountClass": "Support",
+        "name": "ECM Screen",
+        "tradeoff": {
+          "accuracy": 0,
+          "armorPct": 0,
+          "cadenceTier": null,
+          "critChance": 0,
+          "damage": 0,
+          "evasion": 0,
+          "moveSpeed": 0,
+          "penetration": 0,
+          "reach": null,
+          "splash": 0,
+          "targetDraw": -2
+        }
+      },
       "SupportShield": {
         "armorPctDelta": 0,
         "id": "SupportShield",
@@ -3227,6 +4282,25 @@
           "splash": 0,
           "targetDraw": 0
         }
+      },
+      "SuppressingFire": {
+        "cadenceShift": 0,
+        "id": "SuppressingFire",
+        "kind": "Utility",
+        "name": "Suppressing Fire",
+        "unlocks": [
+          "OnHitSuppress"
+        ]
+      },
+      "TargetRadar": {
+        "cadenceShift": 0,
+        "cost": 2,
+        "id": "TargetRadar",
+        "kind": "Utility",
+        "name": "Target Radar",
+        "unlocks": [
+          "ExtendReach"
+        ]
       }
     },
     "globals": {
@@ -3255,7 +4329,7 @@
         "nativeFamily": "Explosive",
         "slotLayout": {
           "defense": 1,
-          "utility": 3,
+          "utility": 2,
           "weapon": 1
         }
       },
@@ -3270,7 +4344,24 @@
         "nativeFamily": "Explosive",
         "slotLayout": {
           "defense": 1,
-          "utility": 3,
+          "utility": 2,
+          "weapon": 1
+        }
+      },
+      "Commander": {
+        "airCapableByDefault": false,
+        "canFireFromRear": false,
+        "homeZones": [
+          "Front",
+          "Middle",
+          "Rear"
+        ],
+        "id": "Commander",
+        "mountClass": "Support",
+        "nativeFamily": "Support",
+        "slotLayout": {
+          "defense": 1,
+          "utility": 5,
           "weapon": 1
         }
       },
@@ -3320,7 +4411,7 @@
         "mountClass": "Mech",
         "slotLayout": {
           "defense": 1,
-          "utility": 3,
+          "utility": 4,
           "weapon": 1
         }
       },
@@ -3354,7 +4445,7 @@
         "nativeFamily": "Explosive",
         "slotLayout": {
           "defense": 1,
-          "utility": 3,
+          "utility": 2,
           "weapon": 1
         }
       }
@@ -3831,7 +4922,8 @@
               "utilities": [
                 "FireControl",
                 "DriveServos",
-                "Autoloader"
+                "Autoloader",
+                "ECMSuite"
               ],
               "weapon": "AssaultCannon"
             },
@@ -3853,8 +4945,7 @@
               "defense": "StandardHullHeli",
               "utilities": [
                 "FireControl",
-                "DriveServos",
-                "Autoloader"
+                "DriveServos"
               ],
               "weapon": "RocketPods"
             },
@@ -3876,8 +4967,7 @@
               "defense": "StandardHullArtillery",
               "utilities": [
                 "FireControl",
-                "DriveServos",
-                "Autoloader"
+                "DriveServos"
               ],
               "weapon": "Howitzer"
             },
@@ -3889,7 +4979,7 @@
         ]
       },
       "expected": {
-        "powerRating": 4704,
+        "powerRating": 4709,
         "status": "ok"
       },
       "label": "legal:5-army"
@@ -3957,7 +5047,8 @@
               "utilities": [
                 "FireControl",
                 "DriveServos",
-                "Autoloader"
+                "Autoloader",
+                "ECMSuite"
               ],
               "weapon": "AssaultCannon"
             },
@@ -3979,8 +5070,7 @@
               "defense": "StandardHullHeli",
               "utilities": [
                 "FireControl",
-                "DriveServos",
-                "Autoloader"
+                "DriveServos"
               ],
               "weapon": "RocketPods"
             },
@@ -4066,7 +5156,8 @@
               "utilities": [
                 "FireControl",
                 "DriveServos",
-                "Autoloader"
+                "Autoloader",
+                "ECMSuite"
               ],
               "weapon": "AssaultCannon"
             },
@@ -4088,8 +5179,7 @@
               "defense": "StandardHullHeli",
               "utilities": [
                 "FireControl",
-                "DriveServos",
-                "Autoloader"
+                "DriveServos"
               ],
               "weapon": "RocketPods"
             },
@@ -4111,8 +5201,7 @@
               "defense": "StandardHullArtillery",
               "utilities": [
                 "FireControl",
-                "DriveServos",
-                "Autoloader"
+                "DriveServos"
               ],
               "weapon": "Howitzer"
             },
@@ -4198,7 +5287,8 @@
               "utilities": [
                 "FireControl",
                 "DriveServos",
-                "Autoloader"
+                "Autoloader",
+                "ECMSuite"
               ],
               "weapon": "AssaultCannon"
             },
@@ -4220,8 +5310,7 @@
               "defense": "StandardHullHeli",
               "utilities": [
                 "FireControl",
-                "DriveServos",
-                "Autoloader"
+                "DriveServos"
               ],
               "weapon": "RocketPods"
             },
@@ -4243,8 +5332,7 @@
               "defense": "StandardHullArtillery",
               "utilities": [
                 "FireControl",
-                "DriveServos",
-                "Autoloader"
+                "DriveServos"
               ],
               "weapon": "Howitzer"
             },
@@ -4330,7 +5418,8 @@
               "utilities": [
                 "FireControl",
                 "DriveServos",
-                "Autoloader"
+                "Autoloader",
+                "ECMSuite"
               ],
               "weapon": "AssaultCannon"
             },
@@ -4352,8 +5441,7 @@
               "defense": "StandardHullHeli",
               "utilities": [
                 "FireControl",
-                "DriveServos",
-                "Autoloader"
+                "DriveServos"
               ],
               "weapon": "RocketPods"
             },
@@ -4375,8 +5463,7 @@
               "defense": "StandardHullArtillery",
               "utilities": [
                 "FireControl",
-                "DriveServos",
-                "Autoloader"
+                "DriveServos"
               ],
               "weapon": "Howitzer"
             },
@@ -4462,7 +5549,8 @@
               "utilities": [
                 "FireControl",
                 "DriveServos",
-                "Autoloader"
+                "Autoloader",
+                "ECMSuite"
               ],
               "weapon": "AssaultCannon"
             },
@@ -4484,8 +5572,7 @@
               "defense": "StandardHullHeli",
               "utilities": [
                 "FireControl",
-                "DriveServos",
-                "Autoloader"
+                "DriveServos"
               ],
               "weapon": "RocketPods"
             },
@@ -4507,8 +5594,7 @@
               "defense": "StandardHullArtillery",
               "utilities": [
                 "FireControl",
-                "DriveServos",
-                "Autoloader"
+                "DriveServos"
               ],
               "weapon": "Howitzer"
             },
@@ -4592,7 +5678,8 @@
               "utilities": [
                 "FireControl",
                 "DriveServos",
-                "Autoloader"
+                "Autoloader",
+                "ECMSuite"
               ],
               "weapon": "AssaultCannon"
             },
@@ -4614,8 +5701,7 @@
               "defense": "StandardHullHeli",
               "utilities": [
                 "FireControl",
-                "DriveServos",
-                "Autoloader"
+                "DriveServos"
               ],
               "weapon": "RocketPods"
             },
@@ -4637,8 +5723,7 @@
               "defense": "StandardHullArtillery",
               "utilities": [
                 "FireControl",
-                "DriveServos",
-                "Autoloader"
+                "DriveServos"
               ],
               "weapon": "Howitzer"
             },
@@ -4650,14 +5735,8 @@
         ]
       },
       "expected": {
-        "errors": [
-          {
-            "code": "Utilities",
-            "instanceId": 1,
-            "reason": "1 utilities equipped; the slot layout allows 3"
-          }
-        ],
-        "status": "invalid"
+        "powerRating": 4709,
+        "status": "ok"
       },
       "label": "v5:wrong-utility-count"
     },
@@ -4745,7 +5824,8 @@
               "utilities": [
                 "FireControl",
                 "DriveServos",
-                "Autoloader"
+                "Autoloader",
+                "ECMSuite"
               ],
               "weapon": "AssaultCannon"
             },
@@ -4767,8 +5847,7 @@
               "defense": "StandardHullHeli",
               "utilities": [
                 "FireControl",
-                "DriveServos",
-                "Autoloader"
+                "DriveServos"
               ],
               "weapon": "RocketPods"
             },
@@ -4790,8 +5869,7 @@
               "defense": "StandardHullArtillery",
               "utilities": [
                 "FireControl",
-                "DriveServos",
-                "Autoloader"
+                "DriveServos"
               ],
               "weapon": "Howitzer"
             },
@@ -4807,12 +5885,12 @@
           {
             "code": "PlanB",
             "instanceId": 1,
-            "reason": "2 Plan-B triggers exceed the 1 available slots (Combat AI grants a 2nd)"
+            "reason": "2 Plan-B triggers exceed the 1 available slots (Combat AI or a Commander grants a 2nd)"
           },
           {
             "code": "PlanB",
             "instanceId": 1,
-            "reason": "a Slot-2 Plan-B trigger requires the Combat-AI capability"
+            "reason": "a Slot-2 Plan-B trigger requires the Combat-AI capability or a friendly Commander"
           }
         ],
         "status": "invalid"
@@ -4883,7 +5961,8 @@
               "utilities": [
                 "FireControl",
                 "DriveServos",
-                "Autoloader"
+                "Autoloader",
+                "ECMSuite"
               ],
               "weapon": "AssaultCannon"
             },
@@ -4905,8 +5984,7 @@
               "defense": "StandardHullHeli",
               "utilities": [
                 "FireControl",
-                "DriveServos",
-                "Autoloader"
+                "DriveServos"
               ],
               "weapon": "RocketPods"
             },
@@ -4928,8 +6006,7 @@
               "defense": "StandardHullArtillery",
               "utilities": [
                 "FireControl",
-                "DriveServos",
-                "Autoloader"
+                "DriveServos"
               ],
               "weapon": "Howitzer"
             },
@@ -4941,7 +6018,7 @@
         ]
       },
       "expected": {
-        "powerRating": 4704,
+        "powerRating": 4709,
         "status": "ok"
       },
       "label": "targeting:support-filter-legal"
@@ -5009,7 +6086,8 @@
               "utilities": [
                 "FireControl",
                 "DriveServos",
-                "Autoloader"
+                "Autoloader",
+                "ECMSuite"
               ],
               "weapon": "AssaultCannon"
             },
@@ -5031,8 +6109,7 @@
               "defense": "StandardHullHeli",
               "utilities": [
                 "FireControl",
-                "DriveServos",
-                "Autoloader"
+                "DriveServos"
               ],
               "weapon": "RocketPods"
             },
@@ -5054,8 +6131,7 @@
               "defense": "StandardHullArtillery",
               "utilities": [
                 "FireControl",
-                "DriveServos",
-                "Autoloader"
+                "DriveServos"
               ],
               "weapon": "Howitzer"
             },
@@ -5141,7 +6217,8 @@
               "utilities": [
                 "FireControl",
                 "DriveServos",
-                "Autoloader"
+                "Autoloader",
+                "ECMSuite"
               ],
               "weapon": "AssaultCannon"
             },
@@ -5163,8 +6240,7 @@
               "defense": "StandardHullHeli",
               "utilities": [
                 "FireControl",
-                "DriveServos",
-                "Autoloader"
+                "DriveServos"
               ],
               "weapon": "RocketPods"
             },

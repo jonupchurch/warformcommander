@@ -203,3 +203,40 @@ fn fallback_ducks_then_returns_home() {
         "FallBack must return to its home zone, not rot in the rear: {zones:?}"
     );
 }
+
+/// Kite **oscillates around the contact line**: a Rear-home kite has no target from Rear, so it closes to
+/// Middle to make contact; with a target in reach it gives ground back toward home (Middle→Rear); out of
+/// reach again it re-closes. So — unlike Advance (which idles once in reach) or Hold (which never moves) —
+/// it both reaches contact *and* steps back from it. It never retreats behind its home zone.
+#[test]
+fn kite_gives_ground_around_the_contact_line() {
+    let rs = anvil_rs();
+    // A Rear-home kite (home = Rear): from Rear it reaches nothing, from Middle it reaches the front
+    // anvils. Padding fills the other slots; nobody else is a kite.
+    let attacker = Army {
+        machines: vec![
+            with_move(tank(&rs, "Grizzly", ZoneId::Rear, 0), MovementMode::Kite),
+            tank(&rs, "Grizzly", ZoneId::Front, 1),
+            tank(&rs, "Grizzly", ZoneId::Front, 2),
+            tank(&rs, "Grizzly", ZoneId::Middle, 3),
+            tank(&rs, "Grizzly", ZoneId::Rear, 4),
+        ],
+    };
+    let zones = zones_over_time(&run(&rs, attacker, anvils(&rs), 0x0C17E), 0);
+    // It closes to the contact line ...
+    assert!(
+        zones.iter().any(|&z| z == ZoneId::Middle),
+        "a kite must close from Rear to contact (Middle): {zones:?}"
+    );
+    // ... and gives ground back toward home at least once (a Middle→Rear step), which Advance never does.
+    let gives_ground = zones.windows(2).any(|w| w == [ZoneId::Middle, ZoneId::Rear]);
+    assert!(
+        gives_ground,
+        "a kite must give ground (Middle→Rear) once it has a target, not idle in reach: {zones:?}"
+    );
+    // It never over-retreats behind its home zone (Rear is the deepest ground it ever occupies).
+    assert!(
+        !zones.iter().any(|&z| z == ZoneId::Air),
+        "a ground kite must never leave the ground: {zones:?}"
+    );
+}

@@ -23,7 +23,7 @@ use crate::fixed::{Bp, Fixed};
 // Identifiers
 // ---------------------------------------------------------------------------
 
-/// The seven machine classes — a **closed** set (the roster is fixed; variants extend it).
+/// The eight machine classes — a **closed** set (the roster is fixed; variants extend it).
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Serialize, Deserialize)]
 pub enum MachineTypeId {
     HeavyTank,
@@ -33,6 +33,10 @@ pub enum MachineTypeId {
     RocketArtillery,
     Artillery,
     RearSupport,
+    /// The Commander (v3 US5): a no-offense projector chassis that grants its army the `CommandBoost`
+    /// aura + a survival-gated Plan-B slot while it lives, and projects Heal/Shield/Ablation support via
+    /// its weapon slot. Added last to keep the enum's `Ord`/serialization stable for the seven originals.
+    Commander,
 }
 
 macro_rules! string_id {
@@ -211,11 +215,24 @@ impl SlotLayout {
         defense: 1,
         utility: 3,
     };
+    /// The 1 / 1 / 2 layout (v3 US3-D per-chassis budgets, §14.4/§14.5 — the fragile air + backline
+    /// chassis hard-commit their two utility slots: Attack Heli · Rocket-Artillery · Artillery).
+    pub const TWO_UTILITY: SlotLayout = SlotLayout {
+        weapon: 1,
+        defense: 1,
+        utility: 2,
+    };
     /// The 1 / 1 / 4 layout (Sentinel mech, Command Post support).
     pub const FOUR_UTILITY: SlotLayout = SlotLayout {
         weapon: 1,
         defense: 1,
         utility: 4,
+    };
+    /// The Commander's 1 / 1 / 5 layout (v3 US5, design §14.6 — the widest slot budget).
+    pub const COMMANDER: SlotLayout = SlotLayout {
+        weapon: 1,
+        defense: 1,
+        utility: 5,
     };
 }
 
@@ -237,6 +254,11 @@ pub struct StatDeltas {
     pub penetration: Bp,
     /// Additive evasion delta (bp).
     pub evasion: Bp,
+    /// Additive evasion that applies **only vs air/flak fire** (v3 US1d **Chaff**): dodges AA / missiles
+    /// but not ground fire — air's built-in answer to secondary flak. Skipped when zero, so the field is
+    /// hash-stable for every non-chaff module (only the chaff defenses carry it).
+    #[serde(default, skip_serializing_if = "is_zero_bp")]
+    pub evasion_vs_air: Bp,
     /// Additive armor-percentage delta (bp), e.g. Composite Armor `+1200`.
     pub armor_pct: Bp,
     /// Additive crit-chance delta (bp).
@@ -250,6 +272,23 @@ pub struct StatDeltas {
     pub cadence_tier: Option<CadenceTier>,
     /// **Override** the reach tag outright (a weapon's own reach), not a delta.
     pub reach: Option<ReachTag>,
+    /// Additive **self-hull regen per tick** (v3 US3-D, design §14.1/§14.3: Field Repair / Repair
+    /// Nanites) — the machine slowly repairs its own hull each tick (EMP-blocked, like shield regen).
+    /// Skipped when zero, so the field is hash-stable for every non-regen module.
+    #[serde(default, skip_serializing_if = "is_zero_fixed")]
+    pub hull_regen: Fixed,
+    /// Additive **shield capacity** (v3 US3-D, design §14.1: Extra Batteries) — a utility shield boost,
+    /// folded into the derived shield pool atop the defense slot's. Skipped when zero (hash-stable).
+    #[serde(default, skip_serializing_if = "is_zero_fixed")]
+    pub shield_cap: Fixed,
+    /// Additive **shield regen per tick** (v3 US3-D, design §14.1: Extra Batteries) — pairs with
+    /// `shield_cap` to lift shield *output*. Skipped when zero (hash-stable).
+    #[serde(default, skip_serializing_if = "is_zero_fixed")]
+    pub shield_regen: Fixed,
+    /// Additive **support/projector power** (v3 US3-D, design §14.6: Amplifier) — lifts a support
+    /// machine's projector output; inert on a non-support machine (no base support). Skipped when zero.
+    #[serde(default, skip_serializing_if = "is_zero_fixed")]
+    pub support_power: Fixed,
 }
 
 /// A shield's three coupled numbers, as deltas a defense module contributes (a no-shield
@@ -311,6 +350,14 @@ pub enum AuraKind {
     /// `-800` = −8% damage taken) — the Commander's Shield/Ablation projection expressed as mitigation
     /// (v3 US5). Added last to keep the enum's serialized names stable for the pre-existing variants.
     DamageTaken,
+    /// Adds to allies' **accuracy** (`magnitude` bp, added not multiplied — e.g. `+1_000` = +10% to-hit)
+    /// — the Light Tank's innate **Spotter Network** scouting aura (v3, design §14.2). Added last to keep
+    /// the enum's serialized names stable for the pre-existing variants.
+    Accuracy,
+    /// Adds to allies' **evasion** (`magnitude` bp, added not multiplied — e.g. `+2_500` = +25% dodge) —
+    /// the Heavy's **Smoke Canisters** zone screen (v3, design §14.1). Added last to keep the enum's
+    /// serialized names stable for the pre-existing variants.
+    Evasion,
 }
 
 /// Who an [`AuraEffect`] reaches.
@@ -319,6 +366,14 @@ pub enum AuraScope {
     ZoneAllies,
     /// Every allied machine on the same side, regardless of zone.
     AllAllies,
+    /// Every **enemy** machine sharing the source's zone (v3 US3, the Light's **Jammer** EW screen —
+    /// enemies fighting in the source's zone suffer the aura, e.g. −accuracy). Read only by the
+    /// enemy-scope aura path, never by the same-side aggregators. Added last to keep the enum's
+    /// serialized names stable for the pre-existing ally scopes.
+    ZoneEnemies,
+    /// Every **enemy** machine on the opposing side, regardless of zone (v3 US3, the Commander's
+    /// **Comms Jammer** — army-wide −accuracy). Added last to keep the serialized names stable.
+    AllEnemies,
 }
 
 /// A per-attacker-type damage bonus versus a set of target machine types — a "role counter" (e.g.
@@ -421,6 +476,11 @@ pub struct ChassisVariant {
     pub slot_layout_override: Option<SlotLayout>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub passive_aura: Option<AuraEffect>,
+    /// Capabilities the chassis carries **innately** (v3 US3-D, §14: free/no-slot signatures — the
+    /// Attack Heli's Coordinated Strike). Merged into the derived capability set alongside the utility
+    /// unlocks. **Skipped when empty**, so the ordinary chassis serialize byte-identically (hash-stable).
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub innate_capabilities: Vec<Capability>,
 }
 
 // ---------------------------------------------------------------------------
@@ -455,6 +515,25 @@ pub struct WeaponSpec {
     pub mount_class: MountClass,
     pub family: DamageFamily,
     pub stat_deltas: StatDeltas,
+    /// **Projector** support (v3 US5, the Commander's weapon-driven counter-pick): when `Some`, this
+    /// weapon projects support onto allies (its `kind`/`power`/`range`) instead of dealing damage, and
+    /// the derive reads it into `EffectiveStats` in place of the chassis's base support. `None` for every
+    /// ordinary weapon — omitted from serialization so a pre-US5 ruleset hashes byte-identically.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub support: Option<SupportProjection>,
+}
+
+/// A projector weapon's support payload (v3 US5): what a Commander projects and how far, chosen by the
+/// weapon slot so the Commander counter-picks Heal / Shield / Ablation for its army's need.
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SupportProjection {
+    /// Per-tick projection magnitude (hull healed, shield restored, or ablative granted).
+    pub power: Fixed,
+    pub range: SupportRange,
+    /// Which layer this projects onto — `Heal` (hull), `ShieldBoost` (shield), or `Ablation` (a fresh
+    /// ablative buffer). `Aura` is not a projection and is treated as inert here.
+    pub kind: crate::replay::SupportKind,
 }
 
 /// A defense — sets the primary mitigation layer (armor and/or shield), gated by `mount_class`.
@@ -486,6 +565,17 @@ fn is_false(b: &bool) -> bool {
     !*b
 }
 
+/// serde skip-when-zero for the additive bp deltas that were added after the fact (hash-stable).
+fn is_zero_bp(v: &Bp) -> bool {
+    *v == 0
+}
+
+/// serde skip-when-zero for the additive [`Fixed`] deltas added after the fact (hash-stable) — the v3
+/// US3-D sustain/support fields (`hull_regen`, shield deltas, `support_power`).
+fn is_zero_fixed(v: &Fixed) -> bool {
+    v.milli() == 0
+}
+
 /// A utility — ungated, **no duplicates on one machine**; may unlock capabilities.
 #[derive(Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -498,6 +588,25 @@ pub struct UtilitySpec {
     /// Cadence tiers to shift faster (positive = faster, min Fast); `0` = no shift.
     #[serde(default)]
     pub cadence_shift: i8,
+    /// Slot cost (v3 US3-A economy): how many of the chassis's utility **budget** this consumes
+    /// (design tiers 1 = stat · 2 = capability/counter · 3 = build-definer). Defaults to 1 and is
+    /// **skipped when 1**, so existing single-cost content serializes byte-identically (hash-stable).
+    #[serde(default = "one_u8", skip_serializing_if = "is_one_u8")]
+    pub cost: u8,
+    /// A **passive aura** this utility projects while equipped (v3 US3-D, §14: the Commander's
+    /// Coordination Net / Damage Boost / Damage Reduction, the Heavy's Smoke Canisters). Merged into the
+    /// carrier's live aura set alongside its chassis aura. `None` for ordinary utilities — skipped when
+    /// absent so they serialize byte-identically (hash-stable).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub aura: Option<AuraEffect>,
+}
+
+/// serde default/skip for `UtilitySpec::cost` — keeps cost-1 items hash-stable (see `cost`).
+fn one_u8() -> u8 {
+    1
+}
+fn is_one_u8(c: &u8) -> bool {
+    *c == 1
 }
 
 /// A capability an equipped utility can unlock (gates otherwise-illegal dials/options — V6/V7).
@@ -522,6 +631,81 @@ pub enum Capability {
     /// marks the target so it takes extra damage from further fire for a spell — a focus-fire
     /// multiplier. Added last to keep the enum's `Ord`/serialization stable.
     OnHitPaint,
+    /// **EMP** on-hit rider (v3 US3, design §14.3): a landed hit suppresses the target's *sustain* — no
+    /// shield regen and no incoming heals — for a spell. Anti-sustain; the answer to healer / shield
+    /// builds. Added last to keep the enum's `Ord`/serialization stable.
+    OnHitEmp,
+    /// **Suppress** on-hit rider (v3 US3, design §13.2): a landed hit cuts the target's *own* outgoing
+    /// damage + accuracy for a spell — degrades an alpha / burst dealer instead of out-damaging it.
+    /// Added last to keep the enum's `Ord`/serialization stable.
+    OnHitSuppress,
+    /// **Snare** on-hit rider (v3 US3, design §13.2): a landed hit cuts the target's move speed for a
+    /// spell — pins a kiter / backline-diver. (Inert where movement does not change outcomes — P21.)
+    /// Added last to keep the enum's `Ord`/serialization stable.
+    OnHitSnare,
+    /// **Jump Jets** (v3 US3-C, design §14.3, the Mech signature): the machine periodically leaps into
+    /// [`ZoneId::Air`] for a window — gaining full air-to-air fire **and** whole-battlefield reach — then
+    /// lands home and cools down on the ground (~50% duty cycle). Airborne it is an exposed AA target and
+    /// takes extra damage. Added last to keep the enum's `Ord`/serialization stable.
+    JumpJets,
+    /// **Stationary brace** (v3 US3, design §14: Siege Mode / Bulwark Mode / Entrench): while the machine
+    /// has held its position for a spell it takes less damage — the reward for committing to immobility.
+    /// Added last to keep the enum's `Ord`/serialization stable.
+    StationaryBrace,
+    /// **Rally** (v3 US3, design §14.7: the anti-control counter): each tick, cleanses the EMP / Suppress
+    /// / Snare timers off friendly machines in range — the answer to the on-hit riders (§13.2).
+    /// Added last to keep the enum's `Ord`/serialization stable.
+    Rally,
+    /// **Ambush** (v3 US3, design §14: Light/Heavy alpha): this machine's hits land **harder against a
+    /// full-health target** — a first-strike/alpha bonus that fades once the target has been dented.
+    /// Added last to keep the enum's `Ord`/serialization stable.
+    Ambush,
+    /// **Adaptive Munitions** (v3 US3, design §14: the Mech's flex signature): unlocks a Plan-B
+    /// **DamageType** dial — the machine may switch its outgoing damage *type* mid-battle when a trigger
+    /// fires (improvised ammo, so the switch drops the native-match bonus). Gated in `validate` (V7):
+    /// only a machine carrying this may set a `DialValue::DamageType`. Added last for `Ord` stability.
+    AdaptiveMunitions,
+    /// **Duelist Servos** (v3 US3, design §14): consecutive *hits* on the **same** target ramp this
+    /// machine's damage (a focus-fire crescendo that resets when it switches target). The ramp lives in
+    /// the sim (`damage.rs`); this is the pure capability unlock. Added last for `Ord` stability.
+    Duelist,
+    /// **Coordinated Strike** (v3 US3, the Heli signature): +accuracy while a zone ally independently
+    /// targets the **same** enemy — a focus-fire reward, inert when firing solo. Added last for stability.
+    CoordinatedStrike,
+    /// **Guardian Protocol** (v3 US3, design §14: the Heavy's protector): redirects a share of the
+    /// direct-fire damage aimed at a **zone ally** onto this machine — a damage-soak bodyguard. Added
+    /// last to keep the enum's `Ord`/serialization stable.
+    Guardian,
+    /// **Air Superiority** (v3 US3, design §14.4, the Heli): +damage vs any target in [`ZoneId::Air`] —
+    /// own the dogfight lane. A conditional damage counter (like [`Ambush`], a cap→condition→multiplier
+    /// on the primary hit); inert vs ground. Added last to keep the enum's `Ord`/serialization stable.
+    AirSuperiority,
+    /// **Flanking Package** (v3 US3, design §14.2, the Light): +damage vs a target in [`ZoneId::Rear`] —
+    /// punish the enemy backline the Light's reach can hit. Conditional counter; inert vs the front line.
+    /// Added last to keep the enum's `Ord`/serialization stable.
+    Flanking,
+    /// **Counter-Battery** (v3 US3, design §14.5, the Artillery): +damage vs an **indirect-fire** target
+    /// (one whose weapon reach is [`ReachTag::AnyGround`] — enemy artillery / rocket-arty). Conditional
+    /// counter; inert vs direct-fire units. Added last to keep the enum's `Ord`/serialization stable.
+    CounterBattery,
+    /// **SEAD** (v3 US3, design §14.4, the Heli signature): +damage vs a target carrying [`AntiAir`] —
+    /// hunt the flak that answers air. Conditional counter; inert vs non-AA units. Added last to keep the
+    /// enum's `Ord`/serialization stable.
+    ///
+    /// [`AntiAir`]: Capability::AntiAir
+    Sead,
+    /// **Multi-Targeting** (v3 US3, design §14.6, the Commander): the machine's support projector reaches
+    /// a **second** ally each tick — spread sustain instead of stacking it on one. Inert on a non-support
+    /// machine (nothing projects). Added last to keep the enum's `Ord`/serialization stable.
+    MultiTarget,
+    /// **Modular Hardpoint** (v3 US3, design §14.3, the Mech): grants a **net +1 utility slot** (the
+    /// validator raises the budget by 2, so after the item's own cost the machine ends one slot richer).
+    /// A validator-only capability — the sim/derive never read it. Added last for `Ord` stability.
+    ExtraUtilitySlot,
+    /// **Broadcast Array** (v3 US3, design §14.6, the Commander): widens the machine's support projector
+    /// to reach the **whole army** (every zone), not just its own. Set in derive (support_range →
+    /// `WholeArmy`); inert on a non-support machine. Added last to keep the enum's serialization stable.
+    Broadcast,
 }
 
 // ---------------------------------------------------------------------------
@@ -536,6 +720,12 @@ pub struct BehaviorDials {
     pub targeting: TargetingChain,
     pub movement: MovementMode,
     pub stance: Stance,
+    /// v3 US3 Adaptive Munitions: an active outgoing damage-*type* override, latched by a Plan-B
+    /// `DialValue::DamageType`. `None` in every authored/base build (the machine fires its weapon's own
+    /// type); a fired trigger flips it. **Skipped when `None`** so existing dials serialize
+    /// byte-identically (hash-stable), and reverts to `None` when the granting slot stops applying.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub damage_override: Option<DamageType>,
 }
 
 /// The targeting **priority-score chain** (v3 US2, design §12) — two ordered class **filters** (either
@@ -624,6 +814,9 @@ pub enum Stance {
 pub enum DialKey {
     Movement,
     Stance,
+    /// v3 US3 Adaptive Munitions — the machine's outgoing damage *type*. Only a machine carrying the
+    /// `AdaptiveMunitions` capability may set it (gated in `validate`). Added last for `Ord` stability.
+    DamageType,
 }
 
 /// A dial-typed value a Plan-B trigger latches (externally tagged: `{ "Movement": "FallBack" }`).
@@ -631,6 +824,8 @@ pub enum DialKey {
 pub enum DialValue {
     Movement(MovementMode),
     Stance(Stance),
+    /// v3 US3 Adaptive Munitions: latch a new outgoing damage *type* (Kinetic / Energy / Explosive).
+    DamageType(DamageType),
 }
 
 impl DialValue {
@@ -639,6 +834,7 @@ impl DialValue {
         match self {
             DialValue::Movement(_) => DialKey::Movement,
             DialValue::Stance(_) => DialKey::Stance,
+            DialValue::DamageType(_) => DialKey::DamageType,
         }
     }
 }
@@ -775,6 +971,7 @@ mod tests {
             spec: EquipmentSpec::Weapon(WeaponSpec {
                 mount_class: MountClass::Heavy,
                 family: DamageFamily::Kinetic,
+                support: None,
                 stat_deltas: StatDeltas {
                     damage: Fixed::from_int(35),
                     cadence_tier: Some(CadenceTier::Slow),
@@ -876,6 +1073,7 @@ mod tests {
                 targeting: TargetingChain::DEFAULT,
                 movement: MovementMode::Advance,
                 stance: Stance::Aggressive,
+                damage_override: None,
             },
             plan_b: vec![PlanBTrigger {
                 slot: PlanBSlot::Slot1,

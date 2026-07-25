@@ -21,8 +21,8 @@ use crate::model::army::{
 };
 use crate::model::ruleset::{CoordinationGrain, CoordinationScales, Ruleset};
 use crate::model::types::{
-    AuraKind, AuraScope, BehaviorDials, DamageType, MachineTypeId, PlanBSlot, PlanBTrigger,
-    ReachTag, SupportRange, VariantId, ZoneId,
+    AuraEffect, AuraKind, AuraScope, BehaviorDials, DamageType, EquipmentSpec, MachineTypeId,
+    PlanBSlot, PlanBTrigger, ReachTag, SupportRange, ZoneId,
 };
 use crate::replay::{
     GameReplay, GameResult, MachineSnapshot, MatchConfig, Side, SupportKind, Tick, TickEvent,
@@ -37,11 +37,11 @@ pub(crate) struct Combatant {
     /// The machine class — read to exclude helis from heal targeting (`resolve_support`) and carried
     /// for the replay's `unitOrder` dictionary (populated in US5/T048).
     pub type_id: MachineTypeId,
-    /// The chassis variant — read at setup to apply its passive aura (`grant_start_shields`).
-    pub variant_id: VariantId,
-    /// The chassis's passive aura (v3 US5), cached off the ruleset so the per-hit aura pass (Command
-    /// boost / protector projection) needn't re-look it up. `None` for the ordinary chassis.
-    pub passive_aura: Option<crate::model::types::AuraEffect>,
+    /// The machine's live passive auras (v3 US5/US3-D) — its chassis aura (Command boost / Spotter /
+    /// protector) **plus** any auras its equipped utilities project (Coordination Net, Damage
+    /// Boost/Reduction, Smoke). Collected once at setup so the per-hit aura pass needn't re-look them up.
+    /// Empty for a machine with no chassis aura and no aura utilities.
+    pub auras: Vec<crate::model::types::AuraEffect>,
     pub stats: EffectiveStats,
     /// Active dials (mutated by Plan-B latches); recomputed from `base_dials` + `fired` each tick.
     pub base_dials: BehaviorDials,
@@ -60,11 +60,24 @@ pub(crate) struct Combatant {
     /// when `stats.reactive`. Starts `[0, 0, 0]`, so a reactive Mech opens exactly as its Balanced twin.
     pub absorbed: [Fixed; 3],
     pub ticks_since_hit: u16,
+    /// Ticks since this machine last changed zone (v3 US3 stationary brace). Increments every tick,
+    /// resets to `0` on a move; a `StationaryBrace` machine takes less damage once it exceeds the settle
+    /// threshold. Tracked for every combatant (cheap) but only *read* for a bracing machine.
+    pub ticks_since_move: u16,
     pub cooldown: u16,
     pub move_cooldown: u16,
     /// Tick until which this machine is **painted** (v3 US3) — a Paint on-hit rider marked it, so it
     /// takes extra damage from further fire until here. `0` = not painted (no tick 0 marking survives).
     pub painted_until: u16,
+    /// Tick until which this machine is **EMP'd** (v3 US3) — an EMP on-hit rider suppressed its sustain,
+    /// so its shields do not regen and it cannot be healed until here. `0` = clear.
+    pub emp_until: u16,
+    /// Tick until which this machine is **suppressed** (v3 US3) — a Suppress on-hit rider cut its own
+    /// outgoing damage + accuracy until here. `0` = clear.
+    pub suppressed_until: u16,
+    /// Tick until which this machine is **snared** (v3 US3) — a Snare on-hit rider cut its move speed
+    /// until here. `0` = clear.
+    pub snared_until: u16,
     pub zone: ZoneId,
     /// The zone this machine was placed in (v3 US2). `FallBack` returns here after its duck; the field
     /// never changes, so a machine's "home" is always its start position regardless of how it has moved.
@@ -74,6 +87,17 @@ pub(crate) struct Combatant {
     pub fallback: FallbackPhase,
     /// Ticks left in the `FallBack` duck before the machine turns for home (counts down every tick).
     pub fallback_timer: u16,
+    /// `JumpJets` duty-cycle phase (v3 US3-C): ground ⇄ airborne. Only ever leaves `Grounded` for a
+    /// machine that carries the `JumpJets` capability (non-jumpers stay `Grounded` forever, untouched).
+    pub jump: JumpJetPhase,
+    /// Ticks left in the current jump phase — the airborne window while `Airborne`, the ground cooldown
+    /// while `Grounded`. Counts down every tick for a jumper; inert (stays `0`) for a non-jumper.
+    pub jump_timer: u16,
+    /// **Duelist Servos** ramp state (v3 US3): the unit this machine hit on its previous shot, and how
+    /// many consecutive hits it has landed on it. Tracked for every combatant (cheap) but only *read* for
+    /// a `Duelist` machine, whose damage ramps with `ramp_stacks` and resets when `last_target` changes.
+    pub last_target: Option<UnitRef>,
+    pub ramp_stacks: u16,
     pub alive: bool,
     pub damage_dealt: Fixed,
     pub destroyed_at: Option<u16>,
@@ -92,6 +116,21 @@ pub(crate) enum FallbackPhase {
     Returning,
     /// Home again (or as close as it could get) — holds until ordered otherwise.
     Home,
+}
+
+/// The `JumpJets` duty cycle (v3 US3-C, design §14.3). A machine carrying the capability alternates a
+/// grounded window and an airborne excursion: it leaps into [`ZoneId::Air`] for the air window (full
+/// air-to-air fire + whole-battlefield reach, but exposed to AA), then lands back at its home zone and
+/// cools down on the ground before it can leap again (~50% duty cycle). A non-jumper never leaves
+/// `Grounded`, so its `zone` is governed entirely by the ordinary movement modes.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub(crate) enum JumpJetPhase {
+    /// On the ground — either cooling down between leaps, or (for a non-jumper) permanently. Ground
+    /// movement resolves normally while `Grounded`.
+    Grounded,
+    /// Airborne in [`ZoneId::Air`] for the leap window; the jump owns the machine's zone (normal
+    /// movement is suspended) and the machine takes extra incoming damage as an exposed AA target.
+    Airborne,
 }
 
 impl Combatant {
@@ -126,6 +165,10 @@ pub(crate) struct AttackProfile {
     /// The Mech's Rocket Pack (v2, US4): full-rate anti-air (the flak damage rate), but reach-limited to
     /// the front line (enforced in `target::reach_zones`), so it never gains the SAM's whole-field reach.
     pub rocket_pack: bool,
+    /// The attacker is **airborne on jump jets** this shot (v3 US3-C): it fights air at full rate (no
+    /// plink penalty) and reaches the whole battlefield on the ground. `false` for anything not currently
+    /// leaping — so a stock attacker's damage math is byte-identical.
+    pub jumped: bool,
 }
 
 /// Cadence tier → cooldown ticks, via the ruleset table.
@@ -140,6 +183,24 @@ fn coord_same_unit(a: &MachineInstance, b: &MachineInstance, grain: Coordination
         CoordinationGrain::Type => a.type_id == b.type_id,
         CoordinationGrain::TypeVariant => a.type_id == b.type_id && a.variant_id == b.variant_id,
     }
+}
+
+/// The machine's live passive auras (v3 US3-D): its chassis aura, then any auras its equipped utilities
+/// project (Coordination Net / Damage Boost/Reduction / Smoke). Order is chassis-then-loadout, but every
+/// consumer sums/products over the set, so order never affects a result.
+fn collect_auras(ruleset: &Ruleset, m: &MachineInstance) -> Vec<AuraEffect> {
+    let mut auras = Vec::new();
+    if let Some(a) = ruleset.chassis.get(&m.variant_id).and_then(|c| c.passive_aura) {
+        auras.push(a);
+    }
+    for uid in &m.loadout.utilities {
+        if let Some(EquipmentSpec::Utility(u)) = ruleset.equipment(uid).map(|e| &e.spec) {
+            if let Some(a) = u.aura {
+                auras.push(a);
+            }
+        }
+    }
+    auras
 }
 
 /// Build the 10 combatants (side A then B, in instance order) from the two armies + ruleset.
@@ -176,8 +237,7 @@ pub(crate) fn build_combatants(
                     instance_id: m.instance_id,
                 },
                 type_id: m.type_id,
-                passive_aura: ruleset.chassis.get(&m.variant_id).and_then(|c| c.passive_aura),
-                variant_id: m.variant_id.clone(),
+                auras: collect_auras(ruleset, m),
                 base_dials: m.dials,
                 dials: m.dials,
                 plan_b: m.plan_b.clone(),
@@ -189,13 +249,21 @@ pub(crate) fn build_combatants(
                 ablative: stats.ablative_cap,
                 absorbed: [Fixed::ZERO; 3],
                 ticks_since_hit: 0,
+                ticks_since_move: 0,
                 cooldown: 0,
                 move_cooldown: 0,
                 painted_until: 0,
+                emp_until: 0,
+                suppressed_until: 0,
+                snared_until: 0,
                 zone: m.zone,
                 home_zone: m.zone,
                 fallback: FallbackPhase::Inactive,
                 fallback_timer: 0,
+                jump: JumpJetPhase::Grounded,
+                jump_timer: 0,
+                last_target: None,
+                ramp_stacks: 0,
                 alive: true,
                 damage_dealt: Fixed::ZERO,
                 destroyed_at: None,
@@ -203,7 +271,7 @@ pub(crate) fn build_combatants(
             });
         }
     }
-    grant_start_shields(&mut out, ruleset);
+    grant_start_shields(&mut out);
     Ok(out)
 }
 
@@ -212,7 +280,7 @@ pub(crate) fn build_combatants(
 /// (bp) of the recipient's max hull. Stacks across multiple support sources. The barrier is added on
 /// top of the recipient's own shield — because it sits *above* the shield cap, the per-tick upkeep
 /// (which only regenerates while `shield < shield_cap`) never tops it back up: it depletes once.
-fn grant_start_shields(combatants: &mut [Combatant], ruleset: &Ruleset) {
+fn grant_start_shields(combatants: &mut [Combatant]) {
     struct Source {
         side: Side,
         zone: ZoneId,
@@ -221,13 +289,11 @@ fn grant_start_shields(combatants: &mut [Combatant], ruleset: &Ruleset) {
     }
     let sources: Vec<Source> = combatants
         .iter()
-        .filter_map(|c| {
-            ruleset
-                .chassis
-                .get(&c.variant_id)?
-                .passive_aura
+        .flat_map(|c| {
+            c.auras
+                .iter()
                 .filter(|a| a.kind == AuraKind::StartShield && a.magnitude > 0)
-                .map(|a| Source {
+                .map(move |a| Source {
                     side: c.unit.side,
                     zone: c.zone,
                     mag: a.magnitude,
@@ -246,6 +312,8 @@ fn grant_start_shields(combatants: &mut [Combatant], ruleset: &Ruleset) {
                     && match s.scope {
                         AuraScope::AllAllies => true,
                         AuraScope::ZoneAllies => s.zone == c.zone,
+                        // StartShield is an ally-only feature; enemy scopes never confer a shield.
+                        AuraScope::ZoneEnemies | AuraScope::AllEnemies => false,
                     }
             })
             .map(|s| s.mag)
@@ -356,19 +424,29 @@ pub(crate) fn run_game(
             if c.shield < c.stats.shield_cap
                 && c.ticks_since_hit >= c.stats.shield_delay
                 && c.stats.shield_regen.milli() > 0
+                && c.emp_until <= tick // EMP (US3) freezes shield regen while active
             {
                 c.shield = c
                     .shield
                     .saturating_add(c.stats.shield_regen)
                     .min(c.stats.shield_cap);
             }
+            // Self-hull regen (v3 US3-D: Field Repair / Repair Nanites) — a slow self-repair, EMP-blocked
+            // like shield regen and capped at max hull. Inert (skipped) for the stock field (regen == 0).
+            if c.stats.hull_regen.milli() > 0 && c.hull < c.max_hull && c.emp_until <= tick {
+                c.hull = c.hull.saturating_add(c.stats.hull_regen).min(c.max_hull);
+            }
         }
 
         // 2. Behavior: Plan-B latches, then movement (both deterministic, no RNG).
         behavior::apply_behavior(combatants, tick, ruleset, &mut events);
 
+        // 2b. Rally (US3, anti-control): cleanse the EMP/Suppress/Snare riders off allies before support
+        //     and offense, so a cleansed ally can be healed and fires unhindered this tick.
+        resolve_rally(combatants);
+
         // 3. Support heals (no RNG; before offense so a heal can save a unit this tick).
-        resolve_support(combatants, ruleset, &mut events);
+        resolve_support(combatants, tick, ruleset, &mut events);
 
         // 4. Offense: each ready combatant fires once, in acting order, using current state.
         // `air_focus` budgets anti-air engagements for this tick so one aircraft cannot soak an
@@ -429,52 +507,152 @@ pub(crate) fn run_game(
 /// stance is now a universal posture whose two-sided magnitude scales its heal **output** exactly like
 /// a weapon's (Defensive −20%, Aggressive +5%), matching "output = weapon damage OR projection". A
 /// Neutral support heals at its raw `support_power`, so the stock all-Neutral field is unchanged.
-fn resolve_support(combatants: &mut [Combatant], ruleset: &Ruleset, events: &mut Vec<TickEvent>) {
+fn resolve_support(
+    combatants: &mut [Combatant],
+    tick: u16,
+    ruleset: &Ruleset,
+    events: &mut Vec<TickEvent>,
+) {
     let n = combatants.len();
     for i in 0..n {
-        let (power, range, side, zone, actor) = {
+        let (power, range, side, zone, actor, kind, multi) = {
             let c = &combatants[i];
             match (c.alive, c.stats.support_power) {
                 (true, Some(p)) if p.milli() > 0 => (
-                    // The stance output multiplier scales the projected heal (Neutral = ×1, identity).
+                    // The stance output multiplier scales the projection (Neutral = ×1, identity).
                     p.mul_bp(ruleset.stance_mods.output_mult(c.dials.stance)),
                     c.stats.support_range.unwrap_or(SupportRange::OwnZone),
                     c.unit.side,
                     c.zone,
                     c.unit,
+                    c.stats.support_kind, // Heal (medic) or the Commander's projected Shield/Ablation (US5)
+                    // Multi-Targeting (US3, §14.6): project to a second ally this tick.
+                    c.stats
+                        .capabilities
+                        .contains(&crate::model::types::Capability::MultiTarget),
                 ),
                 _ => continue,
             }
         };
         let zones = support_zones(range, zone);
 
-        // Pick the most-damaged wounded ally in range (a full-hull ally is not a repair target).
-        let mut best: Option<usize> = None;
-        for j in 0..n {
-            if !serviceable(combatants, i, j, side, &zones) {
-                continue;
-            }
-            if combatants[j].hull >= combatants[j].max_hull {
-                continue;
-            }
-            best = match best {
-                None => Some(j),
-                Some(b) if support_prefers(&combatants[j], &combatants[b]) => Some(j),
-                Some(b) => Some(b),
-            };
-        }
-
-        if let Some(j) = best {
+        // First projection: the single most-damaged serviceable ally in range (byte-identical to the
+        // pre-US3 single-target path). A living Multi-Targeting projector then adds a second projection to
+        // the next-best ally, excluding the first, so it spreads sustain instead of stacking it.
+        let first = select_projection_target(combatants, i, tick, side, &zones, kind, None);
+        if let Some(j) = first {
             let target = combatants[j].unit;
-            let missing = combatants[j].max_hull.saturating_sub(combatants[j].hull);
-            let heal = power.min(missing);
-            combatants[j].hull = combatants[j].hull.saturating_add(heal);
-            events.push(TickEvent::Support {
-                actor,
-                target,
-                amount: heal,
-                kind: SupportKind::Heal,
-            });
+            let amount = apply_projection(&mut combatants[j], kind, power);
+            if amount.milli() > 0 {
+                events.push(TickEvent::Support { actor, target, amount, kind });
+            }
+        }
+        if multi {
+            if let Some(j) = select_projection_target(combatants, i, tick, side, &zones, kind, first) {
+                let target = combatants[j].unit;
+                let amount = apply_projection(&mut combatants[j], kind, power);
+                if amount.milli() > 0 {
+                    events.push(TickEvent::Support { actor, target, amount, kind });
+                }
+            }
+        }
+    }
+}
+
+/// Pick the most-damaged serviceable ally of projector `i` in range that still has room for a `kind`
+/// projection this tick, optionally excluding one index (v3 US3 Multi-Targeting's second pass). The
+/// argmax is a stable most-wounded-first selection (ties keep the earlier index), so with `exclude:
+/// None` it reproduces the pre-US3 single-target pick byte-for-byte. `None` when nothing is serviceable.
+fn select_projection_target(
+    combatants: &[Combatant],
+    i: usize,
+    tick: u16,
+    side: Side,
+    zones: &[ZoneId],
+    kind: SupportKind,
+    exclude: Option<usize>,
+) -> Option<usize> {
+    let mut best: Option<usize> = None;
+    for j in 0..combatants.len() {
+        if exclude == Some(j) {
+            continue;
+        }
+        if !serviceable(combatants, i, j, side, zones) {
+            continue;
+        }
+        if combatants[j].emp_until > tick {
+            continue; // EMP (US3) blocks this ally's incoming heal / shield / ablation while active
+        }
+        if !projection_needed(&combatants[j], kind) {
+            continue;
+        }
+        best = match best {
+            None => Some(j),
+            Some(b) if support_prefers(&combatants[j], &combatants[b]) => Some(j),
+            Some(b) => Some(b),
+        };
+    }
+    best
+}
+
+/// Whether ally `c` still has headroom for a `kind` projection this tick — a full layer is skipped, so a
+/// projector never wastes a tick topping up something already at cap. `Heal` is the medic's hull repair
+/// (byte-identical to the pre-US5 `hull < max_hull` guard); `ShieldBoost`/`Ablation` are the Commander's
+/// (US5). `Aura` is never a per-tick projection target.
+fn projection_needed(c: &Combatant, kind: SupportKind) -> bool {
+    match kind {
+        SupportKind::Heal => c.hull < c.max_hull,
+        SupportKind::ShieldBoost => c.stats.shield_cap.milli() > 0 && c.shield < c.stats.shield_cap,
+        // A projected ablative buffer is bounded by the recipient's own hull size, so it can never make
+        // an ally unkillable — it grants a finite one-time cushion even to a chassis with no ablative kit.
+        SupportKind::Ablation => c.ablative < c.max_hull,
+        SupportKind::Aura => false,
+    }
+}
+
+/// Apply a `kind` projection of up to `power` onto ally `c`'s corresponding layer, capped at that layer's
+/// headroom; returns the amount actually applied (0 when the layer was already full). Heal → hull (the
+/// pre-US5 behaviour), ShieldBoost → shield (up to `shield_cap`), Ablation → the ablative pool.
+fn apply_projection(c: &mut Combatant, kind: SupportKind, power: Fixed) -> Fixed {
+    let (current, cap): (Fixed, Fixed) = match kind {
+        SupportKind::Heal => (c.hull, c.max_hull),
+        SupportKind::ShieldBoost => (c.shield, c.stats.shield_cap),
+        SupportKind::Ablation => (c.ablative, c.max_hull),
+        SupportKind::Aura => return Fixed::ZERO,
+    };
+    let amount = power.min(cap.saturating_sub(current));
+    match kind {
+        SupportKind::Heal => c.hull = c.hull.saturating_add(amount),
+        SupportKind::ShieldBoost => c.shield = c.shield.saturating_add(amount),
+        SupportKind::Ablation => c.ablative = c.ablative.saturating_add(amount),
+        SupportKind::Aura => {}
+    }
+    amount
+}
+
+/// Rally (v3 US3, the anti-control counter): every living machine carrying the `Rally` capability
+/// cleanses the on-hit **control** riders — EMP, Suppress, Snare — off every friendly machine each tick,
+/// so a Rally unit hard-counters the rider kits while it lives. Paint is deliberately left untouched: it
+/// is a focus-fire mark, not control, and Rally answers control. Inert when no machine carries Rally.
+fn resolve_rally(combatants: &mut [Combatant]) {
+    let rallied_sides: Vec<Side> = combatants
+        .iter()
+        .filter(|c| {
+            c.alive
+                && c.stats
+                    .capabilities
+                    .contains(&crate::model::types::Capability::Rally)
+        })
+        .map(|c| c.unit.side)
+        .collect();
+    if rallied_sides.is_empty() {
+        return;
+    }
+    for c in combatants.iter_mut() {
+        if c.alive && rallied_sides.contains(&c.unit.side) {
+            c.emp_until = 0;
+            c.suppressed_until = 0;
+            c.snared_until = 0;
         }
     }
 }

@@ -10,9 +10,11 @@
  * model when the content schema evolves (`schemaVersion` gates stored configs).
  */
 
+import type { DamageType } from './ruleset';
+
 // --- Closed enums (bare-string serialization) ------------------------------
 
-/** The seven machine classes — a closed set (`MachineTypeId`, model/types.rs). */
+/** The eight machine classes — a closed set (`MachineTypeId`, model/types.rs). */
 export type MachineTypeId =
   | "HeavyTank"
   | "LightTank"
@@ -20,7 +22,8 @@ export type MachineTypeId =
   | "AttackHeli"
   | "RocketArtillery"
   | "Artillery"
-  | "RearSupport";
+  | "RearSupport"
+  | "Commander";
 
 /** The four battlefield rows (`ZoneId`). Air is separate from the ground rows. */
 export type ZoneId = "Air" | "Front" | "Middle" | "Rear";
@@ -68,19 +71,24 @@ export type MovementMode = "Hold" | "Advance" | "FallBack" | "Kite";
 export type Stance = "Aggressive" | "Neutral" | "Defensive";
 
 /**
- * Which dial a Plan-B trigger flips (`DialKey`, v3) — Movement or Stance only. Targeting is
- * self-reactive via the priority chain, so Plan-B no longer sets it (design §12.3/§15.4).
+ * Which dial a Plan-B trigger flips (`DialKey`, v3) — Movement, Stance, or (v3 US3 Adaptive Munitions)
+ * the outgoing damage `DamageType`. Targeting is self-reactive via the priority chain, so Plan-B never
+ * sets it (design §12.3/§15.4). A `DamageType` flip is capability-gated in `validate` (V7).
  */
-export type DialKey = "Movement" | "Stance";
+export type DialKey = "Movement" | "Stance" | "DamageType";
 
 /** Plan-B precedence slot (`PlanBSlot`). Slot 1 wins over Slot 2 on the same dial. */
 export type PlanBSlot = "Slot1" | "Slot2";
 
 /**
  * A dial-typed value a Plan-B trigger latches (`DialValue`, externally tagged — e.g.
- * `{ "Movement": "FallBack" }`).
+ * `{ "Movement": "FallBack" }`). The `DamageType` variant (v3 US3 Adaptive Munitions) switches the
+ * machine's outgoing damage type mid-battle; it is capability-gated in `validate`.
  */
-export type DialValue = { Movement: MovementMode } | { Stance: Stance };
+export type DialValue =
+  | { Movement: MovementMode }
+  | { Stance: Stance }
+  | { DamageType: DamageType };
 
 /**
  * The Plan-B trigger menu (`TriggerCondition`, v3 §15.4). **Every trigger reads own-state** — the
@@ -126,6 +134,12 @@ export interface BehaviorDials {
   targeting: TargetingChain;
   movement: MovementMode;
   stance: Stance;
+  /**
+   * v3 US3 Adaptive Munitions: an active outgoing damage-type override, latched by a Plan-B
+   * `DamageType` value. Absent in every authored/base build (the machine fires its weapon's own type),
+   * so it is skipped-when-`None` on the Rust side and optional here.
+   */
+  damageOverride?: DamageType;
 }
 
 /** A configured machine placed in the army (`MachineInstance`). `instanceId` is unique within the army. */

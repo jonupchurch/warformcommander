@@ -110,6 +110,10 @@ function statDeltaLines(d: StatDeltas, ruleset: Ruleset): EffectLine[] {
   push('Crit chance', d.critChance, signedPct);
   push('Evasion', d.evasion, signedPct);
   push('Armor', d.armorPct, signedPct);
+  push('Hull regen', d.hullRegen ?? 0, signedUnits);
+  push('Shield capacity', d.shieldCap ?? 0, signedUnits);
+  push('Shield regen', d.shieldRegen ?? 0, signedUnits);
+  push('Projector power', d.supportPower ?? 0, signedUnits);
   push('Move speed', d.moveSpeed, (n) => `${n > 0 ? '+' : ''}${n}`);
   if (d.targetDraw !== 0) {
     out.push({
@@ -191,6 +195,26 @@ const CAPABILITY_COPY: Record<Capability, string> = {
   AntiAir: 'Can target aircraft at the flak damage rate, with the anti-air accuracy bonus',
   RocketPack: 'Full-rate anti-air (flak damage), but only against aircraft close to the front line',
   OnHitPaint: 'Paints targets on hit — a painted enemy takes extra damage from all further fire',
+  OnHitEmp: 'EMP on hit — stops the target’s shield regen and blocks incoming heals (anti-sustain)',
+  OnHitSuppress: 'Suppresses on hit — cuts the target’s own outgoing damage and accuracy',
+  OnHitSnare: 'Snares on hit — cuts the target’s move speed',
+  JumpJets:
+    'Periodically leaps into the air for full air-to-air fire and whole-battlefield reach, then lands and cools down — but is an exposed AA target while airborne',
+  StationaryBrace: 'Takes less damage while it holds its position — the reward for staying put',
+  Rally: 'Each tick, cleanses EMP / Suppress / Snare off allies — the answer to control riders',
+  Ambush: 'Hits land harder against a full-health target — an alpha bonus that fades once it is dented',
+  AdaptiveMunitions:
+    'Unlocks a Plan-B that switches this machine’s outgoing damage type mid-battle (improvised ammo — no native bonus)',
+  Duelist: 'Consecutive hits on the same target ramp its damage — a focus-fire crescendo that resets on a target switch',
+  CoordinatedStrike: 'More accurate while a zone ally targets the same enemy — a focus-fire reward',
+  Guardian: 'Soaks a share of the direct fire aimed at a zone ally — a damage-redirect bodyguard',
+  AirSuperiority: 'Extra damage against air targets — own the dogfight lane',
+  Flanking: 'Extra damage against the enemy rear zone — punish the backline',
+  CounterBattery: 'Extra damage against indirect-fire units (enemy artillery / rocket-arty)',
+  Sead: 'Extra damage against anti-air carriers — hunt the flak that answers your air',
+  MultiTarget: 'The support projector reaches a second ally each tick — spreads sustain instead of stacking it',
+  ExtraUtilitySlot: 'A net +1 utility slot — literal extra flexibility',
+  Broadcast: 'The support projector reaches the whole army, not just its own zone',
 };
 
 // --- equipment -------------------------------------------------------------

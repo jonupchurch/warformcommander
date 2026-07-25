@@ -7,7 +7,7 @@
 use engine::content::{seed_ruleset, stock_instance};
 use engine::model::army::{Army, MachineInstance};
 use engine::model::ruleset::Ruleset;
-use engine::model::types::{EquipmentId, MachineTypeId, ZoneId};
+use engine::model::types::{Capability, EquipmentId, MachineTypeId, ZoneId};
 use engine::replay::{Adaptation, Fate, MatchConfig, Side, UnitRef};
 use engine::{resolve, BattleInput, BattleOutput};
 
@@ -157,4 +157,157 @@ fn target_draw_derives_from_equipment() {
     assert_eq!(draw(None), 0, "no draw module → 0");
     assert_eq!(draw(Some("Decoy")), 2, "Decoy → +2");
     assert_eq!(draw(Some("ECMSuite")), -2, "ECM → −2");
+}
+
+// ---------------------------------------------------------------------------
+// v3 US3 on-hit riders (EMP / Suppress / Snare) — the graded soft counters.
+// ---------------------------------------------------------------------------
+
+fn death_tick_side(out: &BattleOutput, side: Side, id: u8) -> u16 {
+    let u = UnitRef {
+        side,
+        instance_id: id,
+    };
+    match out.result.machine_fates.iter().find(|f| f.unit == u).map(|f| f.fate) {
+        Some(Fate::DestroyedAtTick(t)) => t,
+        _ => u16::MAX,
+    }
+}
+
+/// The three rider utilities each unlock their capability (the sim reads it on the attacker's hits).
+#[test]
+fn rider_utilities_unlock_capabilities() {
+    use engine::model::army::derive_effective_stats;
+    let rs = seed_ruleset();
+    let base = tank(&rs, "Grizzly", ZoneId::Front, 0);
+    let caps = |util: &str| {
+        derive_effective_stats(&with_util(base.clone(), util), &rs)
+            .unwrap()
+            .capabilities
+    };
+    assert!(caps("EMPAmmo").contains(&Capability::OnHitEmp), "EMP Ammo → OnHitEmp");
+    assert!(
+        caps("SuppressingFire").contains(&Capability::OnHitSuppress),
+        "Suppressing Fire → OnHitSuppress"
+    );
+    assert!(caps("SnareShot").contains(&Capability::OnHitSnare), "Snare Shot → OnHitSnare");
+}
+
+/// **EMP** (anti-sustain) blocks incoming heals: a focused target kept alive by a WholeArmy Medic dies
+/// **sooner** when the attacking lead carries EMP Ammo (its heals are cut) than when it does not. Only
+/// the EMP module differs between the two runs.
+#[test]
+fn emp_rider_blocks_healing() {
+    let rs = seed_ruleset();
+    // Side B: one fragile focused target (id 0, the only reachable enemy) sustained by a Medic
+    // (WholeArmy heal) in Rear; the rest padded out of reach so all fire lands on id 0.
+    let defender = || Army {
+        machines: vec![
+            tank(&rs, "Cavalier", ZoneId::Front, 0),
+            tank(&rs, "Grizzly", ZoneId::Rear, 1),
+            tank(&rs, "Grizzly", ZoneId::Rear, 2),
+            tank(&rs, "Grizzly", ZoneId::Middle, 3),
+            stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
+        ],
+    };
+    // Side A: two Front attackers; the lead one optionally carries EMP Ammo.
+    let attackers = |emp: bool| Army {
+        machines: vec![
+            {
+                let m = tank(&rs, "Grizzly", ZoneId::Front, 0);
+                if emp {
+                    with_util(m, "EMPAmmo")
+                } else {
+                    m
+                }
+            },
+            tank(&rs, "Grizzly", ZoneId::Front, 1),
+            tank(&rs, "Grizzly", ZoneId::Middle, 2),
+            tank(&rs, "Grizzly", ZoneId::Middle, 3),
+            tank(&rs, "Grizzly", ZoneId::Rear, 4),
+        ],
+    };
+    let emp = death_tick_side(&run(&rs, attackers(true), defender(), 0xE43), Side::B, 0);
+    let plain = death_tick_side(&run(&rs, attackers(false), defender(), 0xE43), Side::B, 0);
+    assert!(
+        emp < plain,
+        "EMP must cut the target's heals so it falls sooner: emp@{emp} healed@{plain}"
+    );
+}
+
+/// **Suppress** cuts the hit target's own output: an army whose lead carries Suppressing Fire drives the
+/// enemy's total damage **down** (the suppressed enemies deal less) versus the same setup without it.
+#[test]
+fn suppress_rider_cuts_enemy_output() {
+    let rs = seed_ruleset();
+    // A durable 5v5 mirror so both sides trade fire for many ticks (suppression accumulates).
+    let side_a = |suppress: bool| Army {
+        machines: vec![
+            {
+                let m = tank(&rs, "Grizzly", ZoneId::Front, 0);
+                if suppress {
+                    with_util(m, "SuppressingFire")
+                } else {
+                    m
+                }
+            },
+            tank(&rs, "Grizzly", ZoneId::Front, 1),
+            tank(&rs, "Grizzly", ZoneId::Front, 2),
+            tank(&rs, "Grizzly", ZoneId::Middle, 3),
+            tank(&rs, "Grizzly", ZoneId::Middle, 4),
+        ],
+    };
+    let side_b = || Army {
+        machines: vec![
+            tank(&rs, "Grizzly", ZoneId::Front, 0),
+            tank(&rs, "Grizzly", ZoneId::Front, 1),
+            tank(&rs, "Grizzly", ZoneId::Front, 2),
+            tank(&rs, "Grizzly", ZoneId::Middle, 3),
+            tank(&rs, "Grizzly", ZoneId::Middle, 4),
+        ],
+    };
+    let dmg_b = |suppress: bool| {
+        run(&rs, side_a(suppress), side_b(), 0x50FF)
+            .result
+            .side(Side::B)
+            .damage_dealt
+            .milli()
+    };
+    let suppressed = dmg_b(true);
+    let plain = dmg_b(false);
+    assert!(
+        suppressed < plain,
+        "Suppress must reduce the enemy's cumulative damage: suppressed={suppressed} plain={plain}"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// v3 US1c — cadence welded to damage type + chassis (design §D6).
+// ---------------------------------------------------------------------------
+
+/// Cadence derives from the damage TYPE (+ chassis), overriding the weapon's own tier: Energy Fast,
+/// Kinetic Medium, Explosive Slow; heavy-platform chassis (Heavy Tank, Mech) fire one tier slower,
+/// Artillery one tier slower (Explosive → Siege).
+#[test]
+fn cadence_welds_to_type_and_chassis() {
+    use engine::model::army::derive_effective_stats;
+    use engine::model::types::CadenceTier;
+    let rs = seed_ruleset();
+    let cad = |t: MachineTypeId, variant: &str, weapon: &str| {
+        let mut m = stock_instance(&rs, t, variant, ZoneId::Front, 0);
+        m.loadout.weapon = EquipmentId::new(weapon);
+        m.loadout.utilities.clear(); // drop the stock Autoloader so we read the raw welded tier
+        derive_effective_stats(&m, &rs).unwrap().cadence
+    };
+    // Kinetic = Medium; a Light tank (not a heavy platform) keeps Medium.
+    assert_eq!(cad(MachineTypeId::LightTank, "Scout", "Autocannon"), CadenceTier::Medium);
+    // Energy = Fast (Light tank, no chassis modifier).
+    assert_eq!(cad(MachineTypeId::LightTank, "Scout", "ArcRepeater"), CadenceTier::Fast);
+    // Heavy platform: Kinetic Medium → one tier slower → Slow.
+    assert_eq!(cad(MachineTypeId::HeavyTank, "Grizzly", "HeavyCannon"), CadenceTier::Slow);
+    // Derive WINS over the weapon's own tier: the Railgun authors CadenceTier::Siege, but a heavy
+    // platform firing Kinetic welds to Medium → Slow, not Siege.
+    assert_eq!(cad(MachineTypeId::HeavyTank, "Grizzly", "Railgun"), CadenceTier::Slow);
+    // Artillery firing its native Explosive: Slow → one tier slower → Siege.
+    assert_eq!(cad(MachineTypeId::Artillery, "Longbow", "Howitzer"), CadenceTier::Siege);
 }

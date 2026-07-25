@@ -221,7 +221,10 @@ fn reach_zones(att: &Combatant, occupied: &Occupancy, air_allowed: bool) -> (Vec
     // `air_allowed` folds in the per-tick anti-air budget (see [`AirFocus`]): once the skies are
     // already covered by enough friendly fire, this attacker treats air as out of reach and fights on
     // the ground, rather than piling onto an aircraft that is already being handled.
-    let can_air = att.stats.can_target_air && air_allowed;
+    // A unit currently in the Air can always contest air (v3 US3-C): a Jump-Jet machine mid-leap fights
+    // the air layer directly even if its weapon isn't innately air-capable, so being airborne itself
+    // grants air reach (still subject to the per-tick anti-air budget).
+    let can_air = (att.stats.can_target_air || att.zone == ZoneId::Air) && air_allowed;
     // The reach advantage (v2, FR-029): a dedicated AA platform (a SAM's `Air` reach, the `AntiAir`
     // capability, or an innately air-capable chassis) reaches enemy air from anywhere on the field; an
     // IMPROVISED air answer — an energy weapon contesting air, or the Mech's Rocket Pack — only reaches
@@ -232,7 +235,10 @@ fn reach_zones(att: &Combatant, occupied: &Occupancy, air_allowed: bool) -> (Vec
     // heli — `home_zone == Air`) is a purpose-built aircraft that fights in the air layer itself, so its
     // energy gun is never "improvised"; excluding it here keeps an energy-armed heli engaging enemy air
     // (it can never be in the Front row, so without this it would never fire on air at all — regression).
+    // A Jump-Jet machine mid-leap (`zone == Air`) is likewise fighting *in* the air, not reaching up from
+    // the ground, so the front-only limit does not apply to it either (v3 US3-C).
     let improvised_air = att.home_zone != ZoneId::Air
+        && att.zone != ZoneId::Air
         && (att.stats.family == DamageFamily::Energy
             || att.stats.capabilities.contains(&Capability::RocketPack))
         && att.stats.reach != ReachTag::Air

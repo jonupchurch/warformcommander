@@ -27,6 +27,7 @@ use crate::model::types::{
     BehaviorDials, CadenceTier, Capability, DamageFamily, DamageType, EquipmentId, EquipmentSpec,
     Loadout, MachineTypeId, MitigationMod, PlanBTrigger, ReachTag, SupportRange, VariantId, ZoneId,
 };
+use crate::replay::SupportKind;
 
 /// A battle is 5v5 (FR-009, V1).
 pub const SQUAD_SIZE: usize = 5;
@@ -94,6 +95,9 @@ pub struct EffectiveStats {
     pub shield_cap: Fixed,
     pub shield_regen: Fixed,
     pub shield_delay: u16,
+    /// Self-hull regen per tick (v3 US3-D, design §14.1/§14.3: Field Repair / Repair Nanites). `ZERO`
+    /// unless a self-repair utility is equipped; applied in the sim's per-tick upkeep (EMP-blocked).
+    pub hull_regen: Fixed,
     /// v2 ablative pool — one-time, non-regenerating absorption between shields and hull. `ZERO` when
     /// no ablative defense is mounted (the overwhelmingly common case).
     pub ablative_cap: Fixed,
@@ -120,6 +124,9 @@ pub struct EffectiveStats {
     /// `None` = air-locked (heli); `Some(0)` = immobile; `Some(n)` = mobile.
     pub move_speed: Option<u8>,
     pub evasion: Bp,
+    /// Extra evasion that applies **only vs air/flak fire** (v3 US1d Chaff). `0` unless a chaff defense
+    /// is mounted; added to `evasion` inside the AA/flak branch of `sim::damage` (never vs ground fire).
+    pub evasion_vs_air: Bp,
     pub threat: Fixed,
     /// Targeting draw offset (v3 US2, design §12.4): added to this machine's priority score in every
     /// enemy's chain — **Decoy/Taunt +2** pulls fire, **ECM −2** sheds it. `0` until an equipment module
@@ -128,6 +135,10 @@ pub struct EffectiveStats {
     // Support
     pub support_power: Option<Fixed>,
     pub support_range: Option<SupportRange>,
+    /// What this machine's support projects onto (v3 US5): `Heal` for the chassis-native medic (hull),
+    /// or the Commander's weapon-chosen `ShieldBoost` / `Ablation`. `Heal` whenever `support_power` is
+    /// `None`, so a non-support machine carries the harmless default.
+    pub support_kind: SupportKind,
     // Derived extras
     pub special_mitigation: Option<MitigationMod>,
     pub capabilities: BTreeSet<Capability>,
@@ -164,6 +175,7 @@ struct Accum {
     damage: Fixed,
     accuracy: Bp,
     evasion: Bp,
+    evasion_vs_air: Bp,
     armor_pct: Bp,
     crit_chance: Bp,
     splash: Bp,
@@ -172,6 +184,11 @@ struct Accum {
     target_draw: i32,
     cadence: CadenceTier,
     reach: ReachTag,
+    // v3 US3-D sustain/support deltas (Field Repair / Repair Nanites / Extra Batteries / Amplifier).
+    hull_regen: Fixed,
+    shield_cap: Fixed,
+    shield_regen: Fixed,
+    support_power: Fixed,
 }
 
 impl Accum {
@@ -180,12 +197,17 @@ impl Accum {
         self.damage = self.damage.saturating_add(d.damage);
         self.accuracy += d.accuracy;
         self.evasion += d.evasion;
+        self.evasion_vs_air += d.evasion_vs_air;
         self.armor_pct += d.armor_pct;
         self.crit_chance += d.crit_chance;
         self.splash += d.splash;
         self.penetration += d.penetration;
         self.move_delta += d.move_speed as i32;
         self.target_draw += d.target_draw as i32;
+        self.hull_regen = self.hull_regen.saturating_add(d.hull_regen);
+        self.shield_cap = self.shield_cap.saturating_add(d.shield_cap);
+        self.shield_regen = self.shield_regen.saturating_add(d.shield_regen);
+        self.support_power = self.support_power.saturating_add(d.support_power);
         if let Some(c) = d.cadence_tier {
             self.cadence = c;
         }
@@ -224,6 +246,7 @@ pub fn derive_effective_stats(
         damage: base.damage,
         accuracy: base.accuracy,
         evasion: base.evasion,
+        evasion_vs_air: 0, // equipment-only (Chaff); no chassis carries innate air-evasion
         armor_pct: base.armor_pct,
         crit_chance: base.crit_chance,
         splash: base.splash,
@@ -232,6 +255,12 @@ pub fn derive_effective_stats(
         target_draw: 0, // equipment-only (Decoy/ECM); no chassis carries an innate draw offset
         cadence: base.cadence,
         reach: base.reach,
+        // Sustain/support deltas are equipment-only (Field Repair / Extra Batteries / Amplifier); no
+        // chassis carries an innate self-regen or a utility shield/support boost.
+        hull_regen: Fixed::ZERO,
+        shield_cap: Fixed::ZERO,
+        shield_regen: Fixed::ZERO,
+        support_power: Fixed::ZERO,
     };
     let mut caps: BTreeSet<Capability> = BTreeSet::new();
     let mut cadence_shift: i32 = 0;
@@ -276,11 +305,38 @@ pub fn derive_effective_stats(
         cadence_shift += util.cadence_shift as i32;
     }
 
+    // Innate chassis signatures (v3 US3-D, §14): free/no-slot capabilities the chassis carries by
+    // identity (the Attack Heli's Coordinated Strike). Merged alongside the utility unlocks.
+    if let Some(chassis) = ruleset.chassis.get(&machine.variant_id) {
+        caps.extend(chassis.innate_capabilities.iter().copied());
+    }
+
     // Native behavioural flexibility (v2, FR-025): the Mech — the sole generalist (`native_family ==
     // None`) — natively carries the extra Plan-B slot other chassis must buy with a Combat-AI utility.
     // It is the mechanical compensation for forfeiting the native-family weapon bonus (FR-027).
     if mtype.native_family.is_none() {
         caps.insert(Capability::ExtraPlanBSlot);
+    }
+
+    // v3 US1c: cadence is welded to the damage TYPE (design §D6), overriding the weapon's own tier —
+    // Energy Fast / Kinetic Medium / Explosive Slow. Heavy-platform chassis (Heavy Tank, Mech) fire one
+    // tier slower AND deal the heavy-platform damage bonus (ponderous but punchy); Artillery also fires
+    // a tier slower (its Explosive → Siege) with no damage bonus. Support keeps its base (it projects,
+    // not fires). Utility cadence shifts (Autoloader) still apply on top of the welded tier below.
+    let cp = &ruleset.cadence_profile;
+    if let Some(mut welded) = cp.tier_for(family) {
+        let (slower, dmg_bonus) = match machine.type_id {
+            MachineTypeId::HeavyTank | MachineTypeId::Mech => (true, cp.heavy_platform_dmg_bonus),
+            MachineTypeId::Artillery => (true, 0),
+            _ => (false, 0),
+        };
+        if slower {
+            welded = welded.slower();
+        }
+        if dmg_bonus > 0 {
+            acc.damage = acc.damage.mul_bp(BP_ONE + dmg_bonus);
+        }
+        acc.cadence = welded;
     }
 
     // Resolve cadence shifts (positive = faster, saturating at the tier ends).
@@ -302,11 +358,38 @@ pub fn derive_effective_stats(
     let penetration = acc.penetration.clamp(0, BP_ONE);
     let armor_pct = acc.armor_pct.clamp(0, BP_ONE);
     let evasion = acc.evasion.clamp(0, BP_ONE);
+    let evasion_vs_air = acc.evasion_vs_air.clamp(0, BP_ONE);
 
     // Mobility: air-locked (base None) stays None; otherwise clamp the delta at zero.
     let move_speed = base
         .move_speed
         .map(|m| (m as i32 + acc.move_delta).clamp(0, u8::MAX as i32) as u8);
+
+    // Support (v3 US5): a projector weapon drives what this machine projects (its own power/range/kind);
+    // otherwise the chassis's native support applies (the medic — always Heal). A non-support machine has
+    // no support either way (base `support_power` None → None), so its kind is the harmless Heal default.
+    // Amplifier (§14.6): `acc.support_power` lifts the projector's output — added only where support
+    // already exists (a projector weapon or the chassis's native support), so it is inert on a machine
+    // with no support to amplify.
+    let (support_power, support_range, support_kind) = match weapon.support {
+        Some(proj) => (
+            Some(proj.power.saturating_add(acc.support_power)),
+            Some(proj.range),
+            proj.kind,
+        ),
+        None => (
+            base.support_power.map(|p| p.saturating_add(acc.support_power)),
+            base.support_range,
+            SupportKind::Heal,
+        ),
+    };
+    // Broadcast Array (§14.6): widen the projector's reach to the whole army — only where a projector
+    // exists (support_range is Some), so it is inert on a non-support machine.
+    let support_range = if caps.contains(&Capability::Broadcast) && support_range.is_some() {
+        Some(SupportRange::WholeArmy)
+    } else {
+        support_range
+    };
 
     let native_match = mtype.native_family == Some(family);
     let damage_type = family.as_damage_type().unwrap_or(base.damage_type);
@@ -323,9 +406,11 @@ pub fn derive_effective_stats(
     Ok(EffectiveStats {
         hull: base.hull,
         armor_pct,
-        shield_cap,
-        shield_regen,
+        // Extra Batteries (§14.1): a utility shield boost folds atop the defense slot's shield pool.
+        shield_cap: shield_cap.saturating_add(acc.shield_cap),
+        shield_regen: shield_regen.saturating_add(acc.shield_regen),
         shield_delay,
+        hull_regen: acc.hull_regen,
         ablative_cap,
         reactive,
         damage: acc.damage.max_zero(),
@@ -342,11 +427,13 @@ pub fn derive_effective_stats(
         can_target_air,
         move_speed,
         evasion,
+        evasion_vs_air,
         threat: base.threat,
         // Clamped to the ±2-per-source design range even if several draw modules stack (start-value).
         target_draw: acc.target_draw.clamp(i8::MIN as i32, i8::MAX as i32) as i8,
-        support_power: base.support_power,
-        support_range: base.support_range,
+        support_power,
+        support_range,
+        support_kind,
         special_mitigation,
         capabilities: caps,
         plan_b_slots,
@@ -445,6 +532,7 @@ mod tests {
                 type_id: MachineTypeId::HeavyTank,
                 slot_layout_override: None,
                 passive_aura: None,
+                innate_capabilities: Vec::new(),
             },
         );
 
@@ -461,6 +549,7 @@ mod tests {
                 spec: EquipmentSpec::Weapon(WeaponSpec {
                     mount_class: MountClass::Heavy,
                     family: DamageFamily::Kinetic,
+                    support: None,
                     stat_deltas: StatDeltas {
                         cadence_tier: Some(CadenceTier::Slow),
                         reach: Some(ReachTag::Nearest),
@@ -478,6 +567,7 @@ mod tests {
                 spec: EquipmentSpec::Weapon(WeaponSpec {
                     mount_class: MountClass::Heavy,
                     family: DamageFamily::Energy,
+                    support: None,
                     stat_deltas: StatDeltas {
                         damage: Fixed::from_int(5),
                         cadence_tier: Some(CadenceTier::Slow),
@@ -538,6 +628,8 @@ mod tests {
                     stat_deltas: None,
                     unlocks: vec![],
                     cadence_shift: 1,
+                    cost: 1,
+                    aura: None,
                 }),
             },
         );
@@ -551,6 +643,8 @@ mod tests {
                     stat_deltas: None,
                     unlocks: vec![Capability::ExtraPlanBSlot],
                     cadence_shift: 0,
+                    cost: 1,
+                    aura: None,
                 }),
             },
         );
@@ -567,6 +661,8 @@ mod tests {
                     }),
                     unlocks: vec![],
                     cadence_shift: 0,
+                    cost: 1,
+                    aura: None,
                 }),
             },
         );
@@ -624,6 +720,7 @@ mod tests {
             stance_mods: crate::model::ruleset::StanceMods::default(),
             reactive_mods: crate::model::ruleset::ReactiveMods::default(),
             coordination: crate::model::ruleset::Coordination::default(),
+            cadence_profile: crate::model::ruleset::CadenceProfile::default(),
         }
     }
 
@@ -656,6 +753,7 @@ mod tests {
             targeting: TargetingChain::DEFAULT,
             movement: MovementMode::Advance,
             stance: Stance::Aggressive,
+            damage_override: None,
         }
     }
 
@@ -685,7 +783,8 @@ mod tests {
             &["Autoloader", "DriveServos", "CombatAI"],
         );
         let e = derive_effective_stats(&m, &rs).unwrap();
-        assert_eq!(e.damage, Fixed::from_int(35), "base weapon adds no damage");
+        // Base weapon adds no *weapon* delta; the Heavy chassis adds the +10% heavy-platform bonus (D6).
+        assert_eq!(e.damage, Fixed::from_int(35).mul_bp(11_000), "base 35, +10% heavy platform");
         assert_eq!(e.damage_type, DamageType::Kinetic);
         assert!(
             e.native_match,
@@ -703,7 +802,8 @@ mod tests {
             &["Autoloader", "DriveServos", "CombatAI"],
         );
         let e = derive_effective_stats(&m, &rs).unwrap();
-        assert_eq!(e.damage, Fixed::from_int(40), "35 base + 5 weapon delta");
+        // 35 base + 5 weapon delta = 40, then the +10% heavy-platform bonus (D6).
+        assert_eq!(e.damage, Fixed::from_int(40).mul_bp(11_000), "40, +10% heavy platform");
         assert_eq!(e.damage_type, DamageType::Energy);
         assert!(
             !e.native_match,

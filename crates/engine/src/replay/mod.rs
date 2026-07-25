@@ -101,6 +101,9 @@ pub enum SupportKind {
     Heal,
     ShieldBoost,
     Aura,
+    /// A Commander's **Ablation** projection (v3 US5): granted a one-time ablative buffer to an ally.
+    /// Added last to keep the enum's serialized names stable for the pre-existing variants.
+    Ablation,
 }
 
 /// One resolved event within a tick. `Hit`/`Support` carry the magnitudes that must reconcile

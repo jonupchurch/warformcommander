@@ -70,6 +70,21 @@ sustain all reinforce the total order, so no single lever (defense content OR gr
 The counter-web needs a coordinated multi-lever redesign measured against the now-fixed `reach` field, or
 the field is accepted as a documented limitation.
 
+**UPDATE — US3-B on-hit riders: the over-determined story is REFINED (2026-07-24, EMP moves walls).**
+Built the three v3 riders (EMP/Suppress/Snare) and added a `control` field (a kinetic-heavy company built
+four ways — plain / EMP-only / Suppress-only / both — swept vs the 7 turtles; only the rider utilities
+differ). Result: the plain build loses **0/100 to all 7**; adding **EMP** (anti-sustain: the hit target
+can't be healed and its shields stop regenerating) flips the two **sustain-decided** walls — `ca-attrition`
+(double support) and `support-ball` (pure healer) — clean to **100/0**. Isolation is decisive: **EMP alone
+does it; Suppress alone moves nothing** (a soft output debuff = damage tuning, which we already knew can't
+move a wall). So: broad levers (defense reshaping, damage tuning, reach, Suppress) are all wall-neutral —
+the field IS over-determined against them — **but a targeted counter to the deciding pillar CAN flip a wall
+decisively** (EMP vs sustain). The counter-web is achievable through **equipment counters aimed at the
+right pillar** (the §13.2 design intent), not through global tuning. Air/reach/power walls still need their
+own counters (Jump Jets, Flak/SAM). Caveat: 0→100 is a *total* flip — EMP at start-values (30t, refreshed
+each hit) is likely over-strong; a balance pass should aim for *contested*, not a wipe. Mechanic committed;
+`control` field kept in `archetypes.rs`. Full write-up: `specs/015-v3-counter-web/us3-equipment-plan.md`.
+
 ---
 
 ## Investigation — the counter-web is made of walls (2026-07-22, nothing shipped)

@@ -18,7 +18,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::fixed::{Bp, BP_ONE};
 use crate::model::types::{
-    BaseStats, CadenceTier, ChassisVariant, DamageType, EquipmentId, EquipmentModule,
+    BaseStats, CadenceTier, ChassisVariant, DamageFamily, DamageType, EquipmentId, EquipmentModule,
     MachineType, MachineTypeId, RoleDamageBonus, VariantId,
 };
 
@@ -76,6 +76,11 @@ pub struct Ruleset {
     /// identity curve (hash-stable), so the stock field is unchanged until the seed opts in.
     #[serde(default, skip_serializing_if = "Coordination::is_default")]
     pub coordination: Coordination,
+    /// Fire cadence welded to damage type (v3 spec 015 US1c, design §D6): the tier each damage type
+    /// fires at, independent of the weapon/chassis, plus the heavy-platform damage bonus. Omitted from
+    /// serialization at the default (hash-stable), so a pre-v3 ruleset is byte-identical.
+    #[serde(default, skip_serializing_if = "CadenceProfile::is_default")]
+    pub cadence_profile: CadenceProfile,
 }
 
 impl Ruleset {
@@ -334,6 +339,52 @@ impl Default for StanceMods {
             defensive_output: 8_000,
             defensive_taken: 9_500,
             defensive_evasion: 500,
+        }
+    }
+}
+
+/// Fire cadence welded to damage type (v3 US1c, design §D6). Each damage type fires at a fixed tier,
+/// independent of the weapon or chassis (`derive` ignores a weapon's own `cadence_tier` override for
+/// this). The "heavy platform" chassis (Heavy Tank, Mech) fire one tier slower and deal
+/// `heavy_platform_dmg_bonus` more — ponderous but punchy; Artillery also fires a tier slower (its
+/// Explosive → Siege) but earns no damage bonus. All start-values, tunable via the balancer.
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CadenceProfile {
+    /// Energy fires Fast (slight DPS lead, low alpha).
+    pub energy: CadenceTier,
+    /// Kinetic fires Medium (balanced).
+    pub kinetic: CadenceTier,
+    /// Explosive fires Slow (low DPS, high alpha + splash).
+    pub explosive: CadenceTier,
+    /// Extra outgoing damage (bp) for the heavy-platform chassis (Heavy Tank, Mech). `1_000` = +10%.
+    pub heavy_platform_dmg_bonus: Bp,
+}
+
+impl Default for CadenceProfile {
+    fn default() -> Self {
+        CadenceProfile {
+            energy: CadenceTier::Fast,
+            kinetic: CadenceTier::Medium,
+            explosive: CadenceTier::Slow,
+            heavy_platform_dmg_bonus: 1_000,
+        }
+    }
+}
+
+impl CadenceProfile {
+    pub fn is_default(&self) -> bool {
+        *self == Self::default()
+    }
+
+    /// The base cadence tier welded to a damage family, before any chassis modifier. `None` for
+    /// Support (a support projects sustain rather than firing a cadenced weapon — it keeps its base).
+    pub fn tier_for(&self, family: DamageFamily) -> Option<CadenceTier> {
+        match family {
+            DamageFamily::Energy => Some(self.energy),
+            DamageFamily::Kinetic => Some(self.kinetic),
+            DamageFamily::Explosive => Some(self.explosive),
+            DamageFamily::Support => None,
         }
     }
 }
@@ -619,6 +670,7 @@ mod tests {
                 type_id: MachineTypeId::HeavyTank,
                 slot_layout_override: None,
                 passive_aura: None,
+                innate_capabilities: Vec::new(),
             },
         );
 
@@ -688,6 +740,7 @@ mod tests {
             stance_mods: StanceMods::default(),
             reactive_mods: ReactiveMods::default(),
             coordination: Coordination::default(),
+            cadence_profile: CadenceProfile::default(),
         }
     }
 }

@@ -39,6 +39,10 @@ export type CadenceTier = 'Fast' | 'Medium' | 'Slow' | 'Siege';
 /** A support unit's reach for heals/auras (`SupportRange`). `WholeArmy` reaches every zone. */
 export type SupportRange = 'OwnZone' | 'OwnPlusAdjacent' | 'WholeArmy';
 
+/** What a support action projects onto (`SupportKind`, replay/mod.rs) — `Heal` (hull), `ShieldBoost`
+ * (shield), the Commander's `Ablation` (a one-time ablative buffer, US5), or an `Aura` event. */
+export type SupportKind = 'Heal' | 'ShieldBoost' | 'Aura' | 'Ablation';
+
 /**
  * A capability an equipped utility unlocks (`Capability`) — gates advanced dials / Plan-B / reach /
  * air (V6/V7). **Declaration order is significant**: the engine emits `capabilities` as a sorted
@@ -50,7 +54,25 @@ export type Capability =
   | 'TargetAir'
   | 'AntiAir'
   | 'RocketPack'
-  | 'OnHitPaint';
+  | 'OnHitPaint'
+  | 'OnHitEmp'
+  | 'OnHitSuppress'
+  | 'OnHitSnare'
+  | 'JumpJets'
+  | 'StationaryBrace'
+  | 'Rally'
+  | 'Ambush'
+  | 'AdaptiveMunitions'
+  | 'Duelist'
+  | 'CoordinatedStrike'
+  | 'Guardian'
+  | 'AirSuperiority'
+  | 'Flanking'
+  | 'CounterBattery'
+  | 'Sead'
+  | 'MultiTarget'
+  | 'ExtraUtilitySlot'
+  | 'Broadcast';
 
 /** The canonical `Capability` sort order (the Rust enum's `Ord` / declaration order). */
 export const CAPABILITY_ORDER: readonly Capability[] = [
@@ -60,6 +82,24 @@ export const CAPABILITY_ORDER: readonly Capability[] = [
   'AntiAir',
   'RocketPack',
   'OnHitPaint',
+  'OnHitEmp',
+  'OnHitSuppress',
+  'OnHitSnare',
+  'JumpJets',
+  'StationaryBrace',
+  'Rally',
+  'Ambush',
+  'AdaptiveMunitions',
+  'Duelist',
+  'CoordinatedStrike',
+  'Guardian',
+  'AirSuperiority',
+  'Flanking',
+  'CounterBattery',
+  'Sead',
+  'MultiTarget',
+  'ExtraUtilitySlot',
+  'Broadcast',
 ];
 
 /** Which equipment kind a slot expects (`SlotKind`) — carried on a `WrongSlotKind` derivation error. */
@@ -85,12 +125,21 @@ export interface StatDeltas {
   splash: number; // bp
   penetration: number; // bp
   evasion: number; // bp
+  /** Evasion that applies only vs air/flak fire (v3 US1d Chaff); omitted when zero. */
+  evasionVsAir?: number; // bp
   armorPct: number; // bp
   critChance: number; // bp
   moveSpeed: number; // zone-transition steps (may be negative)
   targetDraw: number; // i8 — v3 US3: Decoy/Taunt +2 pulls fire, ECM −2 sheds it (feeds the priority chain)
   cadenceTier: CadenceTier | null;
   reach: ReachTag | null;
+  /** v3 US3-D self-hull regen per tick (Field Repair / Repair Nanites); omitted when zero. */
+  hullRegen?: number; // milli
+  /** v3 US3-D utility shield boost (Extra Batteries); omitted when zero. */
+  shieldCap?: number; // milli
+  shieldRegen?: number; // milli
+  /** v3 US3-D projector-output boost (Amplifier); omitted when zero. */
+  supportPower?: number; // milli
 }
 
 /** A shield's three coupled numbers, as deltas a defense contributes (`ShieldDelta`). */
@@ -107,10 +156,16 @@ export interface MitigationMod {
 }
 
 /** What a passive aura modifies (`AuraKind`). The per-tick auras apply only while the source lives. */
-export type AuraKind = 'DamageDealt' | 'CommandBoost' | 'StartShield' | 'DamageTaken';
+export type AuraKind =
+  | 'DamageDealt'
+  | 'CommandBoost'
+  | 'StartShield'
+  | 'DamageTaken'
+  | 'Accuracy' // Spotter Network / Coordination Net accuracy aura (v3 US3)
+  | 'Evasion'; // Smoke Canisters zone-evasion aura (v3 US3-D)
 
-/** Who an aura reaches (`AuraScope`). */
-export type AuraScope = 'ZoneAllies' | 'AllAllies';
+/** Who an aura reaches (`AuraScope`). Enemy scopes carry an enemy-directed debuff (Jammer / Comms Jammer). */
+export type AuraScope = 'ZoneAllies' | 'AllAllies' | 'ZoneEnemies' | 'AllEnemies';
 
 /**
  * A passive zone/army aura a chassis projects (`AuraEffect`) — e.g. the Command Post's army-wide
@@ -168,6 +223,9 @@ export interface ChassisVariant {
   /** Raises utility slots for the odd variant (Sentinel, Command Post → 4). */
   slotLayoutOverride?: SlotLayout;
   passiveAura?: AuraEffect;
+  /** Capabilities the chassis carries innately (v3 US3-D, §14 — the Heli's Coordinated Strike). Merged
+   *  into the derived capability set alongside the utility unlocks. Absent (not `[]`) when empty. */
+  innateCapabilities?: Capability[];
 }
 
 // --- Equipment (kind-tagged union, flattened id/name) ----------------------
@@ -177,6 +235,16 @@ export interface WeaponSpec {
   mountClass: MountClass;
   family: DamageFamily;
   statDeltas: StatDeltas;
+  /** Projector support (v3 US5): when present, this weapon projects support onto allies (the Commander's
+   * weapon-driven counter-pick) instead of dealing damage. Absent on every ordinary weapon. */
+  support?: SupportProjection;
+}
+
+/** A projector weapon's support payload (`SupportProjection`) — what a Commander projects and how far. */
+export interface SupportProjection {
+  power: number; // milli — per-tick hull healed / shield restored / ablative granted
+  range: SupportRange;
+  kind: SupportKind;
 }
 
 /** An ablative pool a defense grants (`AblativeDelta`) — one-time, non-regenerating absorption (v2). */
@@ -202,6 +270,12 @@ export interface UtilitySpec {
   statDeltas?: StatDeltas;
   unlocks: Capability[];
   cadenceShift: number;
+  /** Slot cost (v3 US3-A): budget points this utility consumes (1/2/3). Omitted (⇒ 1) for single-cost
+   *  items, matching the Rust `#[serde(default, skip_serializing_if = 1)]`. */
+  cost?: number;
+  /** A passive aura this utility projects while equipped (v3 US3-D — Coordination Net, Damage
+   *  Boost/Reduction, Smoke). Sim-only (not part of the derived stats); absent for ordinary utilities. */
+  aura?: AuraEffect;
 }
 
 /**
@@ -357,6 +431,23 @@ export const DEFAULT_MOUNT_SCALE: MountScale = {
   support: 9000,
 };
 
+/** Fire cadence welded to damage type (v3 US1c, design §D6). Mirrors the engine `CadenceProfile`. */
+export interface CadenceProfile {
+  energy: CadenceTier;
+  kinetic: CadenceTier;
+  explosive: CadenceTier;
+  /** Extra outgoing damage (bp) for the heavy-platform chassis (Heavy Tank, Mech). 1000 = +10%. */
+  heavyPlatformDmgBonus: number;
+}
+
+/** The engine default (omitted from a ruleset at rest, so absence ⇒ this). */
+export const DEFAULT_CADENCE_PROFILE: CadenceProfile = {
+  energy: 'Fast',
+  kinetic: 'Medium',
+  explosive: 'Slow',
+  heavyPlatformDmgBonus: 1000,
+};
+
 /** The mount-scale factor (bp) for a mount class, from a ruleset's table or the default. */
 export function mountScaleFor(scale: MountScale, mount: MountClass): number {
   switch (mount) {
@@ -417,6 +508,8 @@ export interface Ruleset {
   reactiveMods?: ReactiveMods;
   /** Coordination diminishing-returns curve (spec 014); omitted at the identity default. */
   coordination?: Coordination;
+  /** Cadence welded to damage type (v3 US1c); omitted at the default ({@link DEFAULT_CADENCE_PROFILE}). */
+  cadenceProfile?: CadenceProfile;
 }
 
 // --- Derived output --------------------------------------------------------
@@ -432,6 +525,7 @@ export interface EffectiveStats {
   shieldCap: number; // milli
   shieldRegen: number; // milli
   shieldDelay: number; // ticks
+  hullRegen: number; // milli — v3 US3-D self-hull regen per tick (Field Repair / Repair Nanites); 0 when none
   ablativeCap: number; // milli — v2 one-time non-regenerating pool (0 when no ablative defense)
   reactive: boolean; // v2 — true only for the Mech's reactive plating; drives adaptive mitigation
   damage: number; // milli
@@ -448,10 +542,14 @@ export interface EffectiveStats {
   canTargetAir: boolean;
   moveSpeed: number | null;
   evasion: number; // bp
+  evasionVsAir: number; // bp — extra evasion vs air/flak fire only (v3 US1d Chaff)
   threat: number; // milli
   targetDraw: number; // i8 — v3 US2/US3 priority-score draw offset (Decoy +2 / ECM −2)
   supportPower: number | null;
   supportRange: SupportRange | null;
+  /** What this machine projects (v3 US5): `Heal` for the medic, or the Commander's weapon-chosen
+   * `ShieldBoost` / `Ablation`. `Heal` whenever there is no support power (the harmless default). */
+  supportKind: SupportKind;
   specialMitigation: MitigationMod | null;
   capabilities: Capability[];
   planBSlots: number;
