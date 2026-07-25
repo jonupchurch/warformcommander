@@ -90,6 +90,36 @@ describe('weapons', () => {
       'Contests aircraft at ×0.75 damage, from the front line only',
     );
   });
+
+  it('describes a projector weapon by what it projects, not a meaningless damage bonus', () => {
+    // The Commander's projector deals no damage — it heals/shields the army. Its effect lives in
+    // `support`, so it used to render only a bare "Effect"; now it names the projection, and shows no
+    // (misleading) native-bonus line for a zero-damage weapon.
+    const healProjector: WeaponModule = {
+      kind: 'Weapon',
+      id: 'HealProjector',
+      name: 'Heal Projector',
+      mountClass: 'Support',
+      family: 'Support',
+      statDeltas: {
+        damage: 0,
+        accuracy: 0,
+        splash: 0,
+        penetration: 0,
+        evasion: 0,
+        armorPct: 0,
+        critChance: 0,
+        moveSpeed: 0,
+        targetDraw: 0,
+        cadenceTier: null,
+        reach: null,
+      },
+      support: { power: 5000, range: 'WholeArmy', kind: 'Heal' },
+    };
+    const ex = explainWeapon(healProjector, 'Commander', rs);
+    expect(values(ex, 'Projects')[0]).toBe('Heals hull — +5/tick to the whole army');
+    expect(values(ex, 'Native bonus')).toHaveLength(0);
+  });
 });
 
 describe('defenses', () => {
@@ -174,6 +204,31 @@ describe('utilities', () => {
   it('flags the Rangefinder as having no effect', () => {
     const ex = explainUtility(utility('Rangefinder'), rs);
     expect(ex.caveat).toMatch(/No effect yet/);
+  });
+
+  it('describes an aura utility instead of a bare "Effect: None"', () => {
+    // A utility whose whole job is a projected aura (Coordination Net, Damage Boost, a Jammer). The
+    // effect lives in `aura`, not statDeltas/unlocks — previously it rendered only "Effect: None".
+    const coordNet: UtilityModule = {
+      kind: 'Utility',
+      id: 'CoordinationNet',
+      name: 'Coordination Net',
+      unlocks: [],
+      cadenceShift: 0,
+      aura: { kind: 'Accuracy', magnitude: 1000, scope: 'AllAllies' },
+    };
+    const ex = explainUtility(coordNet, rs);
+    expect(values(ex, 'Aura')[0]).toBe('+10% accuracy to the whole army');
+    expect(values(ex, 'Effect')).toHaveLength(0);
+
+    // An enemy-directed debuff (a Comms Jammer) reads as a negative on the enemy, live from the magnitude.
+    const jammer: UtilityModule = {
+      ...coordNet,
+      id: 'CommsJammer',
+      name: 'Comms Jammer',
+      aura: { kind: 'Accuracy', magnitude: -800, scope: 'AllEnemies' },
+    };
+    expect(values(explainUtility(jammer, rs), 'Aura')[0]).toBe('-8% accuracy to every enemy');
   });
 
   it('still renders computed effects for equipment with no authored copy', () => {

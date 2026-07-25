@@ -137,6 +137,12 @@ function DefenseRow({ slot }: { slot: SlotIndex }) {
   );
 }
 
+/** A utility's slot cost (default 1), pulled from the live ruleset. */
+function utilityCost(id: string, ruleset: ReturnType<typeof useGarageEditor>['ruleset']): number {
+  const mod = ruleset.equipment[id];
+  return mod && mod.kind === 'Utility' ? mod.cost ?? 1 : 0;
+}
+
 function UtilityRows({ slot }: { slot: SlotIndex }) {
   const { session, dispatch, ruleset } = useGarageEditor();
   const machine = session.draft.machines[slot];
@@ -145,17 +151,41 @@ function UtilityRows({ slot }: { slot: SlotIndex }) {
   const options = utilityOptions(ruleset);
   const equipped = machine.loadout.utilities;
 
+  // Budget (points) mirrors the client legality check (sim/legality.ts): a variant override, else the
+  // chassis type default. Each utility spends its cost; a fresh slot can be *added* while under budget.
+  const budget =
+    ruleset.chassis[machine.variantId]?.slotLayoutOverride?.utility ??
+    ruleset.machineTypes[machine.typeId]?.slotLayout.utility ??
+    0;
+  const spent = equipped.reduce((n, id) => n + utilityCost(id, ruleset), 0);
+  const overBudget = spent > budget;
+  const canAddMore = spent < budget && options.some((u) => !equipped.includes(u.id));
+
   return (
     <div className="flex flex-col gap-2">
-      <SectionLabel index="03" rule={false}>
-        Utilities
-      </SectionLabel>
+      <div className="flex items-center justify-between gap-2">
+        <SectionLabel index="03" rule={false}>
+          Utilities
+        </SectionLabel>
+        {/* Slots used vs available — turns hostile if the build spends over its budget. */}
+        <span className={cn('type-readout', overBudget ? 'text-faction-enemy' : 'text-text-dim')}>
+          {spent} / {budget} pts
+        </span>
+      </div>
       {equipped.map((id, index) => {
         const current = ruleset.equipment[id];
         return (
           <div key={index} className="flex items-center gap-2">
             <span className="type-eyebrow w-16 shrink-0 text-text-dim">SLOT {index + 1}</span>
             <FieldSelect current={current?.name ?? id}>
+              {/* Leave this slot empty — frees its budget (the counterpart to picking a utility). */}
+              <DropdownMenuItem
+                onSelect={() => dispatch({ type: 'clearUtility', slot, index })}
+                className="justify-between gap-3"
+              >
+                <span className="type-body-sm text-text-dim">— Empty —</span>
+                <span className="type-eyebrow text-text-faint">REMOVE</span>
+              </DropdownMenuItem>
               {options.map((u) => {
                 // Dedup (V5): disable a utility already equipped in a *different* slot.
                 const usedElsewhere = equipped.some((e, j) => j !== index && e === u.id);
@@ -186,6 +216,35 @@ function UtilityRows({ slot }: { slot: SlotIndex }) {
           </div>
         );
       })}
+      {/* Add a utility into a free budget point — only shown while there is room and something to add. */}
+      {canAddMore && (
+        <div className="flex items-center gap-2">
+          <span className="type-eyebrow w-16 shrink-0 text-text-dim">SLOT {equipped.length + 1}</span>
+          <FieldSelect current="— Add utility —">
+            {options.map((u) => {
+              const already = equipped.includes(u.id);
+              const cost = u.cost ?? 1;
+              return (
+                <OptionFlyout key={u.id} label="UTILITY" ex={explainUtility(u, ruleset)}>
+                  <DropdownMenuItem
+                    disabled={already}
+                    onSelect={() => dispatch({ type: 'addUtility', slot, equipmentId: u.id })}
+                    className={cn('justify-between gap-3', already && 'opacity-40')}
+                  >
+                    <span className="type-body-sm text-text-strong">{u.name}</span>
+                    <span className="ml-auto flex items-center gap-2">
+                      {already && <span className="type-eyebrow text-text-faint">EQUIPPED</span>}
+                      <span className="type-eyebrow text-text-dim">
+                        {cost} pt{cost === 1 ? '' : 's'}
+                      </span>
+                    </span>
+                  </DropdownMenuItem>
+                </OptionFlyout>
+              );
+            })}
+          </FieldSelect>
+        </div>
+      )}
     </div>
   );
 }
