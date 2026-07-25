@@ -56,7 +56,9 @@ function toRow(d: LadderRowData, viewerUserId: string | null, metric: LadderMetr
     userId: d.userId,
     rank: d.rank,
     handle: handleOf(d),
-    profileHref: `/profile/${d.userId}`,
+    // The public profile route is `/commander/[handle]` (resolved by handle, FR-005). Link by the raw
+    // handle, URL-encoded; the old `/profile/${userId}` matched no route and 404'd every name.
+    profileHref: d.handle ? `/commander/${encodeURIComponent(d.handle)}` : `/commander/${d.userId}`,
     netVictories: d.netVictories,
     netVictoriesLabel: signedLabel(d.netVictories),
     record: recordOf(d),
