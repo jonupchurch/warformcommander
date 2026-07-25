@@ -7,7 +7,7 @@
 use engine::content::{seed_ruleset, stock_instance};
 use engine::model::army::{Army, MachineInstance};
 use engine::model::ruleset::Ruleset;
-use engine::model::types::{Capability, EquipmentId, MachineTypeId, ZoneId};
+use engine::model::types::{Capability, EquipmentId, EquipmentSpec, MachineTypeId, ZoneId};
 use engine::replay::{Adaptation, Fate, MatchConfig, Side, UnitRef};
 use engine::{resolve, BattleInput, BattleOutput};
 
@@ -37,6 +37,16 @@ fn tank(rs: &Ruleset, variant: &str, zone: ZoneId, id: u8) -> MachineInstance {
 fn with_util(mut m: MachineInstance, util: &str) -> MachineInstance {
     m.loadout.utilities[0] = EquipmentId::new(util);
     m
+}
+
+/// Clear a utility's §14 chassis gate so a mechanic test may mount it on whatever carrier the setup
+/// uses (these tests exercise the rider *mechanic*, not the gate — the gate is covered in `catalog.rs`).
+fn ungate(rs: &mut Ruleset, id: &str) {
+    if let Some(m) = rs.equipment.get_mut(&EquipmentId::new(id)) {
+        if let EquipmentSpec::Utility(u) = &mut m.spec {
+            u.mount_classes.clear();
+        }
+    }
 }
 
 fn death_tick(out: &BattleOutput, id: u8) -> u16 {
@@ -103,7 +113,8 @@ fn decoy_draws_fire_and_ecm_sheds_it() {
 /// Spotter. Measured against an otherwise-fixed setup so only the mark differs.
 #[test]
 fn paint_rider_amplifies_incoming_damage() {
-    let rs = seed_ruleset();
+    let mut rs = seed_ruleset();
+    ungate(&mut rs, "Spotter"); // §14 gates Paint to Light; this test mounts it on the setup's carrier
     // A single fragile target (id 0), the only reachable enemy, plus out-of-reach padding.
     let defender = || Army {
         machines: vec![
@@ -198,7 +209,8 @@ fn rider_utilities_unlock_capabilities() {
 /// the EMP module differs between the two runs.
 #[test]
 fn emp_rider_blocks_healing() {
-    let rs = seed_ruleset();
+    let mut rs = seed_ruleset();
+    ungate(&mut rs, "EMPAmmo"); // §14 gates EMP to Mech/Artillery/RktArty; mount it on the setup's carrier
     // Side B: one fragile focused target (id 0, the only reachable enemy) sustained by a Medic
     // (WholeArmy heal) in Rear; the rest padded out of reach so all fire lands on id 0.
     let defender = || Army {
@@ -239,7 +251,8 @@ fn emp_rider_blocks_healing() {
 /// enemy's total damage **down** (the suppressed enemies deal less) versus the same setup without it.
 #[test]
 fn suppress_rider_cuts_enemy_output() {
-    let rs = seed_ruleset();
+    let mut rs = seed_ruleset();
+    ungate(&mut rs, "SuppressingFire"); // §14 gates Suppress to Mech; mount it on the setup's carrier
     // A durable 5v5 mirror so both sides trade fire for many ticks (suppression accumulates).
     let side_a = |suppress: bool| Army {
         machines: vec![

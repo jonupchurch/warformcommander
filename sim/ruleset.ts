@@ -483,6 +483,9 @@ export interface GlobalConstants {
   splashCap: number; // bp — the derivation's splash clamp ceiling
   hitClampMin: number;
   hitClampMax: number;
+  /** Extra ticks a support projector waits between heals/shield/ablation (anti-rapid-fire-heal). `0`
+   *  (or absent) = heal every tick, the historical behavior; the battle sim (wasm) is the only reader. */
+  healCooldownTicks?: number;
 }
 
 /**

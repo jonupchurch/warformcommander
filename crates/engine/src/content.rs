@@ -90,6 +90,7 @@ pub fn seed_ruleset() -> Ruleset {
             splash_cap: 2_500,       // 25%
             hit_clamp_min: 500,      // 5%
             hit_clamp_max: 9_500,    // 95%
+            heal_cooldown_ticks: 0,  // every-tick heals by default; tuned via the ruleset row
         },
         role_damage_bonuses: BTreeMap::new(),
         ablative_mods: AblativeMods::default(),

@@ -86,6 +86,11 @@ export function validateRuleset(data: unknown): RulesetValidation {
   if (!inRange(g.hitClampMin, 0, BP_MAX)) return fail("globals.hitClampMin must be in 0..10000 bp");
   if (!inRange(g.hitClampMax, 0, BP_MAX)) return fail("globals.hitClampMax must be in 0..10000 bp");
   if (g.hitClampMin > g.hitClampMax) return fail("globals.hitClampMin must be ≤ hitClampMax");
+  // Optional off-by-default heal cadence (omitted/0 = every-tick heals). Bounded so an edit can't stall
+  // support entirely — a value near the tick cap would make a projector effectively never heal.
+  if (g.healCooldownTicks !== undefined && (!Number.isInteger(g.healCooldownTicks) || !inRange(g.healCooldownTicks, 0, 100))) {
+    return fail("globals.healCooldownTicks must be a whole number in 0..100 ticks");
+  }
   if (!inRange(g.critBaseChance, 0, BP_MAX)) return fail("globals.critBaseChance must be in 0..10000 bp");
   if (!inRange(g.damageVariance, 0, BP_MAX)) return fail("globals.damageVariance must be in 0..10000 bp");
   if (!inRange(g.nativeBonus, 0, BP_MAX)) return fail("globals.nativeBonus must be in 0..10000 bp");

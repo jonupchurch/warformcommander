@@ -66,6 +66,11 @@ pub(crate) struct Combatant {
     pub ticks_since_move: u16,
     pub cooldown: u16,
     pub move_cooldown: u16,
+    /// Ticks until this support machine may project its next heal/shield/ablation (v3 balance lever
+    /// `globals.heal_cooldown_ticks`). `0` = ready this tick; counts down in upkeep, set after a
+    /// projection lands. Inert (stays `0`) for non-support machines and at the default cooldown 0, so a
+    /// ruleset with `heal_cooldown_ticks: 0` heals every tick exactly as before.
+    pub heal_cooldown: u16,
     /// Tick until which this machine is **painted** (v3 US3) — a Paint on-hit rider marked it, so it
     /// takes extra damage from further fire until here. `0` = not painted (no tick 0 marking survives).
     pub painted_until: u16,
@@ -252,6 +257,7 @@ pub(crate) fn build_combatants(
                 ticks_since_move: 0,
                 cooldown: 0,
                 move_cooldown: 0,
+                heal_cooldown: 0,
                 painted_until: 0,
                 emp_until: 0,
                 suppressed_until: 0,
@@ -420,6 +426,7 @@ pub(crate) fn run_game(
         // 1. Per-tick upkeep: cooldowns tick down, shields regen after their delay.
         for c in combatants.iter_mut().filter(|c| c.alive) {
             c.cooldown = c.cooldown.saturating_sub(1);
+            c.heal_cooldown = c.heal_cooldown.saturating_sub(1);
             c.ticks_since_hit = c.ticks_since_hit.saturating_add(1);
             if c.shield < c.stats.shield_cap
                 && c.ticks_since_hit >= c.stats.shield_delay
@@ -534,17 +541,26 @@ fn resolve_support(
                 _ => continue,
             }
         };
+        // Heal cadence (v3 balance lever): a support still on cooldown from its last projection skips
+        // this tick entirely — the anti-"rapid-fire heal" gate (a lone medic could otherwise top off two
+        // units every tick and keep them alive indefinitely). At the default `heal_cooldown_ticks: 0`
+        // the cooldown is never armed, so a projector heals every tick exactly as before (hash-stable).
+        if combatants[i].heal_cooldown > 0 {
+            continue;
+        }
         let zones = support_zones(range, zone);
 
         // First projection: the single most-damaged serviceable ally in range (byte-identical to the
         // pre-US3 single-target path). A living Multi-Targeting projector then adds a second projection to
         // the next-best ally, excluding the first, so it spreads sustain instead of stacking it.
+        let mut projected = false;
         let first = select_projection_target(combatants, i, tick, side, &zones, kind, None);
         if let Some(j) = first {
             let target = combatants[j].unit;
             let amount = apply_projection(&mut combatants[j], kind, power);
             if amount.milli() > 0 {
                 events.push(TickEvent::Support { actor, target, amount, kind });
+                projected = true;
             }
         }
         if multi {
@@ -553,8 +569,14 @@ fn resolve_support(
                 let amount = apply_projection(&mut combatants[j], kind, power);
                 if amount.milli() > 0 {
                     events.push(TickEvent::Support { actor, target, amount, kind });
+                    projected = true;
                 }
             }
+        }
+        // Arm the cooldown only after a projection actually landed, so an idle support (nothing to heal)
+        // stays ready the instant an ally is hurt — the cadence throttles healing, not idling.
+        if projected {
+            combatants[i].heal_cooldown = ruleset.globals.heal_cooldown_ticks;
         }
     }
 }

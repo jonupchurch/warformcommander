@@ -572,6 +572,18 @@ pub struct GlobalConstants {
     pub hit_clamp_min: Bp,
     /// Hit-chance clamp upper bound, bp (`9_500` = 95%).
     pub hit_clamp_max: Bp,
+    /// Extra ticks a support projector must wait **between** heal/shield/ablation projections. `0` (the
+    /// default) = project every tick — the historical behavior; `1` = every other tick, etc. The
+    /// anti-"rapid-fire heal" lever (a lone medic could top off two units every tick and keep them
+    /// alive indefinitely). Omitted from serialization at `0`, so a ruleset saved before this existed
+    /// hashes identically (no golden churn) and picks the value up on re-seed.
+    #[serde(default, skip_serializing_if = "is_zero_u16")]
+    pub heal_cooldown_ticks: u16,
+}
+
+/// Serialization skip for a `u16` field at its `0` default (hash stability for an off-by-default knob).
+fn is_zero_u16(v: &u16) -> bool {
+    *v == 0
 }
 
 #[cfg(test)]
@@ -733,6 +745,7 @@ mod tests {
                 splash_cap: 2_500,
                 hit_clamp_min: 500,
                 hit_clamp_max: 9_500,
+                heal_cooldown_ticks: 0,
             },
             role_damage_bonuses: BTreeMap::new(),
             ablative_mods: AblativeMods::default(),
