@@ -8,7 +8,8 @@ use engine::content::stock_instance;
 use engine::model::army::{Army, MachineInstance};
 use engine::model::ruleset::Ruleset;
 use engine::model::types::{
-    EquipmentId, MachineTypeId, Stance, TargetFilter, TargetSelector, TargetingChain, ZoneId,
+    EquipmentId, EquipmentSpec, MachineTypeId, Stance, TargetFilter, TargetSelector, TargetingChain,
+    ZoneId,
 };
 
 /// A labeled army builder — a candidate combo / field opponent (data-model MatchupSpec source).
@@ -72,8 +73,18 @@ fn with_flak(mut m: MachineInstance, rs: &Ruleset) -> MachineInstance {
 /// unit) when absent, so the archetype stays legal against `seed_ruleset()` and rider-on/off is a pure
 /// ruleset presence check. Like `with_flak`, but for the on-hit riders. See [`control_field`].
 fn with_rider(mut m: MachineInstance, rider: &str, rs: &Ruleset) -> MachineInstance {
-    if rs.equipment.contains_key(&EquipmentId::new(rider)) && !m.loadout.utilities.is_empty() {
-        m.loadout.utilities[0] = EquipmentId::new(rider);
+    let rider_id = EquipmentId::new(rider);
+    // Respect the §14 chassis gate: a rider only fits a chassis its `mount_classes` allows (empty =
+    // common). Skipping it on an ineligible chassis keeps the archetype legal (rider-off there).
+    let mount = rs.machine_type(m.type_id).map(|t| t.mount_class);
+    let gate_ok = match rs.equipment.get(&rider_id).map(|e| &e.spec) {
+        Some(EquipmentSpec::Utility(u)) => {
+            u.mount_classes.is_empty() || mount.is_some_and(|mc| u.mount_classes.contains(&mc))
+        }
+        _ => false,
+    };
+    if gate_ok && !m.loadout.utilities.is_empty() {
+        m.loadout.utilities[0] = rider_id;
     }
     m
 }
@@ -204,8 +215,8 @@ pub fn artillery_line(rs: &Ruleset) -> Army {
 pub fn support_ball(rs: &Ruleset) -> Army {
     Army {
         machines: vec![
-            place(rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 0),
-            place(rs, MachineTypeId::RearSupport, "Warden", ZoneId::Middle, 1),
+            place(rs, MachineTypeId::Commander, "CommandPost", ZoneId::Rear, 0),
+            place(rs, MachineTypeId::Commander, "CommandPost", ZoneId::Middle, 1),
             with_flak(
                 place(rs, MachineTypeId::HeavyTank, "Bulwark", ZoneId::Front, 2),
                 rs,
@@ -288,7 +299,7 @@ pub fn ca_line(rs: &Ruleset) -> Army {
             place(rs, MachineTypeId::HeavyTank, "Bulwark", ZoneId::Front, 1),
             place(rs, MachineTypeId::Mech, "Vanguard", ZoneId::Middle, 2),
             place(rs, MachineTypeId::Artillery, "Longbow", ZoneId::Rear, 3),
-            place(rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
+            place(rs, MachineTypeId::Commander, "CommandPost", ZoneId::Rear, 4),
         ],
     }
 }
@@ -307,7 +318,7 @@ pub fn ca_mobile(rs: &Ruleset) -> Army {
                 place(rs, MachineTypeId::Mech, "Striker", ZoneId::Middle, 3),
                 "PulseLaser",
             ),
-            place(rs, MachineTypeId::RearSupport, "Warden", ZoneId::Middle, 4),
+            place(rs, MachineTypeId::Commander, "CommandPost", ZoneId::Middle, 4),
         ],
     }
 }
@@ -323,7 +334,7 @@ pub fn ca_air(rs: &Ruleset) -> Army {
             ),
             place(rs, MachineTypeId::HeavyTank, "Bulwark", ZoneId::Front, 2),
             place(rs, MachineTypeId::Mech, "Vanguard", ZoneId::Middle, 3),
-            place(rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
+            place(rs, MachineTypeId::Commander, "CommandPost", ZoneId::Rear, 4),
         ],
     }
 }
@@ -337,7 +348,7 @@ pub fn ca_siege(rs: &Ruleset) -> Army {
                 rs,
             ),
             place(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 1),
-            place(rs, MachineTypeId::RearSupport, "Warden", ZoneId::Middle, 2),
+            place(rs, MachineTypeId::Commander, "CommandPost", ZoneId::Middle, 2),
             place(rs, MachineTypeId::Artillery, "Siege", ZoneId::Rear, 3),
             place(rs, MachineTypeId::Artillery, "Marksman", ZoneId::Rear, 4),
         ],
@@ -362,7 +373,7 @@ pub fn ca_aa(rs: &Ruleset) -> Army {
                 ZoneId::Middle,
                 3,
             ),
-            place(rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
+            place(rs, MachineTypeId::Commander, "CommandPost", ZoneId::Rear, 4),
         ],
     }
 }
@@ -376,9 +387,9 @@ pub fn ca_attrition(rs: &Ruleset) -> Army {
                 rs,
             ),
             place(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 1),
-            place(rs, MachineTypeId::RearSupport, "Warden", ZoneId::Middle, 2),
+            place(rs, MachineTypeId::Commander, "CommandPost", ZoneId::Middle, 2),
             place(rs, MachineTypeId::Mech, "Sentinel", ZoneId::Middle, 3),
-            place(rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
+            place(rs, MachineTypeId::Commander, "CommandPost", ZoneId::Rear, 4),
         ],
     }
 }
@@ -662,8 +673,8 @@ pub fn durable_reference(rs: &Ruleset) -> Army {
             place(rs, MachineTypeId::HeavyTank, "Bulwark", ZoneId::Front, 0),
             place(rs, MachineTypeId::HeavyTank, "Bulwark", ZoneId::Front, 1),
             place(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Middle, 2),
-            place(rs, MachineTypeId::RearSupport, "Warden", ZoneId::Middle, 3),
-            place(rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
+            place(rs, MachineTypeId::Commander, "CommandPost", ZoneId::Middle, 3),
+            place(rs, MachineTypeId::Commander, "CommandPost", ZoneId::Rear, 4),
         ],
     }
 }
@@ -710,7 +721,7 @@ pub fn skilled_base_gear(rs: &Ruleset) -> Army {
             place(rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 1),
             place(rs, MachineTypeId::Artillery, "Longbow", ZoneId::Rear, 2),
             place(rs, MachineTypeId::Artillery, "Siege", ZoneId::Rear, 3),
-            place(rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
+            place(rs, MachineTypeId::Commander, "CommandPost", ZoneId::Rear, 4),
         ],
     }
 }

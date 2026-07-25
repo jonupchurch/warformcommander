@@ -12,7 +12,7 @@
 //! (air-first — clear the skies, then bomb) — a non-AA weapon hitting air only at the plink rate.
 
 use crate::model::ruleset::Ruleset;
-use crate::model::types::{Capability, DamageFamily, ReachTag, TargetFilter, TargetSelector, ZoneId};
+use crate::model::types::{ReachTag, TargetFilter, TargetSelector, ZoneId};
 use crate::replay::Side;
 
 use super::Combatant;

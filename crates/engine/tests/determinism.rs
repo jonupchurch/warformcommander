@@ -243,7 +243,7 @@ fn fixed_battle_input(seed: u64) -> BattleInput {
             ),
             stock_instance(&rs, MachineTypeId::Mech, "Striker", ZoneId::Front, 2),
             stock_instance(&rs, MachineTypeId::Artillery, "Longbow", ZoneId::Rear, 3),
-            stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
+            stock_instance(&rs, MachineTypeId::Commander, "CommandPost", ZoneId::Rear, 4),
         ],
     };
     BattleInput {

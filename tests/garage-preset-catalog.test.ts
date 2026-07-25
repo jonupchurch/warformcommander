@@ -60,9 +60,9 @@ describe('defaultZoneFor', () => {
 describe('buildStockCatalog', () => {
   it('groups one default preset per variant under its machine type', () => {
     const catalog = buildStockCatalog(rs);
-    expect(Object.keys(catalog)).toHaveLength(8); // eight machine types (Commander added, US5)
+    expect(Object.keys(catalog)).toHaveLength(7); // seven machine types (Rear Support removed, v3)
     const total = Object.values(catalog).reduce((n, ps) => n + ps.length, 0);
-    expect(total).toBe(allVariants.length); // 21 variants → 21 stock presets
+    expect(total).toBe(allVariants.length); // 19 variants → 19 stock presets
     // Every stock preset is tagged Stock and scoped to its type.
     for (const [typeId, presets] of Object.entries(catalog)) {
       for (const p of presets) {

@@ -33,7 +33,7 @@ fn squad(rs: &Ruleset, heavy_zone: ZoneId) -> Army {
             stock_instance(rs, MachineTypeId::LightTank, "Scout", ZoneId::Front, 1),
             stock_instance(rs, MachineTypeId::Mech, "Vanguard", ZoneId::Middle, 2),
             stock_instance(rs, MachineTypeId::Artillery, "Longbow", ZoneId::Rear, 3),
-            stock_instance(rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
+            stock_instance(rs, MachineTypeId::Commander, "CommandPost", ZoneId::Rear, 4),
         ],
     }
 }

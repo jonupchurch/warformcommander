@@ -96,10 +96,10 @@
         },
         {
           "instanceId": 4,
-          "typeId": "RearSupport",
-          "variantId": "Medic",
+          "typeId": "Commander",
+          "variantId": "CommandPost",
           "loadout": {
-            "weapon": "RepairBeam",
+            "weapon": "HealProjector",
             "defense": "StandardHullSupport",
             "utilities": [
               "FireControl",
@@ -217,10 +217,10 @@
         },
         {
           "instanceId": 4,
-          "typeId": "RearSupport",
-          "variantId": "Warden",
+          "typeId": "Commander",
+          "variantId": "CommandPost",
           "loadout": {
-            "weapon": "RepairBeam",
+            "weapon": "HealProjector",
             "defense": "StandardHullSupport",
             "utilities": [
               "FireControl",
@@ -337,10 +337,10 @@
         },
         {
           "instanceId": 4,
-          "typeId": "RearSupport",
-          "variantId": "Medic",
+          "typeId": "Commander",
+          "variantId": "CommandPost",
           "loadout": {
-            "weapon": "RepairBeam",
+            "weapon": "HealProjector",
             "defense": "StandardHullSupport",
             "utilities": [
               "FireControl",
@@ -701,10 +701,10 @@
         },
         {
           "instanceId": 4,
-          "typeId": "RearSupport",
-          "variantId": "Warden",
+          "typeId": "Commander",
+          "variantId": "CommandPost",
           "loadout": {
-            "weapon": "RepairBeam",
+            "weapon": "HealProjector",
             "defense": "StandardHullSupport",
             "utilities": [
               "FireControl",

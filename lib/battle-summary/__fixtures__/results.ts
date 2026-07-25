@@ -15,12 +15,12 @@ export const UNIT_ORDER: WireUnit[] = [
   { side: 'A', instanceId: 1, typeId: 'AttackHeli', variantId: 'Gunship' },
   { side: 'A', instanceId: 2, typeId: 'RocketArtillery', variantId: 'Sentry' },
   { side: 'A', instanceId: 3, typeId: 'Artillery', variantId: 'Longbow' },
-  { side: 'A', instanceId: 4, typeId: 'RearSupport', variantId: 'Medic' },
+  { side: 'A', instanceId: 4, typeId: 'Commander', variantId: 'CommandPost' },
   { side: 'B', instanceId: 0, typeId: 'HeavyTank', variantId: 'Bulwark' },
   { side: 'B', instanceId: 1, typeId: 'Mech', variantId: 'Vanguard' },
   { side: 'B', instanceId: 2, typeId: 'RocketArtillery', variantId: 'Deluge' },
   { side: 'B', instanceId: 3, typeId: 'LightTank', variantId: 'Scout' },
-  { side: 'B', instanceId: 4, typeId: 'RearSupport', variantId: 'Warden' },
+  { side: 'B', instanceId: 4, typeId: 'Commander', variantId: 'CommandPost' },
 ];
 
 const dead = (tick: number): Fate => ({ destroyedAtTick: tick });

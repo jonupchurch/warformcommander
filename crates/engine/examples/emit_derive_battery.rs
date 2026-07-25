@@ -86,9 +86,7 @@ const STOCK: &[(MachineTypeId, &str, ZoneId)] = &[
     (MachineTypeId::Artillery, "Longbow", ZoneId::Rear),
     (MachineTypeId::Artillery, "Siege", ZoneId::Rear),
     (MachineTypeId::Artillery, "Marksman", ZoneId::Rear),
-    (MachineTypeId::RearSupport, "Medic", ZoneId::Rear),
-    (MachineTypeId::RearSupport, "Warden", ZoneId::Rear),
-    (MachineTypeId::RearSupport, "CommandPost", ZoneId::Rear),
+    (MachineTypeId::Commander, "CommandPost", ZoneId::Rear),
 ];
 
 /// A canonical legal 5-machine army (mirrors the golden battery's Side A).
@@ -231,9 +229,9 @@ fn main() {
         &rs,
         "commandpost:four-utility(immobile+servos)",
         mk(
-            MachineTypeId::RearSupport,
+            MachineTypeId::Commander,
             "CommandPost",
-            "RepairBeam",
+            "HealProjector",
             "StandardHullSupport",
             &["FireControl", "DriveServos", "Autoloader", "ECMSuite"],
             ZoneId::Rear,

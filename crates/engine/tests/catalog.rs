@@ -37,6 +37,16 @@ fn tank(rs: &Ruleset, variant: &str, zone: ZoneId, id: u8) -> MachineInstance {
     stock_instance(rs, MachineTypeId::HeavyTank, variant, zone, id)
 }
 
+/// Drop a utility's §14 chassis gate so a **mechanic** test can mount it on whatever chassis its
+/// scenario uses — these tests prove the effect, not the gate (the gate is covered in `content.rs`).
+fn ungate(rs: &mut Ruleset, id: &str) {
+    if let Some(m) = rs.equipment.get_mut(&EquipmentId::new(id)) {
+        if let EquipmentSpec::Utility(u) = &mut m.spec {
+            u.mount_classes.clear();
+        }
+    }
+}
+
 fn ground_zone(i: u8) -> ZoneId {
     if i < 3 {
         ZoneId::Front
@@ -151,7 +161,9 @@ fn siege_brace_extends_survival() {
 #[test]
 fn rally_cleanse_lets_allies_be_healed_through_emp() {
     let heals_on_front = |with_rally: bool| -> usize {
-        let rs = seed_ruleset();
+        let mut rs = seed_ruleset();
+        ungate(&mut rs, "Rally");
+        ungate(&mut rs, "EMPAmmo"); // EMP attackers below are Heavy tanks (EMP Ammo is Mech/Arty-gated)
         // Middle slot: a Rally carrier, or plain padding.
         let mut middle = tank(&rs, "Grizzly", ZoneId::Middle, 2);
         if with_rally {
@@ -160,7 +172,7 @@ fn rally_cleanse_lets_allies_be_healed_through_emp() {
         let defender = Army {
             machines: vec![
                 tank(&rs, "Cavalier", ZoneId::Front, 0), // focused → EMP'd + wounded
-                stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 1),
+                stock_instance(&rs, MachineTypeId::Commander, "CommandPost", ZoneId::Rear, 1),
                 middle,
                 tank(&rs, "Grizzly", ZoneId::Rear, 3),
                 tank(&rs, "Grizzly", ZoneId::Rear, 4),
@@ -211,6 +223,7 @@ fn rally_cleanse_lets_allies_be_healed_through_emp() {
 fn ambush_hits_a_full_health_target_harder() {
     let ambusher_first_hit = |with_ambush: bool| -> i64 {
         let mut rs = seed_ruleset();
+        ungate(&mut rs, "Ambush");
         // A deep shield keeps the target's hull at full through the opening hits (so `hull == max_hull`).
         rs.variants.get_mut(&VariantId::new("Cavalier")).unwrap().shield_cap =
             engine::fixed::Fixed::from_int(4000);
@@ -279,6 +292,7 @@ fn utility_projected_damage_boost_lifts_an_allys_hit() {
     };
     let a0_total = |with_boost: bool| -> i64 {
         let mut rs = seed_ruleset();
+        ungate(&mut rs, "DamageBoost");
         // The focus target outlasts the battle → A0 fires the same number of times in both runs; the only
         // difference is the per-hit ×(1 + boost) from the ally's aura.
         rs.variants.get_mut(&VariantId::new("Cavalier")).unwrap().hull = Fixed::from_int(1_000_000);
@@ -435,6 +449,7 @@ fn adaptive_munitions_switches_the_outgoing_damage_type() {
     };
     let first_hull_hit = |switch_to: DamageType| -> i64 {
         let mut rs = seed_ruleset();
+        ungate(&mut rs, "AdaptiveMunitions");
         // A deep-hull, high-armour, shieldless target: the matrix-vs-armour gap is the whole signal, and
         // the hull is large enough that the opening hit is partial (not a capped one-shot in either run).
         {
@@ -509,6 +524,7 @@ fn duelist_ramps_damage_on_a_focused_target() {
     };
     let attacker_total = |duelist: bool| -> i64 {
         let mut rs = seed_ruleset();
+        ungate(&mut rs, "DuelistServos");
         // The focus target outlasts the battle, so the Duelist attacker fires the same number of times in
         // both runs — the only difference is the per-hit ramp.
         rs.variants.get_mut(&VariantId::new("Cavalier")).unwrap().hull = Fixed::from_int(1_000_000);
@@ -571,6 +587,7 @@ fn coordinated_strike_reduces_misses_when_focus_firing() {
     };
     let attacker_misses = |with_cap: bool| -> usize {
         let mut rs = seed_ruleset();
+        ungate(&mut rs, "CoordinatedStrike");
         // Evasive defenders so misses are frequent in both runs — the co-fire accuracy is the variable.
         rs.variants.get_mut(&VariantId::new("Cavalier")).unwrap().evasion = 5_000;
         let mut a = tank(&rs, "Grizzly", ZoneId::Front, 0);
@@ -674,6 +691,7 @@ fn air_superiority_lifts_damage_vs_air() {
     };
     let a0_total = |with_counter: bool| -> i64 {
         let mut rs = seed_ruleset();
+        ungate(&mut rs, "AirSuperiority");
         rs.variants.get_mut(&VariantId::new("Gunship")).unwrap().hull = Fixed::from_int(1_000_000);
         let mut sam = stock_instance(&rs, MachineTypeId::RocketArtillery, "Sentry", ZoneId::Rear, 0);
         sam.loadout.utilities = if with_counter {
@@ -888,7 +906,7 @@ fn sustain_support_deltas_feed_derived_stats() {
 
     // Amplifier: lifts a support machine's projector power, but is inert on a non-support machine.
     let medic = |amped: bool| -> Option<Fixed> {
-        let mut m = stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 0);
+        let mut m = stock_instance(&rs, MachineTypeId::Commander, "CommandPost", ZoneId::Rear, 0);
         if amped {
             m.loadout.utilities = vec![EquipmentId::new("Amplifier")];
         } else {
@@ -966,7 +984,7 @@ fn multi_targeting_projects_to_a_second_ally() {
         // Give the attackers heavy splash so a volley wounds BOTH co-zone Cavaliers at once — otherwise
         // focus-fire leaves only a single wounded ally and the second projection has nothing to heal.
         rs.variants.get_mut(&VariantId::new("Grizzly")).unwrap().splash = 6_000;
-        let mut m = stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 1);
+        let mut m = stock_instance(&rs, MachineTypeId::Commander, "CommandPost", ZoneId::Rear, 1);
         m.loadout.utilities = if multi {
             vec![EquipmentId::new("MultiTargeting")]
         } else {
@@ -1006,20 +1024,28 @@ fn multi_targeting_projects_to_a_second_ally() {
 #[test]
 fn broadcast_and_reuse_exotics_wire_through() {
     let mut rs = seed_ruleset();
-    // The Medic's stock base is already WholeArmy; drop it to OwnZone so Broadcast's widening is visible.
-    rs.variants.get_mut(&VariantId::new("Medic")).unwrap().support_range = Some(SupportRange::OwnZone);
-    let medic_range = |broadcast: bool| -> Option<SupportRange> {
-        let mut m = stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 0);
+    // The Commander projects via its Heal projector (range WholeArmy) — and army.rs derives the support
+    // range from the *projector*, not the chassis base. Narrow the projector to OwnZone so Broadcast's
+    // widening back to the whole army is visible.
+    if let EquipmentSpec::Weapon(w) =
+        &mut rs.equipment.get_mut(&EquipmentId::new("HealProjector")).unwrap().spec
+    {
+        if let Some(support) = &mut w.support {
+            support.range = SupportRange::OwnZone;
+        }
+    }
+    let projector_range = |broadcast: bool| -> Option<SupportRange> {
+        let mut m = stock_instance(&rs, MachineTypeId::Commander, "CommandPost", ZoneId::Rear, 0);
         m.loadout.utilities = if broadcast {
             vec![EquipmentId::new("BroadcastArray")]
         } else {
             vec![]
         };
-        derive_effective_stats(&m, &rs).expect("legal Medic").support_range
+        derive_effective_stats(&m, &rs).expect("legal Commander").support_range
     };
-    assert_eq!(medic_range(false), Some(SupportRange::OwnZone));
+    assert_eq!(projector_range(false), Some(SupportRange::OwnZone));
     assert_eq!(
-        medic_range(true),
+        projector_range(true),
         Some(SupportRange::WholeArmy),
         "Broadcast widens the projector to the whole army"
     );

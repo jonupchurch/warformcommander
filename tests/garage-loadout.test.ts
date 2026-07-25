@@ -32,10 +32,15 @@ describe('mount-gated options (V4 crossover)', () => {
     expect(families.has('Energy')).toBe(true); // the Siege Laser off-family crossover
   });
 
-  it('defenseOptions are all the machine mount; utilityOptions are ungated (all utilities)', () => {
+  it('defenseOptions are all the machine mount; utilityOptions gate by chassis (§14)', () => {
     expect(defenseOptions('HeavyTank', rs).every((d) => d.mountClass === 'Heavy')).toBe(true);
-    expect(utilityOptions(rs).every((u) => u.kind === 'Utility')).toBe(true);
-    expect(utilityOptions(rs).length).toBeGreaterThanOrEqual(4); // enough for a 4-utility variant
+    const heavy = utilityOptions('HeavyTank', rs);
+    expect(heavy.every((u) => u.kind === 'Utility')).toBe(true);
+    expect(heavy.length).toBeGreaterThanOrEqual(4); // common pool + Heavy signatures
+    // A common utility is offered to every chassis; a Mech-gated one only to the Mech.
+    expect(heavy.some((u) => u.id === 'FireControl')).toBe(true);
+    expect(heavy.some((u) => u.id === 'RocketPack')).toBe(false);
+    expect(utilityOptions('Mech', rs).some((u) => u.id === 'RocketPack')).toBe(true);
   });
 });
 
@@ -85,7 +90,9 @@ describe('reducer loadout edits', () => {
   it('addUtility appends a utility, and dedups a duplicate to a no-op', () => {
     // Free a point, then add a new utility back into it (the empty-slot round trip).
     const freed = run(base(), { type: 'clearUtility', slot: 0, index: 0 });
-    const util = utilityOptions(rs).find((u) => !freed.draft.machines[0]!.loadout.utilities.includes(u.id))!;
+    const util = utilityOptions('HeavyTank', rs).find(
+      (u) => !freed.draft.machines[0]!.loadout.utilities.includes(u.id),
+    )!;
     const added = run(freed, { type: 'addUtility', slot: 0, equipmentId: util.id });
     expect(added.draft.machines[0]!.loadout.utilities).toHaveLength(3);
     expect(added.draft.machines[0]!.loadout.utilities).toContain(util.id);

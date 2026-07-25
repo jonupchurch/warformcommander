@@ -630,6 +630,7 @@ mod tests {
                     cadence_shift: 1,
                     cost: 1,
                     aura: None,
+                    mount_classes: vec![],
                 }),
             },
         );
@@ -645,6 +646,7 @@ mod tests {
                     cadence_shift: 0,
                     cost: 1,
                     aura: None,
+                    mount_classes: vec![],
                 }),
             },
         );
@@ -663,6 +665,7 @@ mod tests {
                     cadence_shift: 0,
                     cost: 1,
                     aura: None,
+                    mount_classes: vec![],
                 }),
             },
         );

@@ -12,5 +12,5 @@ export const MACHINE_LABEL: Record<MachineTypeKey, string> = {
   heli: 'Attack Heli',
   rocketarty: 'Rocket Artillery',
   artillery: 'Artillery',
-  support: 'Rear Support',
+  support: 'Commander',
 };

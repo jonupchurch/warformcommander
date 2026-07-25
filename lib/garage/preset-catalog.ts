@@ -82,15 +82,21 @@ function defaultDefense(mount: MountClass, ruleset: Ruleset): EquipmentId {
   return pick.id;
 }
 
-/** The first `count` distinct **cost-1** utilities — a guaranteed-legal fill for the slot layout. Only
- * cost-1 items are used so the utility cost-sum is exactly `count` (= the slot budget, v3 US3-A economy);
- * a costlier kit item (Rally, Ambush, …) picked into a default fill would overflow the budget (V5). */
-function defaultUtilities(count: number, ruleset: Ruleset): EquipmentId[] {
+/** The first `count` distinct **cost-1** utilities **legal for this chassis** — a guaranteed-legal fill
+ * for the slot layout. Only cost-1 items are used so the cost-sum is exactly `count` (= the slot budget,
+ * v3 US3-A); only chassis-legal items (common pool + this mount's §14 kit) so the default never seeds a
+ * utility the gate would reject. */
+function defaultUtilities(count: number, mount: MountClass, ruleset: Ruleset): EquipmentId[] {
   const utils = equipmentList(ruleset)
-    .filter((m) => m.kind === 'Utility' && (m.cost ?? 1) === 1)
+    .filter(
+      (m) =>
+        m.kind === 'Utility' &&
+        (m.cost ?? 1) === 1 &&
+        (!m.mountClasses?.length || m.mountClasses.includes(mount)),
+    )
     .map((u) => u.id);
   if (utils.length < count) {
-    throw new Error(`ruleset has ${utils.length} cost-1 utilities; need ${count}`);
+    throw new Error(`ruleset has ${utils.length} cost-1 ${mount}-legal utilities; need ${count}`);
   }
   return utils.slice(0, count);
 }
@@ -127,7 +133,7 @@ export function defaultFor(variantId: VariantId, ruleset: Ruleset): MachineSeed 
     loadout: {
       weapon: defaultWeapon(typeId, mount, ruleset),
       defense: defaultDefense(mount, ruleset),
-      utilities: defaultUtilities(slots.utility, ruleset),
+      utilities: defaultUtilities(slots.utility, mount, ruleset),
     },
     dials: STOCK_DIALS,
     planB: [],

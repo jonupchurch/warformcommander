@@ -123,9 +123,9 @@ function validateMachine(
   checkMount(ruleset, m.loadout.weapon, mtype.mountClass, 'weapon', id, errors);
   checkMount(ruleset, m.loadout.defense, mtype.mountClass, 'defense', id, errors);
 
-  // V5 — utility count + no duplicates.
+  // V5 — utility budget + no duplicates + chassis gate.
   const slots = variantSlotLayout(m, ruleset) ?? mtype.slotLayout;
-  validateUtilities(m, slots, ruleset, errors);
+  validateUtilities(m, slots, mtype.mountClass, ruleset, errors);
 
   // Capability-dependent rules (V6–V8) need the derived stats.
   const derived = deriveEffectiveStats(m, ruleset);
@@ -217,11 +217,24 @@ function checkMount(
 function validateUtilities(
   m: MachineInstance,
   slots: SlotLayout,
+  mount: MountClass,
   ruleset: Ruleset,
   errors: ValidationError[],
 ): void {
   const id = m.instanceId;
   const utils = m.loadout.utilities;
+  // V5 chassis gate (§14): a utility with a non-empty `mountClasses` may only sit on a chassis whose
+  // mount class it lists; an absent/empty list is the common pool. Mirrors validate.rs.
+  for (const u of utils) {
+    const mod = ruleset.equipment[u];
+    if (mod && mod.kind === 'Utility' && mod.mountClasses && mod.mountClasses.length > 0) {
+      if (!mod.mountClasses.includes(mount)) {
+        errors.push(
+          machineError('Utilities', id, `utility '${u}' is not available to a ${mount}-mount chassis`),
+        );
+      }
+    }
+  }
   // v3 US3-A economy: sum each utility's slot cost (default 1); legal while it does not exceed the
   // chassis's utility budget (`slots.utility`). Under-spending is allowed. Mirrors validate.rs.
   let spent = 0;

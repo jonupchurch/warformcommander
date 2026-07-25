@@ -193,7 +193,7 @@ fn defensive_support_projects_less_than_neutral() {
             tank(&rs, "Grizzly", ZoneId::Middle, 2),
             tank(&rs, "Grizzly", ZoneId::Middle, 3),
             with_stance(
-                stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
+                stock_instance(&rs, MachineTypeId::Commander, "CommandPost", ZoneId::Rear, 4),
                 st,
             ),
         ],

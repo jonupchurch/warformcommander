@@ -51,7 +51,6 @@ const TYPE_TO_ICON: Record<string, { type: MachineTypeKey; label: string }> = {
   AttackHeli: { type: 'heli', label: 'Attack Heli' },
   RocketArtillery: { type: 'rocketarty', label: 'Rocket Artillery' },
   Artillery: { type: 'artillery', label: 'Artillery' },
-  RearSupport: { type: 'support', label: 'Rear Support' },
   Commander: { type: 'support', label: 'Commander' }, // US5 — promoted support chassis
 };
 

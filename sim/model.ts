@@ -14,7 +14,8 @@ import type { DamageType } from './ruleset';
 
 // --- Closed enums (bare-string serialization) ------------------------------
 
-/** The eight machine classes — a closed set (`MachineTypeId`, model/types.rs). */
+/** The seven machine classes — a closed set (`MachineTypeId`, model/types.rs). The v2 `RearSupport`
+ * medic was removed in the v3 consolidation (the Commander is the sole backline support). */
 export type MachineTypeId =
   | "HeavyTank"
   | "LightTank"
@@ -22,7 +23,6 @@ export type MachineTypeId =
   | "AttackHeli"
   | "RocketArtillery"
   | "Artillery"
-  | "RearSupport"
   | "Commander";
 
 /** The four battlefield rows (`ZoneId`). Air is separate from the ground rows. */

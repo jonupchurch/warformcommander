@@ -20,7 +20,6 @@ export const UNIT_ICON_KEY: Record<MachineTypeId, MachineTypeKey> = {
   AttackHeli: 'heli',
   RocketArtillery: 'rocketarty',
   Artillery: 'artillery',
-  RearSupport: 'support',
   Commander: 'support',
 };
 
@@ -32,11 +31,10 @@ export const MACHINE_TYPE_LABEL: Record<MachineTypeId, string> = {
   AttackHeli: 'Attack Heli',
   RocketArtillery: 'Rocket Artillery',
   Artillery: 'Artillery',
-  RearSupport: 'Rear Support',
   Commander: 'Commander',
 };
 
-/** The eight machine types in a stable pick order. */
+/** The seven machine types in a stable pick order. */
 export const MACHINE_TYPES: MachineTypeId[] = [
   'HeavyTank',
   'LightTank',
@@ -44,7 +42,6 @@ export const MACHINE_TYPES: MachineTypeId[] = [
   'AttackHeli',
   'RocketArtillery',
   'Artillery',
-  'RearSupport',
   'Commander',
 ];
 

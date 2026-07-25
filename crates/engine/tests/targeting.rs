@@ -78,7 +78,7 @@ fn target_support_filter_hunts_the_healer() {
             tank(&rs, "Grizzly", ZoneId::Front, 1),
             tank(&rs, "Grizzly", ZoneId::Front, 2),
             tank(&rs, "Grizzly", ZoneId::Middle, 3),
-            stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Middle, 4),
+            stock_instance(&rs, MachineTypeId::Commander, "CommandPost", ZoneId::Middle, 4),
         ],
     };
     // Side A attackers in Middle (reach Front + Middle), so both the screen and the Medic are in reach.

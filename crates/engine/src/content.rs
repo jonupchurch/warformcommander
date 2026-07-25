@@ -186,18 +186,6 @@ fn seed_machine_types(m: &mut BTreeMap<MachineTypeId, MachineType>) {
             air_capable_by_default: false, // indirect — never targets air
         },
     );
-    insert(
-        m,
-        MachineType {
-            id: MachineTypeId::RearSupport,
-            native_family: Some(DamageFamily::Support),
-            home_zones: ground(),
-            mount_class: MountClass::Support,
-            slot_layout: SlotLayout::STANDARD,
-            can_fire_from_rear: false,
-            air_capable_by_default: false,
-        },
-    );
     // The Commander (v3 US5): a no-offense projector chassis. Reuses the Support mount (its projector
     // weapon + defenses gate to Support), native Support family (so its projector is native — no bearing
     // on damage, which is 0), and the widest utility budget (5). Grants its army the CommandBoost aura +
@@ -546,8 +534,10 @@ fn seed_variants(
         None,
     );
 
-    // --- Rear Support (Support · Shields · force multiplier) ---
-    let medic = BaseStats {
+    // --- Commander base stats (Support · Shields · the sole backline support unit) ---
+    // The v2 Medic/Warden variants were removed in the v3 consolidation; this Support-family template
+    // now seeds only the Commander (`CommandPost` below), whose Heal projector subsumes the medic role.
+    let support_base = BaseStats {
         hull: q(616),
         armor_pct: 1_200,
         shield_cap: q(250),
@@ -568,31 +558,17 @@ fn seed_variants(
         support_power: Some(q(5)), // ~5 hull/tick to the most-wounded ally in range
         support_range: Some(SupportRange::WholeArmy), // heal the whole army, incl. the front line
     };
-    add("Medic", MachineTypeId::RearSupport, medic, None, None);
-    add(
-        "Warden",
-        MachineTypeId::RearSupport,
-        BaseStats {
-            hull: q(801),
-            armor_pct: 1_800,
-            support_range: Some(SupportRange::OwnZone),
-            ..medic
-        },
-        None,
-        None,
-    );
-    // The Commander (v3 US5): promoted out of RearSupport into its own `MachineTypeId::Commander`
-    // chassis (design §14.6 — a distinct class, not a support variant). Its slot budget comes from the
-    // Commander type default (5 utility), so no per-variant override is needed. Its support is now
-    // weapon-driven (the projector); the base `support_power` (inherited from `medic`) is a fallback for
-    // a non-projector loadout. `move_speed 0` keeps it the immobile backline anchor.
+    // The Commander (v3 US5): its own `MachineTypeId::Commander` chassis (design §14.6 — a distinct
+    // class). Its slot budget comes from the Commander type default (5 utility), so no per-variant
+    // override is needed. Its support is weapon-driven (the projector); the base `support_power` is a
+    // fallback for a non-projector loadout. `move_speed 0` keeps it the immobile backline anchor.
     add(
         "CommandPost",
         MachineTypeId::Commander,
         BaseStats {
             hull: q(370),
             move_speed: Some(0), // immobile
-            ..medic
+            ..support_base
         },
         None,
         Some(AuraEffect {
@@ -853,15 +829,6 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
             MountClass::Artillery,
             DamageFamily::Explosive,
             gun(CadenceTier::Siege, ReachTag::AnyGround),
-        ),
-    );
-    add(
-        "RepairBeam",
-        "Repair Beam",
-        weapon(
-            MountClass::Support,
-            DamageFamily::Support,
-            gun(CadenceTier::Medium, ReachTag::Nearest),
         ),
     );
     // Commander projectors (v3 US5): the weapon slot picks what the Commander projects onto its army —
@@ -1195,7 +1162,7 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
     add("HeliECM", "ECM Screen", ecm_defense(MountClass::Heli));
     add("SupportECM", "ECM Screen", ecm_defense(MountClass::Support));
 
-    // --- Utilities (ungated) ---
+    // --- Utilities (common by default; §14 chassis gates applied by gate_utilities() below) ---
     add(
         "Autoloader",
         "Autoloader",
@@ -1205,6 +1172,7 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
             cadence_shift: 1,
             cost: 1,
             aura: None,
+            mount_classes: vec![], // common pool (§13.6)
         }),
     );
     add(
@@ -1589,6 +1557,108 @@ fn seed_equipment(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
         "Broadcast Array",
         cap_util(2, Capability::Broadcast),
     );
+
+    // Utilities are built common above; apply the §14 per-chassis gates (restricting the signature kit
+    // to its owning chassis). The common pool (§13.6: Fire Control, Drive Servos, Autoloader, ECM Suite)
+    // is left ungated.
+    gate_utilities(e);
+}
+
+/// Restrict each signature utility to the chassis (mount class) that owns it per design §14; leave the
+/// common pool ungated (empty `mount_classes`). Gating is by **mount class**, which is 1:1 with chassis
+/// type. A few items are shared across chassis (EMP Ammo, Entrench). The air-unlock utilities (Rocket
+/// Pack, Sensor Suite) aren't in a §14 list — their homes are a design decision: Rocket Pack → Mech,
+/// Sensor Suite → Light. Coordinated Strike → Heli (kept as a purchasable utility). Silent no-op on an
+/// unknown id; the `utilities_are_gated_except_the_common_pool` test guards against a typo/miss.
+fn gate_utilities(e: &mut BTreeMap<EquipmentId, EquipmentModule>) {
+    use MountClass::*;
+    let mut gate = |ids: &[&str], mounts: &[MountClass]| {
+        for id in ids {
+            if let Some(m) = e.get_mut(&EquipmentId::new(*id)) {
+                if let EquipmentSpec::Utility(u) = &mut m.spec {
+                    u.mount_classes = mounts.to_vec();
+                }
+            }
+        }
+    };
+    // §14.1 Heavy Tank
+    gate(
+        &[
+            "Decoy",
+            "LowHeatExhaust",
+            "Rangefinder",
+            "ExtraBatteries",
+            "SmokeCanisters",
+            "GuardianProtocol",
+            "SiegeMode",
+            "FieldRepair",
+        ],
+        &[Heavy],
+    );
+    // §14.2 Light Tank (+ Sensor Suite, the TargetAir spotter — design call: Light)
+    gate(
+        &[
+            "Spotter",
+            "TargetRadar",
+            "FlankingPackage",
+            "Ambush",
+            "SnareShot",
+            "Jammer",
+            "SensorSuite",
+        ],
+        &[Light],
+    );
+    // §14.3 Mech (+ Rocket Pack, the full-rate AA — design call: Mech)
+    gate(
+        &[
+            "CombatAI",
+            "JumpJets",
+            "AdaptiveMunitions",
+            "SuppressingFire",
+            "RepairNanites",
+            "Overdrive",
+            "BulwarkMode",
+            "DuelistServos",
+            "ModularHardpoint",
+            "RocketPack",
+        ],
+        &[Mech],
+    );
+    // §14.4 Attack Heli (Coordinated Strike stays a purchasable utility, gated to the Heli)
+    gate(
+        &[
+            "CoordinatedStrike",
+            "SEAD",
+            "AirSuperiority",
+            "AlphaStrike",
+            "Napalm",
+            "Flares",
+        ],
+        &[Heli],
+    );
+    // §14.5 Artillery
+    gate(&["Saturation", "BunkerBuster", "CounterBattery"], &[Artillery]);
+    // §14.5 Rocket Artillery
+    gate(&["FlakScreen"], &[RktArty]);
+    // §14.5 shared backline: Entrench on both the tube + rocket artillery
+    gate(&["Entrench"], &[Artillery, RktArty]);
+    // §14.3/§14.5 shared: EMP Ammo across the Mech + both artilleries
+    gate(&["EMPAmmo"], &[Mech, Artillery, RktArty]);
+    // §14.6 Commander (mount class Support)
+    gate(
+        &[
+            "CoordinationNet",
+            "Amplifier",
+            "BroadcastArray",
+            "MultiTargeting",
+            "DamageBoost",
+            "DamageReduction",
+            "Rally",
+            "CommsJammer",
+        ],
+        &[Support],
+    );
+    // Common pool (Autoloader, FireControl, DriveServos, ECMSuite) is intentionally left ungated.
 }
 
 /// A capability-unlock utility with no stat deltas — the common shape for the v3 kit items.
@@ -1599,6 +1669,7 @@ fn cap_util(cost: u8, cap: Capability) -> EquipmentSpec {
         cadence_shift: 0,
         cost,
         aura: None,
+        mount_classes: vec![], // common by default; §14 gates applied in gate_utilities()
     })
 }
 
@@ -1609,6 +1680,7 @@ fn util_deltas(d: StatDeltas) -> EquipmentSpec {
         cadence_shift: 0,
         cost: 1,
         aura: None,
+        mount_classes: vec![],
     })
 }
 
@@ -1620,6 +1692,7 @@ fn stat_util(cost: u8, d: StatDeltas) -> EquipmentSpec {
         cadence_shift: 0,
         cost,
         aura: None,
+        mount_classes: vec![],
     })
 }
 
@@ -1632,6 +1705,7 @@ fn aura_util(cost: u8, aura: AuraEffect) -> EquipmentSpec {
         cadence_shift: 0,
         cost,
         aura: Some(aura),
+        mount_classes: vec![],
     })
 }
 
@@ -1668,7 +1742,6 @@ fn base_weapon_for(type_id: MachineTypeId, variant: &VariantId) -> (&'static str
             }
         }
         MachineTypeId::Artillery => ("Howitzer", MountClass::Artillery),
-        MachineTypeId::RearSupport => ("RepairBeam", MountClass::Support),
         // The Commander's stock weapon is the Heal projector (US5); swap it for Shield/Ablation to
         // counter-pick what the army needs.
         MachineTypeId::Commander => ("HealProjector", MountClass::Support),
@@ -1737,9 +1810,9 @@ mod tests {
     #[test]
     fn seed_has_all_types_and_variants() {
         let rs = seed_ruleset();
-        assert_eq!(rs.machine_types.len(), 8, "eight machine types (Commander added, US5)");
-        assert_eq!(rs.variants.len(), 21, "21 variants across the 8 types");
-        assert_eq!(rs.chassis.len(), 21);
+        assert_eq!(rs.machine_types.len(), 7, "seven machine types (Rear Support removed, v3)");
+        assert_eq!(rs.variants.len(), 19, "19 variants across the 7 types");
+        assert_eq!(rs.chassis.len(), 19);
     }
 
     #[test]
@@ -1791,11 +1864,9 @@ mod tests {
             (MachineTypeId::Artillery, "Longbow"),
             (MachineTypeId::Artillery, "Siege"),
             (MachineTypeId::Artillery, "Marksman"),
-            (MachineTypeId::RearSupport, "Medic"),
-            (MachineTypeId::RearSupport, "Warden"),
-            (MachineTypeId::Commander, "CommandPost"), // promoted out of RearSupport (US5)
+            (MachineTypeId::Commander, "CommandPost"), // the sole backline support unit (US5)
         ];
-        assert_eq!(cases.len(), 21);
+        assert_eq!(cases.len(), 19);
         for (type_id, variant) in cases {
             let zone = if type_id == MachineTypeId::AttackHeli {
                 ZoneId::Air
@@ -1850,5 +1921,53 @@ mod tests {
     fn ruleset_hash_is_stable_across_two_builds() {
         // Two independent constructions of the seed hash identically (canonical + deterministic).
         assert_eq!(seed_ruleset().hash(), seed_ruleset().hash());
+    }
+
+    /// Every utility is either in the (small) common pool or chassis-gated per §14 — so a mistyped or
+    /// forgotten id in `gate_utilities` (which silently no-ops) can't leave a signature item ungated.
+    #[test]
+    fn utilities_are_gated_except_the_common_pool() {
+        use std::collections::BTreeSet;
+        let rs = seed_ruleset();
+        let common: BTreeSet<&str> = ["Autoloader", "FireControl", "DriveServos", "ECMSuite"]
+            .into_iter()
+            .collect();
+        for (id, module) in &rs.equipment {
+            if let EquipmentSpec::Utility(u) = &module.spec {
+                if common.contains(id.as_str()) {
+                    assert!(
+                        u.mount_classes.is_empty(),
+                        "{} is common pool — must stay ungated",
+                        id.as_str()
+                    );
+                } else {
+                    assert!(
+                        !u.mount_classes.is_empty(),
+                        "{} is a §14 signature — must be chassis-gated (check gate_utilities id spelling)",
+                        id.as_str()
+                    );
+                }
+            }
+        }
+    }
+
+    /// The gate actually filters: a Mech-only utility (Rocket Pack) admits the Mech mount and rejects
+    /// a Heavy mount; a common utility (Fire Control) admits any.
+    #[test]
+    fn utility_gate_admits_owner_and_rejects_others() {
+        let rs = seed_ruleset();
+        let mounts = |id: &str| match &rs.equipment.get(&EquipmentId::new(id)).unwrap().spec {
+            EquipmentSpec::Utility(u) => u.mount_classes.clone(),
+            _ => panic!("{id} is not a utility"),
+        };
+        let rocket = mounts("RocketPack");
+        assert!(rocket.contains(&MountClass::Mech));
+        assert!(!rocket.contains(&MountClass::Heavy));
+        assert!(mounts("FireControl").is_empty(), "common pool admits any chassis");
+        // EMP Ammo is shared across the Mech + both artilleries.
+        let emp = mounts("EMPAmmo");
+        for m in [MountClass::Mech, MountClass::Artillery, MountClass::RktArty] {
+            assert!(emp.contains(&m), "EMP Ammo must admit {m:?}");
+        }
     }
 }

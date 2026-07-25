@@ -855,7 +855,7 @@ mod counterweb_tests {
         rs.role_damage_bonuses.insert(
             MachineTypeId::LightTank,
             RoleDamageBonus {
-                vs: vec![MachineTypeId::Artillery, MachineTypeId::RearSupport],
+                vs: vec![MachineTypeId::Artillery, MachineTypeId::Commander],
                 mult: 5_000, // +50%
             },
         );
@@ -865,7 +865,7 @@ mod counterweb_tests {
             BP_ONE + 5_000
         );
         assert_eq!(
-            role_mult(&rs, MachineTypeId::LightTank, MachineTypeId::RearSupport),
+            role_mult(&rs, MachineTypeId::LightTank, MachineTypeId::Commander),
             BP_ONE + 5_000
         );
         assert_eq!(
