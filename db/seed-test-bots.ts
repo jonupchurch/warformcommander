@@ -17,6 +17,7 @@
 import { eq } from "drizzle-orm";
 
 import { validateSquad } from "../sim/validate";
+import { getCurrentRuleset } from "../server/ruleset";
 import type { SquadConfig } from "./types";
 import { getDb } from "./index";
 import { users } from "./schema";
@@ -34,11 +35,16 @@ const SLOTS = [0, 1, 2] as const;
 async function seedTestBots(): Promise<{ bots: number; defenses: number }> {
   const db = getDb();
 
-  // Validate the source configs once, up front — fail fast if any army is bad (defense-in-depth: the
-  // generator already gates on validate(), this re-checks and derives each power rating).
+  // Validate every source config against the **LIVE ruleset row** — the one real battles resolve
+  // against — NOT `loadDefaultRuleset()` (content.rs). The two diverge whenever a balance pass ships
+  // a frozen ruleset (e.g. v18/v19 raised five utilities to cost 2 that content.rs still prices at 1),
+  // so a squad that passes the default gate can bust the LIVE budget and then fail every battle
+  // (validate runs inside resolve). Gating on the live row here is the authoritative check and derives
+  // each power rating from it. Fail fast if any army is bad. See [[live-ruleset-is-a-db-row]].
+  const { ruleset: liveRuleset } = await getCurrentRuleset();
   const armies = (seedArmies as SeedArmy[]).map((a) => {
-    const v = validateSquad(a.config);
-    if (!v.ok) throw new Error(`seed army '${a.name}' is invalid: ${v.errors.map((e) => e.code).join(", ")}`);
+    const v = validateSquad(a.config, liveRuleset);
+    if (!v.ok) throw new Error(`seed army '${a.name}' is invalid under the LIVE ruleset: ${v.errors.map((e) => e.code).join(", ")}`);
     return { name: a.name, config: a.config, powerRating: v.powerRating };
   });
   const needed = BOT_COUNT * SLOTS.length;
