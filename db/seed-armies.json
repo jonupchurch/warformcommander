@@ -59,8 +59,7 @@
             "defense": "StandardHullRktArty",
             "utilities": [
               "FireControl",
-              "Autoloader",
-              "DriveServos"
+              "Autoloader"
             ]
           },
           "dials": {
@@ -82,8 +81,7 @@
             "defense": "StandardHullArtillery",
             "utilities": [
               "FireControl",
-              "Autoloader",
-              "Rangefinder"
+              "Autoloader"
             ]
           },
           "dials": {
@@ -182,8 +180,7 @@
             "defense": "StandardHullRktArty",
             "utilities": [
               "FireControl",
-              "Autoloader",
-              "DriveServos"
+              "Autoloader"
             ]
           },
           "dials": {
@@ -205,8 +202,7 @@
             "defense": "StandardHullArtillery",
             "utilities": [
               "FireControl",
-              "Autoloader",
-              "Rangefinder"
+              "Autoloader"
             ]
           },
           "dials": {
@@ -259,8 +255,7 @@
             "defense": "StandardHullHeli",
             "utilities": [
               "FireControl",
-              "Autoloader",
-              "ECMSuite"
+              "Autoloader"
             ]
           },
           "dials": {
@@ -282,8 +277,7 @@
             "defense": "StandardHullHeli",
             "utilities": [
               "FireControl",
-              "Autoloader",
-              "DriveServos"
+              "Autoloader"
             ]
           },
           "dials": {
@@ -305,8 +299,7 @@
             "defense": "StandardHullRktArty",
             "utilities": [
               "FireControl",
-              "Autoloader",
-              "DriveServos"
+              "Autoloader"
             ]
           },
           "dials": {
@@ -428,8 +421,7 @@
             "defense": "StandardHullArtillery",
             "utilities": [
               "FireControl",
-              "Autoloader",
-              "Rangefinder"
+              "Autoloader"
             ]
           },
           "dials": {
@@ -451,8 +443,7 @@
             "defense": "StandardHullArtillery",
             "utilities": [
               "FireControl",
-              "Autoloader",
-              "Rangefinder"
+              "Autoloader"
             ]
           },
           "dials": {
@@ -474,8 +465,7 @@
             "defense": "StandardHullRktArty",
             "utilities": [
               "FireControl",
-              "Autoloader",
-              "DriveServos"
+              "Autoloader"
             ]
           },
           "dials": {
@@ -574,8 +564,7 @@
             "defense": "StandardHullRktArty",
             "utilities": [
               "FireControl",
-              "Autoloader",
-              "DriveServos"
+              "Autoloader"
             ]
           },
           "dials": {
@@ -597,8 +586,7 @@
             "defense": "StandardHullHeli",
             "utilities": [
               "FireControl",
-              "Autoloader",
-              "ECMSuite"
+              "Autoloader"
             ]
           },
           "dials": {
@@ -698,8 +686,7 @@
             "defense": "StandardHullRktArty",
             "utilities": [
               "FireControl",
-              "Autoloader",
-              "DriveServos"
+              "Autoloader"
             ]
           },
           "dials": {
