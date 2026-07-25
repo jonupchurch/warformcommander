@@ -17,7 +17,7 @@
  */
 
 import type { EquipmentId, MachineTypeId, PresetConfig, VariantId, ZoneId } from '@/sim/model';
-import type { Ruleset } from '@/sim/ruleset';
+import type { EquipmentModule, MountClass, Ruleset } from '@/sim/ruleset';
 
 import type { MachineSeed } from './editor-reducer';
 import { defaultVariantFor, defaultZoneFor, type CatalogPreset } from './preset-catalog';
@@ -41,20 +41,26 @@ export function fitUtilities(
   utilities: EquipmentId[],
   slotCount: number,
   ruleset: Ruleset,
+  mount: MountClass,
 ): EquipmentId[] {
+  // A utility is legal on this chassis if it is common (no §14 gate) or lists this mount class — so a
+  // truncate keeps only chassis-legal utilities and a backfill never introduces an illegal signature.
+  const allowed = (mod: EquipmentModule): boolean =>
+    mod.kind === 'Utility' && (!mod.mountClasses?.length || mod.mountClasses.includes(mount));
   const seen = new Set<EquipmentId>();
   const kept: EquipmentId[] = [];
   for (const id of utilities) {
     if (kept.length >= slotCount) break; // truncate — a 4-util bundle can't fill 3 slots
     if (seen.has(id)) continue; // dedup (V5)
-    if (ruleset.equipment[id]?.kind !== 'Utility') continue; // stale / non-utility id
+    const mod = ruleset.equipment[id];
+    if (!mod || !allowed(mod)) continue; // stale / non-utility / gate-illegal on the target chassis
     seen.add(id);
     kept.push(id);
   }
   if (kept.length < slotCount) {
     for (const mod of Object.values(ruleset.equipment)) {
       if (kept.length >= slotCount) break;
-      if (mod.kind === 'Utility' && !seen.has(mod.id)) {
+      if (allowed(mod) && !seen.has(mod.id)) {
         seen.add(mod.id);
         kept.push(mod.id);
       }
@@ -74,12 +80,16 @@ export function fitPresetToVariant(
   targetVariantId: VariantId,
   ruleset: Ruleset,
 ): MachineSeed {
+  const chassis = ruleset.chassis[targetVariantId];
+  const mount = chassis ? ruleset.machineTypes[chassis.typeId]?.mountClass : undefined;
   return {
     variantId: targetVariantId,
     loadout: {
       weapon: config.loadout.weapon,
       defense: config.loadout.defense,
-      utilities: fitUtilities(config.loadout.utilities, utilitySlots(targetVariantId, ruleset), ruleset),
+      utilities: mount
+        ? fitUtilities(config.loadout.utilities, utilitySlots(targetVariantId, ruleset), ruleset, mount)
+        : [...config.loadout.utilities],
     },
     dials: config.dials,
     planB: config.planB,

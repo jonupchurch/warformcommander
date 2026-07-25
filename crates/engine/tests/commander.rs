@@ -9,7 +9,7 @@ use engine::content::{seed_ruleset, stock_instance};
 use engine::model::army::{Army, MachineInstance};
 use engine::model::ruleset::Ruleset;
 use engine::model::types::{
-    DialKey, DialValue, EquipmentId, MachineTypeId, MovementMode, PlanBSlot, PlanBTrigger, Stance,
+    DialKey, DialValue, EquipmentId, MachineTypeId, PlanBSlot, PlanBTrigger, Stance,
     TriggerCondition, VariantId, ZoneId,
 };
 use engine::replay::{Adaptation, Fate, MatchConfig, Side, SupportKind, TickEvent, UnitRef};
@@ -63,37 +63,37 @@ fn damage_dealt_a(out: &BattleOutput) -> i64 {
     out.result.side(Side::A).damage_dealt.milli()
 }
 
-/// The Commander's **Command** aura lifts the whole army's output while it lives: an army fielding a
-/// CommandPost out-damages the same army fielding a plain Warden support (no Command aura), measured
-/// over a long battle against unkillable anvils so the +10% accumulates rather than capping at a kill.
+/// The Commander's **Command** aura lifts the whole army's output while it lives: the same army
+/// (four Grizzlies + a CommandPost) out-damages itself once the CommandPost's Command aura is zeroed
+/// (the no-aura baseline), measured over a long battle against unkillable anvils so the +10%
+/// accumulates rather than capping at a kill.
 #[test]
 fn command_aura_raises_army_damage() {
     let rs = anvil_rs();
-    // Four Grizzly attackers + one backline support (the variable: a Commander vs a plain Warden).
-    let army = |ty: MachineTypeId, support: &str| Army {
+    // The no-aura baseline: the same ruleset with the CommandPost's Command aura magnitude set to 0.
+    let mut no_aura = anvil_rs();
+    if let Some(aura) = no_aura
+        .chassis
+        .get_mut(&VariantId::new("CommandPost"))
+        .and_then(|c| c.passive_aura.as_mut())
+    {
+        aura.magnitude = 0;
+    }
+    // Four Grizzly attackers + a CommandPost support, built against whichever ruleset is under test.
+    let army = |r: &Ruleset| Army {
         machines: vec![
-            tank(&rs, "Grizzly", ZoneId::Front, 0),
-            tank(&rs, "Grizzly", ZoneId::Front, 1),
-            tank(&rs, "Grizzly", ZoneId::Middle, 2),
-            tank(&rs, "Grizzly", ZoneId::Middle, 3),
-            stock_instance(&rs, ty, support, ZoneId::Rear, 4),
+            tank(r, "Grizzly", ZoneId::Front, 0),
+            tank(r, "Grizzly", ZoneId::Front, 1),
+            tank(r, "Grizzly", ZoneId::Middle, 2),
+            tank(r, "Grizzly", ZoneId::Middle, 3),
+            stock_instance(r, MachineTypeId::Commander, "CommandPost", ZoneId::Rear, 4),
         ],
     };
-    let with_commander = damage_dealt_a(&run(
-        &rs,
-        army(MachineTypeId::Commander, "CommandPost"),
-        anvils(&rs),
-        0xC0DE,
-    ));
-    let with_warden = damage_dealt_a(&run(
-        &rs,
-        army(MachineTypeId::RearSupport, "Warden"),
-        anvils(&rs),
-        0xC0DE,
-    ));
+    let with_aura = damage_dealt_a(&run(&rs, army(&rs), anvils(&rs), 0xC0DE));
+    let without_aura = damage_dealt_a(&run(&no_aura, army(&no_aura), anvils(&no_aura), 0xC0DE));
     assert!(
-        with_commander > with_warden,
-        "a live Commander must raise the army's cumulative damage: commander={with_commander} warden={with_warden}"
+        with_aura > without_aura,
+        "a live Commander's Command aura must raise the army's cumulative damage: with={with_aura} without={without_aura}"
     );
 }
 
@@ -202,13 +202,8 @@ fn commander_projector_projects_its_weapon_kind() {
         commander_projection_kinds(&rs, "AblationProjector").contains(&SupportKind::Ablation),
         "the Ablation projector must grant an ablative buffer"
     );
-    // And a non-projector weapon (plain Repair Beam) falls back to the chassis-native Heal, never a
-    // Shield/Ablation projection — the kind lives on the weapon, not the chassis.
-    let beam = commander_projection_kinds(&rs, "RepairBeam");
-    assert!(
-        !beam.contains(&SupportKind::ShieldBoost) && !beam.contains(&SupportKind::Ablation),
-        "a non-projector weapon never projects Shield/Ablation"
-    );
+    // (The v2 non-projector Repair Beam fallback is gone with the Rear Support removal — every
+    // Support-mount weapon is now a projector, so the kind always lives on the weapon.)
 }
 
 /// A friendly Commander grants the army a survival-gated bonus Plan-B slot (US5): a plain machine (no

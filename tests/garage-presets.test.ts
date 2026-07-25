@@ -45,7 +45,6 @@ function stockOf(variantId: string): CatalogPreset {
 describe('slot-layout awareness', () => {
   it('reads a variant utility count, honoring the layout (Commander = 5, Sentinel = 4, others = 3)', () => {
     expect(utilitySlots('Grizzly', rs)).toBe(3);
-    expect(utilitySlots('Medic', rs)).toBe(3);
     expect(utilitySlots('CommandPost', rs)).toBe(5); // now the Commander chassis (US5) — 5 slots
     expect(utilitySlots('Sentinel', rs)).toBe(4);
   });
@@ -55,22 +54,22 @@ describe('fitUtilities (FR-013)', () => {
   it('truncates an over-long list to the slot count — never overfills', () => {
     const bundle = defaultFor('CommandPost', rs).loadout.utilities; // Commander stock fills its 5 slots
     expect(bundle).toHaveLength(5);
-    const fit = fitUtilities(bundle, 3, rs);
+    const fit = fitUtilities(bundle, 3, rs, 'Support'); // fit onto the Support-mount Commander
     expect(fit).toHaveLength(3);
     expect(fit).toEqual(bundle.slice(0, 3));
   });
 
   it('drops duplicates and stale (non-utility) ids', () => {
     const dupes = ['Autoloader', 'Autoloader', 'CombatAI', 'NotAThing'];
-    const fit = fitUtilities(dupes, 3, rs);
+    const fit = fitUtilities(dupes, 3, rs, 'Mech'); // Mech mount — CombatAI is Mech-gated, so it is kept
     expect(fit).toHaveLength(3);
     expect(new Set(fit).size).toBe(3); // no dupes
     expect(fit).not.toContain('NotAThing'); // stale id dropped
     expect(fit.slice(0, 2)).toEqual(['Autoloader', 'CombatAI']);
   });
 
-  it('pads a short list up to the slot count with distinct ungated utilities', () => {
-    const fit = fitUtilities(['Autoloader'], 4, rs);
+  it('pads a short list up to the slot count with distinct chassis-legal utilities', () => {
+    const fit = fitUtilities(['Autoloader'], 4, rs, 'Mech');
     expect(fit).toHaveLength(4);
     expect(fit[0]).toBe('Autoloader');
     expect(new Set(fit).size).toBe(4);
@@ -79,9 +78,9 @@ describe('fitUtilities (FR-013)', () => {
 
 describe('fitPresetToVariant', () => {
   it('fits a wider bundle onto a 3-slot variant, preserving weapon/defense/dials/planB', () => {
-    const cfg = configFor('CommandPost'); // Commander stock — 5 utilities
-    const seed = fitPresetToVariant(cfg, 'Medic', rs); // Medic = 3 slots
-    expect(seed.variantId).toBe('Medic');
+    const cfg = configFor('CommandPost'); // Commander stock bundle
+    const seed = fitPresetToVariant(cfg, 'Grizzly', rs); // Grizzly = 3 slots
+    expect(seed.variantId).toBe('Grizzly');
     expect(seed.loadout.utilities).toHaveLength(3);
     expect(seed.loadout.weapon).toBe(cfg.loadout.weapon);
     expect(seed.loadout.defense).toBe(cfg.loadout.defense);
@@ -90,7 +89,7 @@ describe('fitPresetToVariant', () => {
   });
 
   it('pads a 3-utility bundle onto a wider-slot variant', () => {
-    const cfg = configFor('Medic'); // 3 utilities
+    const cfg = configFor('Grizzly'); // 3 utilities
     const seed = fitPresetToVariant(cfg, 'CommandPost', rs); // Commander = 5 slots (US5)
     expect(seed.loadout.utilities).toHaveLength(5);
   });
@@ -99,10 +98,10 @@ describe('fitPresetToVariant', () => {
 describe('presetsForType (FR-013 / AS3 — type scoping)', () => {
   it('offers a preset only to a machine of its own type', () => {
     const lib = [
-      { id: 'a', machineTypeId: 'RearSupport', name: 'x' },
+      { id: 'a', machineTypeId: 'Commander', name: 'x' },
       { id: 'b', machineTypeId: 'HeavyTank', name: 'y' },
     ];
-    expect(presetsForType(lib, 'RearSupport').map((p) => p.id)).toEqual(['a']);
+    expect(presetsForType(lib, 'Commander').map((p) => p.id)).toEqual(['a']);
     expect(presetsForType(lib, 'HeavyTank').map((p) => p.id)).toEqual(['b']);
     expect(presetsForType(lib, 'Mech')).toEqual([]); // a different type is not offered any
   });
@@ -139,18 +138,19 @@ describe('apply plans', () => {
   });
 
   it('planCustomApply fits to the current variant when filled, else the type default variant', () => {
-    const cfg = configFor('CommandPost'); // Commander stock — 5 utilities
-    const preset = { id: 'custom:1', machineTypeId: 'RearSupport' as const, config: cfg };
+    const cfg = configFor('CommandPost'); // Commander stock bundle
+    const preset = { id: 'custom:1', machineTypeId: 'Commander' as const, config: cfg };
 
-    const filled = planCustomApply(preset, 'Medic', 'Middle', rs);
-    expect(filled.seed.variantId).toBe('Medic');
-    expect(filled.seed.loadout.utilities).toHaveLength(3); // fit to Medic's 3 slots
+    // Filled: fits to the current variant's slot count — a 3-slot Grizzly → 3 (gate-legal) utilities.
+    const filled = planCustomApply(preset, 'Grizzly', 'Middle', rs);
+    expect(filled.seed.variantId).toBe('Grizzly');
+    expect(filled.seed.loadout.utilities).toHaveLength(3); // fit to Grizzly's 3 slots
     expect(filled.zone).toBe('Middle');
     expect(filled.sourcePresetId).toBe('custom:1');
 
     const empty = planCustomApply(preset, null, null, rs);
     expect(empty.seed.variantId).toBeTruthy(); // fell back to the type's default variant
-    expect(empty.zone).toBe('Front'); // RearSupport home zone
+    expect(empty.zone).toBe('Front'); // Commander home zone
   });
 });
 
@@ -214,7 +214,7 @@ describe('on-ramp fields a legal squad (SC-004) and stays legal under fitting', 
 
   it('applying a 4-utility custom preset onto a 3-slot variant keeps the squad legal (no V5 overfill)', () => {
     const lineup: Array<[string, 'Air' | 'Front' | 'Middle' | 'Rear']> = [
-      ['Medic', 'Rear'],
+      ['Grizzly', 'Front'],
       ['Scout', 'Front'],
       ['Vanguard', 'Middle'],
       ['Longbow', 'Rear'],
@@ -224,9 +224,10 @@ describe('on-ramp fields a legal squad (SC-004) and stays legal under fitting', 
     lineup.forEach(([variant, zone], i) => {
       s = run(s, { type: 'applyPreset', slot: i as 0, ...planStockApply(stockOf(variant), zone, rs) });
     });
-    // A CommandPost (5-utility) bundle applied to the Medic (3-slot) in slot 0.
+    // A Commander bundle applied to the 3-slot Grizzly in slot 0 — utilities truncate to 3 and re-fit
+    // to what a Heavy chassis can legally carry (gate-aware), so the squad stays legal.
     const cur = s.draft.machines[0] as DraftSlot as DraftMachine;
-    const preset = { id: 'custom:3', machineTypeId: 'RearSupport' as const, config: configFor('CommandPost') };
+    const preset = { id: 'custom:3', machineTypeId: 'Commander' as const, config: configFor('CommandPost') };
     s = run(s, { type: 'applyPreset', slot: 0, ...planCustomApply(preset, cur.variantId, cur.zone, rs) });
 
     expect(s.draft.machines[0]!.loadout.utilities).toHaveLength(3); // truncated, not overfilled

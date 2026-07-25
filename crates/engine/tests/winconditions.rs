@@ -50,11 +50,11 @@ fn all_support() -> (Army, Army) {
     let rs = seed_ruleset();
     let make = || Army {
         machines: vec![
-            stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Front, 0),
-            stock_instance(&rs, MachineTypeId::RearSupport, "Warden", ZoneId::Front, 1),
-            stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Middle, 2),
-            stock_instance(&rs, MachineTypeId::RearSupport, "Warden", ZoneId::Middle, 3),
-            stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
+            stock_instance(&rs, MachineTypeId::Commander, "CommandPost", ZoneId::Front, 0),
+            stock_instance(&rs, MachineTypeId::Commander, "CommandPost", ZoneId::Front, 1),
+            stock_instance(&rs, MachineTypeId::Commander, "CommandPost", ZoneId::Middle, 2),
+            stock_instance(&rs, MachineTypeId::Commander, "CommandPost", ZoneId::Middle, 3),
+            stock_instance(&rs, MachineTypeId::Commander, "CommandPost", ZoneId::Rear, 4),
         ],
     };
     (make(), make())

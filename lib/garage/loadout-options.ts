@@ -44,9 +44,20 @@ export function defenseOptions(typeId: MachineTypeId, ruleset: Ruleset): Defense
   );
 }
 
-/** The utilities a machine may equip — ungated (any utility fits any machine; dedup is the only rule). */
-export function utilityOptions(ruleset: Ruleset): UtilityModule[] {
-  return equipment(ruleset).filter((m): m is UtilityModule => m.kind === 'Utility');
+/**
+ * The utilities a machine may equip — gated by the §14 chassis rule (mirrors the engine's V5 gate):
+ * a utility with a non-empty `mountClasses` only fits a chassis whose mount class it lists; an
+ * absent/empty list is the common pool (any chassis). Dedup across slots is still enforced separately.
+ */
+export function utilityOptions(typeId: MachineTypeId, ruleset: Ruleset): UtilityModule[] {
+  const mount = mountClassFor(typeId, ruleset);
+  return equipment(ruleset).filter(
+    (m): m is UtilityModule =>
+      m.kind === 'Utility' &&
+      (!m.mountClasses ||
+        m.mountClasses.length === 0 ||
+        (mount !== undefined && m.mountClasses.includes(mount))),
+  );
 }
 
 /**

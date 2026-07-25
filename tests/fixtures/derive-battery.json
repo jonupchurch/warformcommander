@@ -1139,130 +1139,6 @@
           "evasion": 500,
           "evasionVsAir": 0,
           "family": "Support",
-          "hull": 616000,
-          "hullRegen": 0,
-          "moveSpeed": 5,
-          "nativeMatch": true,
-          "penetration": 0,
-          "planBSlots": 1,
-          "reach": "Nearest",
-          "reactive": false,
-          "shieldCap": 385000,
-          "shieldDelay": 55,
-          "shieldRegen": 11000,
-          "specialMitigation": null,
-          "splash": 0,
-          "supportKind": "Heal",
-          "supportPower": 5000,
-          "supportRange": "WholeArmy",
-          "targetDraw": 0,
-          "threat": 5000
-        }
-      },
-      "instance": {
-        "dials": {
-          "movement": "Hold",
-          "stance": "Neutral",
-          "targeting": {
-            "fallback": "Closest"
-          }
-        },
-        "instanceId": 0,
-        "loadout": {
-          "defense": "StandardHullSupport",
-          "utilities": [
-            "FireControl",
-            "DriveServos",
-            "Autoloader"
-          ],
-          "weapon": "RepairBeam"
-        },
-        "planB": [],
-        "typeId": "RearSupport",
-        "variantId": "Medic",
-        "zone": "Rear"
-      },
-      "label": "stock:Medic"
-    },
-    {
-      "expected": {
-        "ok": true,
-        "stats": {
-          "ablativeCap": 0,
-          "accuracy": 800,
-          "armorPct": 2250,
-          "cadence": "Fast",
-          "canTargetAir": false,
-          "capabilities": [],
-          "critChance": 0,
-          "critMult": 15000,
-          "damage": 0,
-          "damageType": "Kinetic",
-          "evasion": 500,
-          "evasionVsAir": 0,
-          "family": "Support",
-          "hull": 801000,
-          "hullRegen": 0,
-          "moveSpeed": 5,
-          "nativeMatch": true,
-          "penetration": 0,
-          "planBSlots": 1,
-          "reach": "Nearest",
-          "reactive": false,
-          "shieldCap": 385000,
-          "shieldDelay": 55,
-          "shieldRegen": 11000,
-          "specialMitigation": null,
-          "splash": 0,
-          "supportKind": "Heal",
-          "supportPower": 5000,
-          "supportRange": "OwnZone",
-          "targetDraw": 0,
-          "threat": 5000
-        }
-      },
-      "instance": {
-        "dials": {
-          "movement": "Hold",
-          "stance": "Neutral",
-          "targeting": {
-            "fallback": "Closest"
-          }
-        },
-        "instanceId": 0,
-        "loadout": {
-          "defense": "StandardHullSupport",
-          "utilities": [
-            "FireControl",
-            "DriveServos",
-            "Autoloader"
-          ],
-          "weapon": "RepairBeam"
-        },
-        "planB": [],
-        "typeId": "RearSupport",
-        "variantId": "Warden",
-        "zone": "Rear"
-      },
-      "label": "stock:Warden"
-    },
-    {
-      "expected": {
-        "ok": true,
-        "stats": {
-          "ablativeCap": 0,
-          "accuracy": 800,
-          "armorPct": 1650,
-          "cadence": "Fast",
-          "canTargetAir": false,
-          "capabilities": [],
-          "critChance": 0,
-          "critMult": 15000,
-          "damage": 0,
-          "damageType": "Kinetic",
-          "evasion": 500,
-          "evasionVsAir": 0,
-          "family": "Support",
           "hull": 370000,
           "hullRegen": 0,
           "moveSpeed": 2,
@@ -1279,7 +1155,7 @@
           "supportKind": "Heal",
           "supportPower": 5000,
           "supportRange": "WholeArmy",
-          "targetDraw": 0,
+          "targetDraw": -2,
           "threat": 5000
         }
       },
@@ -1297,12 +1173,13 @@
           "utilities": [
             "FireControl",
             "DriveServos",
-            "Autoloader"
+            "Autoloader",
+            "ECMSuite"
           ],
-          "weapon": "RepairBeam"
+          "weapon": "HealProjector"
         },
         "planB": [],
-        "typeId": "RearSupport",
+        "typeId": "Commander",
         "variantId": "CommandPost",
         "zone": "Rear"
       },
@@ -1932,10 +1809,10 @@
             "Autoloader",
             "ECMSuite"
           ],
-          "weapon": "RepairBeam"
+          "weapon": "HealProjector"
         },
         "planB": [],
-        "typeId": "RearSupport",
+        "typeId": "Commander",
         "variantId": "CommandPost",
         "zone": "Rear"
       },
@@ -2122,10 +1999,6 @@
         "id": "Marksman",
         "typeId": "Artillery"
       },
-      "Medic": {
-        "id": "Medic",
-        "typeId": "RearSupport"
-      },
       "Outrider": {
         "id": "Outrider",
         "passiveAura": {
@@ -2168,10 +2041,6 @@
       "Vanguard": {
         "id": "Vanguard",
         "typeId": "Mech"
-      },
-      "Warden": {
-        "id": "Warden",
-        "typeId": "RearSupport"
       },
       "Warhog": {
         "id": "Warhog",
@@ -2226,6 +2095,9 @@
         "cost": 2,
         "id": "AdaptiveMunitions",
         "kind": "Utility",
+        "mountClasses": [
+          "Mech"
+        ],
         "name": "Adaptive Munitions",
         "unlocks": [
           "AdaptiveMunitions"
@@ -2236,6 +2108,9 @@
         "cost": 2,
         "id": "AirSuperiority",
         "kind": "Utility",
+        "mountClasses": [
+          "Heli"
+        ],
         "name": "Air Superiority",
         "unlocks": [
           "AirSuperiority"
@@ -2246,6 +2121,9 @@
         "cost": 2,
         "id": "AlphaStrike",
         "kind": "Utility",
+        "mountClasses": [
+          "Heli"
+        ],
         "name": "Alpha Strike",
         "unlocks": [
           "Ambush"
@@ -2256,6 +2134,9 @@
         "cost": 2,
         "id": "Ambush",
         "kind": "Utility",
+        "mountClasses": [
+          "Light"
+        ],
         "name": "Ambush",
         "unlocks": [
           "Ambush"
@@ -2265,6 +2146,9 @@
         "cadenceShift": 0,
         "id": "Amplifier",
         "kind": "Utility",
+        "mountClasses": [
+          "Support"
+        ],
         "name": "Amplifier",
         "statDeltas": {
           "accuracy": 0,
@@ -2506,6 +2390,9 @@
         "cost": 2,
         "id": "BroadcastArray",
         "kind": "Utility",
+        "mountClasses": [
+          "Support"
+        ],
         "name": "Broadcast Array",
         "unlocks": [
           "Broadcast"
@@ -2515,6 +2402,9 @@
         "cadenceShift": 0,
         "id": "BulwarkMode",
         "kind": "Utility",
+        "mountClasses": [
+          "Mech"
+        ],
         "name": "Bulwark Mode",
         "unlocks": [
           "StationaryBrace"
@@ -2525,6 +2415,9 @@
         "cost": 2,
         "id": "BunkerBuster",
         "kind": "Utility",
+        "mountClasses": [
+          "Artillery"
+        ],
         "name": "Bunker Buster",
         "statDeltas": {
           "accuracy": 0,
@@ -2566,6 +2459,9 @@
         "cost": 2,
         "id": "CombatAI",
         "kind": "Utility",
+        "mountClasses": [
+          "Mech"
+        ],
         "name": "Combat AI Core",
         "unlocks": [
           "ExtraPlanBSlot"
@@ -2581,6 +2477,9 @@
         "cost": 2,
         "id": "CommsJammer",
         "kind": "Utility",
+        "mountClasses": [
+          "Support"
+        ],
         "name": "Comms Jammer",
         "unlocks": []
       },
@@ -2609,6 +2508,9 @@
         "cost": 2,
         "id": "CoordinatedStrike",
         "kind": "Utility",
+        "mountClasses": [
+          "Heli"
+        ],
         "name": "Coordinated Strike",
         "unlocks": [
           "CoordinatedStrike"
@@ -2623,6 +2525,9 @@
         "cadenceShift": 0,
         "id": "CoordinationNet",
         "kind": "Utility",
+        "mountClasses": [
+          "Support"
+        ],
         "name": "Coordination Net",
         "unlocks": []
       },
@@ -2631,6 +2536,9 @@
         "cost": 2,
         "id": "CounterBattery",
         "kind": "Utility",
+        "mountClasses": [
+          "Artillery"
+        ],
         "name": "Counter-Battery",
         "unlocks": [
           "CounterBattery"
@@ -2646,6 +2554,9 @@
         "cost": 2,
         "id": "DamageBoost",
         "kind": "Utility",
+        "mountClasses": [
+          "Support"
+        ],
         "name": "Damage Boost",
         "unlocks": []
       },
@@ -2659,6 +2570,9 @@
         "cost": 2,
         "id": "DamageReduction",
         "kind": "Utility",
+        "mountClasses": [
+          "Support"
+        ],
         "name": "Damage Reduction",
         "unlocks": []
       },
@@ -2666,6 +2580,9 @@
         "cadenceShift": 0,
         "id": "Decoy",
         "kind": "Utility",
+        "mountClasses": [
+          "Heavy"
+        ],
         "name": "Decoy Beacon",
         "statDeltas": {
           "accuracy": 0,
@@ -2752,6 +2669,9 @@
         "cost": 2,
         "id": "DuelistServos",
         "kind": "Utility",
+        "mountClasses": [
+          "Mech"
+        ],
         "name": "Duelist Servos",
         "unlocks": [
           "Duelist"
@@ -2781,6 +2701,11 @@
         "cadenceShift": 0,
         "id": "EMPAmmo",
         "kind": "Utility",
+        "mountClasses": [
+          "Mech",
+          "Artillery",
+          "RktArty"
+        ],
         "name": "EMP Ammo",
         "unlocks": [
           "OnHitEmp"
@@ -2790,6 +2715,10 @@
         "cadenceShift": 0,
         "id": "Entrench",
         "kind": "Utility",
+        "mountClasses": [
+          "Artillery",
+          "RktArty"
+        ],
         "name": "Entrench",
         "unlocks": [
           "StationaryBrace"
@@ -2800,6 +2729,9 @@
         "cost": 2,
         "id": "ExtraBatteries",
         "kind": "Utility",
+        "mountClasses": [
+          "Heavy"
+        ],
         "name": "Extra Batteries",
         "statDeltas": {
           "accuracy": 0,
@@ -2848,6 +2780,9 @@
         "cost": 2,
         "id": "FieldRepair",
         "kind": "Utility",
+        "mountClasses": [
+          "Heavy"
+        ],
         "name": "Field Repair",
         "statDeltas": {
           "accuracy": 0,
@@ -2890,6 +2825,9 @@
         "cost": 2,
         "id": "FlakScreen",
         "kind": "Utility",
+        "mountClasses": [
+          "RktArty"
+        ],
         "name": "Flak Screen",
         "statDeltas": {
           "accuracy": 0,
@@ -2911,6 +2849,9 @@
         "cost": 2,
         "id": "FlankingPackage",
         "kind": "Utility",
+        "mountClasses": [
+          "Light"
+        ],
         "name": "Flanking Package",
         "unlocks": [
           "Flanking"
@@ -2920,6 +2861,9 @@
         "cadenceShift": 0,
         "id": "Flares",
         "kind": "Utility",
+        "mountClasses": [
+          "Heli"
+        ],
         "name": "Flares",
         "statDeltas": {
           "accuracy": 0,
@@ -3002,6 +2946,9 @@
         "cost": 2,
         "id": "GuardianProtocol",
         "kind": "Utility",
+        "mountClasses": [
+          "Heavy"
+        ],
         "name": "Guardian Protocol",
         "unlocks": [
           "Guardian"
@@ -3279,6 +3226,9 @@
         "cost": 2,
         "id": "Jammer",
         "kind": "Utility",
+        "mountClasses": [
+          "Light"
+        ],
         "name": "Jammer",
         "unlocks": []
       },
@@ -3287,6 +3237,9 @@
         "cost": 3,
         "id": "JumpJets",
         "kind": "Utility",
+        "mountClasses": [
+          "Mech"
+        ],
         "name": "Jump Jets",
         "unlocks": [
           "JumpJets"
@@ -3405,6 +3358,9 @@
         "cost": 2,
         "id": "LowHeatExhaust",
         "kind": "Utility",
+        "mountClasses": [
+          "Heavy"
+        ],
         "name": "Low-Heat Exhaust",
         "statDeltas": {
           "accuracy": 0,
@@ -3540,6 +3496,9 @@
         "cadenceShift": 0,
         "id": "ModularHardpoint",
         "kind": "Utility",
+        "mountClasses": [
+          "Mech"
+        ],
         "name": "Modular Hardpoint",
         "unlocks": [
           "ExtraUtilitySlot"
@@ -3550,6 +3509,9 @@
         "cost": 2,
         "id": "MultiTargeting",
         "kind": "Utility",
+        "mountClasses": [
+          "Support"
+        ],
         "name": "Multi-Targeting",
         "unlocks": [
           "MultiTarget"
@@ -3560,6 +3522,9 @@
         "cost": 2,
         "id": "Napalm",
         "kind": "Utility",
+        "mountClasses": [
+          "Heli"
+        ],
         "name": "Napalm / Cluster",
         "statDeltas": {
           "accuracy": 0,
@@ -3581,6 +3546,9 @@
         "cost": 2,
         "id": "Overdrive",
         "kind": "Utility",
+        "mountClasses": [
+          "Mech"
+        ],
         "name": "Overdrive",
         "statDeltas": {
           "accuracy": 0,
@@ -3662,6 +3630,9 @@
         "cost": 2,
         "id": "Rally",
         "kind": "Utility",
+        "mountClasses": [
+          "Support"
+        ],
         "name": "Rally",
         "unlocks": [
           "Rally"
@@ -3671,36 +3642,22 @@
         "cadenceShift": 0,
         "id": "Rangefinder",
         "kind": "Utility",
+        "mountClasses": [
+          "Heavy"
+        ],
         "name": "Rangefinder",
         "unlocks": [
           "ExtendReach"
         ]
-      },
-      "RepairBeam": {
-        "family": "Support",
-        "id": "RepairBeam",
-        "kind": "Weapon",
-        "mountClass": "Support",
-        "name": "Repair Beam",
-        "statDeltas": {
-          "accuracy": 0,
-          "armorPct": 0,
-          "cadenceTier": "Medium",
-          "critChance": 0,
-          "damage": 0,
-          "evasion": 0,
-          "moveSpeed": 0,
-          "penetration": 0,
-          "reach": "Nearest",
-          "splash": 0,
-          "targetDraw": 0
-        }
       },
       "RepairNanites": {
         "cadenceShift": 0,
         "cost": 2,
         "id": "RepairNanites",
         "kind": "Utility",
+        "mountClasses": [
+          "Mech"
+        ],
         "name": "Repair Nanites",
         "statDeltas": {
           "accuracy": 0,
@@ -3850,6 +3807,9 @@
         "cadenceShift": 0,
         "id": "RocketPack",
         "kind": "Utility",
+        "mountClasses": [
+          "Mech"
+        ],
         "name": "Rocket Pack",
         "unlocks": [
           "RocketPack"
@@ -3900,6 +3860,9 @@
         "cost": 2,
         "id": "SEAD",
         "kind": "Utility",
+        "mountClasses": [
+          "Heli"
+        ],
         "name": "SEAD",
         "unlocks": [
           "Sead"
@@ -3910,6 +3873,9 @@
         "cost": 2,
         "id": "Saturation",
         "kind": "Utility",
+        "mountClasses": [
+          "Artillery"
+        ],
         "name": "Saturation",
         "statDeltas": {
           "accuracy": 0,
@@ -3930,6 +3896,9 @@
         "cadenceShift": 0,
         "id": "SensorSuite",
         "kind": "Utility",
+        "mountClasses": [
+          "Light"
+        ],
         "name": "Sensor Suite",
         "unlocks": [
           "TargetAir"
@@ -3984,6 +3953,9 @@
         "cadenceShift": 0,
         "id": "SiegeMode",
         "kind": "Utility",
+        "mountClasses": [
+          "Heavy"
+        ],
         "name": "Siege Mode",
         "unlocks": [
           "StationaryBrace"
@@ -3999,6 +3971,9 @@
         "cost": 2,
         "id": "SmokeCanisters",
         "kind": "Utility",
+        "mountClasses": [
+          "Heavy"
+        ],
         "name": "Smoke Canisters",
         "unlocks": []
       },
@@ -4006,6 +3981,9 @@
         "cadenceShift": 0,
         "id": "SnareShot",
         "kind": "Utility",
+        "mountClasses": [
+          "Light"
+        ],
         "name": "Snare Shot",
         "unlocks": [
           "OnHitSnare"
@@ -4015,6 +3993,9 @@
         "cadenceShift": 0,
         "id": "Spotter",
         "kind": "Utility",
+        "mountClasses": [
+          "Light"
+        ],
         "name": "Spotter Array",
         "unlocks": [
           "OnHitPaint"
@@ -4287,6 +4268,9 @@
         "cadenceShift": 0,
         "id": "SuppressingFire",
         "kind": "Utility",
+        "mountClasses": [
+          "Mech"
+        ],
         "name": "Suppressing Fire",
         "unlocks": [
           "OnHitSuppress"
@@ -4297,6 +4281,9 @@
         "cost": 2,
         "id": "TargetRadar",
         "kind": "Utility",
+        "mountClasses": [
+          "Light"
+        ],
         "name": "Target Radar",
         "unlocks": [
           "ExtendReach"
@@ -4412,23 +4399,6 @@
         "slotLayout": {
           "defense": 1,
           "utility": 4,
-          "weapon": 1
-        }
-      },
-      "RearSupport": {
-        "airCapableByDefault": false,
-        "canFireFromRear": false,
-        "homeZones": [
-          "Front",
-          "Middle",
-          "Rear"
-        ],
-        "id": "RearSupport",
-        "mountClass": "Support",
-        "nativeFamily": "Support",
-        "slotLayout": {
-          "defense": 1,
-          "utility": 3,
           "weapon": 1
         }
       },
@@ -4662,27 +4632,6 @@
         "splash": 1000,
         "threat": 58000
       },
-      "Medic": {
-        "accuracy": 0,
-        "armorPct": 1200,
-        "cadence": "Medium",
-        "critChance": 0,
-        "critMult": 15000,
-        "damage": 0,
-        "damageType": "Kinetic",
-        "evasion": 500,
-        "hull": 616000,
-        "moveSpeed": 3,
-        "penetration": 0,
-        "reach": "Nearest",
-        "shieldCap": 250000,
-        "shieldDelay": 30,
-        "shieldRegen": 6000,
-        "splash": 0,
-        "supportPower": 5000,
-        "supportRange": "WholeArmy",
-        "threat": 5000
-      },
       "Outrider": {
         "accuracy": 8200,
         "armorPct": 600,
@@ -4815,27 +4764,6 @@
         "shieldRegen": 0,
         "splash": 0,
         "threat": 15000
-      },
-      "Warden": {
-        "accuracy": 0,
-        "armorPct": 1800,
-        "cadence": "Medium",
-        "critChance": 0,
-        "critMult": 15000,
-        "damage": 0,
-        "damageType": "Kinetic",
-        "evasion": 500,
-        "hull": 801000,
-        "moveSpeed": 3,
-        "penetration": 0,
-        "reach": "Nearest",
-        "shieldCap": 250000,
-        "shieldDelay": 30,
-        "shieldRegen": 6000,
-        "splash": 0,
-        "supportPower": 5000,
-        "supportRange": "OwnZone",
-        "threat": 5000
       },
       "Warhog": {
         "accuracy": 8000,

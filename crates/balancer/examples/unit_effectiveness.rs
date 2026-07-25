@@ -34,7 +34,6 @@ fn type_name(t: MachineTypeId) -> &'static str {
         MachineTypeId::AttackHeli => "AttackHeli",
         MachineTypeId::RocketArtillery => "RocketArty",
         MachineTypeId::Artillery => "Artillery",
-        MachineTypeId::RearSupport => "RearSupport",
         MachineTypeId::Commander => "Commander",
     }
 }

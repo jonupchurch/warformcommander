@@ -21,7 +21,7 @@ const UNIT_TYPES: { type: MachineTypeKey; label: string }[] = [
   { type: "heli", label: "Attack Helicopter" },
   { type: "rocketarty", label: "Rocket Artillery" },
   { type: "artillery", label: "Artillery" },
-  { type: "support", label: "Rear Support" },
+  { type: "support", label: "Commander" },
 ];
 
 const ZONES4 = [

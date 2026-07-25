@@ -96,10 +96,10 @@
         },
         {
           "instanceId": 4,
-          "typeId": "RearSupport",
-          "variantId": "Medic",
+          "typeId": "Commander",
+          "variantId": "CommandPost",
           "loadout": {
-            "weapon": "RepairBeam",
+            "weapon": "HealProjector",
             "defense": "StandardHullSupport",
             "utilities": [
               "FireControl",
@@ -696,10 +696,10 @@
         },
         {
           "instanceId": 4,
-          "typeId": "RearSupport",
-          "variantId": "Medic",
+          "typeId": "Commander",
+          "variantId": "CommandPost",
           "loadout": {
-            "weapon": "RepairBeam",
+            "weapon": "HealProjector",
             "defense": "StandardHullSupport",
             "utilities": [
               "FireControl",
@@ -938,10 +938,10 @@
         },
         {
           "instanceId": 4,
-          "typeId": "RearSupport",
-          "variantId": "Medic",
+          "typeId": "Commander",
+          "variantId": "CommandPost",
           "loadout": {
-            "weapon": "RepairBeam",
+            "weapon": "HealProjector",
             "defense": "StandardHullSupport",
             "utilities": [
               "FireControl",
@@ -1059,23 +1059,22 @@
         },
         {
           "instanceId": 4,
-          "typeId": "RearSupport",
-          "variantId": "Warden",
+          "typeId": "Artillery",
+          "variantId": "Marksman",
           "loadout": {
-            "weapon": "RepairBeam",
-            "defense": "StandardHullSupport",
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
             "utilities": [
               "FireControl",
-              "ECMSuite",
-              "DriveServos"
+              "Autoloader"
             ]
           },
           "dials": {
             "targeting": {
-              "fallback": "Closest"
+              "fallback": "Furthest"
             },
             "movement": "Hold",
-            "stance": "Defensive"
+            "stance": "Aggressive"
           },
           "planB": [],
           "zone": "Rear"
@@ -1518,22 +1517,23 @@
         },
         {
           "instanceId": 3,
-          "typeId": "Artillery",
-          "variantId": "Longbow",
+          "typeId": "Commander",
+          "variantId": "CommandPost",
           "loadout": {
-            "weapon": "Howitzer",
-            "defense": "StandardHullArtillery",
+            "weapon": "HealProjector",
+            "defense": "StandardHullSupport",
             "utilities": [
               "FireControl",
-              "Autoloader"
+              "DriveServos",
+              "ECMSuite"
             ]
           },
           "dials": {
             "targeting": {
-              "fallback": "Furthest"
+              "fallback": "Closest"
             },
             "movement": "Hold",
-            "stance": "Aggressive"
+            "stance": "Neutral"
           },
           "planB": [],
           "zone": "Rear"
@@ -1541,7 +1541,7 @@
         {
           "instanceId": 4,
           "typeId": "Artillery",
-          "variantId": "Marksman",
+          "variantId": "Siege",
           "loadout": {
             "weapon": "Howitzer",
             "defense": "StandardHullArtillery",
@@ -1659,23 +1659,22 @@
         },
         {
           "instanceId": 4,
-          "typeId": "RearSupport",
-          "variantId": "Warden",
+          "typeId": "Artillery",
+          "variantId": "Marksman",
           "loadout": {
-            "weapon": "RepairBeam",
-            "defense": "StandardHullSupport",
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
             "utilities": [
               "FireControl",
-              "ECMSuite",
-              "DriveServos"
+              "Autoloader"
             ]
           },
           "dials": {
             "targeting": {
-              "fallback": "Closest"
+              "fallback": "Furthest"
             },
             "movement": "Hold",
-            "stance": "Defensive"
+            "stance": "Aggressive"
           },
           "planB": [],
           "zone": "Rear"
@@ -1901,23 +1900,22 @@
         },
         {
           "instanceId": 4,
-          "typeId": "RearSupport",
-          "variantId": "Warden",
+          "typeId": "Artillery",
+          "variantId": "Marksman",
           "loadout": {
-            "weapon": "RepairBeam",
-            "defense": "StandardHullSupport",
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
             "utilities": [
               "FireControl",
-              "ECMSuite",
-              "DriveServos"
+              "Autoloader"
             ]
           },
           "dials": {
             "targeting": {
-              "fallback": "Closest"
+              "fallback": "Furthest"
             },
             "movement": "Hold",
-            "stance": "Defensive"
+            "stance": "Aggressive"
           },
           "planB": [],
           "zone": "Rear"
@@ -2000,10 +1998,10 @@
         },
         {
           "instanceId": 3,
-          "typeId": "RearSupport",
-          "variantId": "Medic",
+          "typeId": "Commander",
+          "variantId": "CommandPost",
           "loadout": {
-            "weapon": "RepairBeam",
+            "weapon": "HealProjector",
             "defense": "StandardHullSupport",
             "utilities": [
               "FireControl",
@@ -2024,7 +2022,7 @@
         {
           "instanceId": 4,
           "typeId": "Artillery",
-          "variantId": "Siege",
+          "variantId": "Marksman",
           "loadout": {
             "weapon": "Howitzer",
             "defense": "StandardHullArtillery",
@@ -2120,14 +2118,14 @@
         {
           "instanceId": 3,
           "typeId": "HeavyTank",
-          "variantId": "Bulwark",
+          "variantId": "Grizzly",
           "loadout": {
-            "weapon": "HeavyCannon",
-            "defense": "CompositeArmor",
+            "weapon": "Railgun",
+            "defense": "DeflectorShield",
             "utilities": [
               "FireControl",
               "Autoloader",
-              "ECMSuite"
+              "Rangefinder"
             ]
           },
           "dials": {
@@ -2143,7 +2141,7 @@
         {
           "instanceId": 4,
           "typeId": "Artillery",
-          "variantId": "Marksman",
+          "variantId": "Longbow",
           "loadout": {
             "weapon": "Howitzer",
             "defense": "StandardHullArtillery",
@@ -2363,22 +2361,24 @@
         },
         {
           "instanceId": 3,
-          "typeId": "RocketArtillery",
-          "variantId": "Aegis",
+          "typeId": "Mech",
+          "variantId": "Sentinel",
           "loadout": {
-            "weapon": "SAMBattery",
-            "defense": "StandardHullRktArty",
+            "weapon": "PulseLaser",
+            "defense": "StandardHullMech",
             "utilities": [
               "FireControl",
-              "Autoloader"
+              "Autoloader",
+              "DriveServos",
+              "ECMSuite"
             ]
           },
           "dials": {
             "targeting": {
               "fallback": "Closest"
             },
-            "movement": "Hold",
-            "stance": "Neutral"
+            "movement": "Advance",
+            "stance": "Aggressive"
           },
           "planB": [],
           "zone": "Middle"
@@ -2386,7 +2386,7 @@
         {
           "instanceId": 4,
           "typeId": "Artillery",
-          "variantId": "Marksman",
+          "variantId": "Longbow",
           "loadout": {
             "weapon": "Howitzer",
             "defense": "StandardHullArtillery",
@@ -2483,46 +2483,44 @@
         },
         {
           "instanceId": 3,
-          "typeId": "RearSupport",
-          "variantId": "Medic",
+          "typeId": "Artillery",
+          "variantId": "Siege",
           "loadout": {
-            "weapon": "RepairBeam",
-            "defense": "StandardHullSupport",
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
             "utilities": [
               "FireControl",
-              "DriveServos",
-              "ECMSuite"
+              "Autoloader"
             ]
           },
           "dials": {
             "targeting": {
-              "fallback": "Closest"
+              "fallback": "Furthest"
             },
             "movement": "Hold",
-            "stance": "Neutral"
+            "stance": "Aggressive"
           },
           "planB": [],
           "zone": "Rear"
         },
         {
           "instanceId": 4,
-          "typeId": "RearSupport",
-          "variantId": "Warden",
+          "typeId": "Artillery",
+          "variantId": "Marksman",
           "loadout": {
-            "weapon": "RepairBeam",
-            "defense": "StandardHullSupport",
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
             "utilities": [
               "FireControl",
-              "ECMSuite",
-              "DriveServos"
+              "Autoloader"
             ]
           },
           "dials": {
             "targeting": {
-              "fallback": "Closest"
+              "fallback": "Furthest"
             },
             "movement": "Hold",
-            "stance": "Defensive"
+            "stance": "Aggressive"
           },
           "planB": [],
           "zone": "Rear"
@@ -2626,22 +2624,23 @@
         },
         {
           "instanceId": 4,
-          "typeId": "Artillery",
-          "variantId": "Longbow",
+          "typeId": "Commander",
+          "variantId": "CommandPost",
           "loadout": {
-            "weapon": "Howitzer",
-            "defense": "StandardHullArtillery",
+            "weapon": "HealProjector",
+            "defense": "StandardHullSupport",
             "utilities": [
               "FireControl",
-              "Autoloader"
+              "DriveServos",
+              "ECMSuite"
             ]
           },
           "dials": {
             "targeting": {
-              "fallback": "Furthest"
+              "fallback": "Closest"
             },
             "movement": "Hold",
-            "stance": "Aggressive"
+            "stance": "Neutral"
           },
           "planB": [],
           "zone": "Rear"
@@ -2871,22 +2870,23 @@
         },
         {
           "instanceId": 4,
-          "typeId": "Artillery",
-          "variantId": "Longbow",
+          "typeId": "Commander",
+          "variantId": "CommandPost",
           "loadout": {
-            "weapon": "Howitzer",
-            "defense": "StandardHullArtillery",
+            "weapon": "HealProjector",
+            "defense": "StandardHullSupport",
             "utilities": [
               "FireControl",
-              "Autoloader"
+              "DriveServos",
+              "ECMSuite"
             ]
           },
           "dials": {
             "targeting": {
-              "fallback": "Furthest"
+              "fallback": "Closest"
             },
             "movement": "Hold",
-            "stance": "Aggressive"
+            "stance": "Neutral"
           },
           "planB": [],
           "zone": "Rear"
@@ -2948,7 +2948,7 @@
         {
           "instanceId": 2,
           "typeId": "RocketArtillery",
-          "variantId": "Sentry",
+          "variantId": "Aegis",
           "loadout": {
             "weapon": "SAMBattery",
             "defense": "StandardHullRktArty",
@@ -2969,31 +2969,8 @@
         },
         {
           "instanceId": 3,
-          "typeId": "RearSupport",
-          "variantId": "Medic",
-          "loadout": {
-            "weapon": "RepairBeam",
-            "defense": "StandardHullSupport",
-            "utilities": [
-              "FireControl",
-              "DriveServos",
-              "ECMSuite"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "fallback": "Closest"
-            },
-            "movement": "Hold",
-            "stance": "Neutral"
-          },
-          "planB": [],
-          "zone": "Rear"
-        },
-        {
-          "instanceId": 4,
           "typeId": "Artillery",
-          "variantId": "Marksman",
+          "variantId": "Longbow",
           "loadout": {
             "weapon": "Howitzer",
             "defense": "StandardHullArtillery",
@@ -3008,6 +2985,29 @@
             },
             "movement": "Hold",
             "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Rear"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "Commander",
+          "variantId": "CommandPost",
+          "loadout": {
+            "weapon": "HealProjector",
+            "defense": "StandardHullSupport",
+            "utilities": [
+              "FireControl",
+              "DriveServos",
+              "ECMSuite"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
           },
           "planB": [],
           "zone": "Rear"
@@ -3111,23 +3111,22 @@
         },
         {
           "instanceId": 4,
-          "typeId": "RearSupport",
-          "variantId": "Medic",
+          "typeId": "Artillery",
+          "variantId": "Siege",
           "loadout": {
-            "weapon": "RepairBeam",
-            "defense": "StandardHullSupport",
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
             "utilities": [
               "FireControl",
-              "DriveServos",
-              "ECMSuite"
+              "Autoloader"
             ]
           },
           "dials": {
             "targeting": {
-              "fallback": "Closest"
+              "fallback": "Furthest"
             },
             "movement": "Hold",
-            "stance": "Neutral"
+            "stance": "Aggressive"
           },
           "planB": [],
           "zone": "Rear"
@@ -3355,23 +3354,22 @@
         },
         {
           "instanceId": 4,
-          "typeId": "RearSupport",
-          "variantId": "Medic",
+          "typeId": "Artillery",
+          "variantId": "Siege",
           "loadout": {
-            "weapon": "RepairBeam",
-            "defense": "StandardHullSupport",
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
             "utilities": [
               "FireControl",
-              "DriveServos",
-              "ECMSuite"
+              "Autoloader"
             ]
           },
           "dials": {
             "targeting": {
-              "fallback": "Closest"
+              "fallback": "Furthest"
             },
             "movement": "Hold",
-            "stance": "Neutral"
+            "stance": "Aggressive"
           },
           "planB": [],
           "zone": "Rear"
@@ -3433,7 +3431,7 @@
         {
           "instanceId": 2,
           "typeId": "RocketArtillery",
-          "variantId": "Sentry",
+          "variantId": "Aegis",
           "loadout": {
             "weapon": "SAMBattery",
             "defense": "StandardHullRktArty",
@@ -3455,7 +3453,7 @@
         {
           "instanceId": 3,
           "typeId": "Artillery",
-          "variantId": "Siege",
+          "variantId": "Longbow",
           "loadout": {
             "weapon": "Howitzer",
             "defense": "StandardHullArtillery",
@@ -3476,23 +3474,22 @@
         },
         {
           "instanceId": 4,
-          "typeId": "RearSupport",
-          "variantId": "Warden",
+          "typeId": "Artillery",
+          "variantId": "Siege",
           "loadout": {
-            "weapon": "RepairBeam",
-            "defense": "StandardHullSupport",
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
             "utilities": [
               "FireControl",
-              "ECMSuite",
-              "DriveServos"
+              "Autoloader"
             ]
           },
           "dials": {
             "targeting": {
-              "fallback": "Closest"
+              "fallback": "Furthest"
             },
             "movement": "Hold",
-            "stance": "Defensive"
+            "stance": "Aggressive"
           },
           "planB": [],
           "zone": "Rear"
@@ -3597,7 +3594,7 @@
         {
           "instanceId": 4,
           "typeId": "Artillery",
-          "variantId": "Siege",
+          "variantId": "Marksman",
           "loadout": {
             "weapon": "Howitzer",
             "defense": "StandardHullArtillery",
@@ -3840,7 +3837,7 @@
         {
           "instanceId": 4,
           "typeId": "Artillery",
-          "variantId": "Siege",
+          "variantId": "Marksman",
           "loadout": {
             "weapon": "Howitzer",
             "defense": "StandardHullArtillery",
@@ -3916,7 +3913,7 @@
         {
           "instanceId": 2,
           "typeId": "RocketArtillery",
-          "variantId": "Sentry",
+          "variantId": "Aegis",
           "loadout": {
             "weapon": "SAMBattery",
             "defense": "StandardHullRktArty",
@@ -3938,7 +3935,7 @@
         {
           "instanceId": 3,
           "typeId": "Artillery",
-          "variantId": "Siege",
+          "variantId": "Longbow",
           "loadout": {
             "weapon": "Howitzer",
             "defense": "StandardHullArtillery",
@@ -4056,36 +4053,13 @@
         {
           "instanceId": 3,
           "typeId": "HeavyTank",
-          "variantId": "Grizzly",
+          "variantId": "Cavalier",
           "loadout": {
-            "weapon": "Railgun",
-            "defense": "DeflectorShield",
+            "weapon": "SiegeLaser",
+            "defense": "CompositeArmor",
             "utilities": [
               "FireControl",
               "Autoloader",
-              "Rangefinder"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "fallback": "Closest"
-            },
-            "movement": "Hold",
-            "stance": "Defensive"
-          },
-          "planB": [],
-          "zone": "Front"
-        },
-        {
-          "instanceId": 4,
-          "typeId": "RearSupport",
-          "variantId": "Warden",
-          "loadout": {
-            "weapon": "RepairBeam",
-            "defense": "StandardHullSupport",
-            "utilities": [
-              "FireControl",
-              "ECMSuite",
               "DriveServos"
             ]
           },
@@ -4093,8 +4067,30 @@
             "targeting": {
               "fallback": "Closest"
             },
+            "movement": "Advance",
+            "stance": "Aggressive"
+          },
+          "planB": [],
+          "zone": "Front"
+        },
+        {
+          "instanceId": 4,
+          "typeId": "Artillery",
+          "variantId": "Longbow",
+          "loadout": {
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
+            "utilities": [
+              "FireControl",
+              "Autoloader"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Furthest"
+            },
             "movement": "Hold",
-            "stance": "Defensive"
+            "stance": "Aggressive"
           },
           "planB": [],
           "zone": "Rear"
@@ -4277,7 +4273,7 @@
         {
           "instanceId": 2,
           "typeId": "RocketArtillery",
-          "variantId": "Sentry",
+          "variantId": "Aegis",
           "loadout": {
             "weapon": "SAMBattery",
             "defense": "StandardHullRktArty",
@@ -4322,23 +4318,22 @@
         },
         {
           "instanceId": 4,
-          "typeId": "RearSupport",
-          "variantId": "Warden",
+          "typeId": "Artillery",
+          "variantId": "Longbow",
           "loadout": {
-            "weapon": "RepairBeam",
-            "defense": "StandardHullSupport",
+            "weapon": "Howitzer",
+            "defense": "StandardHullArtillery",
             "utilities": [
               "FireControl",
-              "ECMSuite",
-              "DriveServos"
+              "Autoloader"
             ]
           },
           "dials": {
             "targeting": {
-              "fallback": "Closest"
+              "fallback": "Furthest"
             },
             "movement": "Hold",
-            "stance": "Defensive"
+            "stance": "Aggressive"
           },
           "planB": [],
           "zone": "Rear"

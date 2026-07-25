@@ -207,7 +207,7 @@ fn emp_rider_blocks_healing() {
             tank(&rs, "Grizzly", ZoneId::Rear, 1),
             tank(&rs, "Grizzly", ZoneId::Rear, 2),
             tank(&rs, "Grizzly", ZoneId::Middle, 3),
-            stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
+            stock_instance(&rs, MachineTypeId::Commander, "CommandPost", ZoneId::Rear, 4),
         ],
     };
     // Side A: two Front attackers; the lead one optionally carries EMP Ammo.

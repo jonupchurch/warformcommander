@@ -11,8 +11,8 @@ use serde::{Deserialize, Serialize};
 use crate::model::army::{derive_effective_stats, Army, DerivationError, MachineInstance};
 use crate::model::ruleset::Ruleset;
 use crate::model::types::{
-    Capability, DialValue, EquipmentId, EquipmentSpec, MachineTypeId, MovementMode, PlanBSlot,
-    SlotLayout, ZoneId,
+    Capability, DialValue, EquipmentId, EquipmentSpec, MachineTypeId, MountClass, MovementMode,
+    PlanBSlot, SlotLayout, ZoneId,
 };
 
 /// Zone caps (game rules, not tunable balance): ground rows hold 3, Air holds 2.
@@ -161,9 +161,9 @@ fn validate_machine(
         errors,
     );
 
-    // V5 — utility count + no duplicates.
+    // V5 — utility budget + no duplicates + chassis gate.
     let slots = m.variant_slot_layout(ruleset).unwrap_or(mtype.slot_layout);
-    validate_utilities(m, slots, ruleset, errors);
+    validate_utilities(m, slots, mtype.mount_class, ruleset, errors);
 
     // Capability-dependent rules (V6–V8) need the derived stats.
     match derive_effective_stats(m, ruleset) {
@@ -269,11 +269,30 @@ fn check_mount(
 fn validate_utilities(
     m: &MachineInstance,
     slots: SlotLayout,
+    mount: MountClass,
     ruleset: &Ruleset,
     errors: &mut Vec<ValidationError>,
 ) {
     let id = m.instance_id;
     let utils = &m.loadout.utilities;
+    // V5 chassis gate (§14): a utility with a non-empty `mount_classes` may only sit on a chassis whose
+    // mount class it lists; an empty list is the common pool (any chassis). Mirrors the weapon/defense
+    // mount check, but list-valued (a few signatures are shared across chassis).
+    for u in utils {
+        if let Some(EquipmentSpec::Utility(spec)) = ruleset.equipment(u).map(|module| &module.spec) {
+            if !spec.mount_classes.is_empty() && !spec.mount_classes.contains(&mount) {
+                errors.push(ValidationError::machine(
+                    ValidationCode::Utilities,
+                    id,
+                    format!(
+                        "utility '{}' is not available to a {:?}-mount chassis",
+                        u.as_str(),
+                        mount
+                    ),
+                ));
+            }
+        }
+    }
     // v3 US3-A economy: each utility costs a number of the chassis's utility *budget* (`slots.utility`);
     // a loadout is legal while the summed cost does not EXCEED the budget (under-spending is allowed).
     // Cost defaults to 1, so this reduces to the old "count == budget" for single-cost content except
@@ -538,10 +557,11 @@ mod tests {
             "a DamageType Plan-B without Adaptive Munitions must be rejected (V7): {errs:?}"
         );
 
-        // Gated: equip Adaptive Munitions on the same machine → the switch becomes legal.
+        // Gated: equip Adaptive Munitions on the Mech (index 2 — the chassis that can carry it under the
+        // §14 gate) with the switch on that same machine → the DamageType Plan-B becomes legal.
         let mut gated = legal_army();
-        gated.machines[0].loadout.utilities = vec![EquipmentId::new("AdaptiveMunitions")];
-        gated.machines[0].plan_b = vec![switch];
+        gated.machines[2].loadout.utilities = vec![EquipmentId::new("AdaptiveMunitions")];
+        gated.machines[2].plan_b = vec![switch];
         assert_eq!(
             validate(&gated, &rs),
             Ok(()),

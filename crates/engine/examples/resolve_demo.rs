@@ -70,8 +70,8 @@ fn main() {
             ),
             stock_instance(
                 &ruleset,
-                MachineTypeId::RearSupport,
-                "Medic",
+                MachineTypeId::Commander,
+                "CommandPost",
                 ZoneId::Rear,
                 4,
             ),

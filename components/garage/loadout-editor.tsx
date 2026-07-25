@@ -170,7 +170,7 @@ function UtilityRows({ slot }: { slot: SlotIndex }) {
   const machine = session.draft.machines[slot];
   if (machine === null) return null;
 
-  const options = utilityOptions(ruleset);
+  const options = utilityOptions(machine.typeId, ruleset);
   const equipped = machine.loadout.utilities;
 
   // Budget (points) mirrors the client legality check (sim/legality.ts): a variant override, else the

@@ -21,7 +21,7 @@ const DEFAULT_UNITS: WireUnit[] = [
   { side: 'A', instanceId: 0, typeId: 'HeavyTank', variantId: 'Grizzly' },
   { side: 'A', instanceId: 1, typeId: 'AttackHeli', variantId: 'Gunship' },
   { side: 'B', instanceId: 0, typeId: 'RocketArtillery', variantId: 'Sentry' },
-  { side: 'B', instanceId: 1, typeId: 'RearSupport', variantId: 'Medic' },
+  { side: 'B', instanceId: 1, typeId: 'Commander', variantId: 'CommandPost' },
 ];
 
 /** Build a minimal conforming wire replay: linear hull decay over `ticks`, events injected by tick. */

@@ -159,7 +159,6 @@ const EQUIPMENT_BLURB: Record<string, string> = {
     'A true anti-air launcher. It engages aircraft exclusively while any are alive, and bombards ground at a heavy penalty once the skies are clear.',
   RocketBarrage:
     'Gives up anti-air entirely to fire on ground with no penalty — a second artillery piece.',
-  RepairBeam: 'Nominal only. Support machines never fire; they repair instead.',
   HealProjector: 'Projects hull repair across the whole army each tick — the Commander’s sustain answer.',
   ShieldProjector: 'Projects a shield top-up across the whole army each tick — the counter to burst.',
   AblationProjector:

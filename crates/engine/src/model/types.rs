@@ -600,6 +600,12 @@ pub struct UtilitySpec {
     /// absent so they serialize byte-identically (hash-stable).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub aura: Option<AuraEffect>,
+    /// Chassis gate (v3 §14): the mount classes allowed to equip this utility. **Empty = common**
+    /// (any chassis) — the analog of a weapon/defense's single `mount_class`, but a *list* because a
+    /// few §14 signatures are shared by more than one chassis (e.g. EMP Ammo on Mech + Artillery +
+    /// Rocket-Arty). Skipped when empty so the common pool serializes byte-identically (hash-stable).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub mount_classes: Vec<MountClass>,
 }
 
 /// serde default/skip for `UtilitySpec::cost` — keeps cost-1 items hash-stable (see `cost`).

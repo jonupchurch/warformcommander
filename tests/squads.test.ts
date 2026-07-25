@@ -18,7 +18,7 @@ import {
 } from "@/server/squads";
 import { designateDefense, undesignateDefense } from "@/server/defense";
 import { truncateAll, closeDb, createTestUser } from "./db-setup";
-import { validSquad } from "./fixtures";
+import { validSquad, validSquadB } from "./fixtures";
 
 async function squadRowCount(): Promise<number> {
   return (await getDb().select().from(squads)).length;
@@ -82,7 +82,10 @@ describe("illegal armies are rejected before insert (SC-003, US2-AS3)", () => {
       return c;
     },
     "excess Plan-B (V6)": () => {
-      const c = validSquad();
+      // validSquadB has no Commander (and no Combat AI on machine 1), so a 2nd Plan-B slot is not
+      // granted — a Slot-2 trigger is genuinely excess. (validSquad now fields a Commander, which
+      // grants a survival-gated bonus slot, making two triggers legal, US5.)
+      const c = validSquadB();
       c.machines[1].planB = [
         {
           slot: "Slot1",

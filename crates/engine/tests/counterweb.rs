@@ -176,6 +176,7 @@ fn flak_lets_ground_units_shoot_down_aircraft() {
                 cadence_shift: 0,
                 cost: 1,
                 aura: None,
+                mount_classes: vec![], // test fixture — common so the Heavy tanks can mount it
             }),
         },
     );
@@ -462,7 +463,7 @@ fn sam_bombards_ground_when_no_air_present() {
             stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 1),
             stock_instance(&rs, MachineTypeId::Mech, "Vanguard", ZoneId::Middle, 2),
             stock_instance(&rs, MachineTypeId::Artillery, "Longbow", ZoneId::Rear, 3),
-            stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
+            stock_instance(&rs, MachineTypeId::Commander, "CommandPost", ZoneId::Rear, 4),
         ],
     };
     let out = run(&rs, sam, all_ground, 0x5A44);
@@ -496,7 +497,7 @@ fn helis_are_never_a_heal_target() {
             stock_instance(&rs, MachineTypeId::Mech, "Vanguard", ZoneId::Front, 1),
             stock_instance(&rs, MachineTypeId::AttackHeli, "Gunship", ZoneId::Air, 2),
             stock_instance(&rs, MachineTypeId::Artillery, "Longbow", ZoneId::Rear, 3),
-            stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
+            stock_instance(&rs, MachineTypeId::Commander, "CommandPost", ZoneId::Rear, 4),
         ],
     };
     // Side B: AA (a Sentry SAM engages the heli) + a ground line (wounds side A's front, so the
@@ -571,7 +572,7 @@ fn support_grants_a_start_shield_to_the_squad() {
             stock_instance(&rs, MachineTypeId::HeavyTank, "Grizzly", ZoneId::Front, 1),
             stock_instance(&rs, MachineTypeId::Mech, "Vanguard", ZoneId::Middle, 2),
             stock_instance(&rs, MachineTypeId::Artillery, "Longbow", ZoneId::Rear, 3),
-            stock_instance(&rs, MachineTypeId::RearSupport, "Medic", ZoneId::Rear, 4),
+            stock_instance(&rs, MachineTypeId::Commander, "CommandPost", ZoneId::Rear, 4),
         ],
     };
     let ally = UnitRef {
@@ -598,7 +599,7 @@ fn support_grants_a_start_shield_to_the_squad() {
 
     // Grant the Medic a whole-army start-shield aura at 20% of each ally's hull.
     rs.chassis
-        .get_mut(&VariantId::new("Medic"))
+        .get_mut(&VariantId::new("CommandPost"))
         .unwrap()
         .passive_aura = Some(AuraEffect {
         kind: AuraKind::StartShield,

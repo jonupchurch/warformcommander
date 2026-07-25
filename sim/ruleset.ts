@@ -276,6 +276,9 @@ export interface UtilitySpec {
   /** A passive aura this utility projects while equipped (v3 US3-D — Coordination Net, Damage
    *  Boost/Reduction, Smoke). Sim-only (not part of the derived stats); absent for ordinary utilities. */
   aura?: AuraEffect;
+  /** Chassis gate (v3 §14): the mount classes allowed to equip this utility. **Absent / empty =
+   *  common** (any chassis). A *list* because a few signatures are shared (EMP Ammo, Entrench). */
+  mountClasses?: MountClass[];
 }
 
 /**
