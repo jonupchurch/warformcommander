@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import { IdentityMenu } from "@/components/shell/identity-menu";
+import { MarketingAccount } from "@/components/marketing/marketing-account";
 import { cn } from "@/lib/utils";
 import {
   APP_DESTINATIONS,
@@ -62,10 +62,10 @@ export function MarketingNav() {
         {divider}
         {APP_DESTINATIONS.map(appLink)}
       </nav>
-      {/* Log In (secondary) sits left of the primary Play CTA. The marketing site is statically
-          rendered and intentionally unauthenticated, so this is a plain always-available entry point
-          — not session-aware (reading auth() here would force every marketing page dynamic). */}
-      <IdentityMenu />
+      {/* Account control, left of the primary Play CTA: Log In when signed out, the Profile/Log Out
+          flyout when signed in. Session is resolved on the client (see MarketingAccount) so the
+          marketing pages stay statically prerendered — reading auth() here would force them dynamic. */}
+      <MarketingAccount />
       <Button asChild size="sm">
         <Link href={PLAY_CTA.href}>{PLAY_CTA.label}</Link>
       </Button>
