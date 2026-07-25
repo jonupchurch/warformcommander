@@ -203,12 +203,12 @@ fn flak_lets_ground_units_shoot_down_aircraft() {
 }
 
 /// Energy weapons contest air (v2, staged US4) — but only when the ruleset enables the mechanic
-/// (`energy_air_dmg_mult > 0`), and only up close. A FRONT energy laser shoots at the helicopters;
-/// the same laser in the MIDDLE cannot reach air at all (the reach advantage that keeps dedicated AA
-/// distinct, FR-029), though it still fights on the ground; and with the mechanic OFF it cannot touch
-/// air from anywhere (FR-028, the enable gate). Uses the seed's Heavy-mount `SiegeLaser` (Energy).
+/// (`energy_air_dmg_mult > 0`). A FRONT energy laser shoots at the helicopters, and (v3 revision) so
+/// does the same laser in the MIDDLE: air reach now follows the AA unlock, not zone position. With the
+/// mechanic OFF an energy weapon cannot touch air from anywhere (FR-028, the enable gate). Uses the
+/// seed's Heavy-mount `SiegeLaser` (Energy).
 #[test]
-fn energy_weapons_contest_air_up_close_only_when_enabled() {
+fn energy_weapons_contest_air_when_enabled() {
     let off = seed_ruleset();
     let mut on = seed_ruleset();
     on.air_mods.energy_air_dmg_mult = 7_500; // ×0.75 — between plink (×0.5) and flak (×1.0)
@@ -248,20 +248,20 @@ fn energy_weapons_contest_air_up_close_only_when_enabled() {
         actor_hit_air(&front_out.replay, laser0),
         "with the mechanic on, a FRONT energy laser must contest air"
     );
-    // ON, Middle: it cannot reach air (improvised reach is close-range only — the AA reach advantage).
+    // ON, Middle: air reach now follows the AA unlock, not zone — an energy laser reaches air from any row.
     let mid_out = run(&on, company(&on, ZoneId::Middle), air_squad(&on), 0x5A11);
     assert!(
-        !actor_hit_air(&mid_out.replay, laser0),
-        "an improvised energy laser off the front line must not reach air (dedicated AA keeps its reach advantage)"
+        actor_hit_air(&mid_out.replay, laser0),
+        "an energy laser contesting air reaches it from any row (reach follows the AA unlock, not zone)"
     );
 }
 
-/// The Mech's Rocket Pack (v2, US4, FR-026): full-rate anti-air (flak damage) but reach-limited to the
-/// front line (FR-029). A Rocket-Pack Mech in the FRONT shoots at the helicopters; the same Mech in the
-/// MIDDLE cannot reach air at all (dedicated AA keeps the whole-field reach advantage); a stock Mech
-/// never can. The Rocket Pack is a utility, so it trades a slot for the capability.
+/// The Mech's Rocket Pack (v2, US4, FR-026): full-rate anti-air (flak damage), reachable from ANY row
+/// (v3 revision — reach follows the AA unlock, not zone position). A Rocket-Pack Mech shoots at the
+/// helicopters from the Front OR the Middle; a stock Mech (no air answer) never can. The Rocket Pack is
+/// a utility, so it trades a slot for the capability.
 #[test]
-fn rocket_pack_gives_the_mech_front_line_anti_air() {
+fn rocket_pack_gives_the_mech_anti_air() {
     let rs = seed_ruleset();
     let company = |zone: ZoneId, rocket: bool| {
         let mut mech = stock_instance(&rs, MachineTypeId::Mech, "Vanguard", zone, 0);
@@ -295,11 +295,11 @@ fn rocket_pack_gives_the_mech_front_line_anti_air() {
         actor_hit_air(&front.replay, mech),
         "a Rocket-Pack Mech on the front line must engage air"
     );
-    // A Rocket-Pack Mech in the MIDDLE cannot reach air — the reach advantage of dedicated AA.
+    // A Rocket-Pack Mech in the MIDDLE now also reaches air — reach follows the AA unlock, not zone.
     let mid = run(&rs, company(ZoneId::Middle, true), air_squad(&rs), 0x5A11);
     assert!(
-        !actor_hit_air(&mid.replay, mech),
-        "a Rocket-Pack Mech off the front line must not reach air (dedicated AA keeps the reach advantage)"
+        actor_hit_air(&mid.replay, mech),
+        "a Rocket-Pack Mech reaches air from any row (reach follows the AA unlock, not zone)"
     );
 }
 
@@ -729,12 +729,11 @@ fn air_capable_units_engage_air_first() {
     );
 }
 
-/// Regression (gameplay bug, 2026-07-23): an air-locked heli armed with an *improvised-air* weapon
-/// family (an Energy gun — the kind hot-added in v14 so every chassis fields all three families) must
-/// still engage enemy air. The `improvised_air` reach limit (energy laser / Rocket-Pack mech = FRONT
-/// row only) was written for GROUND units reaching *up*; but a heli is innately air-capable and lives
-/// in the Air zone — it can never be "in Front", so the limit wrongly grounded it and the heli would
-/// *never* fire on air, even as the only target. It must dogfight exactly like the stock explosive
+/// Regression (gameplay bug, 2026-07-23): an air-locked heli armed with an Energy gun (the kind
+/// hot-added in v14 so every chassis fields all three families) must engage enemy air. This once broke
+/// under the old `improvised_air` FRONT-row reach limit (since removed in the v3 air-reach revision):
+/// that limit was written for GROUND units reaching *up*, but a heli is innately air-capable and lives
+/// in the Air zone, so it wrongly grounded the heli. It must dogfight exactly like the stock explosive
 /// Gunship does in `air_capable_units_engage_air_first`.
 #[test]
 fn energy_armed_heli_still_engages_air() {
@@ -778,8 +777,7 @@ fn energy_armed_heli_still_engages_air() {
     let out = run(&rs, energy_air, air_squad(&rs), 0x5A66);
     assert!(
         actor_engaged_air(&out.replay, heli0),
-        "an energy-armed heli (innately air-capable, air-locked) must still engage enemy air — the \
-         improvised-air front-row limit is for ground units reaching up, not for aircraft"
+        "an energy-armed heli (innately air-capable, air-locked) must engage enemy air"
     );
 }
 

@@ -8,12 +8,13 @@
  * bonus** vs an off-family sidegrade is made legible (P1, FR-006).
  */
 
-import type { ReactNode } from 'react';
+import { cloneElement, type PointerEvent, type FocusEvent, type ReactElement } from 'react';
 
 import { Chip } from '@/components/ui/chip';
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { SectionLabel } from '@/components/ui/section-label';
+import { useFieldSelectHover } from './field-select';
 import { familyTone } from '@/lib/garage/display';
 import {
   explainDefense,
@@ -39,19 +40,40 @@ import { FieldSelect } from './field-select';
  * with that item's stats — the same breakdown shown for the current pick, but for the option under the
  * cursor, so you can compare before committing. The card's own chrome supplies the surface, so the
  * hover-card container is stripped to a bare positioned wrapper.
+ *
+ * The flyout is **controlled** off {@link useFieldSelectHover}'s single hovered id (keyed by this
+ * option's `id`) rather than each hover-card managing its own open state — so exactly one flyout is
+ * ever open, and moving between options swaps it cleanly instead of leaving stale cards behind. The
+ * hovered id is set on the option's pointer-enter / focus (chained onto its existing handlers).
  */
 function OptionFlyout({
+  id,
   label,
   ex,
   children,
 }: {
+  id: string;
   label: string;
   ex: Explanation;
-  children: ReactNode;
+  children: ReactElement<{
+    onPointerEnter?: (e: PointerEvent) => void;
+    onFocus?: (e: FocusEvent) => void;
+  }>;
 }) {
+  const { hovered, setHovered } = useFieldSelectHover();
+  const trigger = cloneElement(children, {
+    onPointerEnter: (e: PointerEvent) => {
+      children.props.onPointerEnter?.(e);
+      setHovered(id);
+    },
+    onFocus: (e: FocusEvent) => {
+      children.props.onFocus?.(e);
+      setHovered(id);
+    },
+  });
   return (
-    <HoverCard openDelay={120} closeDelay={0}>
-      <HoverCardTrigger asChild>{children}</HoverCardTrigger>
+    <HoverCard open={hovered === id}>
+      <HoverCardTrigger asChild>{trigger}</HoverCardTrigger>
       <HoverCardContent
         side="right"
         align="start"
@@ -90,7 +112,7 @@ function WeaponRow({ slot }: { slot: SlotIndex }) {
         {options.map((w) => {
           const isNative = isNativeWeapon(machine.typeId, w, ruleset);
           return (
-            <OptionFlyout key={w.id} label="WEAPON" ex={explainWeapon(w, machine.typeId, ruleset)}>
+            <OptionFlyout key={w.id} id={w.id} label="WEAPON" ex={explainWeapon(w, machine.typeId, ruleset)}>
               <DropdownMenuItem
                 onSelect={() => dispatch({ type: 'setWeapon', slot, equipmentId: w.id })}
                 className="justify-between gap-3"
@@ -124,7 +146,7 @@ function DefenseRow({ slot }: { slot: SlotIndex }) {
       </SectionLabel>
       <FieldSelect current={current?.name ?? machine.loadout.defense}>
         {options.map((d) => (
-          <OptionFlyout key={d.id} label="DEFENSE" ex={explainDefense(d, ruleset)}>
+          <OptionFlyout key={d.id} id={d.id} label="DEFENSE" ex={explainDefense(d, ruleset)}>
             <DropdownMenuItem
               onSelect={() => dispatch({ type: 'setDefense', slot, equipmentId: d.id })}
             >
@@ -174,10 +196,20 @@ function UtilityRows({ slot }: { slot: SlotIndex }) {
       </div>
       {equipped.map((id, index) => {
         const current = ruleset.equipment[id];
+        const cost = utilityCost(id, ruleset);
         return (
           <div key={index} className="flex items-center gap-2">
             <span className="type-eyebrow w-16 shrink-0 text-text-dim">SLOT {index + 1}</span>
-            <FieldSelect current={current?.name ?? id}>
+            <FieldSelect
+              current={
+                <span className="inline-flex items-baseline gap-1.5">
+                  <span>{current?.name ?? id}</span>
+                  <span className="type-eyebrow text-text-dim">
+                    {cost} pt{cost === 1 ? '' : 's'}
+                  </span>
+                </span>
+              }
+            >
               {/* Leave this slot empty — frees its budget (the counterpart to picking a utility). */}
               <DropdownMenuItem
                 onSelect={() => dispatch({ type: 'clearUtility', slot, index })}
@@ -191,7 +223,7 @@ function UtilityRows({ slot }: { slot: SlotIndex }) {
                 const usedElsewhere = equipped.some((e, j) => j !== index && e === u.id);
                 const cost = u.cost ?? 1;
                 return (
-                  <OptionFlyout key={u.id} label="UTILITY" ex={explainUtility(u, ruleset)}>
+                  <OptionFlyout key={u.id} id={u.id} label="UTILITY" ex={explainUtility(u, ruleset)}>
                     <DropdownMenuItem
                       disabled={usedElsewhere}
                       onSelect={() =>
@@ -225,7 +257,7 @@ function UtilityRows({ slot }: { slot: SlotIndex }) {
               const already = equipped.includes(u.id);
               const cost = u.cost ?? 1;
               return (
-                <OptionFlyout key={u.id} label="UTILITY" ex={explainUtility(u, ruleset)}>
+                <OptionFlyout key={u.id} id={u.id} label="UTILITY" ex={explainUtility(u, ruleset)}>
                   <DropdownMenuItem
                     disabled={already}
                     onSelect={() => dispatch({ type: 'addUtility', slot, equipmentId: u.id })}

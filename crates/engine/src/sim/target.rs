@@ -224,26 +224,16 @@ fn reach_zones(att: &Combatant, occupied: &Occupancy, air_allowed: bool) -> (Vec
     // A unit currently in the Air can always contest air (v3 US3-C): a Jump-Jet machine mid-leap fights
     // the air layer directly even if its weapon isn't innately air-capable, so being airborne itself
     // grants air reach (still subject to the per-tick anti-air budget).
+    // Air reach follows the AA *unlock*, not zone position (v3 revision): any air-capable unit — a
+    // dedicated AA platform (SAM `Air` reach / `AntiAir` / innately air-capable), the Mech's Rocket
+    // Pack, or an energy weapon contesting air — reaches enemy air from ANY row. The old "improvised
+    // air is Front-row-only" reach advantage (v2 FR-029) is dropped: what still separates a real AA
+    // answer from an improvised one is the DAMAGE RATE + accuracy (damage.rs: flak vs energy-air vs
+    // plink), not reach. A plain unit with no air answer still can't touch air at all (`can_air`), and
+    // air is still subject to the per-tick anti-air budget. Being airborne (`zone == Air`) grants air
+    // reach on its own for a Jump-Jet mid-leap, as before.
     let can_air = (att.stats.can_target_air || att.zone == ZoneId::Air) && air_allowed;
-    // The reach advantage (v2, FR-029): a dedicated AA platform (a SAM's `Air` reach, the `AntiAir`
-    // capability, or an innately air-capable chassis) reaches enemy air from anywhere on the field; an
-    // IMPROVISED air answer — an energy weapon contesting air, or the Mech's Rocket Pack — only reaches
-    // it at close range, from the Front row. So a Front laser or Rocket-Pack Mech can shoot down a heli
-    // but the same off the front line cannot, while dedicated AA reaches it from any row.
-    //
-    // This "improvised, front-only" rule is for a GROUND unit reaching *up*. An air-locked chassis (a
-    // heli — `home_zone == Air`) is a purpose-built aircraft that fights in the air layer itself, so its
-    // energy gun is never "improvised"; excluding it here keeps an energy-armed heli engaging enemy air
-    // (it can never be in the Front row, so without this it would never fire on air at all — regression).
-    // A Jump-Jet machine mid-leap (`zone == Air`) is likewise fighting *in* the air, not reaching up from
-    // the ground, so the front-only limit does not apply to it either (v3 US3-C).
-    let improvised_air = att.home_zone != ZoneId::Air
-        && att.zone != ZoneId::Air
-        && (att.stats.family == DamageFamily::Energy
-            || att.stats.capabilities.contains(&Capability::RocketPack))
-        && att.stats.reach != ReachTag::Air
-        && !att.stats.capabilities.contains(&Capability::AntiAir);
-    let air_reachable = can_air && (!improvised_air || att.zone == ZoneId::Front);
+    let air_reachable = can_air;
     let ground = [ZoneId::Front, ZoneId::Middle, ZoneId::Rear];
     let occ = |z: ZoneId| occupied.has(z);
 
@@ -296,8 +286,9 @@ fn reach_zones(att: &Combatant, occupied: &Occupancy, air_allowed: bool) -> (Vec
                     }
                 }
             };
-            // Same air-first rule as the AnyGround arm: air is a candidate for an air-capable direct-fire
-            // unit (subject to the improvised-energy reach limit) and, sorting frontmost, engaged first.
+            // Same air-first rule as the AnyGround arm: air is a candidate for any air-capable direct-fire
+            // unit (from any row now — reach follows the AA unlock, not zone) and, sorting frontmost, is
+            // engaged first.
             (zones, air_reachable)
         }
     }
