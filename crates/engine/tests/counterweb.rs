@@ -94,6 +94,24 @@ fn actor_engaged_air(replay: &Replay, who: UnitRef) -> bool {
 }
 
 /// A squad of two air helicopters (i0, i1) + three ground fillers (i2–i4) in Front.
+/// Total primary-hit damage (milli-units) `who` dealt to the enemy **air** units (`air_squad` puts its
+/// two helicopters at Side::B instances 0 and 1). Lets a test compare a real air answer's firepower
+/// against a plain ground unit's last-resort *trickle*, which the 2026-07-25 reach change now permits.
+fn air_damage_by(replay: &Replay, who: UnitRef) -> i64 {
+    let is_heli = |u: UnitRef| u.side == Side::B && (u.instance_id == 0 || u.instance_id == 1);
+    let mut total = 0i64;
+    for tick in replay.games.iter().flat_map(|g| &g.ticks) {
+        for e in &tick.events {
+            if let TickEvent::Hit { actor, target, dmg, .. } = e {
+                if *actor == who && is_heli(*target) {
+                    total += dmg.milli();
+                }
+            }
+        }
+    }
+    total
+}
+
 fn air_squad(rs: &Ruleset) -> Army {
     Army {
         machines: vec![
@@ -153,7 +171,8 @@ fn aa_hard_counters_air_and_no_aa_cannot_touch_it() {
     let out2 = run(&rs, no_aa, air_squad(&rs), 0x5A11);
     assert!(
         !destroyed(fate_of(&out2, Side::B, 0)) && !destroyed(fate_of(&out2, Side::B, 1)),
-        "without AA the helicopters must survive (nothing can hit them)"
+        "without AA the helicopters must survive — a front-row unit's last-resort trickle can chip air \
+         but never destroy it, so AA stays the real counter"
     );
 }
 
@@ -237,23 +256,25 @@ fn energy_weapons_contest_air_when_enabled() {
         instance_id: 0,
     };
 
-    // OFF: the Front laser cannot touch air.
+    // With the mechanic OFF an energy laser is just a plain ground unit: it can only *trickle* air as a
+    // last resort (the 2026-07-25 reach change), not contest it at the energy rate. ON, the same laser
+    // deals the real energy-air damage — far more — from the Front AND (reach follows the AA unlock, not
+    // zone) the Middle. So the enable gate now shows up as a large air-damage gap, not a can't-hit-at-all.
     let off_out = run(&off, company(&off, ZoneId::Front), air_squad(&off), 0x5A11);
-    assert!(
-        !actor_hit_air(&off_out.replay, laser0),
-        "with the mechanic off, an energy laser must not be able to hit air"
-    );
-    // ON, Front: it contests the air.
     let front_out = run(&on, company(&on, ZoneId::Front), air_squad(&on), 0x5A11);
-    assert!(
-        actor_hit_air(&front_out.replay, laser0),
-        "with the mechanic on, a FRONT energy laser must contest air"
-    );
-    // ON, Middle: air reach now follows the AA unlock, not zone — an energy laser reaches air from any row.
     let mid_out = run(&on, company(&on, ZoneId::Middle), air_squad(&on), 0x5A11);
+    let trickle = air_damage_by(&off_out.replay, laser0);
+    let on_front = air_damage_by(&front_out.replay, laser0);
+    let on_mid = air_damage_by(&mid_out.replay, laser0);
     assert!(
-        actor_hit_air(&mid_out.replay, laser0),
-        "an energy laser contesting air reaches it from any row (reach follows the AA unlock, not zone)"
+        on_front > trickle * 4,
+        "energy ON must deal far more air damage from the Front than the OFF last-resort trickle \
+         (on_front {on_front}, trickle {trickle})"
+    );
+    assert!(
+        on_mid > trickle * 4,
+        "energy ON reaches + hits air from the Middle too, reach follows the AA unlock not zone \
+         (on_mid {on_mid}, trickle {trickle})"
     );
 }
 
@@ -284,23 +305,24 @@ fn rocket_pack_gives_the_mech_anti_air() {
         instance_id: 0,
     };
 
-    // A stock Mech (no Rocket Pack) on the front line cannot touch air.
+    // A stock Mech (no Rocket Pack) has no real air answer: from the front line it can only *trickle*
+    // air as a last resort (the 2026-07-25 reach change). The Rocket Pack makes it a real flak platform —
+    // far more air damage — from the Front AND (reach follows the AA unlock, not zone) the Middle.
     let stock = run(&rs, company(ZoneId::Front, false), air_squad(&rs), 0x5A11);
-    assert!(
-        !actor_hit_air(&stock.replay, mech),
-        "a stock Mech cannot engage air"
-    );
-    // A Rocket-Pack Mech on the FRONT engages the helicopters.
     let front = run(&rs, company(ZoneId::Front, true), air_squad(&rs), 0x5A11);
-    assert!(
-        actor_hit_air(&front.replay, mech),
-        "a Rocket-Pack Mech on the front line must engage air"
-    );
-    // A Rocket-Pack Mech in the MIDDLE now also reaches air — reach follows the AA unlock, not zone.
     let mid = run(&rs, company(ZoneId::Middle, true), air_squad(&rs), 0x5A11);
+    let trickle = air_damage_by(&stock.replay, mech);
+    let rp_front = air_damage_by(&front.replay, mech);
+    let rp_mid = air_damage_by(&mid.replay, mech);
     assert!(
-        actor_hit_air(&mid.replay, mech),
-        "a Rocket-Pack Mech reaches air from any row (reach follows the AA unlock, not zone)"
+        rp_front > trickle * 4,
+        "a Rocket-Pack Mech (flak) must deal far more air damage from the Front than a stock Mech's \
+         last-resort trickle (rp_front {rp_front}, trickle {trickle})"
+    );
+    assert!(
+        rp_mid > trickle * 4,
+        "a Rocket-Pack Mech reaches + hits air from the Middle too, reach follows the AA unlock not zone \
+         (rp_mid {rp_mid}, trickle {trickle})"
     );
 }
 
@@ -933,5 +955,60 @@ fn the_three_defensive_layers_fail_to_different_threats() {
     assert!(
         ablative > shield,
         "ablative should outlast shield vs penetration: shield={shield} ablative={ablative}"
+    );
+}
+
+/// Gameplay fix (2026-07-25): a plain FRONT-row ground unit with no air answer can plink at enemy air
+/// as a **last resort** — only once it has no reachable ground target — so an army that has cleared the
+/// enemy ground but lost all its AA can still finish off the surviving aircraft, instead of an
+/// unwinnable stalemate. It must NOT abandon the ground fight to plink air while ground remains.
+#[test]
+fn front_row_plinks_air_as_last_resort() {
+    let rs = seed_ruleset();
+    // A legal 5-unit line of stock HeavyTanks (Front caps at 3) — kinetic cannons, no air answer.
+    let attacker = Army {
+        machines: vec![
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Bulwark", ZoneId::Front, 0),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Bulwark", ZoneId::Front, 1),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Bulwark", ZoneId::Front, 2),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Bulwark", ZoneId::Middle, 3),
+            stock_instance(&rs, MachineTypeId::HeavyTank, "Bulwark", ZoneId::Middle, 4),
+        ],
+    };
+    // Defender = air_squad: two helis in Air (i0, i1) screened by three LightTank Scouts in Front (i2..i4).
+    let out = run(&rs, attacker, air_squad(&rs), 0x0A17);
+    let tank0 = UnitRef {
+        side: Side::A,
+        instance_id: 0,
+    };
+
+    // Ground-FIRST: while the enemy Front (the Scouts, i2..i4) is alive, tank0's very first engagement is
+    // a ground unit — it must never abandon the ground fight to plink air.
+    let first_target = out
+        .replay
+        .games
+        .iter()
+        .flat_map(|g| &g.ticks)
+        .flat_map(|t| &t.events)
+        .find_map(|e| match e {
+            TickEvent::Hit { actor, target, .. } | TickEvent::Miss { actor, target }
+                if *actor == tank0 =>
+            {
+                Some(*target)
+            }
+            _ => None,
+        })
+        .expect("the tank should engage something");
+    assert!(
+        first_target.side == Side::B && first_target.instance_id >= 2,
+        "with enemy ground present the front tank must engage ground first, not plink air (first \
+         engaged {first_target:?})"
+    );
+
+    // Last-RESORT air: once the Scouts are cleared and only the aircraft remain, the same tank engages
+    // the helicopters (i0/i1) — breaking the otherwise-unwinnable "their air, no AA" stalemate.
+    assert!(
+        actor_engaged_air(&out.replay, tank0),
+        "after clearing the enemy ground, a plain front-row tank must plink the surviving aircraft"
     );
 }

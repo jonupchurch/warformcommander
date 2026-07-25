@@ -63,6 +63,14 @@ const GUARDIAN_REDIRECT: Bp = 3_000; // 30% of the aimed target's incoming is so
 /// pass). Inert unless the attacker carries the matching capability, so the stock field is untouched.
 const CONDITIONAL_DAMAGE_BONUS: Bp = 5_000; // +50% vs the countered role
 
+/// Last-resort ground-to-air **trickle** (2026-07-25): a plain ground unit with no air answer, firing
+/// on air only because its front row has no ground target left (`target::reach_zones`), hits at this
+/// fraction of full damage — far below the heli dogfight plink (`air_mods.plink_dmg_mult`, ×0.5) so it
+/// only cleans up leftover aircraft over time and never serves as a real anti-air counter (a dedicated
+/// AA / flak / energy answer stays strictly better). Hardcoded for now; promote to a ruleset field if
+/// it ever needs live tuning.
+const IMPROVISED_GROUND_AIR_DMG_MULT: Bp = 500; // ×0.05 — trickle: clears leftover air, never a counter
+
 /// The incoming-damage multiplier from an active Paint mark (`BP_ONE` when the target is not painted).
 fn paint_mult(target: &Combatant, tick: u16) -> Bp {
     if target.painted_until > tick {
@@ -244,6 +252,7 @@ fn profile(att: &Combatant) -> AttackProfile {
         anti_air: att.stats.capabilities.contains(&Capability::AntiAir),
         rocket_pack: att.stats.capabilities.contains(&Capability::RocketPack),
         jumped: att.jump == JumpJetPhase::Airborne,
+        can_target_air: att.stats.can_target_air,
     }
 }
 
@@ -430,8 +439,15 @@ pub(crate) fn resolve_attack(
             // plink penalty), but a damage rate strictly between plink and flak (FR-028).
             acc += ruleset.air_mods.plink_acc_penalty;
             domain_mult = ruleset.air_mods.energy_air_dmg_mult;
+        } else if !prof.can_target_air {
+            // Last-resort GROUND improviser (2026-07-25): a plain ground unit with no air answer firing
+            // on air only because its front row has no ground target left (target::reach_zones). Same
+            // reduced accuracy, but the far weaker `IMPROVISED_GROUND_AIR_DMG_MULT` trickle rate — it
+            // clears leftover aircraft over time WITHOUT becoming a real air counter (AA stays the answer).
+            acc += ruleset.air_mods.plink_acc_penalty;
+            domain_mult = IMPROVISED_GROUND_AIR_DMG_MULT;
         } else {
-            acc += ruleset.air_mods.plink_acc_penalty; // direct-fire "plink" (incl. dogfights)
+            acc += ruleset.air_mods.plink_acc_penalty; // heli dogfight plink (air-capable, non-AA weapon)
             domain_mult = ruleset.air_mods.plink_dmg_mult;
         }
     } else if prof.reach == ReachTag::Air {

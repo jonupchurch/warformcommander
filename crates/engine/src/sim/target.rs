@@ -289,7 +289,17 @@ fn reach_zones(att: &Combatant, occupied: &Occupancy, air_allowed: bool) -> (Vec
             // Same air-first rule as the AnyGround arm: air is a candidate for any air-capable direct-fire
             // unit (from any row now — reach follows the AA unlock, not zone) and, sorting frontmost, is
             // engaged first.
-            (zones, air_reachable)
+            //
+            // LAST-RESORT improvised AA (FRONT row): a plain ground unit with no air answer
+            // (`can_target_air == false`) can still plink at enemy air — but only from the Front row and
+            // only once it has NO reachable ground target left. This breaks the otherwise-unwinnable
+            // "enemy air, no AA" endgame (you cleared their ground but can't finish their aircraft)
+            // WITHOUT pulling the front line off the ground fight while ground targets remain (the
+            // `zones.is_empty()` guard). Damage/accuracy fall to the plink rate in damage.rs; still
+            // subject to the per-tick anti-air budget via `air_allowed`.
+            let improvised_front_air =
+                att.zone == ZoneId::Front && air_allowed && occ(ZoneId::Air) && zones.is_empty();
+            (zones, air_reachable || improvised_front_air)
         }
     }
 }

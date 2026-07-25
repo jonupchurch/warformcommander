@@ -174,6 +174,11 @@ pub(crate) struct AttackProfile {
     /// plink penalty) and reaches the whole battlefield on the ground. `false` for anything not currently
     /// leaping — so a stock attacker's damage math is byte-identical.
     pub jumped: bool,
+    /// The attacker has a real air answer (AA weapon, Sensor Suite, or an air-capable chassis). A plain
+    /// ground unit (`false`) that still ends up firing on air is a last-resort front-row improviser
+    /// (`target::reach_zones`) and hits at the far weaker `IMPROVISED_GROUND_AIR_DMG_MULT` trickle — enough
+    /// to clear leftover aircraft over time, never enough to be a real air counter.
+    pub can_target_air: bool,
 }
 
 /// Cadence tier → cooldown ticks, via the ruleset table.
