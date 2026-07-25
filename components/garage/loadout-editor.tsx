@@ -196,10 +196,20 @@ function UtilityRows({ slot }: { slot: SlotIndex }) {
       </div>
       {equipped.map((id, index) => {
         const current = ruleset.equipment[id];
+        const cost = utilityCost(id, ruleset);
         return (
           <div key={index} className="flex items-center gap-2">
             <span className="type-eyebrow w-16 shrink-0 text-text-dim">SLOT {index + 1}</span>
-            <FieldSelect current={current?.name ?? id}>
+            <FieldSelect
+              current={
+                <span className="inline-flex items-baseline gap-1.5">
+                  <span>{current?.name ?? id}</span>
+                  <span className="type-eyebrow text-text-dim">
+                    {cost} pt{cost === 1 ? '' : 's'}
+                  </span>
+                </span>
+              }
+            >
               {/* Leave this slot empty — frees its budget (the counterpart to picking a utility). */}
               <DropdownMenuItem
                 onSelect={() => dispatch({ type: 'clearUtility', slot, index })}
