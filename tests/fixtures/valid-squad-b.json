@@ -3,7 +3,7 @@
     {
       "instanceId": 0,
       "typeId": "HeavyTank",
-      "variantId": "Cavalier",
+      "variantId": "Grizzly",
       "loadout": {
         "weapon": "HeavyCannon",
         "defense": "StandardHullHeavy",
@@ -25,34 +25,11 @@
     },
     {
       "instanceId": 1,
-      "typeId": "RocketArtillery",
-      "variantId": "Sentry",
+      "typeId": "LightTank",
+      "variantId": "Scout",
       "loadout": {
-        "weapon": "SAMBattery",
-        "defense": "StandardHullRktArty",
-        "utilities": [
-          "FireControl",
-          "DriveServos",
-          "Autoloader"
-        ]
-      },
-      "dials": {
-        "targeting": {
-          "fallback": "Closest"
-        },
-        "movement": "Hold",
-        "stance": "Neutral"
-      },
-      "planB": [],
-      "zone": "Middle"
-    },
-    {
-      "instanceId": 2,
-      "typeId": "Mech",
-      "variantId": "Striker",
-      "loadout": {
-        "weapon": "AssaultCannon",
-        "defense": "StandardHullMech",
+        "weapon": "Autocannon",
+        "defense": "StandardHullLight",
         "utilities": [
           "FireControl",
           "DriveServos",
@@ -70,16 +47,17 @@
       "zone": "Front"
     },
     {
-      "instanceId": 3,
-      "typeId": "Artillery",
-      "variantId": "Longbow",
+      "instanceId": 2,
+      "typeId": "Mech",
+      "variantId": "Vanguard",
       "loadout": {
-        "weapon": "Howitzer",
-        "defense": "StandardHullArtillery",
+        "weapon": "AssaultCannon",
+        "defense": "StandardHullMech",
         "utilities": [
           "FireControl",
           "DriveServos",
-          "Autoloader"
+          "Autoloader",
+          "ECMSuite"
         ]
       },
       "dials": {
@@ -90,19 +68,40 @@
         "stance": "Neutral"
       },
       "planB": [],
-      "zone": "Rear"
+      "zone": "Middle"
+    },
+    {
+      "instanceId": 3,
+      "typeId": "AttackHeli",
+      "variantId": "Gunship",
+      "loadout": {
+        "weapon": "RocketPods",
+        "defense": "StandardHullHeli",
+        "utilities": [
+          "FireControl",
+          "DriveServos"
+        ]
+      },
+      "dials": {
+        "targeting": {
+          "fallback": "Closest"
+        },
+        "movement": "Hold",
+        "stance": "Neutral"
+      },
+      "planB": [],
+      "zone": "Air"
     },
     {
       "instanceId": 4,
-      "typeId": "RearSupport",
-      "variantId": "Medic",
+      "typeId": "Artillery",
+      "variantId": "Longbow",
       "loadout": {
-        "weapon": "RepairBeam",
-        "defense": "StandardHullSupport",
+        "weapon": "Howitzer",
+        "defense": "StandardHullArtillery",
         "utilities": [
           "FireControl",
-          "DriveServos",
-          "Autoloader"
+          "DriveServos"
         ]
       },
       "dials": {

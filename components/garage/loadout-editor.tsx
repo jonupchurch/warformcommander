@@ -8,8 +8,11 @@
  * bonus** vs an off-family sidegrade is made legible (P1, FR-006).
  */
 
+import type { ReactNode } from 'react';
+
 import { Chip } from '@/components/ui/chip';
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { SectionLabel } from '@/components/ui/section-label';
 import { familyTone } from '@/lib/garage/display';
 import {
@@ -28,8 +31,37 @@ import type { SlotIndex } from '@/lib/garage/types';
 import { useGarageEditor } from '@/lib/garage/use-garage-editor';
 import { cn } from '@/lib/utils';
 
-import { EffectBreakdown } from './effect-breakdown';
+import { EffectBreakdown, ExplanationCard } from './effect-breakdown';
 import { FieldSelect } from './field-select';
+
+/**
+ * Wrap a dropdown option so hovering (or keyboard-focusing) it flies out an {@link ExplanationCard}
+ * with that item's stats — the same breakdown shown for the current pick, but for the option under the
+ * cursor, so you can compare before committing. The card's own chrome supplies the surface, so the
+ * hover-card container is stripped to a bare positioned wrapper.
+ */
+function OptionFlyout({
+  label,
+  ex,
+  children,
+}: {
+  label: string;
+  ex: Explanation;
+  children: ReactNode;
+}) {
+  return (
+    <HoverCard openDelay={120} closeDelay={0}>
+      <HoverCardTrigger asChild>{children}</HoverCardTrigger>
+      <HoverCardContent
+        side="right"
+        align="start"
+        className="w-72 border-0 bg-transparent p-0 shadow-lg"
+      >
+        <ExplanationCard slotLabel={label} ex={ex} />
+      </HoverCardContent>
+    </HoverCard>
+  );
+}
 
 function WeaponRow({ slot }: { slot: SlotIndex }) {
   const { session, dispatch, ruleset } = useGarageEditor();
@@ -58,17 +90,18 @@ function WeaponRow({ slot }: { slot: SlotIndex }) {
         {options.map((w) => {
           const isNative = isNativeWeapon(machine.typeId, w, ruleset);
           return (
-            <DropdownMenuItem
-              key={w.id}
-              onSelect={() => dispatch({ type: 'setWeapon', slot, equipmentId: w.id })}
-              className="justify-between gap-3"
-            >
-              <span className="type-body-sm text-text-strong">{w.name}</span>
-              <span className="flex items-center gap-1.5">
-                <Chip tone={familyTone(w.family)}>{w.family.toUpperCase()}</Chip>
-                {isNative && <span className="type-eyebrow text-family-support">NATIVE</span>}
-              </span>
-            </DropdownMenuItem>
+            <OptionFlyout key={w.id} label="WEAPON" ex={explainWeapon(w, machine.typeId, ruleset)}>
+              <DropdownMenuItem
+                onSelect={() => dispatch({ type: 'setWeapon', slot, equipmentId: w.id })}
+                className="justify-between gap-3"
+              >
+                <span className="type-body-sm text-text-strong">{w.name}</span>
+                <span className="flex items-center gap-1.5">
+                  <Chip tone={familyTone(w.family)}>{w.family.toUpperCase()}</Chip>
+                  {isNative && <span className="type-eyebrow text-family-support">NATIVE</span>}
+                </span>
+              </DropdownMenuItem>
+            </OptionFlyout>
           );
         })}
       </FieldSelect>
@@ -91,12 +124,13 @@ function DefenseRow({ slot }: { slot: SlotIndex }) {
       </SectionLabel>
       <FieldSelect current={current?.name ?? machine.loadout.defense}>
         {options.map((d) => (
-          <DropdownMenuItem
-            key={d.id}
-            onSelect={() => dispatch({ type: 'setDefense', slot, equipmentId: d.id })}
-          >
-            <span className="type-body-sm text-text-strong">{d.name}</span>
-          </DropdownMenuItem>
+          <OptionFlyout key={d.id} label="DEFENSE" ex={explainDefense(d, ruleset)}>
+            <DropdownMenuItem
+              onSelect={() => dispatch({ type: 'setDefense', slot, equipmentId: d.id })}
+            >
+              <span className="type-body-sm text-text-strong">{d.name}</span>
+            </DropdownMenuItem>
+          </OptionFlyout>
         ))}
       </FieldSelect>
     </div>
@@ -125,20 +159,27 @@ function UtilityRows({ slot }: { slot: SlotIndex }) {
               {options.map((u) => {
                 // Dedup (V5): disable a utility already equipped in a *different* slot.
                 const usedElsewhere = equipped.some((e, j) => j !== index && e === u.id);
+                const cost = u.cost ?? 1;
                 return (
-                  <DropdownMenuItem
-                    key={u.id}
-                    disabled={usedElsewhere}
-                    onSelect={() =>
-                      dispatch({ type: 'setUtility', slot, index, equipmentId: u.id })
-                    }
-                    className={cn(usedElsewhere && 'opacity-40')}
-                  >
-                    <span className="type-body-sm text-text-strong">{u.name}</span>
-                    {usedElsewhere && (
-                      <span className="type-eyebrow ml-auto text-text-faint">EQUIPPED</span>
-                    )}
-                  </DropdownMenuItem>
+                  <OptionFlyout key={u.id} label="UTILITY" ex={explainUtility(u, ruleset)}>
+                    <DropdownMenuItem
+                      disabled={usedElsewhere}
+                      onSelect={() =>
+                        dispatch({ type: 'setUtility', slot, index, equipmentId: u.id })
+                      }
+                      className={cn('justify-between gap-3', usedElsewhere && 'opacity-40')}
+                    >
+                      <span className="type-body-sm text-text-strong">{u.name}</span>
+                      <span className="ml-auto flex items-center gap-2">
+                        {usedElsewhere && (
+                          <span className="type-eyebrow text-text-faint">EQUIPPED</span>
+                        )}
+                        <span className="type-eyebrow text-text-dim">
+                          {cost} pt{cost === 1 ? '' : 's'}
+                        </span>
+                      </span>
+                    </DropdownMenuItem>
+                  </OptionFlyout>
                 );
               })}
             </FieldSelect>

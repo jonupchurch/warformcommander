@@ -39,6 +39,8 @@ function reasonCopy(error: string): string {
   switch (error) {
     case 'NOT_ATTACKABLE':
       return 'You have no attackable squad. Build one in the Garage, or free up a squad currently assigned to defense.';
+    case 'NO_ACTIVE_DEFENSE':
+      return 'You must field a squad on defense before you can attack. Assign one to a defense slot in the Garage.';
     case 'NO_OPPONENT':
       return 'No opponent is available right now. Try again in a moment.';
     default:

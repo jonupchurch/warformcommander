@@ -19,12 +19,15 @@ export type ErrorCode =
   | "DEFENSE_CAP_EXCEEDED"
   | "SLOT_OCCUPIED_RACE"
   | "NOT_DESIGNATED"
+  | "SQUAD_DESIGNATED" // cannot delete a squad while it is assigned to a defense slot (undesignate first)
   | "SLUG_TAKEN"
   | "HANDLE_TAKEN" // the chosen commander handle is already in use (case-insensitive)
   | "UNSUPPORTED_FORMAT"
   | "FORBIDDEN"
   // Feature 8 — Arena matchmaking / resolve
   | "NOT_ATTACKABLE" // the caller has no attackable squad, or the chosen squad isn't attackable
+  | "NO_ACTIVE_DEFENSE" // the caller must field at least one squad on active defense before attacking
+
   | "NO_OPPONENT" // no eligible ranked defender in the pool (should not occur with cold-start bots)
   | "NO_PRACTICE_OPPONENT" // no other squad to draw for practice
   | "INVALID_TICKET"; // the previewed defender snapshot is no longer resolvable

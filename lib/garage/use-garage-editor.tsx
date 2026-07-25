@@ -34,6 +34,7 @@ import type { Ruleset } from '@/sim/ruleset';
 import {
   saveSquadAction,
   updateSquadAction,
+  deleteSquadAction,
   designateDefenseAction,
   undesignateDefenseAction,
   redesignateDefenseAction,
@@ -84,6 +85,8 @@ export interface GarageEditorContextValue {
   undesignate: () => Promise<Result<void>>;
   /** Push the edited designated squad live — a fresh frozen snapshot at its slot (Feature 7). */
   redesignate: () => Promise<Result<DefenseSnapshot>>;
+  /** Delete a saved squad from the roster (Feature 7; refused server-side while it defends). */
+  deleteSquad: (squadId: string) => Promise<Result<void>>;
   /** Save the selected machine's setup as a custom per-type preset via Feature 7. */
   saveCurrentAsPreset: (name: string) => Promise<Result<Preset>>;
   /** Apply a **stock** preset into a slot (fields it if empty), fitting to the target variant. */
@@ -177,6 +180,20 @@ export function GarageEditorProvider({
     return redesignateDefenseAction(session.editingSquadId);
   }, [session.editingSquadId]);
 
+  const deleteSquad = useCallback<GarageEditorContextValue['deleteSquad']>(
+    async (squadId) => {
+      const res = await deleteSquadAction(squadId);
+      if (res.ok) {
+        // If the deleted squad was open in the editor, drop back to a fresh build so we don't keep
+        // editing a now-nonexistent row. Then refetch the roster RSC prop (no client mirror).
+        if (session.editingSquadId === squadId) dispatch({ type: 'createSquad' });
+        router.refresh();
+      }
+      return res;
+    },
+    [session.editingSquadId, router],
+  );
+
   const saveCurrentAsPreset = useCallback<GarageEditorContextValue['saveCurrentAsPreset']>(
     async (name) => {
       const slot = session.selection.selectedSlot;
@@ -238,6 +255,7 @@ export function GarageEditorProvider({
       designate,
       undesignate,
       redesignate,
+      deleteSquad,
       saveCurrentAsPreset,
       applyStock,
       applyCustom,
@@ -256,6 +274,7 @@ export function GarageEditorProvider({
       designate,
       undesignate,
       redesignate,
+      deleteSquad,
       saveCurrentAsPreset,
       applyStock,
       applyCustom,

@@ -13,6 +13,7 @@ import { defenseSnapshots } from '@/db/schema';
 import { armyPowerRating } from '@/sim/derive';
 import { EngineError, resolveBattle } from '@/sim';
 import { recordMatch } from '@/server/matches';
+import { listDefense } from '@/server/defense';
 import { listAttackable } from '@/server/squads';
 import type { SessionUser } from '@/server/authz';
 
@@ -31,6 +32,13 @@ export async function previewRankedMatch(ctx: SessionUser): Promise<Result<Match
   const attackable = await listAttackable(ctx);
   if (!attackable.ok) return attackable;
   if (attackable.value.length === 0) return err('NOT_ATTACKABLE', 'you have no attackable squad');
+
+  // You must field a defense before you can attack the ladder (FR-001b, symmetric-stakes rule).
+  const defense = await listDefense(ctx);
+  if (!defense.ok) return defense;
+  if (defense.value.length === 0) {
+    return err('NO_ACTIVE_DEFENSE', 'put at least one squad on defense before attacking');
+  }
 
   const selection = await pickRankedOpponent(ctx);
   if (!selection.ok) return selection;
@@ -60,6 +68,13 @@ export async function startRankedMatch(
   if (!attackable.ok) return attackable;
   const attackSquad = attackable.value.find((s) => s.id === input.attackSquadId);
   if (!attackSquad) return err('NOT_ATTACKABLE', 'that squad is not yours or not attackable');
+
+  // Re-check the must-defend precondition at the P6 boundary (not just at preview).
+  const defense = await listDefense(ctx);
+  if (!defense.ok) return defense;
+  if (defense.value.length === 0) {
+    return err('NO_ACTIVE_DEFENSE', 'put at least one squad on defense before attacking');
+  }
 
   // Bind the served snapshot by id — the immutable frozen row, even if since deactivated (FR-008).
   const [snapshot] = await getDb()

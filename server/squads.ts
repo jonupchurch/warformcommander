@@ -124,12 +124,21 @@ export async function updateSquad(
   return ok(updated);
 }
 
-/** Delete one of the actor's squads. Referencing snapshots/matches are retained (FK set null). */
+/** Delete one of the actor's squads. Referencing snapshots/matches are retained (FK set null). A squad
+ *  currently assigned to a defense slot cannot be deleted — undesignate it first (trust boundary: the
+ *  guard is here, not just in the UI). */
 export async function deleteSquad(actor: SessionUser, id: string): Promise<Result<void>> {
   const db = getDb();
-  const [row] = await db.select({ userId: squads.userId }).from(squads).where(eq(squads.id, id)).limit(1);
+  const [row] = await db
+    .select({ userId: squads.userId, defenseSlot: squads.defenseSlot })
+    .from(squads)
+    .where(eq(squads.id, id))
+    .limit(1);
   if (!row) return err("NOT_FOUND");
   if (row.userId !== actor.id) return err("NOT_OWNER");
+  if (row.defenseSlot !== null) {
+    return err("SQUAD_DESIGNATED", "undesignate the squad from defense before deleting it");
+  }
   await db.delete(squads).where(eq(squads.id, id));
   return ok(undefined);
 }

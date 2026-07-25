@@ -89,6 +89,25 @@ describe('US1 — deploy resolves + records the Bo3, returns a match id', () => 
 
     expect(await getDb().select().from(matches)).toHaveLength(0);
   });
+
+  it('blocks a player fielding no active defense (NO_ACTIVE_DEFENSE, no match)', async () => {
+    await seedDefender({ count: 1 });
+    const { createTestUser } = await import('./db-setup');
+    const { seedSquad } = await import('./arena-fixtures');
+    // An attacker with an attackable squad but NO squad on defense — must defend before attacking.
+    const attacker = await createTestUser();
+    const squadId = await seedSquad(attacker.id, 0);
+
+    const preview = await previewRankedMatch(attacker);
+    expect(preview.ok).toBe(false);
+    if (!preview.ok) expect(preview.error).toBe('NO_ACTIVE_DEFENSE');
+
+    const blocked = await startRankedMatch(attacker, { attackSquadId: squadId, ticketSnapshotId: 'nope' });
+    expect(blocked.ok).toBe(false);
+    if (!blocked.ok) expect(blocked.error).toBe('NO_ACTIVE_DEFENSE');
+
+    expect(await getDb().select().from(matches)).toHaveLength(0);
+  });
 });
 
 describe('US3 — served blind + locked for the Bo3', () => {
