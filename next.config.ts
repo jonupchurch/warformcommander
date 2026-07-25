@@ -23,6 +23,8 @@ const nextConfig: NextConfig = {
     // Feature 8: the two ranked/practice resolve routes call resolveBattle in-process (P6).
     "/api/arena/resolve": ["./packages/engine-wasm/**/*"],
     "/api/practice/resolve": ["./packages/engine-wasm/**/*"],
+    // The scheduled bot tournament resolves a full round-robin in-process (resolveBattle → wasm).
+    "/api/cron/bot-tournament": ["./packages/engine-wasm/**/*"],
     // Feature 8 pages reach the engine at render: previewRankedMatch / the practice draw load the
     // default ruleset (loadDefaultRuleset → wasm) to fog the served opponent.
     "/arena": ["./packages/engine-wasm/**/*"],
