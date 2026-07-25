@@ -574,9 +574,12 @@ fn resolve_support(
             }
         }
         // Arm the cooldown only after a projection actually landed, so an idle support (nothing to heal)
-        // stays ready the instant an ally is hurt — the cadence throttles healing, not idling.
+        // stays ready the instant an ally is hurt — the cadence throttles healing, not idling. Arm to
+        // `heal_cooldown_ticks + 1`: upkeep decrements BEFORE this gate, so N+1 leaves N ticks blocked
+        // (the field = ticks *skipped* between heals). At the default 0 → arm 1 → decremented to 0 next
+        // tick → heals every tick, byte-identical to before.
         if projected {
-            combatants[i].heal_cooldown = ruleset.globals.heal_cooldown_ticks;
+            combatants[i].heal_cooldown = ruleset.globals.heal_cooldown_ticks.saturating_add(1);
         }
     }
 }
