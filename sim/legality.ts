@@ -20,7 +20,12 @@ export const MAX_AIR = 2;
 /** A battle is 5v5 (V1). */
 export const SQUAD_SIZE = 5;
 
-/** The machine-readable rule that rejected a build (`ValidationCode`, data-model V1–V8). */
+/**
+ * The machine-readable rule that rejected a build (`ValidationCode`). The first nine are the engine's
+ * data-model rules **V1–V8** (this file's engine-parity contract). `DeckTypeCap`/`DeckIndirectCap` are
+ * **construction-layer** deckbuilding caps that live *outside* the engine (see `sim/deck-rules.ts`) —
+ * they are not part of the wasm `validate` and so are excluded from the parity fixture.
+ */
 export type ValidationCode =
   | 'SquadSize'
   | 'ZoneCap'
@@ -30,7 +35,9 @@ export type ValidationCode =
   | 'PlanB'
   | 'DialGating'
   | 'Movement'
-  | 'Structural';
+  | 'Structural'
+  | 'DeckTypeCap'
+  | 'DeckIndirectCap';
 
 /** A single rejection (mirror of the engine `ValidationError`). `instanceId` is `null` for army rules. */
 export interface ValidationError {

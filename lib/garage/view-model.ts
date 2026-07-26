@@ -5,6 +5,7 @@
  * `deriveEffectiveStats`/`validateArmy`, so the preview **equals** the engine's derivation (SC-002).
  */
 
+import { validateDeckRules } from '@/sim/deck-rules';
 import { armyPowerRating, deriveEffectiveStats, powerRating } from '@/sim/derive';
 import { validateArmy, type ValidationError } from '@/sim/legality';
 import type { EffectiveStats, Ruleset } from '@/sim/ruleset';
@@ -37,9 +38,12 @@ export function toValidationView(errors: ValidationError[]): ValidationView {
   return { isLegal: errors.length === 0, errors, bySlot, squadLevel };
 }
 
-/** Validate the whole draft (projected to a `SquadConfig`) and index the result. */
+/** Validate the whole draft (projected to a `SquadConfig`) and index the result. Runs the engine's
+ *  V1–V8 legality **and** the construction-layer deckbuilding caps (`validateDeckRules`) the server
+ *  write path also enforces, so the Save button reflects every reason a save would be rejected. */
 export function computeValidationView(draft: DraftSquad, ruleset: Ruleset): ValidationView {
-  return toValidationView(validateArmy(toSquadConfig(draft), ruleset));
+  const config = toSquadConfig(draft);
+  return toValidationView([...validateArmy(config, ruleset), ...validateDeckRules(config, ruleset)]);
 }
 
 /** The live derived readout for the selected machine + the squad aggregate. */

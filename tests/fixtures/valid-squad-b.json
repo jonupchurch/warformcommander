@@ -72,14 +72,15 @@
     },
     {
       "instanceId": 3,
-      "typeId": "AttackHeli",
-      "variantId": "Gunship",
+      "typeId": "LightTank",
+      "variantId": "Hunter",
       "loadout": {
-        "weapon": "RocketPods",
-        "defense": "StandardHullHeli",
+        "weapon": "Autocannon",
+        "defense": "StandardHullLight",
         "utilities": [
           "FireControl",
-          "DriveServos"
+          "DriveServos",
+          "Autoloader"
         ]
       },
       "dials": {
@@ -90,7 +91,7 @@
         "stance": "Neutral"
       },
       "planB": [],
-      "zone": "Air"
+      "zone": "Middle"
     },
     {
       "instanceId": 4,
