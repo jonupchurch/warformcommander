@@ -18,7 +18,7 @@ import { defaultFor } from '@/lib/garage/preset-catalog';
 import { toSquadConfig } from '@/lib/garage/to-squad-config';
 import type { DraftSlot } from '@/lib/garage/types';
 import { validateArmy } from '@/sim/legality';
-import type { ZoneId } from '@/sim/model';
+import type { MachineTypeId, ZoneId } from '@/sim/model';
 
 import { defaultRuleset as rs } from './ruleset-fixture';
 
@@ -41,6 +41,30 @@ describe('mount-gated options (V4 crossover)', () => {
     expect(heavy.some((u) => u.id === 'FireControl')).toBe(true);
     expect(heavy.some((u) => u.id === 'RocketPack')).toBe(false);
     expect(utilityOptions('Mech', rs).some((u) => u.id === 'RocketPack')).toBe(true);
+  });
+
+  it('hides inert equipment (Extend Reach) from the pickers without deleting it from the ruleset', () => {
+    // Rangefinder + Target Radar grant only ExtendReach, a capability the engine derives but targeting
+    // ignores — so they do nothing and must never be offered. They stay in the ruleset (an already-built
+    // squad remains legal); they are only removed from the *choices*.
+    expect(rs.equipment.Rangefinder).toBeDefined();
+    expect(rs.equipment.TargetRadar).toBeDefined();
+    const types: MachineTypeId[] = [
+      'HeavyTank',
+      'LightTank',
+      'Mech',
+      'Artillery',
+      'RocketArtillery',
+      'Commander',
+      'AttackHeli',
+    ];
+    for (const t of types) {
+      const ids = utilityOptions(t, rs).map((u) => u.id);
+      expect(ids, `${t} still offers Rangefinder`).not.toContain('Rangefinder');
+      expect(ids, `${t} still offers Target Radar`).not.toContain('TargetRadar');
+    }
+    // A working utility is unaffected.
+    expect(utilityOptions('HeavyTank', rs).some((u) => u.id === 'FireControl')).toBe(true);
   });
 });
 

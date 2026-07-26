@@ -14,6 +14,7 @@ import type { BehaviorDials, EquipmentId, MachineTypeId, VariantId } from '@/sim
 import type { EquipmentModule, MountClass, Ruleset } from '@/sim/ruleset';
 
 import type { MachineSeed } from './editor-reducer';
+import { isInertUtility } from './loadout-options';
 
 /** The canonical starter dials (v3): the broad default targeting chain (no filters, sweep from the
  *  contact line), hold position, balanced stance — always legal for any machine. */
@@ -92,6 +93,7 @@ function defaultUtilities(count: number, mount: MountClass, ruleset: Ruleset): E
       (m) =>
         m.kind === 'Utility' &&
         (m.cost ?? 1) === 1 &&
+        !isInertUtility(m) && // never seed a fresh machine with gear the engine ignores (Extend Reach)
         (!m.mountClasses?.length || m.mountClasses.includes(mount)),
     )
     .map((u) => u.id);
