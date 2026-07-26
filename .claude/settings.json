@@ -43,7 +43,10 @@
       "WebSearch",
       "Bash(git commit -q -m 'Plan Feature 6 \\(battle summary\\): full artifact set *)",
       "Bash(git commit -q -m ' *)",
-      "Bash(git rm *)"
+      "Bash(git rm *)",
+      "Bash(git checkout *)",
+      "Bash(git merge --no-ff 003-app-shell -m 'Merge Feature 3: app shell + design system *)",
+      "Bash(grep -vE \"^#|^$\")"
     ],
     "deny": [],
     "ask": [],

@@ -68,3 +68,11 @@ next-env.d.ts
 
 # Rust build output
 /target
+
+# Balancer output — machine-local run artifacts. The directory's README.md IS tracked (it documents
+# what the reports are), so ignore the generated reports rather than the whole directory.
+/balance-reports/*
+!/balance-reports/README.md
+
+# Editor workspace file (per-machine paths)
+/warformcommander.code-workspace
