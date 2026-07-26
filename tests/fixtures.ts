@@ -18,7 +18,10 @@ export function validSquad(): SquadConfig {
   return clone(squadA) as SquadConfig;
 }
 
-/** A second, distinct legal army (battery defender) — for multi-squad / defense tests. */
+/** A second, distinct legal army (battery defender) — for multi-squad / defense tests. Its original
+ * heli was swapped for a second Light tank so the army also satisfies the construction-layer deck caps
+ * (`sim/deck-rules.ts`: ≤1 backline-indirect weapon — the Longbow); it stays engine-valid and A still
+ * beats it at seed 1 (the winner the standings/match tests assume). */
 export function validSquadB(): SquadConfig {
   return clone(squadB) as SquadConfig;
 }

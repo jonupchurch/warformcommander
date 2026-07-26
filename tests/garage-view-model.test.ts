@@ -39,13 +39,16 @@ function draftOf(slots: DraftSlot[], name = 'T'): DraftSquad {
   return { name, machines };
 }
 
+// A draft that satisfies the construction caps too: ≤2 of any type (Mech ×2, the rest ×1) and exactly
+// one backline-reaching weapon (D2 ≤1) — the Gunship's RocketPods (AnyGround). Every other weapon here
+// is Nearest, so this is the boundary-legal case (exactly one indirect).
 const legalDraft = () =>
   draftOf([
     machineFor('Grizzly', 'Front'),
     machineFor('Scout', 'Front'),
     machineFor('Vanguard', 'Middle'),
     machineFor('Gunship', 'Air'),
-    machineFor('Longbow', 'Rear'),
+    machineFor('Sentinel', 'Middle'),
   ]);
 
 describe('computeValidationView', () => {

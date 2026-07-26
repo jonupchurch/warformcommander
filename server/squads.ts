@@ -13,6 +13,7 @@ import { and, asc, eq, isNull } from "drizzle-orm";
 import { getDb } from "@/db";
 import { squads } from "@/db/schema";
 import type { SquadConfig } from "@/db/types";
+import { validateDeckRules } from "@/sim/deck-rules";
 import { validateSquad } from "@/sim/validate";
 
 import { type SessionUser } from "./authz";
@@ -37,6 +38,10 @@ export async function saveSquad(
   const { ruleset } = await getCurrentRuleset();
   const v = validateSquad(input.config, ruleset);
   if (!v.ok) return err("VALIDATION_FAILED", v.errors.map((e) => `${e.code}: ${e.reason}`).join("; "));
+  // Construction-layer deckbuilding caps (sim/deck-rules.ts) — enforced here at the trust boundary in
+  // addition to the engine's V1–V8, so an over-cap squad is never stored (the Garage checks the same).
+  const deck = validateDeckRules(input.config, ruleset);
+  if (deck.length) return err("VALIDATION_FAILED", deck.map((e) => `${e.code}: ${e.reason}`).join("; "));
 
   const db = getDb();
   const taken = await db
@@ -104,6 +109,8 @@ export async function updateSquad(
     const { ruleset } = await getCurrentRuleset();
     const v = validateSquad(patch.config, ruleset);
     if (!v.ok) return err("VALIDATION_FAILED", v.errors.map((e) => `${e.code}: ${e.reason}`).join("; "));
+    const deck = validateDeckRules(patch.config, ruleset);
+    if (deck.length) return err("VALIDATION_FAILED", deck.map((e) => `${e.code}: ${e.reason}`).join("; "));
     set.config = patch.config;
     set.powerRating = v.powerRating;
   }
