@@ -1,7 +1,7 @@
 [
   {
     "name": "TURTLE_SAM_01",
-    "blurb": "Armor-wall turtle — twin heavy tanks, a SAM screen, twin howitzers. The comp that swept offense.",
+    "blurb": "Armor turtle — twin heavy tanks and a brawling mech behind a lone howitzer and a SAM screen.",
     "config": {
       "machines": [
         {
@@ -30,15 +30,15 @@
         {
           "instanceId": 1,
           "typeId": "HeavyTank",
-          "variantId": "Grizzly",
+          "variantId": "Cavalier",
           "zone": "Front",
           "loadout": {
-            "weapon": "Railgun",
-            "defense": "DeflectorShield",
+            "weapon": "HeavyCannon",
+            "defense": "HeavyArmor",
             "utilities": [
               "FireControl",
               "Autoloader",
-              "Rangefinder"
+              "SiegeMode"
             ]
           },
           "dials": {
@@ -52,6 +52,30 @@
         },
         {
           "instanceId": 2,
+          "typeId": "Mech",
+          "variantId": "Striker",
+          "zone": "Front",
+          "loadout": {
+            "weapon": "AssaultCannon",
+            "defense": "MechArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Overdrive"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "priority1": "TargetArmor",
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": []
+        },
+        {
+          "instanceId": 3,
           "typeId": "RocketArtillery",
           "variantId": "Sentry",
           "zone": "Middle",
@@ -74,7 +98,7 @@
           "planB": []
         },
         {
-          "instanceId": 3,
+          "instanceId": 4,
           "typeId": "Artillery",
           "variantId": "Siege",
           "zone": "Rear",
@@ -95,35 +119,13 @@
             "stance": "Aggressive"
           },
           "planB": []
-        },
-        {
-          "instanceId": 4,
-          "typeId": "Artillery",
-          "variantId": "Marksman",
-          "zone": "Rear",
-          "loadout": {
-            "weapon": "Howitzer",
-            "defense": "StandardHullArtillery",
-            "utilities": [
-              "FireControl",
-              "Autoloader"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "fallback": "Furthest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
         }
       ]
     }
   },
   {
     "name": "AIR_WING_01",
-    "blurb": "Air wing — twin gunships strike from the sky while a heavy anchor and an artillery backfield hold the ground.",
+    "blurb": "Air wing — a lone gunship strikes from the sky while a heavy anchor, a mech and a SAM hold the ground.",
     "config": {
       "machines": [
         {
@@ -150,28 +152,6 @@
         },
         {
           "instanceId": 1,
-          "typeId": "AttackHeli",
-          "variantId": "Gunship",
-          "zone": "Air",
-          "loadout": {
-            "weapon": "RocketPods",
-            "defense": "HeliArmor",
-            "utilities": [
-              "FireControl",
-              "Flares"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "fallback": "Closest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
-        },
-        {
-          "instanceId": 2,
           "typeId": "HeavyTank",
           "variantId": "Bulwark",
           "zone": "Front",
@@ -194,12 +174,58 @@
           "planB": []
         },
         {
+          "instanceId": 2,
+          "typeId": "Mech",
+          "variantId": "Striker",
+          "zone": "Front",
+          "loadout": {
+            "weapon": "PulseLaser",
+            "defense": "MechArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Overdrive"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "priority1": "TargetArmor",
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": []
+        },
+        {
           "instanceId": 3,
+          "typeId": "LightTank",
+          "variantId": "Hunter",
+          "zone": "Front",
+          "loadout": {
+            "weapon": "GaussRepeater",
+            "defense": "LightArmor",
+            "utilities": [
+              "FireControl",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Kite",
+            "stance": "Aggressive"
+          },
+          "planB": []
+        },
+        {
+          "instanceId": 4,
           "typeId": "RocketArtillery",
-          "variantId": "Deluge",
+          "variantId": "Sentry",
           "zone": "Middle",
           "loadout": {
-            "weapon": "RocketBarrage",
+            "weapon": "SAMBattery",
             "defense": "StandardHullRktArty",
             "utilities": [
               "FireControl",
@@ -208,33 +234,11 @@
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
+              "priority1": "TargetAir",
+              "fallback": "Closest"
             },
             "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
-        },
-        {
-          "instanceId": 4,
-          "typeId": "Artillery",
-          "variantId": "Longbow",
-          "zone": "Rear",
-          "loadout": {
-            "weapon": "Howitzer",
-            "defense": "StandardHullArtillery",
-            "utilities": [
-              "FireControl",
-              "Autoloader"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "fallback": "Furthest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
+            "stance": "Neutral"
           },
           "planB": []
         }
@@ -243,7 +247,7 @@
   },
   {
     "name": "LIGHT_SWARM_01",
-    "blurb": "Light swarm — fast light raiders kite ahead of a triple-artillery backline that does the killing.",
+    "blurb": "Light swarm — two fast light raiders and a mech kite ahead of a heavy anchor and a lone rail gun.",
     "config": {
       "machines": [
         {
@@ -293,44 +297,44 @@
         },
         {
           "instanceId": 2,
-          "typeId": "RocketArtillery",
-          "variantId": "Deluge",
-          "zone": "Middle",
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "zone": "Front",
           "loadout": {
-            "weapon": "RocketBarrage",
-            "defense": "StandardHullRktArty",
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
             "utilities": [
               "FireControl",
-              "Autoloader"
+              "Autoloader",
+              "Decoy"
             ]
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
+              "fallback": "Closest"
             },
             "movement": "Hold",
-            "stance": "Aggressive"
+            "stance": "Defensive"
           },
           "planB": []
         },
         {
           "instanceId": 3,
-          "typeId": "Artillery",
-          "variantId": "Longbow",
-          "zone": "Rear",
+          "typeId": "Mech",
+          "variantId": "Striker",
+          "zone": "Middle",
           "loadout": {
-            "weapon": "RailHowitzer",
-            "defense": "StandardHullArtillery",
+            "weapon": "AssaultCannon",
+            "defense": "MechReactive",
             "utilities": [
               "FireControl",
-              "Autoloader"
+              "Autoloader",
+              "Overdrive"
             ]
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
+              "fallback": "Closest"
             },
             "movement": "Hold",
             "stance": "Aggressive"
@@ -364,7 +368,7 @@
   },
   {
     "name": "ENERGY_LANCE_01",
-    "blurb": "Energy lance — every barrel fires Energy to strip shields, a Commander refreshing its own.",
+    "blurb": "Energy lance — Siege, Pulse and Arc lasers strip shields, a lone Ion tube reaches back, a Commander refreshes.",
     "config": {
       "machines": [
         {
@@ -419,23 +423,23 @@
         },
         {
           "instanceId": 2,
-          "typeId": "RocketArtillery",
-          "variantId": "Deluge",
-          "zone": "Middle",
+          "typeId": "LightTank",
+          "variantId": "Outrider",
+          "zone": "Front",
           "loadout": {
-            "weapon": "LaserBattery",
-            "defense": "RktArtyShield",
+            "weapon": "ArcRepeater",
+            "defense": "LightShield",
             "utilities": [
               "FireControl",
-              "Autoloader"
+              "SensorSuite",
+              "DriveServos"
             ]
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
+              "fallback": "Closest"
             },
-            "movement": "Hold",
+            "movement": "Advance",
             "stance": "Aggressive"
           },
           "planB": []
@@ -489,7 +493,7 @@
   },
   {
     "name": "EXPLOSIVE_SATURATION_01",
-    "blurb": "Explosive saturation — demolition guns, rocket barrages and howitzers bury the front in splash.",
+    "blurb": "Explosive saturation — demolition guns, missile racks and grenade launchers bury the front in splash.",
     "config": {
       "machines": [
         {
@@ -541,21 +545,21 @@
         },
         {
           "instanceId": 2,
-          "typeId": "RocketArtillery",
-          "variantId": "Deluge",
-          "zone": "Middle",
+          "typeId": "Mech",
+          "variantId": "Vanguard",
+          "zone": "Front",
           "loadout": {
-            "weapon": "RocketBarrage",
-            "defense": "StandardHullRktArty",
+            "weapon": "MissileRack",
+            "defense": "MechArmor",
             "utilities": [
+              "FireControl",
               "Autoloader",
-              "Entrench"
+              "BulwarkMode"
             ]
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
+              "fallback": "Closest"
             },
             "movement": "Hold",
             "stance": "Aggressive"
@@ -564,21 +568,20 @@
         },
         {
           "instanceId": 3,
-          "typeId": "Artillery",
-          "variantId": "Siege",
-          "zone": "Rear",
+          "typeId": "LightTank",
+          "variantId": "Hunter",
+          "zone": "Middle",
           "loadout": {
-            "weapon": "Howitzer",
-            "defense": "StandardHullArtillery",
+            "weapon": "GrenadeLauncher",
+            "defense": "LightArmor",
             "utilities": [
               "FireControl",
-              "Autoloader"
+              "DriveServos"
             ]
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
+              "fallback": "Closest"
             },
             "movement": "Hold",
             "stance": "Aggressive"
@@ -587,12 +590,12 @@
         },
         {
           "instanceId": 4,
-          "typeId": "Artillery",
-          "variantId": "Marksman",
-          "zone": "Rear",
+          "typeId": "RocketArtillery",
+          "variantId": "Deluge",
+          "zone": "Middle",
           "loadout": {
-            "weapon": "Howitzer",
-            "defense": "ArtilleryArmor",
+            "weapon": "RocketBarrage",
+            "defense": "StandardHullRktArty",
             "utilities": [
               "FireControl",
               "Autoloader"
@@ -600,6 +603,7 @@
           },
           "dials": {
             "targeting": {
+              "priority1": "TargetIndirect",
               "fallback": "Furthest"
             },
             "movement": "Hold",
@@ -612,7 +616,7 @@
   },
   {
     "name": "MECH_PHALANX_01",
-    "blurb": "Mech phalanx — three mechs brawl behind reactive plating, a rocket barrage and a healing Commander behind.",
+    "blurb": "Mech phalanx — two mechs brawl behind reactive plating, a heavy anchor, a rocket barrage and a healing Commander.",
     "config": {
       "machines": [
         {
@@ -664,27 +668,24 @@
         },
         {
           "instanceId": 2,
-          "typeId": "Mech",
-          "variantId": "Sentinel",
-          "zone": "Middle",
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "zone": "Front",
           "loadout": {
-            "weapon": "PulseLaser",
-            "defense": "MechShield",
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
             "utilities": [
               "FireControl",
               "Autoloader",
-              "ModularHardpoint",
-              "BulwarkMode"
+              "ECMSuite"
             ]
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetSupport",
-              "priority2": "TargetIndirect",
-              "fallback": "Furthest"
+              "fallback": "Closest"
             },
             "movement": "Hold",
-            "stance": "Neutral"
+            "stance": "Defensive"
           },
           "planB": []
         },
@@ -738,7 +739,7 @@
   },
   {
     "name": "COMBINED_ARMS_01",
-    "blurb": "Combined arms — a kinetic heavy anchor, an energy mech, an explosive backline and a gunship flank.",
+    "blurb": "Combined arms — a kinetic heavy, an energy mech, an explosive light, a SAM, and a single howitzer.",
     "config": {
       "machines": [
         {
@@ -790,21 +791,20 @@
         },
         {
           "instanceId": 2,
-          "typeId": "RocketArtillery",
-          "variantId": "Deluge",
-          "zone": "Middle",
+          "typeId": "LightTank",
+          "variantId": "Hunter",
+          "zone": "Front",
           "loadout": {
-            "weapon": "RocketBarrage",
-            "defense": "StandardHullRktArty",
+            "weapon": "GrenadeLauncher",
+            "defense": "LightArmor",
             "utilities": [
               "FireControl",
-              "Autoloader"
+              "DriveServos"
             ]
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
+              "fallback": "Closest"
             },
             "movement": "Hold",
             "stance": "Aggressive"
@@ -813,6 +813,29 @@
         },
         {
           "instanceId": 3,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "zone": "Middle",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "priority1": "TargetAir",
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": []
+        },
+        {
+          "instanceId": 4,
           "typeId": "Artillery",
           "variantId": "Longbow",
           "zone": "Rear",
@@ -832,35 +855,13 @@
             "stance": "Aggressive"
           },
           "planB": []
-        },
-        {
-          "instanceId": 4,
-          "typeId": "AttackHeli",
-          "variantId": "Warhog",
-          "zone": "Air",
-          "loadout": {
-            "weapon": "RocketPods",
-            "defense": "HeliArmor",
-            "utilities": [
-              "FireControl",
-              "Flares"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "fallback": "Furthest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
         }
       ]
     }
   },
   {
     "name": "SHIELD_WALL_01",
-    "blurb": "Shield wall — every hull runs a shield, a Commander topping them off. Grinds the clock down.",
+    "blurb": "Shield wall — every hull runs a shield, a Commander tops them off; a pure direct-fire grind, no sniper.",
     "config": {
       "machines": [
         {
@@ -891,12 +892,12 @@
           "variantId": "Grizzly",
           "zone": "Front",
           "loadout": {
-            "weapon": "Railgun",
+            "weapon": "SiegeLaser",
             "defense": "DeflectorShield",
             "utilities": [
               "FireControl",
               "Autoloader",
-              "Rangefinder"
+              "RocketPack"
             ]
           },
           "dials": {
@@ -985,7 +986,7 @@
   },
   {
     "name": "FLANK_RAIDERS_01",
-    "blurb": "Flank raiders — a light raider and a mech striker knife the front behind a heavy anchor and twin backline.",
+    "blurb": "Flank raiders — a light raider and a mech striker knife the front behind a heavy anchor and a lone barrage.",
     "config": {
       "machines": [
         {
@@ -1059,6 +1060,28 @@
         },
         {
           "instanceId": 3,
+          "typeId": "LightTank",
+          "variantId": "Scout",
+          "zone": "Middle",
+          "loadout": {
+            "weapon": "Autocannon",
+            "defense": "LightArmor",
+            "utilities": [
+              "FireControl",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Kite",
+            "stance": "Aggressive"
+          },
+          "planB": []
+        },
+        {
+          "instanceId": 4,
           "typeId": "RocketArtillery",
           "variantId": "Deluge",
           "zone": "Middle",
@@ -1079,35 +1102,13 @@
             "stance": "Aggressive"
           },
           "planB": []
-        },
-        {
-          "instanceId": 4,
-          "typeId": "Artillery",
-          "variantId": "Marksman",
-          "zone": "Rear",
-          "loadout": {
-            "weapon": "RailHowitzer",
-            "defense": "StandardHullArtillery",
-            "utilities": [
-              "FireControl",
-              "Autoloader"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "fallback": "Furthest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
         }
       ]
     }
   },
   {
     "name": "INTERCEPTOR_SCREEN_01",
-    "blurb": "Interceptor screen — two fighters and a single SAM screen a rocket line. Air-leaning, not all-in.",
+    "blurb": "Interceptor screen — a lone fighter over a double-SAM screen and a heavy anchor. Built to deny the sky.",
     "config": {
       "machines": [
         {
@@ -1116,7 +1117,7 @@
           "variantId": "Interceptor",
           "zone": "Air",
           "loadout": {
-            "weapon": "BeamProjector",
+            "weapon": "RocketPods",
             "defense": "HeliShield",
             "utilities": [
               "FireControl",
@@ -1134,28 +1135,6 @@
         },
         {
           "instanceId": 1,
-          "typeId": "AttackHeli",
-          "variantId": "Gunship",
-          "zone": "Air",
-          "loadout": {
-            "weapon": "RocketPods",
-            "defense": "HeliChaff",
-            "utilities": [
-              "FireControl",
-              "Flares"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "fallback": "Furthest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
-        },
-        {
-          "instanceId": 2,
           "typeId": "RocketArtillery",
           "variantId": "Sentry",
           "zone": "Middle",
@@ -1178,12 +1157,12 @@
           "planB": []
         },
         {
-          "instanceId": 3,
+          "instanceId": 2,
           "typeId": "RocketArtillery",
           "variantId": "Aegis",
           "zone": "Middle",
           "loadout": {
-            "weapon": "RocketBarrage",
+            "weapon": "SAMBattery",
             "defense": "RktArtyArmor",
             "utilities": [
               "FireControl",
@@ -1192,16 +1171,16 @@
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
+              "priority1": "TargetAir",
+              "fallback": "Closest"
             },
             "movement": "Hold",
-            "stance": "Aggressive"
+            "stance": "Neutral"
           },
           "planB": []
         },
         {
-          "instanceId": 4,
+          "instanceId": 3,
           "typeId": "HeavyTank",
           "variantId": "Bulwark",
           "zone": "Front",
@@ -1222,13 +1201,36 @@
             "stance": "Defensive"
           },
           "planB": []
+        },
+        {
+          "instanceId": 4,
+          "typeId": "Mech",
+          "variantId": "Striker",
+          "zone": "Front",
+          "loadout": {
+            "weapon": "AssaultCannon",
+            "defense": "MechArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Overdrive"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": []
         }
       ]
     }
   },
   {
     "name": "RAILGUN_LINE_01",
-    "blurb": "Railgun line — a three-wide kinetic front punches through armor, a flechette SAM overhead.",
+    "blurb": "Railgun line — a single deep-reach Railgun heads a direct-fire kinetic front, a SAM overhead.",
     "config": {
       "machines": [
         {
@@ -1258,30 +1260,6 @@
         {
           "instanceId": 1,
           "typeId": "HeavyTank",
-          "variantId": "Grizzly",
-          "zone": "Front",
-          "loadout": {
-            "weapon": "Railgun",
-            "defense": "HeavyArmor",
-            "utilities": [
-              "FireControl",
-              "Autoloader",
-              "Rangefinder"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "priority1": "TargetArmor",
-              "fallback": "Closest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
-        },
-        {
-          "instanceId": 2,
-          "typeId": "HeavyTank",
           "variantId": "Cavalier",
           "zone": "Front",
           "loadout": {
@@ -1303,22 +1281,45 @@
           "planB": []
         },
         {
-          "instanceId": 3,
-          "typeId": "RocketArtillery",
-          "variantId": "Aegis",
-          "zone": "Middle",
+          "instanceId": 2,
+          "typeId": "Mech",
+          "variantId": "Striker",
+          "zone": "Front",
           "loadout": {
-            "weapon": "FlechetteBattery",
-            "defense": "RktArtyArmor",
+            "weapon": "AssaultCannon",
+            "defense": "MechArmor",
             "utilities": [
               "FireControl",
-              "Autoloader"
+              "Autoloader",
+              "Overdrive"
             ]
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": []
+        },
+        {
+          "instanceId": 3,
+          "typeId": "LightTank",
+          "variantId": "Hunter",
+          "zone": "Middle",
+          "loadout": {
+            "weapon": "GaussRepeater",
+            "defense": "LightArmor",
+            "utilities": [
+              "FireControl",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "priority1": "TargetArmor",
+              "fallback": "Closest"
             },
             "movement": "Hold",
             "stance": "Aggressive"
@@ -1327,12 +1328,12 @@
         },
         {
           "instanceId": 4,
-          "typeId": "Artillery",
-          "variantId": "Longbow",
-          "zone": "Rear",
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "zone": "Middle",
           "loadout": {
-            "weapon": "RailHowitzer",
-            "defense": "StandardHullArtillery",
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
             "utilities": [
               "FireControl",
               "Autoloader"
@@ -1340,10 +1341,11 @@
           },
           "dials": {
             "targeting": {
-              "fallback": "Furthest"
+              "priority1": "TargetAir",
+              "fallback": "Closest"
             },
             "movement": "Hold",
-            "stance": "Aggressive"
+            "stance": "Neutral"
           },
           "planB": []
         }
@@ -1352,7 +1354,7 @@
   },
   {
     "name": "GUARDIAN_COLUMN_01",
-    "blurb": "Guardian column — a healing Commander and a deep artillery backfield outlast burst damage.",
+    "blurb": "Guardian column — a healing Commander behind a durable body and a lone howitzer outlasts burst damage.",
     "config": {
       "machines": [
         {
@@ -1389,7 +1391,7 @@
             "utilities": [
               "FireControl",
               "Autoloader",
-              "SuppressingFire"
+              "BulwarkMode"
             ]
           },
           "dials": {
@@ -1404,6 +1406,28 @@
         },
         {
           "instanceId": 2,
+          "typeId": "LightTank",
+          "variantId": "Hunter",
+          "zone": "Front",
+          "loadout": {
+            "weapon": "GaussRepeater",
+            "defense": "LightArmor",
+            "utilities": [
+              "FireControl",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
+          },
+          "planB": []
+        },
+        {
+          "instanceId": 3,
           "typeId": "Artillery",
           "variantId": "Longbow",
           "zone": "Rear",
@@ -1412,34 +1436,12 @@
             "defense": "StandardHullArtillery",
             "utilities": [
               "FireControl",
-              "RocketPack"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
-        },
-        {
-          "instanceId": 3,
-          "typeId": "Artillery",
-          "variantId": "Siege",
-          "zone": "Rear",
-          "loadout": {
-            "weapon": "Howitzer",
-            "defense": "ArtilleryArmor",
-            "utilities": [
-              "FireControl",
               "Autoloader"
             ]
           },
           "dials": {
             "targeting": {
+              "priority1": "TargetIndirect",
               "fallback": "Furthest"
             },
             "movement": "Hold",
@@ -1474,7 +1476,7 @@
   },
   {
     "name": "TURTLE_SAM_02",
-    "blurb": "Armor-wall turtle — twin heavy tanks, a SAM screen, twin howitzers. The comp that swept offense.",
+    "blurb": "Armor turtle — twin heavy tanks and a brawling mech behind a lone howitzer and a SAM screen.",
     "config": {
       "machines": [
         {
@@ -1506,12 +1508,12 @@
           "variantId": "Grizzly",
           "zone": "Front",
           "loadout": {
-            "weapon": "Railgun",
-            "defense": "DeflectorShield",
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
             "utilities": [
               "FireControl",
               "Autoloader",
-              "Rangefinder"
+              "Decoy"
             ]
           },
           "dials": {
@@ -1525,12 +1527,36 @@
         },
         {
           "instanceId": 2,
+          "typeId": "Mech",
+          "variantId": "Vanguard",
+          "zone": "Front",
+          "loadout": {
+            "weapon": "AssaultCannon",
+            "defense": "MechArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "BulwarkMode"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "priority1": "TargetArmor",
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": []
+        },
+        {
+          "instanceId": 3,
           "typeId": "RocketArtillery",
           "variantId": "Aegis",
           "zone": "Middle",
           "loadout": {
             "weapon": "SAMBattery",
-            "defense": "StandardHullRktArty",
+            "defense": "RktArtyArmor",
             "utilities": [
               "FireControl",
               "Autoloader"
@@ -1547,7 +1573,7 @@
           "planB": []
         },
         {
-          "instanceId": 3,
+          "instanceId": 4,
           "typeId": "Artillery",
           "variantId": "Longbow",
           "zone": "Rear",
@@ -1568,35 +1594,13 @@
             "stance": "Aggressive"
           },
           "planB": []
-        },
-        {
-          "instanceId": 4,
-          "typeId": "Artillery",
-          "variantId": "Siege",
-          "zone": "Rear",
-          "loadout": {
-            "weapon": "Howitzer",
-            "defense": "StandardHullArtillery",
-            "utilities": [
-              "FireControl",
-              "Autoloader"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "fallback": "Furthest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
         }
       ]
     }
   },
   {
     "name": "AIR_WING_02",
-    "blurb": "Air wing — twin gunships strike from the sky while a heavy anchor and an artillery backfield hold the ground.",
+    "blurb": "Air wing — a lone gunship strikes from the sky while a heavy anchor, a mech and a SAM hold the ground.",
     "config": {
       "machines": [
         {
@@ -1623,38 +1627,16 @@
         },
         {
           "instanceId": 1,
-          "typeId": "AttackHeli",
-          "variantId": "Interceptor",
-          "zone": "Air",
-          "loadout": {
-            "weapon": "ChainGun",
-            "defense": "HeliChaff",
-            "utilities": [
-              "FireControl",
-              "Flares"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "fallback": "Closest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
-        },
-        {
-          "instanceId": 2,
           "typeId": "HeavyTank",
           "variantId": "Grizzly",
           "zone": "Front",
           "loadout": {
-            "weapon": "Railgun",
+            "weapon": "HeavyCannon",
             "defense": "CompositeArmor",
             "utilities": [
               "FireControl",
               "Autoloader",
-              "Rangefinder"
+              "Decoy"
             ]
           },
           "dials": {
@@ -1667,12 +1649,58 @@
           "planB": []
         },
         {
+          "instanceId": 2,
+          "typeId": "Mech",
+          "variantId": "Vanguard",
+          "zone": "Front",
+          "loadout": {
+            "weapon": "AssaultCannon",
+            "defense": "MechArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Overdrive"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": []
+        },
+        {
           "instanceId": 3,
+          "typeId": "LightTank",
+          "variantId": "Scout",
+          "zone": "Front",
+          "loadout": {
+            "weapon": "Autocannon",
+            "defense": "LightArmor",
+            "utilities": [
+              "FireControl",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "priority1": "TargetArmor",
+              "fallback": "Closest"
+            },
+            "movement": "Kite",
+            "stance": "Aggressive"
+          },
+          "planB": []
+        },
+        {
+          "instanceId": 4,
           "typeId": "RocketArtillery",
           "variantId": "Aegis",
           "zone": "Middle",
           "loadout": {
-            "weapon": "RocketBarrage",
+            "weapon": "SAMBattery",
             "defense": "RktArtyArmor",
             "utilities": [
               "FireControl",
@@ -1681,33 +1709,11 @@
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
+              "priority1": "TargetAir",
+              "fallback": "Closest"
             },
             "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
-        },
-        {
-          "instanceId": 4,
-          "typeId": "Artillery",
-          "variantId": "Marksman",
-          "zone": "Rear",
-          "loadout": {
-            "weapon": "RailHowitzer",
-            "defense": "StandardHullArtillery",
-            "utilities": [
-              "FireControl",
-              "Autoloader"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "fallback": "Furthest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
+            "stance": "Neutral"
           },
           "planB": []
         }
@@ -1716,7 +1722,7 @@
   },
   {
     "name": "LIGHT_SWARM_02",
-    "blurb": "Light swarm — fast light raiders kite ahead of a triple-artillery backline that does the killing.",
+    "blurb": "Light swarm — two fast light raiders and a mech kite ahead of a heavy anchor and a lone rail gun.",
     "config": {
       "machines": [
         {
@@ -1766,44 +1772,44 @@
         },
         {
           "instanceId": 2,
-          "typeId": "RocketArtillery",
-          "variantId": "Aegis",
-          "zone": "Middle",
+          "typeId": "HeavyTank",
+          "variantId": "Bulwark",
+          "zone": "Front",
           "loadout": {
-            "weapon": "RocketBarrage",
-            "defense": "RktArtyArmor",
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
             "utilities": [
               "FireControl",
-              "Autoloader"
+              "Autoloader",
+              "ECMSuite"
             ]
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
+              "fallback": "Closest"
             },
             "movement": "Hold",
-            "stance": "Aggressive"
+            "stance": "Defensive"
           },
           "planB": []
         },
         {
           "instanceId": 3,
-          "typeId": "Artillery",
-          "variantId": "Siege",
-          "zone": "Rear",
+          "typeId": "Mech",
+          "variantId": "Vanguard",
+          "zone": "Middle",
           "loadout": {
-            "weapon": "Howitzer",
-            "defense": "StandardHullArtillery",
+            "weapon": "AssaultCannon",
+            "defense": "MechArmor",
             "utilities": [
               "FireControl",
-              "Autoloader"
+              "Autoloader",
+              "Overdrive"
             ]
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
+              "fallback": "Closest"
             },
             "movement": "Hold",
             "stance": "Aggressive"
@@ -1813,7 +1819,7 @@
         {
           "instanceId": 4,
           "typeId": "Artillery",
-          "variantId": "Marksman",
+          "variantId": "Siege",
           "zone": "Rear",
           "loadout": {
             "weapon": "RailHowitzer",
@@ -1837,7 +1843,7 @@
   },
   {
     "name": "ENERGY_LANCE_02",
-    "blurb": "Energy lance — every barrel fires Energy to strip shields, a Commander refreshing its own.",
+    "blurb": "Energy lance — Siege, Pulse and Arc lasers strip shields, a lone Ion tube reaches back, a Commander refreshes.",
     "config": {
       "machines": [
         {
@@ -1889,24 +1895,24 @@
         },
         {
           "instanceId": 2,
-          "typeId": "RocketArtillery",
-          "variantId": "Aegis",
-          "zone": "Middle",
+          "typeId": "LightTank",
+          "variantId": "Outrider",
+          "zone": "Front",
           "loadout": {
-            "weapon": "LaserBattery",
-            "defense": "RktArtyShield",
+            "weapon": "ArcRepeater",
+            "defense": "LightShield",
             "utilities": [
               "FireControl",
-              "Autoloader"
+              "SensorSuite",
+              "DriveServos"
             ]
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
+              "fallback": "Closest"
             },
             "movement": "Hold",
-            "stance": "Neutral"
+            "stance": "Aggressive"
           },
           "planB": []
         },
@@ -1959,7 +1965,7 @@
   },
   {
     "name": "EXPLOSIVE_SATURATION_02",
-    "blurb": "Explosive saturation — demolition guns, rocket barrages and howitzers bury the front in splash.",
+    "blurb": "Explosive saturation — demolition guns, missile racks and grenade launchers bury the front in splash.",
     "config": {
       "machines": [
         {
@@ -1987,21 +1993,21 @@
         },
         {
           "instanceId": 1,
-          "typeId": "RocketArtillery",
-          "variantId": "Sentry",
-          "zone": "Middle",
+          "typeId": "Mech",
+          "variantId": "Vanguard",
+          "zone": "Front",
           "loadout": {
-            "weapon": "RocketBarrage",
-            "defense": "RktArtyArmor",
+            "weapon": "MissileRack",
+            "defense": "MechArmor",
             "utilities": [
+              "FireControl",
               "Autoloader",
-              "Entrench"
+              "Overdrive"
             ]
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
+              "fallback": "Closest"
             },
             "movement": "Hold",
             "stance": "Aggressive"
@@ -2010,44 +2016,44 @@
         },
         {
           "instanceId": 2,
-          "typeId": "RocketArtillery",
-          "variantId": "Deluge",
-          "zone": "Middle",
+          "typeId": "Mech",
+          "variantId": "Striker",
+          "zone": "Front",
           "loadout": {
-            "weapon": "SAMBattery",
-            "defense": "StandardHullRktArty",
+            "weapon": "MissileRack",
+            "defense": "MechReactive",
             "utilities": [
               "FireControl",
-              "Autoloader"
+              "Autoloader",
+              "BulwarkMode"
             ]
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetAir",
+              "priority1": "TargetArmor",
               "fallback": "Closest"
             },
             "movement": "Hold",
-            "stance": "Neutral"
+            "stance": "Aggressive"
           },
           "planB": []
         },
         {
           "instanceId": 3,
-          "typeId": "Artillery",
-          "variantId": "Siege",
-          "zone": "Rear",
+          "typeId": "LightTank",
+          "variantId": "Outrider",
+          "zone": "Middle",
           "loadout": {
-            "weapon": "Howitzer",
-            "defense": "StandardHullArtillery",
+            "weapon": "GrenadeLauncher",
+            "defense": "LightArmor",
             "utilities": [
               "FireControl",
-              "Autoloader"
+              "DriveServos"
             ]
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
+              "fallback": "Closest"
             },
             "movement": "Hold",
             "stance": "Aggressive"
@@ -2056,12 +2062,12 @@
         },
         {
           "instanceId": 4,
-          "typeId": "Artillery",
-          "variantId": "Longbow",
-          "zone": "Rear",
+          "typeId": "RocketArtillery",
+          "variantId": "Deluge",
+          "zone": "Middle",
           "loadout": {
-            "weapon": "Howitzer",
-            "defense": "ArtilleryArmor",
+            "weapon": "RocketBarrage",
+            "defense": "StandardHullRktArty",
             "utilities": [
               "FireControl",
               "Autoloader"
@@ -2069,6 +2075,7 @@
           },
           "dials": {
             "targeting": {
+              "priority1": "TargetIndirect",
               "fallback": "Furthest"
             },
             "movement": "Hold",
@@ -2081,7 +2088,7 @@
   },
   {
     "name": "MECH_PHALANX_02",
-    "blurb": "Mech phalanx — three mechs brawl behind reactive plating, a rocket barrage and a healing Commander behind.",
+    "blurb": "Mech phalanx — two mechs brawl behind reactive plating, a heavy anchor, a rocket barrage and a healing Commander.",
     "config": {
       "machines": [
         {
@@ -2110,30 +2117,6 @@
         {
           "instanceId": 1,
           "typeId": "Mech",
-          "variantId": "Striker",
-          "zone": "Front",
-          "loadout": {
-            "weapon": "PulseLaser",
-            "defense": "MechArmor",
-            "utilities": [
-              "FireControl",
-              "Autoloader",
-              "BulwarkMode"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "priority1": "TargetArmor",
-              "fallback": "Closest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
-        },
-        {
-          "instanceId": 2,
-          "typeId": "Mech",
           "variantId": "Sentinel",
           "zone": "Middle",
           "loadout": {
@@ -2154,6 +2137,29 @@
             },
             "movement": "Hold",
             "stance": "Neutral"
+          },
+          "planB": []
+        },
+        {
+          "instanceId": 2,
+          "typeId": "HeavyTank",
+          "variantId": "Grizzly",
+          "zone": "Front",
+          "loadout": {
+            "weapon": "HeavyCannon",
+            "defense": "CompositeArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Decoy"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Defensive"
           },
           "planB": []
         },
@@ -2207,7 +2213,7 @@
   },
   {
     "name": "COMBINED_ARMS_02",
-    "blurb": "Combined arms — a kinetic heavy anchor, an energy mech, an explosive backline and a gunship flank.",
+    "blurb": "Combined arms — a kinetic heavy, an energy mech, an explosive light, a SAM, and a single howitzer.",
     "config": {
       "machines": [
         {
@@ -2216,7 +2222,7 @@
           "variantId": "Grizzly",
           "zone": "Front",
           "loadout": {
-            "weapon": "Railgun",
+            "weapon": "HeavyCannon",
             "defense": "CompositeArmor",
             "utilities": [
               "FireControl",
@@ -2244,7 +2250,7 @@
             "utilities": [
               "FireControl",
               "Autoloader",
-              "SuppressingFire"
+              "Overdrive"
             ]
           },
           "dials": {
@@ -2258,21 +2264,21 @@
         },
         {
           "instanceId": 2,
-          "typeId": "RocketArtillery",
-          "variantId": "Aegis",
-          "zone": "Middle",
+          "typeId": "LightTank",
+          "variantId": "Scout",
+          "zone": "Front",
           "loadout": {
-            "weapon": "RocketBarrage",
-            "defense": "RktArtyArmor",
+            "weapon": "GrenadeLauncher",
+            "defense": "LightArmor",
             "utilities": [
               "FireControl",
-              "Autoloader"
+              "DriveServos"
             ]
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
+              "priority1": "TargetArmor",
+              "fallback": "Closest"
             },
             "movement": "Hold",
             "stance": "Aggressive"
@@ -2281,6 +2287,29 @@
         },
         {
           "instanceId": 3,
+          "typeId": "RocketArtillery",
+          "variantId": "Aegis",
+          "zone": "Middle",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "RktArtyArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "priority1": "TargetAir",
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": []
+        },
+        {
+          "instanceId": 4,
           "typeId": "Artillery",
           "variantId": "Marksman",
           "zone": "Rear",
@@ -2300,37 +2329,13 @@
             "stance": "Aggressive"
           },
           "planB": []
-        },
-        {
-          "instanceId": 4,
-          "typeId": "AttackHeli",
-          "variantId": "Gunship",
-          "zone": "Air",
-          "loadout": {
-            "weapon": "RocketPods",
-            "defense": "HeliChaff",
-            "utilities": [
-              "FireControl",
-              "Flares"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "priority1": "TargetSupport",
-              "priority2": "TargetIndirect",
-              "fallback": "Furthest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
         }
       ]
     }
   },
   {
     "name": "SHIELD_WALL_02",
-    "blurb": "Shield wall — every hull runs a shield, a Commander topping them off. Grinds the clock down.",
+    "blurb": "Shield wall — every hull runs a shield, a Commander tops them off; a pure direct-fire grind, no sniper.",
     "config": {
       "machines": [
         {
@@ -2453,7 +2458,7 @@
   },
   {
     "name": "FLANK_RAIDERS_02",
-    "blurb": "Flank raiders — a light raider and a mech striker knife the front behind a heavy anchor and twin backline.",
+    "blurb": "Flank raiders — a light raider and a mech striker knife the front behind a heavy anchor and a lone barrage.",
     "config": {
       "machines": [
         {
@@ -2527,6 +2532,29 @@
         },
         {
           "instanceId": 3,
+          "typeId": "Mech",
+          "variantId": "Striker",
+          "zone": "Middle",
+          "loadout": {
+            "weapon": "PulseLaser",
+            "defense": "MechReactive",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Overdrive"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": []
+        },
+        {
+          "instanceId": 4,
           "typeId": "RocketArtillery",
           "variantId": "Aegis",
           "zone": "Middle",
@@ -2547,62 +2575,17 @@
             "stance": "Aggressive"
           },
           "planB": []
-        },
-        {
-          "instanceId": 4,
-          "typeId": "Artillery",
-          "variantId": "Longbow",
-          "zone": "Rear",
-          "loadout": {
-            "weapon": "RailHowitzer",
-            "defense": "StandardHullArtillery",
-            "utilities": [
-              "FireControl",
-              "Autoloader"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "fallback": "Furthest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
         }
       ]
     }
   },
   {
     "name": "INTERCEPTOR_SCREEN_02",
-    "blurb": "Interceptor screen — two fighters and a single SAM screen a rocket line. Air-leaning, not all-in.",
+    "blurb": "Interceptor screen — a lone fighter over a double-SAM screen and a heavy anchor. Built to deny the sky.",
     "config": {
       "machines": [
         {
           "instanceId": 0,
-          "typeId": "AttackHeli",
-          "variantId": "Interceptor",
-          "zone": "Air",
-          "loadout": {
-            "weapon": "ChainGun",
-            "defense": "HeliShield",
-            "utilities": [
-              "FireControl",
-              "Flares"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "priority1": "TargetAir",
-              "fallback": "Closest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
-        },
-        {
-          "instanceId": 1,
           "typeId": "AttackHeli",
           "variantId": "Warhog",
           "zone": "Air",
@@ -2624,7 +2607,7 @@
           "planB": []
         },
         {
-          "instanceId": 2,
+          "instanceId": 1,
           "typeId": "RocketArtillery",
           "variantId": "Sentry",
           "zone": "Middle",
@@ -2647,12 +2630,12 @@
           "planB": []
         },
         {
-          "instanceId": 3,
+          "instanceId": 2,
           "typeId": "RocketArtillery",
           "variantId": "Deluge",
           "zone": "Middle",
           "loadout": {
-            "weapon": "RocketBarrage",
+            "weapon": "SAMBattery",
             "defense": "RktArtyArmor",
             "utilities": [
               "FireControl",
@@ -2661,21 +2644,21 @@
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
+              "priority1": "TargetAir",
+              "fallback": "Closest"
             },
             "movement": "Hold",
-            "stance": "Aggressive"
+            "stance": "Neutral"
           },
           "planB": []
         },
         {
-          "instanceId": 4,
+          "instanceId": 3,
           "typeId": "HeavyTank",
           "variantId": "Grizzly",
           "zone": "Front",
           "loadout": {
-            "weapon": "Railgun",
+            "weapon": "HeavyCannon",
             "defense": "DeflectorShield",
             "utilities": [
               "FireControl",
@@ -2691,13 +2674,36 @@
             "stance": "Defensive"
           },
           "planB": []
+        },
+        {
+          "instanceId": 4,
+          "typeId": "Mech",
+          "variantId": "Vanguard",
+          "zone": "Front",
+          "loadout": {
+            "weapon": "AssaultCannon",
+            "defense": "MechArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Overdrive"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": []
         }
       ]
     }
   },
   {
     "name": "RAILGUN_LINE_02",
-    "blurb": "Railgun line — a three-wide kinetic front punches through armor, a flechette SAM overhead.",
+    "blurb": "Railgun line — a single deep-reach Railgun heads a direct-fire kinetic front, a SAM overhead.",
     "config": {
       "machines": [
         {
@@ -2730,7 +2736,7 @@
           "variantId": "Cavalier",
           "zone": "Front",
           "loadout": {
-            "weapon": "Railgun",
+            "weapon": "HeavyCannon",
             "defense": "CompositeArmor",
             "utilities": [
               "FireControl",
@@ -2740,7 +2746,6 @@
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetArmor",
               "fallback": "Closest"
             },
             "movement": "Hold",
@@ -2751,7 +2756,7 @@
         {
           "instanceId": 2,
           "typeId": "Mech",
-          "variantId": "Striker",
+          "variantId": "Vanguard",
           "zone": "Front",
           "loadout": {
             "weapon": "AssaultCannon",
@@ -2773,21 +2778,21 @@
         },
         {
           "instanceId": 3,
-          "typeId": "RocketArtillery",
-          "variantId": "Sentry",
+          "typeId": "LightTank",
+          "variantId": "Outrider",
           "zone": "Middle",
           "loadout": {
-            "weapon": "FlechetteBattery",
-            "defense": "RktArtyArmor",
+            "weapon": "GaussRepeater",
+            "defense": "LightArmor",
             "utilities": [
               "FireControl",
-              "Autoloader"
+              "DriveServos"
             ]
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
+              "priority1": "TargetArmor",
+              "fallback": "Closest"
             },
             "movement": "Hold",
             "stance": "Aggressive"
@@ -2796,12 +2801,12 @@
         },
         {
           "instanceId": 4,
-          "typeId": "Artillery",
-          "variantId": "Marksman",
-          "zone": "Rear",
+          "typeId": "RocketArtillery",
+          "variantId": "Aegis",
+          "zone": "Middle",
           "loadout": {
-            "weapon": "RailHowitzer",
-            "defense": "StandardHullArtillery",
+            "weapon": "SAMBattery",
+            "defense": "RktArtyArmor",
             "utilities": [
               "FireControl",
               "Autoloader"
@@ -2809,10 +2814,11 @@
           },
           "dials": {
             "targeting": {
-              "fallback": "Furthest"
+              "priority1": "TargetAir",
+              "fallback": "Closest"
             },
             "movement": "Hold",
-            "stance": "Aggressive"
+            "stance": "Neutral"
           },
           "planB": []
         }
@@ -2821,7 +2827,7 @@
   },
   {
     "name": "GUARDIAN_COLUMN_02",
-    "blurb": "Guardian column — a healing Commander and a deep artillery backfield outlast burst damage.",
+    "blurb": "Guardian column — a healing Commander behind a durable body and a lone howitzer outlasts burst damage.",
     "config": {
       "machines": [
         {
@@ -2834,7 +2840,8 @@
             "defense": "CompositeArmor",
             "utilities": [
               "FireControl",
-              "FieldRepair"
+              "Autoloader",
+              "Decoy"
             ]
           },
           "dials": {
@@ -2856,8 +2863,9 @@
             "defense": "MechShield",
             "utilities": [
               "FireControl",
+              "Autoloader",
               "ModularHardpoint",
-              "RepairNanites"
+              "BulwarkMode"
             ]
           },
           "dials": {
@@ -2944,7 +2952,7 @@
   },
   {
     "name": "TURTLE_SAM_03",
-    "blurb": "Armor-wall turtle — twin heavy tanks, a SAM screen, twin howitzers. The comp that swept offense.",
+    "blurb": "Armor turtle — twin heavy tanks and a brawling mech behind a lone howitzer and a SAM screen.",
     "config": {
       "machines": [
         {
@@ -2976,12 +2984,12 @@
           "variantId": "Bulwark",
           "zone": "Front",
           "loadout": {
-            "weapon": "Railgun",
+            "weapon": "HeavyCannon",
             "defense": "CompositeArmor",
             "utilities": [
               "FireControl",
               "Autoloader",
-              "Decoy"
+              "ECMSuite"
             ]
           },
           "dials": {
@@ -2996,6 +3004,28 @@
         },
         {
           "instanceId": 2,
+          "typeId": "LightTank",
+          "variantId": "Hunter",
+          "zone": "Front",
+          "loadout": {
+            "weapon": "GaussRepeater",
+            "defense": "LightArmor",
+            "utilities": [
+              "FireControl",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": []
+        },
+        {
+          "instanceId": 3,
           "typeId": "RocketArtillery",
           "variantId": "Sentry",
           "zone": "Middle",
@@ -3018,29 +3048,6 @@
           "planB": []
         },
         {
-          "instanceId": 3,
-          "typeId": "Artillery",
-          "variantId": "Longbow",
-          "zone": "Rear",
-          "loadout": {
-            "weapon": "Howitzer",
-            "defense": "StandardHullArtillery",
-            "utilities": [
-              "FireControl",
-              "Autoloader"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
-        },
-        {
           "instanceId": 4,
           "typeId": "Artillery",
           "variantId": "Marksman",
@@ -3055,6 +3062,7 @@
           },
           "dials": {
             "targeting": {
+              "priority1": "TargetIndirect",
               "fallback": "Furthest"
             },
             "movement": "Hold",
@@ -3067,33 +3075,11 @@
   },
   {
     "name": "AIR_WING_03",
-    "blurb": "Air wing — twin gunships strike from the sky while a heavy anchor and an artillery backfield hold the ground.",
+    "blurb": "Air wing — a lone gunship strikes from the sky while a heavy anchor, a mech and a SAM hold the ground.",
     "config": {
       "machines": [
         {
           "instanceId": 0,
-          "typeId": "AttackHeli",
-          "variantId": "Warhog",
-          "zone": "Air",
-          "loadout": {
-            "weapon": "RocketPods",
-            "defense": "HeliArmor",
-            "utilities": [
-              "FireControl",
-              "Flares"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "fallback": "Furthest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
-        },
-        {
-          "instanceId": 1,
           "typeId": "AttackHeli",
           "variantId": "Interceptor",
           "zone": "Air",
@@ -3115,13 +3101,13 @@
           "planB": []
         },
         {
-          "instanceId": 2,
+          "instanceId": 1,
           "typeId": "HeavyTank",
           "variantId": "Cavalier",
           "zone": "Front",
           "loadout": {
             "weapon": "HeavyCannon",
-            "defense": "CompositeArmor",
+            "defense": "HeavyArmor",
             "utilities": [
               "FireControl",
               "Autoloader",
@@ -3138,12 +3124,58 @@
           "planB": []
         },
         {
+          "instanceId": 2,
+          "typeId": "Mech",
+          "variantId": "Striker",
+          "zone": "Front",
+          "loadout": {
+            "weapon": "PulseLaser",
+            "defense": "MechReactive",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Overdrive"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "priority1": "TargetArmor",
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": []
+        },
+        {
           "instanceId": 3,
+          "typeId": "Commander",
+          "variantId": "CommandPost",
+          "zone": "Rear",
+          "loadout": {
+            "weapon": "HealProjector",
+            "defense": "SupportArmor",
+            "utilities": [
+              "FireControl",
+              "Amplifier"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": []
+        },
+        {
+          "instanceId": 4,
           "typeId": "RocketArtillery",
-          "variantId": "Deluge",
+          "variantId": "Sentry",
           "zone": "Middle",
           "loadout": {
-            "weapon": "RocketBarrage",
+            "weapon": "SAMBattery",
             "defense": "StandardHullRktArty",
             "utilities": [
               "FireControl",
@@ -3152,33 +3184,11 @@
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
+              "priority1": "TargetAir",
+              "fallback": "Closest"
             },
             "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
-        },
-        {
-          "instanceId": 4,
-          "typeId": "Artillery",
-          "variantId": "Siege",
-          "zone": "Rear",
-          "loadout": {
-            "weapon": "Howitzer",
-            "defense": "ArtilleryArmor",
-            "utilities": [
-              "FireControl",
-              "Autoloader"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "fallback": "Furthest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
+            "stance": "Neutral"
           },
           "planB": []
         }
@@ -3187,7 +3197,7 @@
   },
   {
     "name": "LIGHT_SWARM_03",
-    "blurb": "Light swarm — fast light raiders kite ahead of a triple-artillery backline that does the killing.",
+    "blurb": "Light swarm — two fast light raiders and a mech kite ahead of a heavy anchor and a lone rail gun.",
     "config": {
       "machines": [
         {
@@ -3237,44 +3247,44 @@
         },
         {
           "instanceId": 2,
-          "typeId": "RocketArtillery",
-          "variantId": "Deluge",
-          "zone": "Middle",
+          "typeId": "HeavyTank",
+          "variantId": "Cavalier",
+          "zone": "Front",
           "loadout": {
-            "weapon": "RocketBarrage",
-            "defense": "StandardHullRktArty",
+            "weapon": "HeavyCannon",
+            "defense": "HeavyArmor",
             "utilities": [
               "FireControl",
-              "Autoloader"
+              "Autoloader",
+              "SiegeMode"
             ]
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
+              "fallback": "Closest"
             },
             "movement": "Hold",
-            "stance": "Aggressive"
+            "stance": "Defensive"
           },
           "planB": []
         },
         {
           "instanceId": 3,
-          "typeId": "Artillery",
-          "variantId": "Longbow",
-          "zone": "Rear",
+          "typeId": "Mech",
+          "variantId": "Striker",
+          "zone": "Middle",
           "loadout": {
-            "weapon": "Howitzer",
-            "defense": "StandardHullArtillery",
+            "weapon": "PulseLaser",
+            "defense": "MechReactive",
             "utilities": [
               "FireControl",
-              "Autoloader"
+              "Autoloader",
+              "Overdrive"
             ]
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
+              "fallback": "Closest"
             },
             "movement": "Hold",
             "stance": "Aggressive"
@@ -3284,7 +3294,7 @@
         {
           "instanceId": 4,
           "typeId": "Artillery",
-          "variantId": "Siege",
+          "variantId": "Longbow",
           "zone": "Rear",
           "loadout": {
             "weapon": "RailHowitzer",
@@ -3308,7 +3318,7 @@
   },
   {
     "name": "ENERGY_LANCE_03",
-    "blurb": "Energy lance — every barrel fires Energy to strip shields, a Commander refreshing its own.",
+    "blurb": "Energy lance — Siege, Pulse and Arc lasers strip shields, a lone Ion tube reaches back, a Commander refreshes.",
     "config": {
       "machines": [
         {
@@ -3344,8 +3354,9 @@
             "defense": "MechReactive",
             "utilities": [
               "FireControl",
+              "Autoloader",
               "ModularHardpoint",
-              "SuppressingFire"
+              "BulwarkMode"
             ]
           },
           "dials": {
@@ -3431,21 +3442,21 @@
   },
   {
     "name": "EXPLOSIVE_SATURATION_03",
-    "blurb": "Explosive saturation — demolition guns, rocket barrages and howitzers bury the front in splash.",
+    "blurb": "Explosive saturation — demolition guns, missile racks and grenade launchers bury the front in splash.",
     "config": {
       "machines": [
         {
           "instanceId": 0,
-          "typeId": "Mech",
-          "variantId": "Vanguard",
+          "typeId": "HeavyTank",
+          "variantId": "Cavalier",
           "zone": "Front",
           "loadout": {
-            "weapon": "MissileRack",
-            "defense": "MechArmor",
+            "weapon": "DemolitionGun",
+            "defense": "BlastPlating",
             "utilities": [
               "FireControl",
               "Autoloader",
-              "SuppressingFire"
+              "RocketPack"
             ]
           },
           "dials": {
@@ -3464,11 +3475,33 @@
           "zone": "Front",
           "loadout": {
             "weapon": "MissileRack",
-            "defense": "MechReactive",
+            "defense": "MechArmor",
             "utilities": [
               "FireControl",
               "Autoloader",
               "Overdrive"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": []
+        },
+        {
+          "instanceId": 2,
+          "typeId": "LightTank",
+          "variantId": "Hunter",
+          "zone": "Front",
+          "loadout": {
+            "weapon": "GrenadeLauncher",
+            "defense": "LightArmor",
+            "utilities": [
+              "FireControl",
+              "DriveServos"
             ]
           },
           "dials": {
@@ -3482,7 +3515,7 @@
           "planB": []
         },
         {
-          "instanceId": 2,
+          "instanceId": 3,
           "typeId": "RocketArtillery",
           "variantId": "Deluge",
           "zone": "Middle",
@@ -3490,31 +3523,8 @@
             "weapon": "RocketBarrage",
             "defense": "StandardHullRktArty",
             "utilities": [
-              "Autoloader",
-              "Entrench"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
-        },
-        {
-          "instanceId": 3,
-          "typeId": "Artillery",
-          "variantId": "Marksman",
-          "zone": "Rear",
-          "loadout": {
-            "weapon": "Howitzer",
-            "defense": "StandardHullArtillery",
-            "utilities": [
               "FireControl",
-              "RocketPack"
+              "Autoloader"
             ]
           },
           "dials": {
@@ -3529,12 +3539,12 @@
         },
         {
           "instanceId": 4,
-          "typeId": "Artillery",
-          "variantId": "Siege",
-          "zone": "Rear",
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "zone": "Middle",
           "loadout": {
-            "weapon": "Howitzer",
-            "defense": "ArtilleryArmor",
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
             "utilities": [
               "FireControl",
               "Autoloader"
@@ -3542,10 +3552,11 @@
           },
           "dials": {
             "targeting": {
-              "fallback": "Furthest"
+              "priority1": "TargetAir",
+              "fallback": "Closest"
             },
             "movement": "Hold",
-            "stance": "Aggressive"
+            "stance": "Neutral"
           },
           "planB": []
         }
@@ -3554,34 +3565,11 @@
   },
   {
     "name": "MECH_PHALANX_03",
-    "blurb": "Mech phalanx — three mechs brawl behind reactive plating, a rocket barrage and a healing Commander behind.",
+    "blurb": "Mech phalanx — two mechs brawl behind reactive plating, a heavy anchor, a rocket barrage and a healing Commander.",
     "config": {
       "machines": [
         {
           "instanceId": 0,
-          "typeId": "Mech",
-          "variantId": "Vanguard",
-          "zone": "Front",
-          "loadout": {
-            "weapon": "MissileRack",
-            "defense": "MechArmor",
-            "utilities": [
-              "FireControl",
-              "Autoloader",
-              "SuppressingFire"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "fallback": "Closest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
-        },
-        {
-          "instanceId": 1,
           "typeId": "Mech",
           "variantId": "Striker",
           "zone": "Front",
@@ -3596,6 +3584,29 @@
           },
           "dials": {
             "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": []
+        },
+        {
+          "instanceId": 1,
+          "typeId": "Mech",
+          "variantId": "Vanguard",
+          "zone": "Front",
+          "loadout": {
+            "weapon": "AssaultCannon",
+            "defense": "MechArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "BulwarkMode"
+            ]
+          },
+          "dials": {
+            "targeting": {
               "priority1": "TargetArmor",
               "fallback": "Closest"
             },
@@ -3606,27 +3617,24 @@
         },
         {
           "instanceId": 2,
-          "typeId": "Mech",
-          "variantId": "Sentinel",
-          "zone": "Middle",
+          "typeId": "HeavyTank",
+          "variantId": "Cavalier",
+          "zone": "Front",
           "loadout": {
-            "weapon": "PulseLaser",
-            "defense": "MechShield",
+            "weapon": "HeavyCannon",
+            "defense": "HeavyArmor",
             "utilities": [
               "FireControl",
               "Autoloader",
-              "ModularHardpoint",
-              "BulwarkMode"
+              "SiegeMode"
             ]
           },
           "dials": {
             "targeting": {
-              "priority1": "TargetSupport",
-              "priority2": "TargetIndirect",
-              "fallback": "Furthest"
+              "fallback": "Closest"
             },
             "movement": "Hold",
-            "stance": "Neutral"
+            "stance": "Defensive"
           },
           "planB": []
         },
@@ -3663,7 +3671,7 @@
             "defense": "SupportArmor",
             "utilities": [
               "FireControl",
-              "Amplifier"
+              "CoordinationNet"
             ]
           },
           "dials": {
@@ -3680,7 +3688,7 @@
   },
   {
     "name": "COMBINED_ARMS_03",
-    "blurb": "Combined arms — a kinetic heavy anchor, an energy mech, an explosive backline and a gunship flank.",
+    "blurb": "Combined arms — a kinetic heavy, an energy mech, an explosive light, a SAM, and a single howitzer.",
     "config": {
       "machines": [
         {
@@ -3710,7 +3718,7 @@
           "instanceId": 1,
           "typeId": "Mech",
           "variantId": "Sentinel",
-          "zone": "Front",
+          "zone": "Middle",
           "loadout": {
             "weapon": "PulseLaser",
             "defense": "MechShield",
@@ -3734,53 +3742,8 @@
         },
         {
           "instanceId": 2,
-          "typeId": "RocketArtillery",
-          "variantId": "Deluge",
-          "zone": "Middle",
-          "loadout": {
-            "weapon": "RocketBarrage",
-            "defense": "StandardHullRktArty",
-            "utilities": [
-              "FireControl",
-              "Autoloader"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
-        },
-        {
-          "instanceId": 3,
-          "typeId": "Artillery",
-          "variantId": "Siege",
-          "zone": "Rear",
-          "loadout": {
-            "weapon": "Howitzer",
-            "defense": "ArtilleryArmor",
-            "utilities": [
-              "FireControl",
-              "Autoloader"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "fallback": "Furthest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
-        },
-        {
-          "instanceId": 4,
           "typeId": "AttackHeli",
-          "variantId": "Interceptor",
+          "variantId": "Gunship",
           "zone": "Air",
           "loadout": {
             "weapon": "RocketPods",
@@ -3792,10 +3755,56 @@
           },
           "dials": {
             "targeting": {
+              "fallback": "Furthest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": []
+        },
+        {
+          "instanceId": 3,
+          "typeId": "LightTank",
+          "variantId": "Scout",
+          "zone": "Front",
+          "loadout": {
+            "weapon": "Autocannon",
+            "defense": "LightArmor",
+            "utilities": [
+              "FireControl",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "priority1": "TargetArmor",
               "fallback": "Closest"
             },
             "movement": "Hold",
             "stance": "Aggressive"
+          },
+          "planB": []
+        },
+        {
+          "instanceId": 4,
+          "typeId": "RocketArtillery",
+          "variantId": "Sentry",
+          "zone": "Middle",
+          "loadout": {
+            "weapon": "SAMBattery",
+            "defense": "StandardHullRktArty",
+            "utilities": [
+              "FireControl",
+              "Autoloader"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "priority1": "TargetAir",
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
           },
           "planB": []
         }
@@ -3804,7 +3813,7 @@
   },
   {
     "name": "SHIELD_WALL_03",
-    "blurb": "Shield wall — every hull runs a shield, a Commander topping them off. Grinds the clock down.",
+    "blurb": "Shield wall — every hull runs a shield, a Commander tops them off; a pure direct-fire grind, no sniper.",
     "config": {
       "machines": [
         {
@@ -3813,12 +3822,12 @@
           "variantId": "Grizzly",
           "zone": "Front",
           "loadout": {
-            "weapon": "Railgun",
+            "weapon": "HeavyCannon",
             "defense": "HeavyShield",
             "utilities": [
               "FireControl",
               "Autoloader",
-              "Rangefinder"
+              "RocketPack"
             ]
           },
           "dials": {
@@ -3863,7 +3872,7 @@
             "weapon": "GaussRepeater",
             "defense": "FastCycleShield",
             "utilities": [
-              "Spotter",
+              "FireControl",
               "SensorSuite"
             ]
           },
@@ -3926,7 +3935,7 @@
   },
   {
     "name": "FLANK_RAIDERS_03",
-    "blurb": "Flank raiders — a light raider and a mech striker knife the front behind a heavy anchor and twin backline.",
+    "blurb": "Flank raiders — a light raider and a mech striker knife the front behind a heavy anchor and a lone barrage.",
     "config": {
       "machines": [
         {
@@ -4000,6 +4009,28 @@
         },
         {
           "instanceId": 3,
+          "typeId": "LightTank",
+          "variantId": "Outrider",
+          "zone": "Middle",
+          "loadout": {
+            "weapon": "GaussRepeater",
+            "defense": "LightArmor",
+            "utilities": [
+              "FireControl",
+              "DriveServos"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Kite",
+            "stance": "Aggressive"
+          },
+          "planB": []
+        },
+        {
+          "instanceId": 4,
           "typeId": "RocketArtillery",
           "variantId": "Deluge",
           "zone": "Middle",
@@ -4020,35 +4051,13 @@
             "stance": "Aggressive"
           },
           "planB": []
-        },
-        {
-          "instanceId": 4,
-          "typeId": "Artillery",
-          "variantId": "Siege",
-          "zone": "Rear",
-          "loadout": {
-            "weapon": "RailHowitzer",
-            "defense": "ArtilleryArmor",
-            "utilities": [
-              "FireControl",
-              "Autoloader"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "fallback": "Furthest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
         }
       ]
     }
   },
   {
     "name": "INTERCEPTOR_SCREEN_03",
-    "blurb": "Interceptor screen — two fighters and a single SAM screen a rocket line. Air-leaning, not all-in.",
+    "blurb": "Interceptor screen — a lone fighter over a double-SAM screen and a heavy anchor. Built to deny the sky.",
     "config": {
       "machines": [
         {
@@ -4057,8 +4066,8 @@
           "variantId": "Interceptor",
           "zone": "Air",
           "loadout": {
-            "weapon": "BeamProjector",
-            "defense": "HeliShield",
+            "weapon": "RocketPods",
+            "defense": "HeliChaff",
             "utilities": [
               "FireControl",
               "Flares"
@@ -4098,29 +4107,6 @@
         },
         {
           "instanceId": 2,
-          "typeId": "RocketArtillery",
-          "variantId": "Aegis",
-          "zone": "Middle",
-          "loadout": {
-            "weapon": "RocketBarrage",
-            "defense": "RktArtyECM",
-            "utilities": [
-              "FireControl",
-              "Autoloader"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
-        },
-        {
-          "instanceId": 3,
           "typeId": "HeavyTank",
           "variantId": "Cavalier",
           "zone": "Front",
@@ -4139,6 +4125,29 @@
             },
             "movement": "Hold",
             "stance": "Defensive"
+          },
+          "planB": []
+        },
+        {
+          "instanceId": 3,
+          "typeId": "Mech",
+          "variantId": "Striker",
+          "zone": "Front",
+          "loadout": {
+            "weapon": "PulseLaser",
+            "defense": "MechArmor",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Overdrive"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
           },
           "planB": []
         },
@@ -4169,7 +4178,7 @@
   },
   {
     "name": "RAILGUN_LINE_03",
-    "blurb": "Railgun line — a three-wide kinetic front punches through armor, a flechette SAM overhead.",
+    "blurb": "Railgun line — a single deep-reach Railgun heads a direct-fire kinetic front, a SAM overhead.",
     "config": {
       "machines": [
         {
@@ -4221,15 +4230,38 @@
         },
         {
           "instanceId": 2,
+          "typeId": "Mech",
+          "variantId": "Striker",
+          "zone": "Front",
+          "loadout": {
+            "weapon": "AssaultCannon",
+            "defense": "MechReactive",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "Overdrive"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Aggressive"
+          },
+          "planB": []
+        },
+        {
+          "instanceId": 3,
           "typeId": "LightTank",
           "variantId": "Hunter",
-          "zone": "Front",
+          "zone": "Middle",
           "loadout": {
             "weapon": "GaussRepeater",
             "defense": "LightArmor",
             "utilities": [
               "FireControl",
-              "Spotter"
+              "DriveServos"
             ]
           },
           "dials": {
@@ -4243,47 +4275,24 @@
           "planB": []
         },
         {
-          "instanceId": 3,
-          "typeId": "RocketArtillery",
-          "variantId": "Aegis",
-          "zone": "Middle",
-          "loadout": {
-            "weapon": "FlechetteBattery",
-            "defense": "RktArtyArmor",
-            "utilities": [
-              "FireControl",
-              "Autoloader"
-            ]
-          },
-          "dials": {
-            "targeting": {
-              "priority1": "TargetIndirect",
-              "fallback": "Furthest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
-        },
-        {
           "instanceId": 4,
-          "typeId": "Artillery",
-          "variantId": "Siege",
+          "typeId": "Commander",
+          "variantId": "CommandPost",
           "zone": "Rear",
           "loadout": {
-            "weapon": "RailHowitzer",
-            "defense": "ArtilleryArmor",
+            "weapon": "HealProjector",
+            "defense": "SupportArmor",
             "utilities": [
               "FireControl",
-              "Autoloader"
+              "Amplifier"
             ]
           },
           "dials": {
             "targeting": {
-              "fallback": "Furthest"
+              "fallback": "Closest"
             },
             "movement": "Hold",
-            "stance": "Aggressive"
+            "stance": "Neutral"
           },
           "planB": []
         }
@@ -4292,7 +4301,7 @@
   },
   {
     "name": "GUARDIAN_COLUMN_03",
-    "blurb": "Guardian column — a healing Commander and a deep artillery backfield outlast burst damage.",
+    "blurb": "Guardian column — a healing Commander behind a durable body and a lone howitzer outlasts burst damage.",
     "config": {
       "machines": [
         {
@@ -4305,7 +4314,8 @@
             "defense": "CompositeArmor",
             "utilities": [
               "FireControl",
-              "GuardianProtocol"
+              "Autoloader",
+              "ECMSuite"
             ]
           },
           "dials": {
@@ -4323,7 +4333,7 @@
           "variantId": "Grizzly",
           "zone": "Front",
           "loadout": {
-            "weapon": "Railgun",
+            "weapon": "HeavyCannon",
             "defense": "DeflectorShield",
             "utilities": [
               "FireControl",
@@ -4343,6 +4353,29 @@
         },
         {
           "instanceId": 2,
+          "typeId": "Mech",
+          "variantId": "Vanguard",
+          "zone": "Middle",
+          "loadout": {
+            "weapon": "AssaultCannon",
+            "defense": "MechReactive",
+            "utilities": [
+              "FireControl",
+              "Autoloader",
+              "BulwarkMode"
+            ]
+          },
+          "dials": {
+            "targeting": {
+              "fallback": "Closest"
+            },
+            "movement": "Hold",
+            "stance": "Neutral"
+          },
+          "planB": []
+        },
+        {
+          "instanceId": 3,
           "typeId": "Artillery",
           "variantId": "Siege",
           "zone": "Rear",
@@ -4357,28 +4390,6 @@
           "dials": {
             "targeting": {
               "priority1": "TargetIndirect",
-              "fallback": "Furthest"
-            },
-            "movement": "Hold",
-            "stance": "Aggressive"
-          },
-          "planB": []
-        },
-        {
-          "instanceId": 3,
-          "typeId": "Artillery",
-          "variantId": "Marksman",
-          "zone": "Rear",
-          "loadout": {
-            "weapon": "Howitzer",
-            "defense": "ArtilleryArmor",
-            "utilities": [
-              "FireControl",
-              "Autoloader"
-            ]
-          },
-          "dials": {
-            "targeting": {
               "fallback": "Furthest"
             },
             "movement": "Hold",
