@@ -1,5 +1,129 @@
 # Warform Commander — Balance Readout
 
+## The ENERGY_LANCE wall is the CADENCE WELD — and three framings died proving it (2026-07-26)
+
+Measured in-sim on the live ruleset `ec4535a0` (v22) via `resolveBattle`, both sides × 3 seeds, Bo3.
+Two fields were used and **the difference between them turned out to matter more than any tuning**: the
+field seeded live (`db/seed-test-bot-armies.json` on `main`) and the cap-compliant field on
+`feat/deckbuilding-cap`. Every conclusion below that names only one field is qualified accordingly.
+
+### The mechanism
+
+A weapon module carries only `family`, `cadence` and `reach` — per-shot damage is a **chassis** stat,
+and **19 of the 22 weapons have no stat deltas at all** (only SiegeLaser +5, Railgun +25, GaussRepeater
+−1). `derive_effective_stats` then **welds cadence to the damage TYPE**, overriding the weapon's own
+tier (`sim/derive.ts` / `crates/engine/src/model/army.rs`). With `cadenceTicks` at fast:1 / medium:3 /
+slow:5, **"Energy = Fast" is a flat ~3× DPS multiplier on any chassis** — and the design's intended
+offset ("Energy fires Fast: slight DPS lead, LOW alpha") was never implemented, because nothing scales
+per-shot damage by family. Same artillery chassis: energy gun **26 DPS**, kinetic 15.6, explosive 7.8.
+Heavy Tank / Mech / Artillery fire one tier slower than their family base, so **only Light tanks are
+genuinely on Fast** — which is why nudging `cadenceTicks.fast` does almost nothing.
+
+### ENERGY_LANCE_01 vs the 33-army field (cap field)
+
+| Ablation | Win rate |
+|---|---:|
+| baseline | 100.0% |
+| energy `vsArmor` 1.25 → 1.00 / 0.90 / 0.60 | 100.0% / 100.0% / 97.0% |
+| **energy given the FULL kinetic matrix** (0.90 armor / 1.60 shields) | **100.0%** |
+| **same guns relabelled `family = Kinetic`** | **53.0%** |
+| guns swapped for their kinetic twins | 40.4% |
+| shield pools ×2 / ×3 / ×4 | 100.0% / 100.0% / 100.0% |
+| `cadenceTicks` fast 1→2 | 99.0% |
+| `cadenceTicks` compressed 2/3/4/6 | 92.9% |
+| **`cadenceProfile.energy` Fast → Medium** | **74.2%** |
+| energy stays Fast, matrix ×0.50 / ×0.40 / ×0.33 | 98.0% / 89.4% / 80.3% |
+
+Rows 3 and 4 apply **identical damage multipliers** and differ by 47 points. That rules out the damage
+matrix as the driver as cleanly as this engine allows.
+
+### Three framings that failed
+
+1. **"Diversify the field's defenses so energy's ×0.70-vs-shields bites."** Dead. Shields are ~15% of a
+   unit's EHP; kinetic doesn't overtake energy on a shielded target until the pool reaches ~61% of hull
+   (a Grizzly would need ~900, it has 250). Buffing every shield pool ×4 left EL at **100.0%**.
+2. **"The energy weapon line is stat-superior."** Dead — 19 of 22 weapons are pure sidegrades.
+   PulseLaser ≡ AssaultCannon, ArcRepeater ≡ Autocannon, IonCannon ≡ RailHowitzer, family aside.
+3. **"Artillery-spam is the field-wide wall."** Dead on this field. Across the 12 live archetypes,
+   backline indirect count correlates with win rate at **r = −0.007**, and `Artillery+RktArty` count at
+   **−0.190**. (Reconcilable with the earlier session: that finding came from one hand-optimised squad,
+   not from these archetypes.)
+
+### Railgun is a red herring
+
+The roster's loudest outlier (+25 damage, 50% penetration, `Deep` reach, vs peers at +0/0%/`Nearest`)
+is close to inert. Neutering all three — making it a HeavyCannon — moved RAILGUN_LINE_01 from
+**90.9% → 89.9%** (live) and 37.9% → 36.4% (cap), i.e. the noise floor at n=33. Squad-level attribution
+instead: dropping its Artillery costs **−20.7**, dropping its RocketArtillery **−32.3**, dropping one
+heavy tank −1.0, and swapping both Railguns to HeavyCannon **−1.0**. **No Railgun action needed.**
+
+### What predicts strength (12 live archetypes, Pearson r)
+
+| metric | r |
+|---|---:|
+| **Energy weapons fielded** | **0.581** |
+| HeavyTank units | 0.385 |
+| AA / air-capable units | 0.377 |
+| mean armorPct | 0.377 |
+| total hull | 0.358 |
+| Artillery + RktArty units | −0.190 |
+| indirect (`AnyGround`\|`Deep`) | 0.170 |
+| indirect in Middle/Rear | −0.007 |
+
+Energy-weapon count is the best single predictor. At n=12 the p<0.05 threshold is r≈0.576, so this is
+**suggestive, not conclusive on its own** — it earns its weight by corroborating the causal ablation
+above, not by replacing it.
+
+### The trap: a fix measured on the wrong field
+
+`cadenceProfile.energy` Fast→Medium on the **cap** field: EL 100% → 74.2%, field spread 100–5% → 80–23%,
+archetypes at ≥90% or ≤10% **3/12 → 0/12**. On the field **actually seeded live**, the same change is a
+**net negative** — EL unmoved at **100.0%**, walls **2/12 → 3/12**, MECH_PHALANX **38% → 6%**. Cause: the
+live ENERGY_LANCE_01 fields two `AnyGround` weapons and a redundant advantage stack, so it absorbs the
+nerf that guts weaker energy users. **The fix is coupled to the cap and must not ship alone.**
+
+### Decision taken
+
+Nothing deployed. `scripts/set-energy-cadence.ts` is committed (with a DEPENDENCY banner) but has not
+been run against any database. The recommendation is **not** to ship either built lever as the headline
+change, because both flatten or scramble rather than repair — see the next section.
+
+## Proposal — un-weld cadence from damage family (2026-07-26, not built)
+
+**The problem this solves.** The design space is much smaller than the roster implies, because several
+nominal axes are collapsed or inert:
+
+| Axis | Nominal | Actual |
+|---|---|---|
+| Weapon stats | 22 weapons | 19 have **zero** deltas — a weapon is just (family, reach) |
+| Cadence | 4 tiers, per weapon | **welded to family** — the weapon's tier is dead data |
+| Reach | 5 tags | 4 — `FrontMid` "behaves the same as Nearest" |
+| Defense layers | armor / shield / ablative | shields ≈ **15%** of EHP; the armor↔shield counter is decorative |
+| Damage matrix | ±25–60% triangle | swamped by a 3× cadence difference |
+| Role counters | `roleDamageBonuses` | **empty** — designed, never populated |
+
+With this few independent axes there is nowhere for a counter-web to live, which is the mechanical
+reason two sessions of tuning kept **reshuffling the ladder instead of broadening it**. Adding an 8th
+chassis to a collapsed space yields one more point on the same ladder; restoring one axis multiplies it.
+
+**The change.** Let the weapon's own `cadenceTier` apply again, and scale per-shot damage inversely with
+the tier so DPS is roughly family-neutral. Energy becomes the rapid-fire chip family and Explosive the
+big-slow-hit family **because of their weapons**, not because of a hidden family multiplier — which is
+what §D6 intended all along; only the fire-rate half was built.
+
+Turns 3 weapon behaviours into ~12. Makes `cadenceProfile.energy Fast→Medium` unnecessary.
+
+**Cost.** Engine change (`derive_effective_stats` in `model/army.rs` + the `sim/derive.ts` mirror), so
+wasm rebuild + the fixture triad (goldens, `derive-battery.json`, `replay-battery.json`) + a full
+pure-logic vitest pass. Needs a new per-tier damage scalar in the ruleset. NB `globals.minDamageFloor`
+(1000) will put a floor under very small per-shot hits and distort the fast end — check it explicitly.
+
+**Cheaper follow-ons, all pure ruleset data (no rebuild):** give the 19 sidegrade weapons real stat
+identities (accuracy / splash / crit / penetration); raise shield pools toward the ~61%-of-hull
+breakeven so the matrix triangle engages; populate `roleDamageBonuses` **paired with reach** (the last
+attempt was inert because Light/Mech cannot reach the backline they were meant to counter); make
+`FrontMid` differ from `Nearest` or delete it.
+
 ## v3 Phase 1 probe — "wake the dormant matrix" via defenses (2026-07-24, reverted)
 
 First measured slice of the v3 correction plan (`specs/015-v3-counter-web/gap-analysis.md`), testing the

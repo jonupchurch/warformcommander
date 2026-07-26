@@ -17,6 +17,7 @@ import {
   summarizeBuild,
 } from '@/lib/garage/explain';
 import type { DefenseModule, UtilityModule, WeaponModule } from '@/lib/garage/loadout-options';
+import { deriveEffectiveStats } from '@/sim/derive';
 import type { BehaviorDials } from '@/sim/model';
 import { DEFAULT_STANCE_MODS } from '@/sim/ruleset';
 import type { Ruleset } from '@/sim/ruleset';
@@ -70,9 +71,43 @@ describe('weapons', () => {
     expect(values(ex, 'Reach')[0]).toContain('Deep');
   });
 
-  it('derives fire rate from the ruleset tick table', () => {
+  it('shows the WELDED fire rate, not the weapon module’s declared tier', () => {
+    // Railgun declares `cadenceTier: Siege`, but that field is dead data: the engine welds cadence to
+    // the damage TYPE. Railgun is Kinetic (profile: Medium) on a heavy platform (one tier slower) =>
+    // Slow. Showing the declared Siege understated the gun's real rate by 2x.
     const ex = explainWeapon(weapon('Railgun'), 'HeavyTank', rs);
-    expect(values(ex, 'Fire rate')[0]).toBe('Siege — 1 shot / 10 ticks (1.0/s)');
+    expect(values(ex, 'Fire rate')[0]).toBe('Slow — 1 shot / 5 ticks (2.0/s)');
+  });
+
+  it('matches what the engine actually derives, for every weapon on every chassis', () => {
+    // The anti-drift assertion: the flyout's fire rate and the derived stat must agree, or the Garage
+    // is lying about the very stat the cadence weld governs.
+    const defenseFor = (typeId: string) =>
+      Object.values(rs.equipment).find(
+        (e) => e.kind === 'Defense' && e.mountClass === rs.machineTypes[typeId]?.mountClass,
+      )?.id;
+
+    let checked = 0;
+    for (const [variantId, chassis] of Object.entries(rs.chassis)) {
+      const defenseId = defenseFor(chassis.typeId);
+      if (!defenseId) continue;
+      for (const mod of Object.values(rs.equipment)) {
+        if (mod.kind !== 'Weapon' || mod.support) continue;
+        const derived = deriveEffectiveStats(
+          {
+            typeId: chassis.typeId,
+            variantId,
+            loadout: { weapon: mod.id, defense: defenseId, utilities: [] },
+          },
+          rs,
+        );
+        if (!derived.ok) continue; // mount-gated combination — not offered in the Garage either
+        const shown = values(explainWeapon(mod, chassis.typeId, rs), 'Fire rate')[0];
+        expect(shown, `${mod.id} on ${variantId}`).toContain(derived.stats.cadence);
+        checked++;
+      }
+    }
+    expect(checked).toBeGreaterThan(20); // the loop actually exercised real combinations
   });
 
   it('omits stat lines that are zero', () => {

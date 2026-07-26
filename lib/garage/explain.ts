@@ -16,6 +16,7 @@
  * Pure — no React, no state.
  */
 
+import { weldedCadenceTier } from '@/sim/derive';
 import type { BehaviorDials, TargetingChain } from '@/sim/model';
 import type { MachineTypeId } from '@/sim/model';
 import {
@@ -29,6 +30,7 @@ import type {
   AuraEffect,
   AuraKind,
   AuraScope,
+  CadenceTier,
   Capability,
   DamageFamily,
   ReachTag,
@@ -102,8 +104,18 @@ const REACH_COPY: Record<ReachTag, string> = {
   Deep: 'Extended reach past the enemy front screen',
 };
 
-/** Every non-zero stat delta, as effect lines. Shared by weapons, defense tradeoffs, and utilities. */
-function statDeltaLines(d: StatDeltas, ruleset: Ruleset): EffectLine[] {
+/**
+ * Every non-zero stat delta, as effect lines. Shared by weapons, defense tradeoffs, and utilities.
+ *
+ * `cadenceOverride` exists because a weapon's declared `cadenceTier` is **dead data** — the engine
+ * welds cadence to the damage TYPE and overrides it ({@link weldedCadenceTier}). Weapons pass the
+ * welded tier so the flyout shows the rate the gun will actually fire at.
+ */
+function statDeltaLines(
+  d: StatDeltas,
+  ruleset: Ruleset,
+  cadenceOverride?: CadenceTier,
+): EffectLine[] {
   const out: EffectLine[] = [];
   const push = (label: string, raw: number, fmt: (n: number) => string) => {
     if (raw !== 0) out.push({ label, value: fmt(raw), tone: raw > 0 ? 'gain' : 'cost' });
@@ -126,7 +138,8 @@ function statDeltaLines(d: StatDeltas, ruleset: Ruleset): EffectLine[] {
       value: `${d.targetDraw > 0 ? '+' : ''}${d.targetDraw} (${d.targetDraw > 0 ? 'pulls fire' : 'sheds fire'})`,
     });
   }
-  if (d.cadenceTier) out.push({ label: 'Fire rate', value: cadenceRate(d.cadenceTier, ruleset) });
+  const tier = cadenceOverride ?? d.cadenceTier;
+  if (tier) out.push({ label: 'Fire rate', value: cadenceRate(tier, ruleset) });
   if (d.reach) {
     out.push({ label: 'Reach', value: `${humanize(d.reach)} — ${REACH_COPY[d.reach]}` });
   }
@@ -520,7 +533,12 @@ export function explainWeapon(
     }
   }
 
-  effects.push(...statDeltaLines(weapon.statDeltas, ruleset));
+  // The gun's declared cadence tier is never what it fires at — cadence is welded to the damage TYPE
+  // and the chassis (heavy platforms + Artillery fire a tier slower). Show the welded rate, or the
+  // flyout misreports the stat by up to 3× (e.g. an energy gun listed "Slow" actually fires Medium).
+  effects.push(
+    ...statDeltaLines(weapon.statDeltas, ruleset, weldedCadenceTier(weapon.family, typeId, ruleset)),
+  );
   return {
     title: weapon.name,
     blurb: EQUIPMENT_BLURB[weapon.id] ?? '',

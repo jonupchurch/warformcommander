@@ -10,7 +10,7 @@
  * plain JS integer arithmetic reproduces the fixed-point engine exactly (values stay well under 2^53).
  */
 
-import type { Army, Loadout, MachineInstance } from './model';
+import type { Army, Loadout, MachineInstance, MachineTypeId } from './model';
 
 /**
  * The fields the derivation actually reads — `type + variant + equipment`. A `MachineInstance`
@@ -66,6 +66,32 @@ function faster(t: CadenceTier): CadenceTier {
     case 'Siege':
       return 'Slow';
   }
+}
+
+/**
+ * The tier a weapon of `family` **actually** fires at on `typeId` — the ruleset's cadence weld (v3
+ * US1c, design §D6), which OVERRIDES the weapon module's own `statDeltas.cadenceTier`. Heavy platforms
+ * (Heavy Tank, Mech) and Artillery fire one tier slower. `undefined` for Support (it projects, not
+ * fires). Exported so the Garage can show the rate the engine will use rather than the module's dead
+ * declared tier. Mirrors `derive_effective_stats` in `crates/engine/src/model/army.rs`.
+ */
+export function weldedCadenceTier(
+  family: DamageFamily,
+  typeId: MachineTypeId,
+  ruleset: Ruleset,
+): CadenceTier | undefined {
+  const cp = ruleset.cadenceProfile ?? DEFAULT_CADENCE_PROFILE;
+  const welded =
+    family === 'Energy'
+      ? cp.energy
+      : family === 'Kinetic'
+        ? cp.kinetic
+        : family === 'Explosive'
+          ? cp.explosive
+          : undefined; // Support projects, not fires
+  if (welded === undefined) return undefined;
+  const slowPlatform = typeId === 'HeavyTank' || typeId === 'Mech' || typeId === 'Artillery';
+  return slowPlatform ? slower(welded) : welded;
 }
 
 /** One cadence tier slower, saturating at `Siege`. */
@@ -264,19 +290,10 @@ export function deriveEffectiveStats(machine: DerivableMachine, ruleset: Ruleset
   // tier slower AND deal +10% (the heavy-platform bonus); Artillery fires a tier slower with no bonus.
   // Support keeps its base. Mirrors derive_effective_stats in crates/engine/src/model/army.rs.
   const cp = ruleset.cadenceProfile ?? DEFAULT_CADENCE_PROFILE;
-  const weldedTier =
-    family === 'Energy'
-      ? cp.energy
-      : family === 'Kinetic'
-        ? cp.kinetic
-        : family === 'Explosive'
-          ? cp.explosive
-          : undefined; // Support projects, not fires
+  const weldedTier = weldedCadenceTier(family, machine.typeId, ruleset);
   if (weldedTier !== undefined) {
-    const heavyPlatform = machine.typeId === 'HeavyTank' || machine.typeId === 'Mech';
-    acc.cadence =
-      heavyPlatform || machine.typeId === 'Artillery' ? slower(weldedTier) : weldedTier;
-    if (heavyPlatform) {
+    acc.cadence = weldedTier;
+    if (machine.typeId === 'HeavyTank' || machine.typeId === 'Mech') {
       acc.damage = Math.trunc((acc.damage * (BP_ONE + cp.heavyPlatformDmgBonus)) / BP_ONE);
     }
   }
