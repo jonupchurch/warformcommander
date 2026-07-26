@@ -114,60 +114,63 @@ const ARCHETYPES: Archetype[] = [
     ],
   },
 
-  // 2. AIR_WING — gunships aloft over a SAM screen and an armor anchor, a Commander mending the line.
+  // 2. AIR_WING — twin gunships flank from the sky; a heavy anchor + artillery backfield carry the ground
+  //    fight (the old SAM screen was dead weight now that air is answerable — REBUILT 2026-07-25, ~41%).
   {
     tag: "AIR_WING",
-    blurb: "Air wing — twin gunships strike from the sky above a SAM screen and an armor anchor.",
+    blurb: "Air wing — twin gunships strike from the sky while a heavy anchor and an artillery backfield hold the ground.",
     variations: [
       army(
         m("AttackHeli", "Warhog", "Air", "RocketPods", "HeliArmor", ["FireControl", "Flares"], "Aggressive", FURTHEST),
-        m("AttackHeli", "Gunship", "Air", "RocketPods", "HeliChaff", ["FireControl", "Flares"], "Aggressive", CLOSEST),
-        m("RocketArtillery", "Aegis", "Middle", "SAMBattery", "StandardHullRktArty", ["FireControl", "Autoloader"], "Neutral", AIR),
+        m("AttackHeli", "Gunship", "Air", "RocketPods", "HeliArmor", ["FireControl", "Flares"], "Aggressive", CLOSEST),
         m("HeavyTank", "Bulwark", "Front", "HeavyCannon", "CompositeArmor", ["FireControl", "Autoloader", "ECMSuite"], "Defensive", CLOSEST),
-        m("Commander", "CommandPost", "Rear", "HealProjector", "SupportArmor", ["FireControl", "Amplifier"], "Neutral", CLOSEST),
+        m("RocketArtillery", "Deluge", "Middle", "RocketBarrage", "StandardHullRktArty", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
+        m("Artillery", "Longbow", "Rear", "Howitzer", "StandardHullArtillery", ["FireControl", "Autoloader"], "Aggressive", FURTHEST),
       ),
       army(
-        m("AttackHeli", "Warhog", "Air", "ChainGun", "HeliArmor", ["FireControl", "Flares"], "Aggressive", ARMOR),
-        m("AttackHeli", "Gunship", "Air", "BeamProjector", "HeliShield", ["FireControl", "Flares"], "Aggressive", HUNT_SUPPORT),
-        m("RocketArtillery", "Sentry", "Middle", "SAMBattery", "RktArtyECM", ["FireControl", "Autoloader"], "Neutral", AIR),
-        m("HeavyTank", "Grizzly", "Front", "Railgun", "DeflectorShield", ["FireControl", "Autoloader", "Rangefinder"], "Defensive", CLOSEST),
-        m("Commander", "CommandPost", "Rear", "ShieldProjector", "SupportShield", ["FireControl", "CoordinationNet"], "Neutral", CLOSEST),
+        m("AttackHeli", "Gunship", "Air", "RocketPods", "HeliArmor", ["FireControl", "Flares"], "Aggressive", FURTHEST),
+        m("AttackHeli", "Interceptor", "Air", "ChainGun", "HeliChaff", ["FireControl", "Flares"], "Aggressive", CLOSEST),
+        m("HeavyTank", "Grizzly", "Front", "Railgun", "CompositeArmor", ["FireControl", "Autoloader", "Rangefinder"], "Defensive", CLOSEST),
+        m("RocketArtillery", "Aegis", "Middle", "RocketBarrage", "RktArtyArmor", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
+        m("Artillery", "Marksman", "Rear", "RailHowitzer", "StandardHullArtillery", ["FireControl", "Autoloader"], "Aggressive", FURTHEST),
       ),
       army(
-        m("AttackHeli", "Gunship", "Air", "RocketPods", "HeliArmor", ["FireControl", "Flares"], "Neutral", FURTHEST),
-        m("AttackHeli", "Interceptor", "Air", "RocketPods", "HeliChaff", ["FireControl", "Flares"], "Aggressive", CLOSEST),
-        m("RocketArtillery", "Aegis", "Middle", "SAMBattery", "StandardHullRktArty", ["FireControl", "Autoloader"], "Neutral", AIR),
-        m("HeavyTank", "Cavalier", "Front", "SiegeLaser", "HeavyShield", ["FireControl", "Autoloader", "SiegeMode"], "Defensive", CLOSEST),
-        m("Commander", "CommandPost", "Rear", "HealProjector", "SupportArmor", ["FireControl", "Amplifier"], "Neutral", CLOSEST),
+        m("AttackHeli", "Warhog", "Air", "RocketPods", "HeliArmor", ["FireControl", "Flares"], "Aggressive", FURTHEST),
+        m("AttackHeli", "Interceptor", "Air", "RocketPods", "HeliChaff", ["FireControl", "Flares"], "Aggressive", FURTHEST),
+        m("HeavyTank", "Cavalier", "Front", "HeavyCannon", "CompositeArmor", ["FireControl", "Autoloader", "SiegeMode"], "Defensive", CLOSEST),
+        m("RocketArtillery", "Deluge", "Middle", "RocketBarrage", "StandardHullRktArty", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
+        m("Artillery", "Siege", "Rear", "Howitzer", "ArtilleryArmor", ["FireControl", "Autoloader"], "Aggressive", FURTHEST),
       ),
     ],
   },
 
-  // 3. LIGHT_SWARM — three fast light tanks rush the line under a SAM + a lone howitzer.
+  // 3. LIGHT_SWARM — fast light raiders kite ahead of a triple-artillery backline that does the killing.
+  //    NB: Light chassis are under-powered — every light tank added *lowers* win rate (3-light = ~2%,
+  //    2-light + 3-artillery = ~13%). Capped low until the Track-2 chassis rebalance (REBUILT 2026-07-25).
   {
     tag: "LIGHT_SWARM",
-    blurb: "Light swarm — three fast light tanks flood the front, screened by a SAM and one howitzer.",
+    blurb: "Light swarm — fast light raiders kite ahead of a triple-artillery backline that does the killing.",
     variations: [
       army(
-        m("LightTank", "Hunter", "Front", "Autocannon", "LightArmor", ["FireControl", "Spotter"], "Aggressive", CLOSEST, "Advance"),
-        m("LightTank", "Outrider", "Front", "GaussRepeater", "FastCycleShield", ["FireControl", "Spotter"], "Aggressive", ARMOR, "Advance"),
-        m("LightTank", "Scout", "Front", "Autocannon", "LightArmor", ["DriveServos", "Spotter"], "Aggressive", CLOSEST, "Kite"),
-        m("RocketArtillery", "Sentry", "Middle", "SAMBattery", "StandardHullRktArty", ["FireControl", "Autoloader"], "Neutral", AIR),
-        m("Artillery", "Longbow", "Rear", "Howitzer", "StandardHullArtillery", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
-      ),
-      army(
-        m("LightTank", "Hunter", "Front", "GaussRepeater", "LightShield", ["FireControl", "SnareShot"], "Aggressive", CLOSEST, "Advance"),
-        m("LightTank", "Outrider", "Front", "ArcRepeater", "LightArmor", ["DriveServos", "Spotter"], "Neutral", HUNT_SUPPORT, "Kite"),
-        m("LightTank", "Scout", "Front", "GrenadeLauncher", "LightCamo", ["SnareShot", "SensorSuite"], "Aggressive", CLOSEST, "Advance"),
-        m("RocketArtillery", "Aegis", "Middle", "SAMBattery", "RktArtyArmor", ["FireControl", "Autoloader"], "Neutral", AIR),
+        m("LightTank", "Hunter", "Front", "GaussRepeater", "LightArmor", ["FireControl", "DriveServos"], "Aggressive", CLOSEST, "Kite"),
+        m("LightTank", "Outrider", "Front", "GaussRepeater", "LightArmor", ["FireControl", "DriveServos"], "Aggressive", ARMOR, "Kite"),
+        m("RocketArtillery", "Deluge", "Middle", "RocketBarrage", "StandardHullRktArty", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
+        m("Artillery", "Longbow", "Rear", "RailHowitzer", "StandardHullArtillery", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
         m("Artillery", "Marksman", "Rear", "RailHowitzer", "StandardHullArtillery", ["FireControl", "Autoloader"], "Aggressive", FURTHEST),
       ),
       army(
-        m("LightTank", "Scout", "Front", "Autocannon", "LightArmor", ["FireControl", "RocketPack"], "Aggressive", CLOSEST, "Advance"),
-        m("LightTank", "Hunter", "Front", "Autocannon", "FastCycleShield", ["Spotter", "SensorSuite"], "Aggressive", ARMOR, "Advance"),
-        m("LightTank", "Outrider", "Front", "GaussRepeater", "LightArmor", ["DriveServos", "SnareShot"], "Aggressive", CLOSEST, "Kite"),
+        m("LightTank", "Scout", "Front", "Autocannon", "LightArmor", ["FireControl", "DriveServos"], "Aggressive", CLOSEST, "Kite"),
+        m("LightTank", "Hunter", "Front", "GaussRepeater", "LightArmor", ["FireControl", "SensorSuite"], "Aggressive", ARMOR, "Kite"),
+        m("RocketArtillery", "Aegis", "Middle", "RocketBarrage", "RktArtyArmor", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
+        m("Artillery", "Siege", "Rear", "Howitzer", "StandardHullArtillery", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
+        m("Artillery", "Marksman", "Rear", "RailHowitzer", "ArtilleryArmor", ["FireControl", "Autoloader"], "Aggressive", FURTHEST),
+      ),
+      army(
+        m("LightTank", "Outrider", "Front", "GaussRepeater", "LightArmor", ["FireControl", "DriveServos"], "Aggressive", CLOSEST, "Kite"),
+        m("LightTank", "Scout", "Front", "Autocannon", "LightArmor", ["FireControl", "DriveServos"], "Aggressive", ARMOR, "Kite"),
         m("RocketArtillery", "Deluge", "Middle", "RocketBarrage", "StandardHullRktArty", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
-        m("Artillery", "Longbow", "Rear", "Howitzer", "ArtilleryArmor", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
+        m("Artillery", "Longbow", "Rear", "Howitzer", "StandardHullArtillery", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
+        m("Artillery", "Siege", "Rear", "RailHowitzer", "StandardHullArtillery", ["FireControl", "Autoloader"], "Aggressive", FURTHEST),
       ),
     ],
   },
@@ -230,60 +233,62 @@ const ARCHETYPES: Archetype[] = [
     ],
   },
 
-  // 6. MECH_PHALANX — three mechs brawl up front behind reactive plating, mixed damage.
+  // 6. MECH_PHALANX — three mechs brawl up front, a rocket barrage + a healing Commander at their back
+  //    (the SAM overhead was swapped for real ground damage now that air is answerable — REBUILT, ~48%).
   {
     tag: "MECH_PHALANX",
-    blurb: "Mech phalanx — three mechs brawl behind reactive plating, a SAM overhead, a Commander behind.",
+    blurb: "Mech phalanx — three mechs brawl behind reactive plating, a rocket barrage and a healing Commander behind.",
     variations: [
       army(
-        m("Mech", "Striker", "Front", "AssaultCannon", "MechReactive", ["FireControl", "Autoloader", "Overdrive"], "Aggressive", CLOSEST),
-        m("Mech", "Vanguard", "Front", "MissileRack", "MechArmor", ["FireControl", "Autoloader", "SuppressingFire"], "Aggressive", ARMOR),
-        m("Mech", "Sentinel", "Front", "PulseLaser", "MechShield", ["FireControl", "Autoloader", "ModularHardpoint", "BulwarkMode"], "Neutral", HUNT_SUPPORT),
-        m("RocketArtillery", "Sentry", "Middle", "SAMBattery", "StandardHullRktArty", ["FireControl", "Autoloader"], "Neutral", AIR),
+        m("Mech", "Striker", "Front", "PulseLaser", "MechArmor", ["FireControl", "Autoloader", "Overdrive"], "Aggressive", CLOSEST),
+        m("Mech", "Vanguard", "Front", "AssaultCannon", "MechReactive", ["FireControl", "Autoloader", "BulwarkMode"], "Aggressive", ARMOR),
+        m("Mech", "Sentinel", "Middle", "PulseLaser", "MechShield", ["FireControl", "Autoloader", "ModularHardpoint", "BulwarkMode"], "Neutral", HUNT_SUPPORT),
+        m("RocketArtillery", "Deluge", "Middle", "RocketBarrage", "StandardHullRktArty", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
         m("Commander", "CommandPost", "Rear", "HealProjector", "SupportArmor", ["FireControl", "Amplifier"], "Neutral", CLOSEST),
       ),
       army(
-        m("Mech", "Striker", "Front", "AssaultCannon", "MechArmor", ["FireControl", "Autoloader", "Overdrive"], "Aggressive", CLOSEST, "Advance"),
-        m("Mech", "Vanguard", "Front", "AssaultCannon", "MechReactive", ["FireControl", "Autoloader", "BulwarkMode"], "Aggressive", ARMOR),
-        m("Mech", "Sentinel", "Middle", "PulseLaser", "MechShield", ["FireControl", "ModularHardpoint", "SuppressingFire"], "Neutral", HUNT_SUPPORT),
-        m("RocketArtillery", "Aegis", "Middle", "SAMBattery", "RktArtyArmor", ["FireControl", "Autoloader"], "Neutral", AIR),
-        m("Commander", "CommandPost", "Rear", "ShieldProjector", "SupportShield", ["FireControl", "CoordinationNet"], "Neutral", CLOSEST),
+        m("Mech", "Vanguard", "Front", "AssaultCannon", "MechReactive", ["FireControl", "Autoloader", "Overdrive"], "Aggressive", CLOSEST),
+        m("Mech", "Striker", "Front", "PulseLaser", "MechArmor", ["FireControl", "Autoloader", "BulwarkMode"], "Aggressive", ARMOR),
+        m("Mech", "Sentinel", "Middle", "PulseLaser", "MechShield", ["FireControl", "Autoloader", "ModularHardpoint", "BulwarkMode"], "Neutral", HUNT_SUPPORT),
+        m("RocketArtillery", "Aegis", "Middle", "RocketBarrage", "RktArtyArmor", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
+        m("Commander", "CommandPost", "Rear", "HealProjector", "SupportArmor", ["FireControl", "Amplifier"], "Neutral", CLOSEST),
       ),
       army(
         m("Mech", "Vanguard", "Front", "MissileRack", "MechArmor", ["FireControl", "Autoloader", "SuppressingFire"], "Aggressive", CLOSEST),
-        m("Mech", "Sentinel", "Front", "AssaultCannon", "MechReactive", ["FireControl", "ModularHardpoint", "Overdrive"], "Aggressive", ARMOR),
-        m("HeavyTank", "Bulwark", "Front", "HeavyCannon", "CompositeArmor", ["FireControl", "Autoloader", "Decoy"], "Defensive", CLOSEST),
-        m("RocketArtillery", "Sentry", "Middle", "SAMBattery", "StandardHullRktArty", ["FireControl", "Autoloader"], "Neutral", AIR),
+        m("Mech", "Striker", "Front", "PulseLaser", "MechReactive", ["FireControl", "Autoloader", "Overdrive"], "Aggressive", ARMOR),
+        m("Mech", "Sentinel", "Middle", "PulseLaser", "MechShield", ["FireControl", "Autoloader", "ModularHardpoint", "BulwarkMode"], "Neutral", HUNT_SUPPORT),
+        m("RocketArtillery", "Deluge", "Middle", "RocketBarrage", "StandardHullRktArty", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
         m("Commander", "CommandPost", "Rear", "HealProjector", "SupportArmor", ["FireControl", "Amplifier"], "Neutral", CLOSEST),
       ),
     ],
   },
 
-  // 7. COMBINED_ARMS — one of each mount up front, a SAM, an air flank. Jack-of-all-trades.
+  // 7. COMBINED_ARMS — genuinely one-of-each with MIXED damage (kinetic anchor, energy mech, explosive
+  //    backline, air flank). De-tuned off the all-energy synergy that made it a 76% wall — REBUILT, ~54%.
   {
     tag: "COMBINED_ARMS",
-    blurb: "Combined arms — heavy, mech and light share the front under a SAM, a gunship on the flank.",
+    blurb: "Combined arms — a kinetic heavy anchor, an energy mech, an explosive backline and a gunship flank.",
     variations: [
       army(
         m("HeavyTank", "Cavalier", "Front", "HeavyCannon", "CompositeArmor", ["FireControl", "Autoloader", "SiegeMode"], "Defensive", CLOSEST),
-        m("Mech", "Striker", "Front", "AssaultCannon", "MechReactive", ["FireControl", "Autoloader", "Overdrive"], "Aggressive", ARMOR),
-        m("LightTank", "Hunter", "Front", "Autocannon", "LightArmor", ["FireControl", "Spotter"], "Aggressive", CLOSEST, "Advance"),
-        m("RocketArtillery", "Aegis", "Middle", "SAMBattery", "StandardHullRktArty", ["FireControl", "Autoloader"], "Neutral", AIR),
+        m("Mech", "Striker", "Front", "PulseLaser", "MechReactive", ["FireControl", "Autoloader", "Overdrive"], "Aggressive", ARMOR),
+        m("RocketArtillery", "Deluge", "Middle", "RocketBarrage", "StandardHullRktArty", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
+        m("Artillery", "Longbow", "Rear", "Howitzer", "StandardHullArtillery", ["FireControl", "Autoloader"], "Aggressive", FURTHEST),
         m("AttackHeli", "Warhog", "Air", "RocketPods", "HeliArmor", ["FireControl", "Flares"], "Aggressive", FURTHEST),
       ),
       army(
-        m("HeavyTank", "Grizzly", "Front", "Railgun", "DeflectorShield", ["FireControl", "Autoloader", "Rangefinder"], "Defensive", CLOSEST),
-        m("Mech", "Vanguard", "Front", "MissileRack", "MechArmor", ["FireControl", "Autoloader", "SuppressingFire"], "Aggressive", CLOSEST),
-        m("LightTank", "Outrider", "Front", "GaussRepeater", "FastCycleShield", ["Spotter", "SensorSuite"], "Aggressive", ARMOR, "Advance"),
-        m("RocketArtillery", "Sentry", "Middle", "SAMBattery", "RktArtyArmor", ["FireControl", "Autoloader"], "Neutral", AIR),
+        m("HeavyTank", "Grizzly", "Front", "Railgun", "CompositeArmor", ["FireControl", "Autoloader", "Rangefinder"], "Defensive", CLOSEST),
+        m("Mech", "Vanguard", "Front", "AssaultCannon", "MechArmor", ["FireControl", "Autoloader", "SuppressingFire"], "Aggressive", CLOSEST),
+        m("RocketArtillery", "Aegis", "Middle", "RocketBarrage", "RktArtyArmor", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
+        m("Artillery", "Marksman", "Rear", "Howitzer", "StandardHullArtillery", ["FireControl", "Autoloader"], "Aggressive", FURTHEST),
         m("AttackHeli", "Gunship", "Air", "RocketPods", "HeliChaff", ["FireControl", "Flares"], "Aggressive", HUNT_SUPPORT),
       ),
       army(
-        m("HeavyTank", "Bulwark", "Front", "SiegeLaser", "HeavyShield", ["FireControl", "Autoloader", "ECMSuite"], "Defensive", CLOSEST),
+        m("HeavyTank", "Bulwark", "Front", "HeavyCannon", "CompositeArmor", ["FireControl", "Autoloader", "ECMSuite"], "Defensive", CLOSEST),
         m("Mech", "Sentinel", "Front", "PulseLaser", "MechShield", ["FireControl", "Autoloader", "ModularHardpoint", "BulwarkMode"], "Neutral", HUNT_SUPPORT),
-        m("LightTank", "Scout", "Front", "GrenadeLauncher", "LightCamo", ["SnareShot", "SensorSuite"], "Aggressive", CLOSEST, "Kite"),
-        m("RocketArtillery", "Aegis", "Middle", "SAMBattery", "StandardHullRktArty", ["FireControl", "Autoloader"], "Neutral", AIR),
-        m("AttackHeli", "Interceptor", "Air", "BeamProjector", "HeliShield", ["FireControl", "Flares"], "Aggressive", ARMOR),
+        m("RocketArtillery", "Deluge", "Middle", "RocketBarrage", "StandardHullRktArty", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
+        m("Artillery", "Siege", "Rear", "Howitzer", "ArtilleryArmor", ["FireControl", "Autoloader"], "Aggressive", FURTHEST),
+        m("AttackHeli", "Interceptor", "Air", "RocketPods", "HeliChaff", ["FireControl", "Flares"], "Aggressive", CLOSEST),
       ),
     ],
   },
@@ -317,31 +322,32 @@ const ARCHETYPES: Archetype[] = [
     ],
   },
 
-  // 9. FLANK_RAIDERS — fast light tanks + a lone interceptor knife the backline; a howitzer anchors.
+  // 9. FLANK_RAIDERS — a light raider + a mech striker knife the front behind a heavy anchor, twin
+  //    backline behind (the lone interceptor was cut for a real artillery pair — REBUILT 2026-07-25, ~37%).
   {
     tag: "FLANK_RAIDERS",
-    blurb: "Flank raiders — fast light tanks and a lone interceptor knife past the line for the backfield.",
+    blurb: "Flank raiders — a light raider and a mech striker knife the front behind a heavy anchor and twin backline.",
     variations: [
       army(
-        m("LightTank", "Scout", "Front", "GaussRepeater", "LightCamo", ["DriveServos", "SnareShot"], "Aggressive", HUNT_SUPPORT, "Kite"),
-        m("LightTank", "Outrider", "Front", "Autocannon", "LightArmor", ["Spotter", "SensorSuite"], "Aggressive", SUPPORT, "Advance"),
+        m("LightTank", "Outrider", "Front", "GaussRepeater", "LightArmor", ["FireControl", "DriveServos"], "Aggressive", ARMOR, "Kite"),
+        m("Mech", "Striker", "Front", "AssaultCannon", "MechReactive", ["FireControl", "Autoloader", "Overdrive"], "Aggressive", CLOSEST),
         m("HeavyTank", "Grizzly", "Front", "HeavyCannon", "CompositeArmor", ["FireControl", "Autoloader", "Decoy"], "Defensive", CLOSEST),
-        m("AttackHeli", "Interceptor", "Air", "RocketPods", "HeliChaff", ["FireControl", "Flares"], "Aggressive", FURTHEST),
-        m("Artillery", "Marksman", "Rear", "Howitzer", "StandardHullArtillery", ["FireControl", "Autoloader"], "Aggressive", FURTHEST),
+        m("RocketArtillery", "Deluge", "Middle", "RocketBarrage", "StandardHullRktArty", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
+        m("Artillery", "Marksman", "Rear", "RailHowitzer", "StandardHullArtillery", ["FireControl", "Autoloader"], "Aggressive", FURTHEST),
       ),
       army(
-        m("LightTank", "Hunter", "Front", "Autocannon", "LightArmor", ["FireControl", "Spotter"], "Aggressive", HUNT_SUPPORT, "Advance"),
-        m("LightTank", "Scout", "Front", "GrenadeLauncher", "LightCamo", ["SnareShot", "SensorSuite"], "Aggressive", SUPPORT, "Kite"),
+        m("LightTank", "Hunter", "Front", "Autocannon", "LightArmor", ["FireControl", "DriveServos"], "Aggressive", ARMOR, "Kite"),
+        m("Mech", "Vanguard", "Front", "AssaultCannon", "MechArmor", ["FireControl", "Autoloader", "Overdrive"], "Aggressive", CLOSEST),
         m("HeavyTank", "Bulwark", "Front", "HeavyCannon", "CompositeArmor", ["FireControl", "Autoloader", "Decoy"], "Defensive", CLOSEST),
-        m("AttackHeli", "Interceptor", "Air", "BeamProjector", "HeliShield", ["FireControl", "Flares"], "Aggressive", FURTHEST),
+        m("RocketArtillery", "Aegis", "Middle", "RocketBarrage", "RktArtyArmor", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
         m("Artillery", "Longbow", "Rear", "RailHowitzer", "StandardHullArtillery", ["FireControl", "Autoloader"], "Aggressive", FURTHEST),
       ),
       army(
-        m("LightTank", "Outrider", "Front", "GaussRepeater", "FastCycleShield", ["FireControl", "Spotter"], "Aggressive", HUNT_SUPPORT, "Kite"),
-        m("LightTank", "Hunter", "Front", "ArcRepeater", "LightArmor", ["SensorSuite", "Spotter"], "Aggressive", SUPPORT, "Advance"),
-        m("Mech", "Striker", "Front", "AssaultCannon", "MechReactive", ["FireControl", "Autoloader", "Overdrive"], "Aggressive", ARMOR),
-        m("AttackHeli", "Interceptor", "Air", "RocketPods", "HeliChaff", ["FireControl", "Flares"], "Aggressive", FURTHEST),
-        m("Artillery", "Marksman", "Rear", "Howitzer", "ArtilleryArmor", ["FireControl", "Autoloader"], "Aggressive", FURTHEST),
+        m("LightTank", "Scout", "Front", "GaussRepeater", "LightArmor", ["FireControl", "DriveServos"], "Aggressive", ARMOR, "Kite"),
+        m("Mech", "Striker", "Front", "PulseLaser", "MechReactive", ["FireControl", "Autoloader", "Overdrive"], "Aggressive", CLOSEST),
+        m("HeavyTank", "Cavalier", "Front", "HeavyCannon", "CompositeArmor", ["FireControl", "Autoloader", "SiegeMode"], "Defensive", CLOSEST),
+        m("RocketArtillery", "Deluge", "Middle", "RocketBarrage", "StandardHullRktArty", ["FireControl", "Autoloader"], "Aggressive", INDIRECT),
+        m("Artillery", "Siege", "Rear", "RailHowitzer", "ArtilleryArmor", ["FireControl", "Autoloader"], "Aggressive", FURTHEST),
       ),
     ],
   },
