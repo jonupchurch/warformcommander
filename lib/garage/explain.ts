@@ -139,6 +139,20 @@ function statDeltaLines(d: StatDeltas, ruleset: Ruleset): EffectLine[] {
  * Per-equipment prose, keyed by ruleset id. Absent ids fall back to computed effects only, so
  * equipment added to the ruleset later still renders correctly (just without a blurb).
  */
+/** Every ground+air mount that carries the shared per-mount defence families (id = `${Mount}<Family>`
+ *  or `StandardHull${Mount}`). Camo and ECM exist only on the mounts listed at their call sites. */
+const DEFENSE_MOUNTS = ['Heavy', 'Light', 'Mech', 'Heli', 'Artillery', 'RktArty', 'Support'] as const;
+
+/** One description shared across a defence family's per-mount ids — so every chassis's variant of the
+ *  same module (Armor Plating, Shield Array, …) carries identical copy without 7 hand-written dupes. */
+function defenseFamily(
+  id: (mount: string) => string,
+  mounts: readonly string[],
+  blurb: string,
+): Record<string, string> {
+  return Object.fromEntries(mounts.map((m) => [id(m), blurb]));
+}
+
 const EQUIPMENT_BLURB: Record<string, string> = {
   // Weapons
   HeavyCannon: 'The standard heavy mount — no tricks, and it keeps the native Kinetic bonus.',
@@ -146,25 +160,45 @@ const EQUIPMENT_BLURB: Record<string, string> = {
     'Trades rate of fire for reach and armour-piercing: the only direct-fire weapon that strikes past the enemy front screen, and the only one with meaningful penetration.',
   SiegeLaser:
     'Puts Energy damage on a durable chassis. Gives up the native Kinetic bonus in exchange for hitting armour far harder.',
+  DemolitionGun:
+    'A slow, heavy explosive gun — big splashing shells that punish a clustered front, trading rate of fire for shell size.',
   Autocannon: 'The light tank default — one shot every tick.',
   GaussRepeater: 'A slight downgrade on the Autocannon with no compensating benefit.',
+  ArcRepeater:
+    'A fast-firing energy repeater for light tanks — a stream of small hits that bite into armour. Rate of fire is its whole identity.',
+  GrenadeLauncher:
+    'A light tank\'s rapid explosive launcher — fast splashing shots, strong against a bunched-up light front.',
   SkirmishCannon:
     'The raider weapon. Its indirect reach ignores the enemy front screen entirely — pair it with the Last Reachable target row to strike artillery and medics directly.',
   AssaultCannon: 'The mech default. Kinetic, so it shreds shields and folds against armour.',
   PulseLaser:
     'Energy damage on a mech. Since mechs have no native family to lose, this is a free choice — and Energy hits armour hard.',
+  MissileRack:
+    'A mech\'s explosive missile pod — splash that leans on armour. Mechs have no native family to forfeit, so it is a free pick.',
   Howitzer: 'Indirect siege fire — reaches any enemy row from anywhere, with splash.',
+  IonCannon:
+    'Siege-cadence energy artillery — slow, heavy shells with indirect reach that melt armour from the safety of the backline.',
+  RailHowitzer:
+    'Kinetic siege artillery — indirect reach that shreds shields from the backline. The long-range answer to a shield-stacked enemy.',
   RocketPods: 'Helicopter ordnance — indirect reach, so it can strike any enemy row.',
+  ChainGun:
+    'A helicopter autocannon with indirect reach — rakes shields from any row, but folds against armour.',
+  BeamProjector:
+    'Helicopter energy fire with indirect reach — strikes any enemy row and bites hardest into armour.',
   SAMBattery:
     'A true anti-air launcher. It engages aircraft exclusively while any are alive, and bombards ground at a heavy penalty once the skies are clear.',
   RocketBarrage:
     'Gives up anti-air entirely to fire on ground with no penalty — a second artillery piece.',
+  LaserBattery:
+    'Rocket-artillery energy tubes — indirect reach and anti-armour bite, a second energy piece for the backline.',
+  FlechetteBattery:
+    'Rocket-artillery firing kinetic flechettes — indirect reach that shreds shields from anywhere on the field.',
   HealProjector: 'Projects hull repair across the whole army each tick — the Commander’s sustain answer.',
   ShieldProjector: 'Projects a shield top-up across the whole army each tick — the counter to burst.',
   AblationProjector:
     'Projects a one-time ablative buffer across the whole army — soaks the enemy’s opening alpha.',
 
-  // Defenses
+  // Defenses — specific modules
   CompositeArmor: 'Maximum armour, paid for with mobility.',
   BlastPlating:
     'The dedicated counter to artillery and helicopters — it cuts incoming explosive splash, though not direct hits.',
@@ -172,8 +206,44 @@ const EQUIPMENT_BLURB: Record<string, string> = {
     'Swaps the armour layer for a regenerating pool. Strong against Energy, a liability against Kinetic — armour never protects a shield.',
   FastCycleShield:
     'A small pool that recovers quickly between engagements rather than absorbing one big burst.',
+  MechReactive:
+    'Mech-only plating that opens Balanced, then biases its mitigation toward whichever damage family has hit it most — rewards a drawn-out fight, soft against burst before it adapts.',
+  HeliChaff:
+    'Helicopter chaff — a large evasion bonus specifically against anti-air fire, so flak and SAMs miss more often. It does nothing against ground weapons.',
 
-  // Utilities
+  // Defenses — per-mount families (one description each, expanded across every chassis)
+  ...defenseFamily(
+    (m) => `StandardHull${m}`,
+    DEFENSE_MOUNTS,
+    'The balanced default — a little armour plus a small self-regenerating shield, and no mobility cost. The safe pick when you have no specific threat to build against.',
+  ),
+  ...defenseFamily(
+    (m) => `${m}Armor`,
+    DEFENSE_MOUNTS,
+    'All-in on armour for one step of move speed — the most raw mitigation of any layer. Soaks Kinetic and Explosive, but Energy is built to pierce armour.',
+  ),
+  ...defenseFamily(
+    (m) => `${m}Shield`,
+    DEFENSE_MOUNTS,
+    'Trades the armour layer for a large shield pool that regenerates between hits — strong against Energy, but Kinetic is built to shred shields, and it pauses briefly after taking damage before it refills.',
+  ),
+  ...defenseFamily(
+    (m) => `${m}Ablative`,
+    DEFENSE_MOUNTS,
+    'A large one-time buffer that soaks the opening alpha, then is spent for good — it never regenerates. For a piece that only has to survive the first exchange.',
+  ),
+  ...defenseFamily(
+    (m) => `${m}Camo`,
+    ['Artillery', 'Light', 'RktArty'],
+    'Camo netting — trades almost all mitigation for evasion, so shots miss outright instead of landing. Hides a fragile piece you would rather the enemy overlook.',
+  ),
+  ...defenseFamily(
+    (m) => `${m}ECM`,
+    ['Artillery', 'Heli', 'RktArty', 'Support'],
+    'An ECM screen — this machine sheds incoming fire (the enemy targets it less), keeping a fragile support or artillery piece alive by drawing shots elsewhere.',
+  ),
+
+  // Utilities — common pool
   FireControl: 'Accuracy is checked against enemy evasion, so this matters most against light tanks and aircraft.',
   DriveServos: 'Faster repositioning — a machine steps one zone every (12 − speed) ticks.',
   ECMSuite: 'Raises the miss chance of everything shooting at this machine.',
@@ -183,15 +253,113 @@ const EQUIPMENT_BLURB: Record<string, string> = {
     'The only source of a second Plan-B slot, plus two gated dial options.',
   FlakBattery:
     'The practical answer to enemy aircraft — it lets a ground machine engage air at a real damage rate instead of plinking.',
+  RocketPack:
+    'A one-slot air answer for a ground unit — full-rate flak against aircraft near the front line, without giving up its own weapon. The cheap insurance against an air enemy.',
   SensorSuite:
     'Grants access to air targets but no damage bonus; a spotter rather than a killer.',
   Rangefinder: 'Intended to extend weapon reach by one step.',
+
+  // Utilities — Heavy
+  ExtraBatteries:
+    'A bigger, faster-recharging shield pool for a heavy tank — deepens a shield build against sustained fire.',
+  FieldRepair:
+    'Passive hull repair every tick for a heavy tank — self-sustain that lets it outlast a grind without a Commander.',
+  Decoy:
+    'Pulls enemy fire toward this machine — but only enough to out-draw units firing with no priority; anything hunting a specific target ignores it.',
+  SiegeMode:
+    'A heavy tank that holds its position takes less fire — the reward for anchoring the line instead of advancing.',
+  GuardianProtocol:
+    'A heavy tank soaks a share of the direct fire aimed at allies in its zone — a bodyguard that redirects damage onto itself.',
+  SmokeCanisters:
+    'Lays smoke over its zone — allies beside it gain evasion, so incoming fire misses more often. A local screen.',
+  LowHeatExhaust:
+    'Cuts a heavy tank\'s heat signature for a large evasion bonus against anti-air and aircraft fire specifically — insurance against an air-heavy enemy.',
+
+  // Utilities — Mech
+  Overdrive:
+    'Redlines a mech for a large damage boost, shedding armour to do it — glass-cannon output that trades survivability for kills.',
+  BulwarkMode:
+    'A mech that holds its ground takes less fire — the payoff for standing still instead of advancing.',
+  ModularHardpoint:
+    'A net extra utility slot for a mech — one more module than the chassis would normally allow.',
+  AdaptiveMunitions:
+    'Unlocks a Plan-B that switches a mech\'s outgoing damage type mid-battle — answer whatever defence you meet, at the cost of the native bonus (mechs have none to lose).',
+  SuppressingFire:
+    'On hit, cuts the target\'s own damage and accuracy — blunt an enemy\'s output instead of trying to out-damage it.',
+  DuelistServos:
+    'Consecutive hits on the same target ramp a mech\'s damage — a focus-fire crescendo that resets the moment it switches targets.',
+  RepairNanites:
+    'Passive hull repair every tick for a mech — quiet self-sustain that keeps it in a long fight.',
+  JumpJets:
+    'Periodically leaps a mech into the air for full air-to-air fire and whole-field reach, then lands and cools down — deadly, but an exposed AA target while airborne.',
+
+  // Utilities — Light
+  Spotter:
+    'On hit, paints the target — a painted enemy takes extra damage from all further fire. Set up the kill for the rest of your army.',
+  SnareShot:
+    'On hit, cuts the target\'s move speed — pin an advancing or kiting enemy so your team can focus it down.',
+  Ambush:
+    'A light-tank alpha bonus — extra damage against a full-health target that fades once it is dented. Best on the opening strike.',
+  FlankingPackage:
+    'Extra damage against the enemy rear zone — send a light raider to punish the backline.',
+  Jammer:
+    'A light-tank jamming field — enemies in its zone shoot less accurately. A local version of the Commander\'s comms jammer.',
+  TargetRadar:
+    'Intended to extend a light tank\'s weapon reach by one step, to strike past the front screen.',
+
+  // Utilities — Heli
+  Flares:
+    'Helicopter countermeasures — a cheap evasion bonus specifically against anti-air fire, so flak and SAMs miss more.',
+  AirSuperiority:
+    'Extra damage against air targets — kit a gunship out to win the dogfight lane against other aircraft.',
+  AlphaStrike:
+    'Front-loads a helicopter\'s damage — hits land harder against a full-health target, then fade as it is chipped down. Reward for opening on a fresh enemy.',
+  CoordinatedStrike:
+    'More accurate while a squadmate in its zone fires on the same enemy — rewards focus-firing with your air.',
+  SEAD:
+    'Extra damage against the enemy\'s anti-air carriers — send a gunship to hunt the flak and SAMs that would answer your air.',
+  Napalm:
+    'Incendiary cluster munitions for a helicopter — wider splash that spreads damage across a clustered ground target.',
+
+  // Utilities — Artillery / Rocket-Artillery
+  Entrench:
+    'An artillery piece that holds its position takes less fire — cheap survivability for a backline that never wants to move anyway.',
+  EMPAmmo:
+    'On hit, shuts down the target\'s shield regen and blocks incoming heals — the dedicated answer to a shield- or heal-sustained enemy.',
+  CounterBattery:
+    'Extra damage against enemy artillery and rocket-artillery — dedicate a tube to winning the backline duel.',
+  BunkerBuster:
+    'Armour-piercing artillery shells — punch through a heavily-armoured front that would otherwise shrug off the splash.',
+  Saturation:
+    'Widens artillery splash — trade pinpoint fire for area coverage that punishes a clustered front.',
+  FlakScreen:
+    'Broadens a rocket-artillery piece\'s splash — each shell spreads its damage across clustered targets.',
+
+  // Utilities — Support (Commander)
+  Amplifier:
+    'Boosts the Commander\'s projector output — more heal, shield, or ablation per tick to the army it supports.',
+  CoordinationNet:
+    'The Commander\'s accuracy aura — the whole army lands more of its shots. The offensive twin of the comms jammer.',
+  CommsJammer:
+    'The Commander\'s jamming aura — every enemy on the field shoots less accurately. An army-wide miss tax.',
+  DamageBoost:
+    'The Commander\'s offensive aura — every ally hits harder. Straight army-wide damage.',
+  DamageReduction:
+    'The Commander\'s defensive aura — the whole army takes less damage. Straight army-wide mitigation.',
+  MultiTargeting:
+    'The Commander\'s projector reaches a second ally each tick — spread its sustain across two units instead of stacking it on one.',
+  BroadcastArray:
+    'Widens the Commander\'s projector to reach the whole army instead of just its own zone — trade concentration for coverage.',
+  Rally:
+    'Each tick, the Commander cleanses EMP, Suppression, and Snare off allies — the dedicated answer to on-hit control riders.',
 };
 
 /** Equipment whose mechanic the engine does not currently read. */
 const EQUIPMENT_CAVEAT: Record<string, string> = {
   Rangefinder:
     'No effect yet — the engine deepens Nearest to Front+Mid, but targeting treats those identically and no weapon starts at Front+Mid.',
+  TargetRadar:
+    'No effect yet — it grants Extend Reach, but the engine only deepens Nearest to Front+Mid, which targeting currently treats identically.',
   GaussRepeater: 'Strictly worse than the Autocannon — identical stats, less damage.',
 };
 

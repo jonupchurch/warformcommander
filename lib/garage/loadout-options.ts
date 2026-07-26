@@ -6,7 +6,7 @@
  */
 
 import type { MachineTypeId } from '@/sim/model';
-import type { EquipmentModule, Ruleset } from '@/sim/ruleset';
+import type { Capability, EquipmentModule, Ruleset, StatDeltas } from '@/sim/ruleset';
 
 /** A weapon module (the `kind: "Weapon"` arm of the union). */
 export type WeaponModule = Extract<EquipmentModule, { kind: 'Weapon' }>;
@@ -18,6 +18,36 @@ export type UtilityModule = Extract<EquipmentModule, { kind: 'Utility' }>;
 /** All equipment in the ruleset's deterministic (id-sorted) order. */
 function equipment(ruleset: Ruleset): EquipmentModule[] {
   return Object.values(ruleset.equipment);
+}
+
+/**
+ * Capabilities the engine **derives but does not act on** — a mechanic present in the data model with
+ * no gameplay effect. Today the only one is `ExtendReach`: the engine deepens `Nearest → FrontMid`, but
+ * targeting treats those identically (and no weapon starts at `FrontMid`), so it changes nothing. Keep
+ * in step with the engine derivation (`crates/engine/src/model/army.rs`).
+ */
+const INERT_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>(['ExtendReach']);
+
+/** Any non-zero numeric delta, or a reach / cadence override — i.e. a real derived-stat change. */
+function hasStatEffect(d: StatDeltas | undefined): boolean {
+  if (!d) return false;
+  return Object.values(d).some((v) => (typeof v === 'number' ? v !== 0 : v != null));
+}
+
+/**
+ * A utility with **no effect the engine acts on**: its sole contribution is an {@link INERT_CAPABILITIES
+ * inert capability}, with no stat delta, aura, or cadence shift. Such equipment is hidden from the
+ * pickers ({@link utilityOptions}) — a player is never offered gear that does nothing. It stays in the
+ * ruleset (so a squad that already fielded it remains legal); it is only removed from the *choices*.
+ */
+export function isInertUtility(u: UtilityModule): boolean {
+  return (
+    u.unlocks.length > 0 &&
+    u.unlocks.every((c) => INERT_CAPABILITIES.has(c)) &&
+    !u.aura &&
+    (u.cadenceShift ?? 0) === 0 &&
+    !hasStatEffect(u.statDeltas)
+  );
 }
 
 /** The mount class a machine type fits (gates weapons + defenses, V4). */
@@ -54,6 +84,8 @@ export function utilityOptions(typeId: MachineTypeId, ruleset: Ruleset): Utility
   return equipment(ruleset).filter(
     (m): m is UtilityModule =>
       m.kind === 'Utility' &&
+      // Never offer a utility the engine doesn't act on (e.g. Rangefinder / Target Radar — Extend Reach).
+      !isInertUtility(m) &&
       (!m.mountClasses ||
         m.mountClasses.length === 0 ||
         (mount !== undefined && m.mountClasses.includes(mount))),
