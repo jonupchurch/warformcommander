@@ -4,6 +4,24 @@
  *   dotenv -e .env.dev.local -- tsx scripts/set-energy-cadence.ts   # dev
  *   dotenv -e .env.local     -- tsx scripts/set-energy-cadence.ts   # PROD
  *
+ * ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
+ * │ ⚠ DEPENDENCY: SEED THE DECKBUILDING-CAP FIELD FIRST. Do not run this against a field that     │
+ * │ still allows multi-indirect squads — it makes that field WORSE, not better.                  │
+ * └─────────────────────────────────────────────────────────────────────────────────────────────┘
+ *
+ * Two independent walls are stacked on ENERGY_LANCE: **artillery-spam** (two `AnyGround` weapons win
+ * the backline race outright) and the **cadence weld** below. This script only addresses the second,
+ * and the first masks it completely. Measured on the pre-cap field seeded live today:
+ *
+ *                        EL vs field   field spread   walls (>=90%/<=10%)
+ *   before                    100.0%      100%–21%           2/12
+ *   after (this change)       100.0%      100%–6%            3/12   <- net negative
+ *                                                                      MECH_PHALANX 38% -> 6%
+ *
+ * On the cap-compliant field (`feat/deckbuilding-cap`, where the second indirect weapon is illegal)
+ * the same change gives EL 100% -> 74.2% and walls 3/12 -> 0/12. Ship order: merge + seed the cap,
+ * then run this, then verify.
+ *
  * WHY (measured, not guessed — the damage matrix was never the driver):
  * A weapon module carries only `family`, `cadence` and `reach`; per-shot damage is a CHASSIS stat, and
  * `derive_effective_stats` **welds cadence to the damage TYPE** (`sim/derive.ts` / `model/army.rs`),
@@ -21,7 +39,7 @@
  *   cadenceTicks compressed 2/3/4/6                  92.9%
  *   **cadenceProfile.energy Fast → Medium            74.2%**
  *
- * Field-wide (12 archetypes, round robin), before → after:
+ * Field-wide (12 archetypes, round robin) **on the cap-compliant field**, before → after:
  *   spread 100%–5% → 80%–23%; archetypes at ≥90% or ≤10%: **3/12 → 0/12** (no walls left).
  *   LIGHT_SWARM 5%→32% (the long-standing floor fixes itself — Light is the only chassis truly on Fast);
  *   SHIELD_WALL 91%→27% (the #2 wall collapses — watch it, may want a follow-up buff).
