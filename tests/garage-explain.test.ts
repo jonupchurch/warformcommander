@@ -231,6 +231,20 @@ describe('utilities', () => {
     expect(values(explainUtility(jammer, rs), 'Aura')[0]).toBe('-8% accuracy to every enemy');
   });
 
+  it('gives every equipment module in the ruleset an authored blurb', () => {
+    // No shipping equipment should render as a bare name with no "what it does" prose (the flyout copy).
+    // New equipment added to the ruleset must land an EQUIPMENT_BLURB entry here or this fails.
+    for (const [id, mod] of Object.entries(rs.equipment)) {
+      const ex =
+        mod.kind === 'Weapon'
+          ? explainWeapon(mod as WeaponModule, 'HeavyTank', rs)
+          : mod.kind === 'Defense'
+            ? explainDefense(mod as DefenseModule, rs)
+            : explainUtility(mod as UtilityModule, rs);
+      expect(ex.blurb, `${id} (${mod.kind}) has no blurb`).not.toBe('');
+    }
+  });
+
   it('still renders computed effects for equipment with no authored copy', () => {
     const invented: UtilityModule = {
       kind: 'Utility',
